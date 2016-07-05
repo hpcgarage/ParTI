@@ -14,6 +14,24 @@ extern "C" {
 typedef double sptScalar;
 
 /**
+ * Dynamic array of scalars
+ */
+typedef struct {
+    size_t    len;
+    size_t    cap;
+    sptScalar *data;
+} sptVector;
+
+/**
+ * Dynamic array of size_t's
+ */
+typedef struct {
+    size_t len;
+    size_t cap;
+    size_t *data;
+} sptSizeVector;
+
+/**
  * Sparse matrix type
  */
 typedef struct {
