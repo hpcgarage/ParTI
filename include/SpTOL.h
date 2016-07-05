@@ -1,6 +1,8 @@
 #ifndef SPTOL_H_INCLUDED
 #define SPTOL_H_INCLUDED
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -74,33 +76,36 @@ void sptFreeMatrix(sptMatrix *mtx, void (*free_func)(void *));
  * Calls free() on a sparse tensor, useful to ensure all pointers are freed
  * Set free_func to free when calling this, unless stated.
  */
-void sptFreeSparseTensor(sptSparseTensor *mtx, void (*free_func)(void *));
+void sptFreeSparseTensor(sptSparseTensor *tsr, void (*free_func)(void *));
 
 /**
  * Calls free() on a semi-sparse tensor, useful to ensure all pointers are freed
  * Set free_func to free when calling this, unless stated.
  */
-void sptFreeSemiSparseTensor(sptSemiSparseTensor *mtx, void (*free_func)(void *));
+void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr, void (*free_func)(void *));
 
 /**
  * Element-wise addition on a sparse tensor.
+ * Return 0 on success, non-zero on failure.
+ * Return value may indicate the type of failure in the future,
+ * but it is always -1 at this version
  */
-int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X);
+int sptSparseTensorAdd(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
 /**
  * Element-wise subtraction on a sparse tensor.
  */
-int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X);
+int sptSparseTensorSub(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *X);
 
 /**
  * Scalar multiplication on a sparse tensor.
  */
-int sptSparseTensorMulScalar(sptSparseTensor *Y, sptScalar a);
+int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 
 /**
  * Scalar division on a sparse tensor.
  */
-int sptSparseTensorDivScalar(sptSparseTensor *Y, sptScalar a);
+int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
 
 /**
  * Element-wise multiplication on a sparse tensor.
