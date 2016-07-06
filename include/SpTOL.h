@@ -17,18 +17,18 @@ typedef double sptScalar;
  * Dynamic array of scalars
  */
 typedef struct {
-    size_t    len;
-    size_t    cap;
-    sptScalar *data;
+    size_t    len;   /// length
+    size_t    cap;   /// capacity
+    sptScalar *data; /// data
 } sptVector;
 
 /**
  * Dynamic array of size_t's
  */
 typedef struct {
-    size_t len;
-    size_t cap;
-    size_t *data;
+    size_t len;   /// length
+    size_t cap;   /// capacity
+    size_t *data; /// data
 } sptSizeVector;
 
 /**
