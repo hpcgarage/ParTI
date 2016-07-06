@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <SpTOL.h>
+#include <stdlib.h>
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     if(cap < len) {

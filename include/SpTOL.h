@@ -32,35 +32,36 @@ typedef struct {
 } sptSizeVector;
 
 /**
- * Sparse matrix type
- */
-typedef struct {
-    size_t    nrows;   /// # rows
-    size_t    ncols;   /// # colums
-    size_t    nnz;     /// # non-zeros
-    size_t    *rowind; /// row indices, length nnz
-    size_t    *colind; /// column indices, length nnz
-    sptScalar *values; /// non-zero values, length nnz
-} sptSparseMatrix;
-
-/**
  * Dense matrix type
  */
 typedef struct {
     size_t    nrows;   /// # rows
     size_t    ncols;   /// # columns
-    sptScalar *values; /// values, length nrows*ncols
+    size_t    stride;  /// ncols rounded up to 8
+    sptScalar *values; /// values, length nrows*stride
 } sptMatrix;
+
+/**
+ * Sparse matrix type
+ */
+typedef struct {
+    size_t        nrows;  /// # rows
+    size_t        ncols;  /// # colums
+    size_t        nnz;    /// # non-zeros
+    sptSizeVector rowind; /// row indices, length nnz
+    sptSizeVector colind; /// column indices, length nnz
+    sptVector     values; /// non-zero values, length nnz
+} sptSparseMatrix;
 
 /**
  * Sparse tensor type
  */
 typedef struct {
-    size_t    nmodes;  /// # modes
-    size_t    *ndims;  /// size of each mode, length nmodes
-    size_t    nnz;     /// # non-zeros
-    size_t    **inds;  /// indices of each element, length [nmodes][nnz]
-    sptScalar *values; /// non-zero values, length nnz
+    size_t        nmodes; /// # modes
+    size_t        *ndims; /// size of each mode, length nmodes
+    size_t        nnz;    /// # non-zeros
+    sptSizeVector *inds;  /// indices of each element, length [nmodes][nnz]
+    sptVector     values; /// non-zero values, length nnz
 } sptSparseTensor;
 
 /**
@@ -71,11 +72,11 @@ typedef struct {
  * only different in the last mode.
  */
 typedef struct {
-    size_t    nmodes;  /// # Modes, must >= 2
-    size_t    *ndims;  /// size of each mode, length nmodes
-    size_t    nnz;     /// # non-zero fibers
-    size_t    **inds;  /// indices of each dense fiber, length [nmodes-1][nnz]
-    sptScalar *fibers; /// dense fibers, length nnz*ndims[nmodes-1]
+    size_t        nmodes; /// # Modes, must >= 2
+    size_t        *ndims; /// size of each mode, length nmodes
+    size_t        nnz;    /// # non-zero fibers
+    sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes-1][nnz]
+    sptVector     fibers; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -88,80 +89,39 @@ int sptAppendSizeVector(sptSizeVector *vec, size_t value);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 int sptFreeSizeVector(sptSizeVector *vec);
 
-/**
- * Calls free() on a sparse matrix, useful to ensure all pointers are freed
- * Set free_func to free when calling this, unless stated.
- */
-void sptFreeSparseMatrix(sptSparseMatrix *mtx, void (*free_func)(void *));
+int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptFreeMatrix(sptMatrix *mtx);
 
-/**
- * Calls free() on a dense matrix, useful to ensure all pointers are freed
- * Set free_func to free when calling this, unless stated.
- */
-void sptFreeMatrix(sptMatrix *mtx, void (*free_func)(void *));
+int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
+int sptFreeSparseMatrix(sptSparseMatrix *mtx);
 
-/**
- * Calls free() on a sparse tensor, useful to ensure all pointers are freed
- * Set free_func to free when calling this, unless stated.
- */
-void sptFreeSparseTensor(sptSparseTensor *tsr, void (*free_func)(void *));
+int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptFreeSparseTensor(sptSparseTensor *tsr);
 
-/**
- * Calls free() on a semi-sparse tensor, useful to ensure all pointers are freed
- * Set free_func to free when calling this, unless stated.
- */
-void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr, void (*free_func)(void *));
+int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 
-/**
- * Element-wise addition on a sparse tensor.
- * Return 0 on success, non-zero on failure.
- * Return value may indicate the type of failure in the future,
- * but it is always -1 at this version
- */
 int sptSparseTensorAdd(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *B);
-
-/**
- * Element-wise subtraction on a sparse tensor.
- */
 int sptSparseTensorSub(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *X);
-
-/**
- * Scalar multiplication on a sparse tensor.
- */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
-
-/**
- * Scalar division on a sparse tensor.
- */
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
-
-/**
- * Element-wise multiplication on a sparse tensor.
- */
 int sptSparseTensorDotMul(sptSparseTensor *Y, const sptSparseTensor *X);
-
-/**
- * Element-wise division on a sparse tensor.
- */
 int sptSparseTensorDotDiv(sptSparseTensor *Y, const sptSparseTensor *X);
 
 /**
  * Sparse tensor times a dense matrix (TTM)
  * Input: sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
  * Output: sparse tensor Y[I][J][R] (e.g. n=2)
- * Free Y with sptFreeSparseTensor(Y, NULL)
  */
 int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U);
 
 /**
  * Kronecker product
- * Free Y with sptFreeSparseTensor(Y, NULL)
  */
 int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
 /**
  * Khatrio-Rao product
- * Free Y with sptFreeSparseTensor(Y, NULL)
  */
 int sptSparseTensorKhatrioRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
