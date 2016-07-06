@@ -78,15 +78,15 @@ typedef struct {
     sptScalar *fibers; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
 
-sptVector *sptNewVector(size_t len, size_t cap);
+int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptAppendVector(sptVector *vec, sptScalar value);
 int sptResizeVector(sptVector *vec, size_t size);
-void sptFreeVector(sptVector *vec);
+int sptFreeVector(sptVector *vec);
 
-sptSizeVector *sptNewSizeVector(size_t len, size_t cap);
+int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
-void sptFreeSizeVector(sptSizeVector *vec);
+int sptFreeSizeVector(sptSizeVector *vec);
 
 /**
  * Calls free() on a sparse matrix, useful to ensure all pointers are freed

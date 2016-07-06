@@ -1,11 +1,7 @@
 #include <stdlib.h>
 #include <SpTOL.h>
 
-sptVector *sptNewVector(size_t len, size_t cap) {
-    sptVector *vec = malloc(sizeof *vec);
-    if(!vec) {
-        return NULL;
-    }
+int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
     }
@@ -16,10 +12,9 @@ sptVector *sptNewVector(size_t len, size_t cap) {
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     if(!vec->data) {
-        free(vec);
-        return NULL;
+        return -1;
     }
-    return vec;
+    return 0;
 }
 
 int sptAppendVector(sptVector *vec, sptScalar value) {
@@ -49,16 +44,13 @@ int sptResizeVector(sptVector *vec, size_t size) {
     }
 }
 
-void sptFreeVector(sptVector *vec) {
+int sptFreeVector(sptVector *vec) {
     free(vec->data);
     free(vec);
+    return 0;
 }
 
-sptSizeVector *sptNewSizeVector(size_t len, size_t cap) {
-    sptSizeVector *vec = malloc(sizeof *vec);
-    if(!vec) {
-        return NULL;
-    }
+int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
     }
@@ -69,10 +61,9 @@ sptSizeVector *sptNewSizeVector(size_t len, size_t cap) {
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     if(!vec->data) {
-        free(vec);
-        return NULL;
+        return -1;
     }
-    return vec;
+    return 0;
 }
 
 int sptAppendSizeVector(sptSizeVector *vec, size_t value) {
@@ -102,7 +93,8 @@ int sptResizeSizeVector(sptSizeVector *vec, size_t size) {
     }
 }
 
-void sptFreeSizeVector(sptSizeVector *vec) {
+int sptFreeSizeVector(sptSizeVector *vec) {
     free(vec->data);
     free(vec);
+    return 0;
 }
