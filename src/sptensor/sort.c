@@ -2,7 +2,6 @@
 #include "sptensor.h"
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
-static int spt_CompareIndices(const sptSparseTensor *tsr, size_t ind1, size_t ind2);
 static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
 void spt_SparseTensorSortIndex(sptSparseTensor *tsr) {
@@ -16,10 +15,10 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
     }
     p = (l+r) / 2;
     for(i = l, j = r-1; ; ++i, --j) {
-        while(spt_CompareIndices(tsr, i, p) < 0) {
+        while(spt_SparseTensorCompareIndices(tsr, i, tsr, p) < 0) {
             ++i;
         }
-        while(spt_CompareIndices(tsr, p, j) < 0) {
+        while(spt_SparseTensorCompareIndices(tsr, p, tsr, j) < 0) {
             --j;
         }
         if(i >= j) {
@@ -29,20 +28,6 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
     }
     spt_QuickSortIndex(tsr, l, i);
     spt_QuickSortIndex(tsr, i, r);
-}
-
-static int spt_CompareIndices(const sptSparseTensor *tsr, size_t ind1, size_t ind2) {
-    size_t i;
-    for(i = 0; i < tsr->nmodes; ++i) {
-        size_t eleind1 = tsr->inds[i].data[ind1];
-        size_t eleind2 = tsr->inds[i].data[ind2];
-        if(eleind1 < eleind2) {
-            return -1;
-        } else if(eleind1 > eleind2) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
