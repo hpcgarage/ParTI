@@ -76,7 +76,7 @@ typedef struct {
     size_t        *ndims; /// size of each mode, length nmodes
     size_t        nnz;    /// # non-zero fibers
     sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes-1][nnz]
-    sptVector     fibers; /// dense fibers, length nnz*ndims[nmodes-1]
+    sptVector     values; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
