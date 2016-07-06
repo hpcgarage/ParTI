@@ -79,34 +79,34 @@ typedef struct {
     sptVector     fibers; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
 
-int sptMakeVector(sptVector *vec, size_t len, size_t cap);
+int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptAppendVector(sptVector *vec, sptScalar value);
 int sptResizeVector(sptVector *vec, size_t size);
-int sptFreeVector(sptVector *vec);
+void sptFreeVector(sptVector *vec);
 
-int sptMakeSizeVector(sptSizeVector *vec, size_t len, size_t cap);
+int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
-int sptFreeSizeVector(sptSizeVector *vec);
+void sptFreeSizeVector(sptSizeVector *vec);
 
-int sptMakeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
-int sptFreeMatrix(sptMatrix *mtx);
+int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+void sptFreeMatrix(sptMatrix *mtx);
 
-int sptMakeSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
-int sptFreeSparseMatrix(sptSparseMatrix *mtx);
+int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
+void sptFreeSparseMatrix(sptSparseMatrix *mtx);
 
-int sptMakeSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
-int sptFreeSparseTensor(sptSparseTensor *tsr);
+int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+void sptFreeSparseTensor(sptSparseTensor *tsr);
 
-int sptMakeSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
-int sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
+int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 
 int sptSparseTensorAdd(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *B);
 int sptSparseTensorSub(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *X);
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDotMul(sptSparseTensor *Y, const sptSparseTensor *X);
-int sptSparseTensorDotDiv(sptSparseTensor *Y, const sptSparseTensor *X);
+void sptSparseTensorDotDiv(sptSparseTensor *Y, const sptSparseTensor *X);
 
 /**
  * Sparse tensor times a dense matrix (TTM)

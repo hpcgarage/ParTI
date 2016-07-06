@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(SpTOL)
 
 file(GLOB_RECURSE SPTOL_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h" "include/*.h")
+list(REMOVE_ITEM SPTOL_SRC "src/io.c" "src/sort.c")
 add_library(SpTOL SHARED ${SPTOL_SRC})
 add_library(SpTOL_s STATIC ${SPTOL_SRC})
 

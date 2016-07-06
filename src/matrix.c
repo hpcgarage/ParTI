@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include <stdlib.h>
 
-int sptMakeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
+int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     mtx->nrows = nrows;
     mtx->ncols = ncols;
     mtx->stride = ((ncols-1)/8+1)*8;
@@ -23,6 +23,6 @@ int sptMakeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     return 0;
 }
 
-int sptFreeMatrix(sptMatrix *mtx) {
+void sptFreeMatrix(sptMatrix *mtx) {
     free(mtx->values);
 }
