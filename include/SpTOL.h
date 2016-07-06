@@ -101,6 +101,7 @@ void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 
+void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X);
 int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X);
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
