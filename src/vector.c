@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include <stdlib.h>
 
-int sptNewVector(sptVector *vec, size_t len, size_t cap) {
+int sptMakeVector(sptVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
     }
@@ -50,7 +50,7 @@ int sptFreeVector(sptVector *vec) {
     return 0;
 }
 
-int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
+int sptMakeSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
     }

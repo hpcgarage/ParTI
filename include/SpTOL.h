@@ -79,26 +79,26 @@ typedef struct {
     sptVector     fibers; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
 
-int sptNewVector(sptVector *vec, size_t len, size_t cap);
+int sptMakeVector(sptVector *vec, size_t len, size_t cap);
 int sptAppendVector(sptVector *vec, sptScalar value);
 int sptResizeVector(sptVector *vec, size_t size);
 int sptFreeVector(sptVector *vec);
 
-int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
+int sptMakeSizeVector(sptSizeVector *vec, size_t len, size_t cap);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 int sptFreeSizeVector(sptSizeVector *vec);
 
-int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptMakeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptFreeMatrix(sptMatrix *mtx);
 
-int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
+int sptMakeSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
 int sptFreeSparseMatrix(sptSparseMatrix *mtx);
 
-int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptMakeSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 int sptFreeSparseTensor(sptSparseTensor *tsr);
 
-int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptMakeSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 int sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 
 int sptSparseTensorAdd(sptSparseTensor **Y, const sptSparseTensor *A, const sptSparseTensor *B);
