@@ -17,7 +17,7 @@ int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X) {
     j = 0;
     Ynnz = Y->nnz;
     while(i < X->nnz && j < Ynnz) {
-        int compare = spt_SparseTensorCompareIndex(X, i, Y, j);
+        int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
         if(compare > 0) {
             ++j;
         } else if(compare < 0) {
@@ -29,14 +29,14 @@ int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X) {
                     return result;
                 }
             }
-            result = sptAppendVector(&Y->values, -X->values[i]);
+            result = sptAppendVector(&Y->values, -X->values.data[i]);
             if(!result) {
                 return result;
             }
             ++Y->nnz;
             ++i;
         } else {
-            Y->values[j] -= X->values[i];
+            Y->values.data[j] -= X->values.data[i];
             ++i;
             ++j;
         }
@@ -51,7 +51,7 @@ int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X) {
                 return result;
             }
         }
-        result = sptAppendVector(&Y->values, -X->values[i]);
+        result = sptAppendVector(&Y->values, -X->values.data[i]);
         if(!result) {
             return result;
         }
@@ -61,20 +61,7 @@ int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X) {
     /* Check whether elements become zero after adding.
        If so, fill the gap with the [nnz-1]'th element.
     */
-    j = 0;
-    Ynnz = Y->nnz;
-    while(j < Ynnz) {
-        if(Y->values[j] == 0) {
-            size_t mode;
-            for(mode = 0; mode < Y->nmodes; ++mode) {
-                Y->inds[mode].data[j] = Y->inds[mode].data[Ynnz-1];
-            }
-            Y->values.data[j] = Y->values.data[Ynnz-1];
-            --Ynnz;
-        } else {
-            ++j;
-        }
-    }
+    spt_SparseTensorCollectZeros(Y);
     /* Sort the indices */
     sptSparseTensorSortIndex(Y);
     return 0;
