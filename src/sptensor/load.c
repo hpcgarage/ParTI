@@ -19,6 +19,11 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
             return -1;
         }
     }
+    tsr->nnz = 0;
+    tsr->inds = malloc(tsr->nmodes * sizeof *tsr->inds);
+    if(!tsr->inds) {
+        return -1;
+    }
     for(mode = 0; mode < tsr->nmodes; ++mode) {
         retval = sptNewSizeVector(&tsr->inds[mode], 0, 0);
         if(retval) {
@@ -40,14 +45,15 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
             }
             sptAppendSizeVector(&tsr->inds[mode], index);
         }
-        if(!retval) {
-            iores = fscanf(fp, "%ld", &value);
+        if(retval == 0) {
+            iores = fscanf(fp, "%lf", &value);
             if(iores != 1) {
                 retval = -1;
                 break;
             }
             sptAppendVector(&tsr->values, value);
             ++tsr->nnz;
+            printf("nnz = %zu\n", tsr->nnz);
         }
     }
     for(mode = 0; mode < tsr->nmodes; ++mode) {

@@ -15,7 +15,7 @@ int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp) {
                 return -1;
             }
         }
-        iores = fprintf(fp, "%zu", tsr->ndims[i]);
+        iores = fprintf(fp, "%zu", tsr->ndims[mode]);
         if(iores < 0) {
             return -1;
         }
@@ -28,7 +28,7 @@ int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp) {
                 return -1;
             }
         }
-        iores = fprintf(fp, "%ld\n", (double) tsr->values.data[i]);
+        iores = fprintf(fp, "%lf\n", (double) tsr->values.data[i]);
         if(iores < 0) {
             return -1;
         }

@@ -42,11 +42,11 @@ int sptResizeVector(sptVector *vec, size_t size) {
         vec->cap = size;
         vec->data = newdata;
     }
+    return 0;
 }
 
 void sptFreeVector(sptVector *vec) {
     free(vec->data);
-    free(vec);
 }
 
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
@@ -90,9 +90,9 @@ int sptResizeSizeVector(sptSizeVector *vec, size_t size) {
         vec->cap = size;
         vec->data = newdata;
     }
+    return 0;
 }
 
 void sptFreeSizeVector(sptSizeVector *vec) {
     free(vec->data);
-    free(vec);
 }
