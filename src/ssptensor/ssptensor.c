@@ -21,12 +21,12 @@ int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t
     }
     for(i = 0; i < nmodes-1; ++i) {
         result = sptNewSizeVector(&tsr->inds[i], 0, 0);
-        if(!result) {
+        if(result) {
             return result;
         }
     }
     result = sptNewVector(&tsr->values, 0, 0);
-    if(!result) {
+    if(result) {
         return result;
     }
     return 0;

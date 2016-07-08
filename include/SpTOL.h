@@ -2,6 +2,7 @@
 #define SPTOL_H_INCLUDED
 
 #include <stddef.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,6 +98,8 @@ void sptFreeSparseMatrix(sptSparseMatrix *mtx);
 
 int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
+int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
+int sptStoreSparseTensor(const sptSparseTensor *tsr, FILE *fp);
 
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);

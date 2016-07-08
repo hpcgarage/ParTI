@@ -25,12 +25,12 @@ int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X) {
             int result;
             for(mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Y->inds[mode], X->inds[mode].data[i]);
-                if(!result) {
+                if(result) {
                     return result;
                 }
             }
             result = sptAppendVector(&Y->values, X->values.data[i]);
-            if(!result) {
+            if(result) {
                 return result;
             }
             ++Y->nnz;
@@ -47,12 +47,12 @@ int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X) {
         int result;
         for(mode = 0; mode < X->nmodes; ++mode) {
             result = sptAppendSizeVector(&Y->inds[mode], X->inds[mode].data[i]);
-            if(!result) {
+            if(result) {
                 return result;
             }
         }
         result = sptAppendVector(&Y->values, X->values.data[i]);
-        if(!result) {
+        if(result) {
             return result;
         }
         ++Y->nnz;

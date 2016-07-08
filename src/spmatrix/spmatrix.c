@@ -6,15 +6,15 @@ int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols) {
     mtx->ncols = ncols;
     mtx->nnz = 0;
     result = sptNewSizeVector(&mtx->rowind, 0, 0);
-    if(!result) {
+    if(result) {
         return result;
     }
     result = sptNewSizeVector(&mtx->colind, 0, 0);
-    if(!result) {
+    if(result) {
         return result;
     }
     result = sptNewVector(&mtx->values, 0, 0);
-    if(!result) {
+    if(result) {
         return result;
     }
     return 0;

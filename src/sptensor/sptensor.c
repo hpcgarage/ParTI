@@ -18,12 +18,12 @@ int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]
     }
     for(i = 0; i < nmodes; ++i) {
         result = sptNewSizeVector(&tsr->inds[i], 0, 0);
-        if(!result) {
+        if(result) {
             return result;
         }
     }
     result = sptNewVector(&tsr->values, 0, 0);
-    if(!result) {
+    if(result) {
         return result;
     }
     return 0;
