@@ -13,5 +13,6 @@ loadstore: loadstore.c ../build/libSpTOL_s.a
 
 ../build/libSpTOL_s.a:
 	mkdir -p ../build
-	cmake -E chdir ../build cmake .. -DCMAKE_C_FLAGS="-Wall -Werror -g"
-	make -C ../build
+	cd ../build && \
+	cmake .. -DCMAKE_C_FLAGS="-Wall -Werror -g" && \
+	make
