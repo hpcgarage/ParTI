@@ -53,7 +53,6 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
             }
             sptAppendVector(&tsr->values, value);
             ++tsr->nnz;
-            printf("nnz = %zu\n", tsr->nnz);
         }
     }
     for(mode = 0; mode < tsr->nmodes; ++mode) {
