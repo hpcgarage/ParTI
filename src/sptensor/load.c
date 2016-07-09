@@ -58,5 +58,6 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
     for(mode = 0; mode < tsr->nmodes; ++mode) {
         tsr->inds[mode].len = tsr->nnz;
     }
+    sptSparseTensorSortIndex(tsr);
     return 0;
 }

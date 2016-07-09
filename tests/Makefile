@@ -1,18 +1,20 @@
 CFLAGS=-Wall -Werror -g -I../include
-LIBS=../build/libSpTOL_s.a
+LDLIBS=../build/libSpTOL_s.a
 
-.PHONY: all clean ../build/libSpTOL_s.a
+TARGETS=loadstore add
 
-all: loadstore
+.PHONY: all clean
+
+all: ../build/libSpTOL_s.a loadstore add
 
 clean:
 	make -C ../build clean
-	rm loadstore
+	rm -f $(TARGETS)
 
-loadstore: loadstore.c ../build/libSpTOL_s.a
+%: %.c ../build/libSpTOL_s.a
 
 ../build/libSpTOL_s.a:
 	mkdir -p ../build
 	cd ../build && \
 	cmake .. -DCMAKE_C_FLAGS="-Wall -Werror -g" && \
-	make
+	$(MAKE)
