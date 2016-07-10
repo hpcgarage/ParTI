@@ -25,6 +25,11 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
             break;
         }
         spt_SwapValues(tsr, i, j);
+        if(i == p) {
+            p = j;
+        } else if(j == p) {
+            p = i;
+        }
     }
     spt_QuickSortIndex(tsr, l, i);
     spt_QuickSortIndex(tsr, i, r);
