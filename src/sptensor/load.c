@@ -1,4 +1,5 @@
 #include <SpTOL.h>
+#include "sptensor.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -58,6 +59,7 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
     for(mode = 0; mode < tsr->nmodes; ++mode) {
         tsr->inds[mode].len = tsr->nnz;
     }
+    spt_SparseTensorCollectZeros(tsr);
     sptSparseTensorSortIndex(tsr);
     return 0;
 }
