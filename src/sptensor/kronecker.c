@@ -32,7 +32,7 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
                 where f(in, jn) = jn + in * Jn
             */
             for(mode = 0; mode < nmodes; ++mode) {
-                sptAppendSizeVector(&Y->inds[mode], A->inds[mode].data[i] + B->inds[mode].data[j] * B->ndims[mode]);
+                sptAppendSizeVector(&Y->inds[mode], A->inds[mode].data[i] * B->ndims[mode] + B->inds[mode].data[j]);
             }
             sptAppendVector(&Y->values, A->values.data[i] * B->values.data[j]);
             ++Y->nnz;

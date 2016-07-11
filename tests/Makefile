@@ -1,11 +1,11 @@
 CFLAGS=-Wall -Werror -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 
-TARGETS=loadstore add
+TARGETS=loadstore add kronecker
 
 .PHONY: all clean
 
-all: ../build/libSpTOL_s.a loadstore add
+all: ../build/libSpTOL_s.a $(TARGETS)
 
 clean:
 	make -C ../build clean
