@@ -28,7 +28,7 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
     for(i = 0; i < A->nnz; ++i) {
         for(j = 0; j < B->nnz; ++j) {
             /*
-                Y[f(i1,j1), ..., f(iN, jN)] = a[i1, ..., iN] * b[j1, ..., jN]
+                Y[f(i1,j1), ..., f(i(N-1), j(N-1)] = a[i1, ..., i(N-1)] * b[j1, ..., j(N-1)]
                 where f(in, jn) = jn + in * Jn
             */
             for(mode = 0; mode < nmodes; ++mode) {

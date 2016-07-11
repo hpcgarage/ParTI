@@ -1,7 +1,7 @@
 CFLAGS=-Wall -Werror -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 
-TARGETS=loadstore add kronecker
+TARGETS=loadstore add kronecker khatrio-rao
 
 .PHONY: all clean
 
