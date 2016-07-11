@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     assert(sptLoadSparseTensor(&b, fb) == 0);
     fclose(fb);
 
-    assert(sptSparseTensorKhatrioRaoMul(&out, &a, &b) == 0);
+    assert(sptSparseTensorKhatriRaoMul(&out, &a, &b) == 0);
 
     fo = fopen(argv[3], "w");
     assert(fo != NULL);

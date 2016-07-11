@@ -125,9 +125,9 @@ int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const
 int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
 /**
- * Khatrio-Rao product
+ * Khatri-Rao product
  */
-int sptSparseTensorKhatrioRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
+int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
 #ifdef __cplusplus
 }

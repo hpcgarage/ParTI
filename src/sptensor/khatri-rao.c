@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sptSparseTensorKhatrioRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B) {
+int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B) {
     size_t nmodes;
     size_t mode;
     size_t *inds;
