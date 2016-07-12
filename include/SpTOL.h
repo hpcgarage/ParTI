@@ -81,27 +81,33 @@ typedef struct {
 } sptSemiSparseTensor;
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
+int sptCopyVector(sptVector *dest, const sptVector *src);
 int sptAppendVector(sptVector *vec, sptScalar value);
 int sptResizeVector(sptVector *vec, size_t size);
 void sptFreeVector(sptVector *vec);
 
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
+int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
 
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
+int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src);
 void sptFreeSparseMatrix(sptSparseMatrix *mtx);
 
 int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp);
 
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);

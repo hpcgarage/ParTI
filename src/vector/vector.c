@@ -1,5 +1,6 @@
 #include <SpTOL.h>
 #include <stdlib.h>
+#include <string.h>
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     if(cap < len) {
@@ -14,6 +15,15 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     if(!vec->data) {
         return -1;
     }
+    return 0;
+}
+
+int sptCopyVector(sptVector *dest, const sptVector *src) {
+    int result = sptNewVector(dest, src->len, src->len);
+    if(result) {
+        return result;
+    }
+    memcpy(dest->data, src->data, src->len * sizeof *src->data);
     return 0;
 }
 
@@ -62,6 +72,15 @@ int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
     if(!vec->data) {
         return -1;
     }
+    return 0;
+}
+
+int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src) {
+    int result = sptNewSizeVector(dest, src->len, src->len);
+    if(result) {
+        return result;
+    }
+    memcpy(dest->data, src->data, src->len * sizeof *src->data);
     return 0;
 }
 

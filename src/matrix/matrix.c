@@ -1,5 +1,7 @@
 #include <SpTOL.h>
+#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     mtx->nrows = nrows;
@@ -20,6 +22,16 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     if(!mtx->values) {
         return -1;
     }
+    return 0;
+}
+
+int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src) {
+    int result = sptNewMatrix(dest, src->nrows, src->ncols);
+    if(result) {
+        return result;
+    }
+    assert(dest->stride == src->stride);
+    memcpy(dest->values, src->values, dest->nrows * dest->stride * sizeof (sptScalar));
     return 0;
 }
 
