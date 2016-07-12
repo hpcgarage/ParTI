@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     assert(sptLoadSparseTensor(&b, fb) == 0);
     fclose(fb);
 
-    Timer add_timer;
+    // Timer add_timer;
 
     // timer_fstart(&add_timer);
     for(int i=0; i<niters; ++i) {

@@ -1,6 +1,9 @@
 #include <SpTOL.h>
 #include <stdlib.h>
 
+/* jli: (TODO) Change to a sparse tensor times a dense matrix. 
+    Output a "semi-sparse" tensor in the timing mode.
+    This function can be kept for the future. */
 int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U, size_t mode) {
     int result;
     sptSparseTensor XT;

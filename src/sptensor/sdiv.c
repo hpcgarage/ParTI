@@ -1,9 +1,16 @@
 #include <SpTOL.h>
 
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a) {
-    size_t i;
-    for(i = 0; i < X->nnz; ++i) {
-        X->values.data[i] /= a;
-    }
-    return 0;
+	if(a != 0) {
+	    size_t i;
+	    #pragma omp parallel for
+	    for(i = 0; i < X->nnz; ++i) {
+	        X->values.data[i] /= a;
+	    }
+	    return 0;
+	} else {
+		fprintf(stderr, "SpTOL ERROR: dividing zero.\n");
+		return -1;
+	}
+    
 }

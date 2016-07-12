@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Werror -g -I../include
+CFLAGS=-Wall -Werror -std=c99 -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 
 TARGETS=loadstore add kronecker khatri-rao
@@ -16,5 +16,5 @@ clean:
 ../build/libSpTOL_s.a:
 	mkdir -p ../build
 	cd ../build && \
-	cmake .. -DCMAKE_C_FLAGS="-Wall -Werror -g" && \
+	cmake .. -DCMAKE_C_FLAGS="-Wall -Werror -std=c99 -fopenmp -g" && \
 	$(MAKE)

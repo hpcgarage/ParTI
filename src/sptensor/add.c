@@ -9,6 +9,7 @@ int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X) {
     }
     for(i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
+            fprintf(stderr, "SpTOL ERROR: Adding tensors with different shapes.\n");
             return -1;
         }
     }

@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <omp.h>
 
 #ifdef __cplusplus
 extern "C" {
