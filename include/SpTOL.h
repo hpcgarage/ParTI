@@ -123,7 +123,7 @@ int sptSparseTensorDotDiv(sptSparseTensor *Y, const sptSparseTensor *X);
  * Input: sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
  * Output: sparse tensor Y[I][J][R] (e.g. n=2)
  */
-int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U);
+int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U, size_t mode);
 
 /**
  * Kronecker product
