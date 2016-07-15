@@ -42,6 +42,24 @@ int sptAppendVector(sptVector *vec, sptScalar value) {
     return 0;
 }
 
+int sptAppendVectorWithVector(sptVector *vec, sptVector *append_vec) {
+    if(vec->cap <= vec->len) {
+        size_t newcap = vec->cap + append_vec->cap;
+        sptScalar *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        if(!newdata) {
+            return -1;
+        }
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    for(size_t i=0; i<append_vec->len; ++i) {
+        vec->data[vec->len + i] = append_vec->data[i];
+        ++vec->len;
+    }
+    
+    return 0;
+}
+
 int sptResizeVector(sptVector *vec, size_t size) {
     if(size != vec->cap) {
         sptScalar *newdata = realloc(vec->data, size * sizeof *vec->data);
@@ -96,6 +114,24 @@ int sptAppendSizeVector(sptSizeVector *vec, size_t value) {
     }
     vec->data[vec->len] = value;
     ++vec->len;
+    return 0;
+}
+
+int sptAppendSizeVectorWithVector(sptSizeVector *vec, sptSizeVector *append_vec) {
+    if(vec->cap <= vec->len) {
+        size_t newcap = vec->cap + append_vec->cap;
+        size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        if(!newdata) {
+            return -1;
+        }
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    for(size_t i=0; i<append_vec->len; ++i) {
+        vec->data[vec->len + i] = append_vec->data[i];
+        ++vec->len;
+    }
+    
     return 0;
 }
 

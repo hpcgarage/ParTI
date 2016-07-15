@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Werror -std=c99 -g -I../include
+CFLAGS=-Wall -Werror -std=c99 -fopenmp -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 
 TARGETS=loadstore add kronecker khatri-rao

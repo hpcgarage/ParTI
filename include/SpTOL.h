@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include <omp.h>
 
 #ifdef __cplusplus
@@ -84,12 +86,14 @@ typedef struct {
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
 int sptAppendVector(sptVector *vec, sptScalar value);
+int sptAppendVectorWithVector(sptVector *vec, sptVector *append_vec);
 int sptResizeVector(sptVector *vec, size_t size);
 void sptFreeVector(sptVector *vec);
 
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
 int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
+int sptAppendSizeVectorWithVector(sptSizeVector *vec, sptSizeVector *append_vec);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
 
@@ -135,6 +139,11 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  * Khatri-Rao product
  */
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
+
+/**
+ * OMP functions
+ */
+int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads);
 
 #ifdef __cplusplus
 }

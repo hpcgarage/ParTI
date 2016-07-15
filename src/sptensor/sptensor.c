@@ -65,3 +65,73 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
     free(tsr->inds);
     sptFreeVector(&tsr->values);
 }
+
+
+void sptDistSparseTensor(sptSparseTensor * tsr, 
+    int const nthreads,
+    size_t * const dist_nnzs, 
+    size_t * dist_nrows) {
+
+    size_t global_nnz = tsr->nnz;
+    size_t aver_nnz = global_nnz / nthreads;
+    memset(dist_nnzs, 0, nthreads*sizeof(size_t));
+    memset(dist_nrows, 0, nthreads*sizeof(size_t));
+
+    sptSparseTensorSortIndex(tsr);
+    size_t * ind0 = tsr->inds[0].data;
+
+    int ti = 0;
+    dist_nnzs[0] = 1;
+    dist_nrows[0] = 1;
+    for(size_t x=1; x<global_nnz; ++x) {
+        if(ind0[x] == ind0[x-1]) {
+            ++ dist_nnzs[ti];
+        } else if (ind0[x] > ind0[x-1]) {
+            if(dist_nnzs[ti] < aver_nnz || ti == nthreads-1) {
+                ++ dist_nnzs[ti];
+                ++ dist_nrows[ti];
+            } else {
+                ++ ti;
+                ++ dist_nnzs[ti];
+                ++ dist_nrows[ti];
+            }
+        } else {
+            fprintf(stderr, "SpTOL ERROR: tensor unsorted on mode-0.\n");
+            exit(-1);
+        }
+    }
+
+}
+
+
+void sptDistSparseTensorFixed(sptSparseTensor * tsr, 
+    int const nthreads,
+    size_t * const dist_nnzs, 
+    size_t * dist_nrows) {
+
+    size_t global_nnz = tsr->nnz;
+    size_t aver_nnz = global_nnz / nthreads;
+    memset(dist_nnzs, 0, nthreads*sizeof(size_t));
+
+    sptSparseTensorSortIndex(tsr);
+    size_t * ind0 = tsr->inds[0].data;
+
+    int ti = 0;
+    dist_nnzs[0] = 1;
+    for(size_t x=1; x<global_nnz; ++x) {
+        if(ind0[x] == ind0[x-1]) {
+            ++ dist_nnzs[ti];
+        } else if (ind0[x] > ind0[x-1]) {
+            if(dist_nnzs[ti] < aver_nnz || ti == nthreads-1) {
+                ++ dist_nnzs[ti];
+            } else {
+                ++ ti;
+                ++ dist_nnzs[ti];
+            }
+        } else {
+            fprintf(stderr, "SpTOL ERROR: tensor unsorted on mode-0.\n");
+            exit(-1);
+        }
+    }
+
+}
