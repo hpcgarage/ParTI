@@ -80,8 +80,11 @@ typedef struct {
     size_t        *ndims; /// size of each mode, length nmodes
     size_t        nnz;    /// # non-zero fibers
     sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes-1][nnz]
+    size_t        stride; /// ndims[nmodes-1] rounded up to 8
     sptVector     values; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
+
+const char *sptExplainError(int errcode);
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
@@ -110,10 +113,12 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp);
+int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src);
 
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
+int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src);
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X);
