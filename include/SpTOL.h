@@ -82,7 +82,7 @@ typedef struct {
     sptVector     values; /// dense fibers, length nnz*ndims[nmodes-1]
 } sptSemiSparseTensor;
 
-const char *sptGetErrorExplanation(int errcode);
+const char *sptExplainError(int errcode);
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
