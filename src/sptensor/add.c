@@ -9,7 +9,7 @@ int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X) {
     }
     for(i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            fprintf(stderr, "SpTOL ERROR: Adding tensors with different shapes.\n");
+            fprintf(stderr, "SpTOL ERROR: Adding tensors in different shapes.\n");
             return -1;
         }
     }
@@ -19,9 +19,9 @@ int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X) {
     Ynnz = Y->nnz;
     while(i < X->nnz && j < Ynnz) {
         int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
-        if(compare > 0) {
+        if(compare > 0) {    // X(i) > Y(j)
             ++j;
-        } else if(compare < 0) {
+        } else if(compare < 0) {    // X(i) < Y(j)
             size_t mode;
             int result;
             for(mode = 0; mode < X->nmodes; ++mode) {
@@ -36,7 +36,7 @@ int sptSparseTensorAdd(sptSparseTensor *Y, const sptSparseTensor *X) {
             }
             ++Y->nnz;
             ++i;
-        } else {
+        } else {    // X(i) = Y(j)
             Y->values.data[j] += X->values.data[i];
             ++i;
             ++j;

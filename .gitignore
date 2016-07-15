@@ -1,2 +1,3 @@
 sftp-config.json
 *.DS_Store
+./src/sptensor/add_omp.c

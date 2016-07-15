@@ -8,34 +8,46 @@ int main(int argc, char *argv[]) {
     FILE *fa, *fb, *fo;
     sptSparseTensor a, b;
     
-    if(argc != 5) {
-        printf("Usage: %s niters a b out\n\n", argv[0]);
+    if(argc != 6) {
+        printf("Usage: %s nthreads niters a b out\n\n", argv[0]);
         return 1;
     }
 
-    int niters = atoi(argv[1]);
+    int nthreads = atoi(argv[1]);
+    int niters = atoi(argv[2]);
+    assert(nthreads >=1);
+    assert(niters >= 1);
 
-    fa = fopen(argv[2], "r");
+    fa = fopen(argv[3], "r");
     assert(fa != NULL);
     assert(sptLoadSparseTensor(&a, fa) == 0);
     fclose(fa);
 
-    fb = fopen(argv[3], "r");
+    fb = fopen(argv[4], "r");
     assert(fb != NULL);
     assert(sptLoadSparseTensor(&b, fb) == 0);
     fclose(fb);
 
+    sptSparseTensorSortIndex(&a);
+    sptSparseTensorSortIndex(&b);
+
     // Timer add_timer;
 
     // timer_fstart(&add_timer);
-    for(int i=0; i<niters; ++i) {
-        assert(sptSparseTensorAdd(&a, &b) == 0);
+    if(nthreads == 1) {
+        for(int i=0; i<niters; ++i) {
+            assert(sptSparseTensorAdd(&a, &b) == 0);
+        }
+    } else {
+        for(int i=0; i<niters; ++i) {
+            assert(sptSparseTensorAddOMP(&a, &b, nthreads) == 0);
+        }
     }
     // timer_stop(&add_timer);
     // double add_sec = add_timer.seconds / niters;
     // printf("Element-wise add: %.3f sec\n", add_sec);
 
-    fo = fopen(argv[4], "w");
+    fo = fopen(argv[5], "w");
     assert(fo != NULL);
     assert(sptDumpSparseTensor(&a, fo) == 0);
     fclose(fo);
