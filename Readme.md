@@ -15,7 +15,6 @@ TODO:
 
 1. matricization
 2. TTV
-3. MTTKRP
 4. multi-threading
 
 Future TODO:
