@@ -20,7 +20,7 @@ extern "C" {
 typedef double sptScalar;
 
 /**
- * Dynamic array of scalars
+ * Dense dynamic array of scalars
  */
 typedef struct {
     size_t    len;   /// length
@@ -29,7 +29,7 @@ typedef struct {
 } sptVector;
 
 /**
- * Dynamic array of size_t's
+ * Dense dynamic array of size_t's
  */
 typedef struct {
     size_t len;   /// length
@@ -48,7 +48,7 @@ typedef struct {
 } sptMatrix;
 
 /**
- * Sparse matrix type
+ * Sparse matrix type, COO format
  */
 typedef struct {
     size_t        nrows;  /// # rows
@@ -146,6 +146,16 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  * Khatri-Rao product
  */
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
+
+
+/**
+ * Matricized tensor times Khatri-Rao product.
+ */
+void sptMTTKRP(sptSparseTensor const * const X, 
+    sptMatrix ** const mats,    // mats[nmodes] as temporary space.
+    size_t const * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode,
+    sptScalar * const scratch);
 
 /**
  * OMP functions

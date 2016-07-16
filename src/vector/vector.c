@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Value vector functions. */
 int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
@@ -77,6 +78,8 @@ void sptFreeVector(sptVector *vec) {
     free(vec->data);
 }
 
+
+/* Size vector functions. */
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
