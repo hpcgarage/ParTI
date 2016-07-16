@@ -2,6 +2,7 @@
 #include "sptensor.h"
 
 
+/* TODO: bug. */
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads) {
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
