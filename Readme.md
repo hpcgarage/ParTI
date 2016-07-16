@@ -13,9 +13,9 @@ Build tests:
 
 TODO:
 
-1. matricization
-2. TTV
-4. multi-threading
+1. TTV
+2. multi-threading
+3. GPU
 
 Future TODO:
 
