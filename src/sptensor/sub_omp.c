@@ -1,16 +1,15 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-
 /* TODO: bug. */
-int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads) {
+int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads) {
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         return -1;
     }
     for(size_t i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            fprintf(stderr, "SpTOL ERROR: Adding tensors in different shapes.\n");
+            fprintf(stderr, "SpTOL ERROR: Substracting tensors in different shapes.\n");
             return -1;
         }
     }
@@ -56,6 +55,7 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
         sptNewVector(&(local_vals[k]), 0, increase_size);
     }
 
+
     /* Add elements one by one, assume indices are ordered */
     size_t Ynnz = 0;
     omp_set_dynamic(0);
@@ -65,12 +65,11 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
         int tid = omp_get_thread_num();
         size_t i=0, j=0;
         Ynnz = dist_nnzs_Y[tid];
-
         while(i < dist_nnzs_X[tid] && j < dist_nnzs_Y[tid]) {
             int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
-            if(compare > 0) {    // X(i) > Y(j)
+            if(compare > 0) {
                 ++j;
-            } else if(compare < 0) {    // X(i) < Y(j)
+            } else if(compare < 0) {
                 size_t mode;
                 int result;
                 for(mode = 0; mode < X->nmodes; ++mode) {
@@ -79,14 +78,14 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
                         exit(result);
                     }
                 }
-                result = sptAppendVector(&(local_vals[tid]), X->values.data[i]);
+                result = sptAppendVector(&(local_vals[tid]), -X->values.data[i]);
                 if(result) {
                     exit(result);
                 }
                 ++Ynnz;
                 ++i;
-            } else {    // X(i) = Y(j)
-                Y->values.data[j] += X->values.data[i];
+            } else {
+                Y->values.data[j] -= X->values.data[i];
                 ++i;
                 ++j;
             }
@@ -101,7 +100,7 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
                     exit(result);
                 }
             }
-            result = sptAppendVector(&(local_vals[tid]), X->values.data[i]);
+            result = sptAppendVector(&(local_vals[tid]), -X->values.data[i]);
             if(result) {
                 exit(result);
             }
@@ -110,7 +109,6 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
         }
 
     }
-    Y->nnz = Ynnz;
 
     /* Append all the local arrays to Y. */
     for(size_t k=0; k<nthreads; ++k) {
@@ -119,7 +117,6 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
         }
         sptAppendVectorWithVector(&(Y->values), &(local_vals[k]));
     }
-
 
     for(size_t k=0; k<nthreads; ++k) {
         for(size_t m=0; m<Y->nmodes; ++m) {
@@ -132,7 +129,6 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
     free(local_vals);
     free(dist_nnzs_X);
     free(dist_nnzs_Y);
-
     
     /* Check whether elements become zero after adding.
        If so, fill the gap with the [nnz-1]'th element.

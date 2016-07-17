@@ -161,6 +161,7 @@ void sptMTTKRP(sptSparseTensor const * const X,
  * OMP functions
  */
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads);
+int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads);
 
 #ifdef __cplusplus
 }

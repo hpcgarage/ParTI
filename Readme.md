@@ -23,12 +23,16 @@ Build tests:
 
 TODO:
 
-1. TTV
+1. Change the APIs of add/sub/div/mul; then TTV
 2. multi-threading
   * Element-wise functions
   * TTM, TTV
   * MTTKRP
-3. GPU
+3. GPU (high->low priority)
+  1. TTM
+  2. TTV
+  3. Element-wise functions
+  4. MTTKRP
 
 Future TODO:
 
