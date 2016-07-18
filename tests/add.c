@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) {
     FILE *fa, *fb, *fo;
-    sptSparseTensor a, b;
+    sptSparseTensor a, b, c;
     
     if(argc != 6) {
         printf("Usage: %s nthreads niters a b out\n\n", argv[0]);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     // timer_fstart(&add_timer);
     if(nthreads == 1) {
         for(int i=0; i<niters; ++i) {
-            assert(sptSparseTensorAdd(&a, &b) == 0);
+            assert(sptSparseTensorAdd(&a, &b, &c) == 0);
         }
     } else {
         for(int i=0; i<niters; ++i) {
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
     fo = fopen(argv[5], "w");
     assert(fo != NULL);
-    assert(sptDumpSparseTensor(&a, fo) == 0);
+    assert(sptDumpSparseTensor(&c, fo) == 0);
     fclose(fo);
 
     return 0;
