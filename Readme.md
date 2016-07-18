@@ -24,7 +24,6 @@ Build tests:
 TODO:
 
 1. Sequential
-  * Change the APIs of add/sub/div/mul
   * TTV
   * single-node tensor contraction
 2. multi-threading
@@ -40,3 +39,7 @@ TODO:
 Future TODO:
 
 1. Tensor Contraction
+
+Qs:
+
+1. Haven't check "sptSparseTensorKroneckerMul" and "sptSparseTensorKhatriRaoMul" functions. (TODO)

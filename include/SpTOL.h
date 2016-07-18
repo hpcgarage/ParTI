@@ -123,10 +123,12 @@ void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src);
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
-int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
-int sptSparseTensorSub(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
+/* Unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
+/* Binary operations */
+int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
+int sptSparseTensorSub(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 int sptSparseTensorDotDiv(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 
