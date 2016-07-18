@@ -23,7 +23,10 @@ Build tests:
 
 TODO:
 
-1. Change the APIs of add/sub/div/mul; then TTV
+1. Sequential
+  * Change the APIs of add/sub/div/mul
+  * TTV
+  * single-node tensor contraction
 2. multi-threading
   * Element-wise functions
   * TTM, TTV
