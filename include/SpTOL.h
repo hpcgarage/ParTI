@@ -124,11 +124,11 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
-int sptSparseTensorSub(sptSparseTensor *Y, const sptSparseTensor *X);
+int sptSparseTensorSub(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
-int sptSparseTensorDotMul(sptSparseTensor *Y, const sptSparseTensor *X);
-int sptSparseTensorDotDiv(sptSparseTensor *Y, const sptSparseTensor *X);
+int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
+int sptSparseTensorDotDiv(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 
 /**
  * Sparse tensor times a dense matrix (TTM)

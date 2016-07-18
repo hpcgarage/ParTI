@@ -9,7 +9,7 @@ int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
     }
     for(size_t i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            fprintf(stderr, "SpTOL ERROR: Adding tensors in different shapes.\n");
+            fprintf(stderr, "SpTOL ERROR: Add tensors in different shapes.\n");
             return -1;
         }
     }
@@ -64,22 +64,20 @@ int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
             if(result) {
                 return result;
             }
-            Z->values.data[Z->nnz] += X->values.data[i];
 
+            Z->values.data[Z->nnz] += X->values.data[i];
             ++Z->nnz;
             ++i;
             ++j;
         }
-        printf("Z->values:\n");
-        for(size_t ti=0; ti<Z->values.len; ++ti)
-            printf("%lf ", Z->values.data[ti]);
-        printf("\n");
+        // printf("Z->values:\n");
+        // for(size_t ti=0; ti<Z->values.len; ++ti)
+        //     printf("%lf ", Z->values.data[ti]);
+        // printf("\n");
     }
     /* Append remaining elements of X to Y */
     while(i < X->nnz) {
-        size_t mode;
-        int result;
-        for(mode = 0; mode < X->nmodes; ++mode) {
+        for(size_t mode = 0; mode < X->nmodes; ++mode) {
             result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
             if(result) {
                 return result;
