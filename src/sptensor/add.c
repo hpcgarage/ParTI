@@ -2,7 +2,7 @@
 #include "sptensor.h"
 
 int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z) {
-    
+
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         return -1;
@@ -23,7 +23,7 @@ int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
     j = 0;
     while(i < X->nnz && j < Y->nnz) {
         int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
-        printf("i: %lu, j: %lu, compare: %d\n", i,j,compare);
+        printf("i: %zu, j: %zu, compare: %d\n", i,j,compare);
 
         if(compare > 0) {    // X(i) > Y(j)
             for(size_t mode = 0; mode < X->nmodes; ++mode) {

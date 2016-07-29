@@ -26,12 +26,12 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
 
     printf("dist_nnzs_Y:\n");
     for(int i=0; i<nthreads; ++i) {
-        printf("%lu ", dist_nnzs_Y[i]);
+        printf("%zu ", dist_nnzs_Y[i]);
     }
     printf("\n");
     printf("dist_nnzs_X:\n");
     for(int i=0; i<nthreads; ++i) {
-        printf("%lu ", dist_nnzs_X[i]);
+        printf("%zu ", dist_nnzs_X[i]);
     }
     printf("\n");
     fflush(stdout);
@@ -133,7 +133,7 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
     free(dist_nnzs_X);
     free(dist_nnzs_Y);
 
-    
+
     /* Check whether elements become zero after adding.
        If so, fill the gap with the [nnz-1]'th element.
     */
