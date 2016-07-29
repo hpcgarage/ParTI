@@ -37,7 +37,7 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
 
 
     /* Build a private arrays to append values. */
-    size_t nnz_gap = fabs(Y->nnz - X->nnz);
+    size_t nnz_gap = llabs((long long) Y->nnz - (long long) X->nnz);
     size_t increase_size = 0;
     if(nnz_gap == 0) increase_size = 10;
     else increase_size = nnz_gap;
