@@ -80,10 +80,11 @@ typedef struct {
 typedef struct {
     size_t        nmodes; /// # Modes, must >= 2
     size_t        *ndims; /// size of each mode, length nmodes
+    size_t        mode;   /// the mode where data is stored in dense format
     size_t        nnz;    /// # non-zero fibers
-    sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes-1][nnz]
-    size_t        stride; /// ndims[nmodes-1] rounded up to 8
-    sptVector     values; /// dense fibers, length nnz*ndims[nmodes-1]
+    sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes][nnz], the mode-th value is ignored
+    size_t        stride; /// ndims[mode] rounded up to 8
+    sptVector     values; /// dense fibers, length nnz*ndims[mode]
 } sptSemiSparseTensor;
 
 const char *sptExplainError(int errcode);
@@ -117,10 +118,10 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp);
 int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src);
 
-int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
+int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]);
 int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
-int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src);
+int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 /* Unary operations */
@@ -153,7 +154,7 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
 /**
  * Matricized tensor times Khatri-Rao product.
  */
-void sptMTTKRP(sptSparseTensor const * const X, 
+void sptMTTKRP(sptSparseTensor const * const X,
     sptMatrix ** const mats,    // mats[nmodes] as temporary space.
     size_t const * const mats_order,    // Correspond to the mode order of X.
     size_t const mode,

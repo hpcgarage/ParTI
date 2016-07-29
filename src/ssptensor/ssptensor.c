@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t ndims[]) {
+int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]) {
     size_t i;
     int result;
     if(nmodes < 2) {
@@ -15,18 +15,19 @@ int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, const size_t
         return -1;
     }
     memcpy(tsr->ndims, ndims, nmodes * sizeof *tsr->ndims);
+    tsr->mode = mode;
     tsr->nnz = 0;
-    tsr->inds = malloc((nmodes-1) * sizeof *tsr->inds);
+    tsr->inds = malloc(nmodes * sizeof *tsr->inds);
     if(!tsr->inds) {
         return -1;
     }
-    for(i = 0; i < nmodes-1; ++i) {
+    for(i = 0; i < nmodes; ++i) {
         result = sptNewSizeVector(&tsr->inds[i], 0, 0);
         if(result) {
             return result;
         }
     }
-    tsr->stride = ((ndims[nmodes-1]-1)/8+1)*8;
+    tsr->stride = ((ndims[mode]-1)/8+1)*8;
     result = sptNewVector(&tsr->values, 0, 0);
     if(result) {
         return result;
@@ -44,12 +45,13 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
         return -1;
     }
     memcpy(dest->ndims, src->ndims, src->nmodes * sizeof *src->ndims);
+    dest->mode = src->mode;
     dest->nnz = src->nnz;
-    dest->inds = malloc((dest->nmodes-1) * sizeof *dest->inds);
+    dest->inds = malloc(dest->nmodes * sizeof *dest->inds);
     if(!dest->inds) {
         return -1;
     }
-    for(i = 0; i < dest->nmodes-1; ++i) {
+    for(i = 0; i < dest->nmodes; ++i) {
         result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
         if(result) {
             return result;
@@ -65,7 +67,7 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
 
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr) {
     size_t i;
-    for(i = 0; i < tsr->nmodes-1; ++i) {
+    for(i = 0; i < tsr->nmodes; ++i) {
         sptFreeSizeVector(&tsr->inds[i]);
     }
     free(tsr->ndims);

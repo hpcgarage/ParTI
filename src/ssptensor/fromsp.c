@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src) {
+int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode) {
     size_t i;
     int result;
     size_t nmodes = src->nmodes;
@@ -15,24 +15,29 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
         return -1;
     }
     memcpy(dest->ndims, src->ndims, nmodes * sizeof *dest->ndims);
+    dest->mode = mode;
     dest->nnz = src->nnz;
-    dest->inds = malloc((nmodes-1) * sizeof *dest->inds);
+    dest->inds = malloc(nmodes * sizeof *dest->inds);
     if(!dest->inds) {
         return -1;
     }
-    for(i = 0; i < nmodes-1; ++i) {
-        result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
+    for(i = 0; i < nmodes; ++i) {
+        if(i == mode) {
+            result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
+        } else {
+            result = sptNewSizeVector(&dest->inds[i], 0, 0);
+        }
         if(result) {
             return result;
         }
     }
-    dest->stride = ((dest->ndims[nmodes-1]-1)/8+1)*8;
+    dest->stride = ((dest->ndims[mode]-1)/8+1)*8;
     result = sptNewVector(&dest->values, dest->nnz * dest->stride, 0);
     if(result) {
         return result;
     }
     for(i = 0; i < dest->nnz; ++i) {
-        dest->values.data[i*dest->stride + src->inds[nmodes-1].data[i]] = src->values.data[i];
+        dest->values.data[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
     }
     // TODO: We need to merge fibers that have identical indices
     // spt_SemiSparseTensorMergeValues(dest)
