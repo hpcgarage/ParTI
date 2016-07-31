@@ -43,8 +43,9 @@ typedef struct {
 typedef struct {
     size_t    nrows;   /// # rows
     size_t    ncols;   /// # columns
+    size_t    cap;     /// # of allocated rows
     size_t    stride;  /// ncols rounded up to 8
-    sptScalar *values; /// values, length nrows*stride
+    sptScalar *values; /// values, length cap*stride
 } sptMatrix;
 
 /**
@@ -106,6 +107,7 @@ void sptFreeSizeVector(sptSizeVector *vec);
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
+int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
 int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src);
