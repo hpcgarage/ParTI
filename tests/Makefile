@@ -16,5 +16,5 @@ clean:
 ../build/libSpTOL_s.a:
 	mkdir -p ../build
 	cd ../build && \
-	cmake .. -DCMAKE_C_FLAGS="-Wall -Werror -std=c99 -fopenmp -g" && \
+	cmake .. -DCMAKE_C_FLAGS="-Wall -Wextra -std=c99 -fopenmp -g" && \
 	$(MAKE)

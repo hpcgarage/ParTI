@@ -6,5 +6,6 @@ const char *sptExplainError(int errcode) {
     static const char *explainations[] = {
         "Unknown error"
     };
+    (void) errcode; // prevent -Wunused-parameter
     return explainations[0];
 }

@@ -2,7 +2,7 @@
 #include "sptensor.h"
 
 /* TODO: bug. */
-int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads) {
+int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads) {
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         return -1;
@@ -24,12 +24,12 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
     free(dist_nrows_Y);
 
     printf("dist_nnzs_Y:\n");
-    for(int i=0; i<nthreads; ++i) {
+    for(size_t i=0; i<nthreads; ++i) {
         printf("%zu ", dist_nnzs_Y[i]);
     }
     printf("\n");
     printf("dist_nnzs_X:\n");
-    for(int i=0; i<nthreads; ++i) {
+    for(size_t i=0; i<nthreads; ++i) {
         printf("%zu ", dist_nnzs_X[i]);
     }
     printf("\n");

@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-void sptMatricize(sptSparseTensor const * const X, 
+void sptMatricize(sptSparseTensor const * const X,
 	size_t const m,
 	sptSparseMatrix * const A,
 	int const transpose) {
@@ -25,7 +25,7 @@ void sptMatricize(sptSparseTensor const * const X,
 	/* Calculate strides for tensor X, from mode-(N-1) to mode-0. */
 	size_t * strides = (size_t *)malloc((nmodes-1) * sizeof *strides);
 	strides[nmodes-2] = 1;
-	for(size_t i=nmodes-3; i>=0; --i) {
+	for(int i=nmodes-3; i>=0; --i) {
 		size_t new_i = new_order[i];
 		strides[i] = strides[i+1] * ndims[new_i+1];
 	}
