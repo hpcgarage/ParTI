@@ -1,13 +1,14 @@
 #include <SpTOL.h>
 #include "ssptensor.h"
+#include <string.h>
 
 static int spt_SemiSparseTensorCompareIndices(const sptSemiSparseTensor *tsr, size_t el_idx, const size_t indices[]) {
     size_t i;
     for(i = 0; i < tsr->nmodes; ++i) {
         if(i != tsr->mode) {
-            if(tsr->indices[i].data[el_idx] < indices) {
+            if(tsr->inds[i].data[el_idx] < indices[i]) {
                 return -1;
-            } else if(tsr->indices[i].data[el_idx] > indices) {
+            } else if(tsr->inds[i].data[el_idx] > indices[i]) {
                 return 1;
             }
         }
@@ -23,13 +24,14 @@ int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[],
         need_resize = 1;
     }
     if(need_resize) {
+        size_t i;
         for(i = 0; i < tsr->nmodes; ++i) {
             if(i != tsr->mode) {
-                sptAppendSizeVector(&tsr->indices[i], indices[i]);
+                sptAppendSizeVector(&tsr->inds[i], indices[i]);
             }
         }
         sptAppendMatrix(&tsr->values, NULL);
-        memset(tsr->values.values[tsr->nnz * tsr->stride], 0, tsr->ncols * sizeof (spScalar));
+        memset(&tsr->values.values[tsr->nnz * tsr->stride], 0, tsr->nmodes * sizeof (sptScalar));
         ++tsr->nnz;
     }
     tsr->values.values[(tsr->nnz-1) * tsr->stride + indices[tsr->mode]] = value;
