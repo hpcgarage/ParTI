@@ -60,7 +60,9 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]) {
         mtx->cap = newcap;
         mtx->values = newdata;
     }
-    memcpy(&mtx->values[mtx->nrows * mtx->stride], values, mtx->ncols * sizeof (sptScalar));
+    if(values != NULL) {
+        memcpy(&mtx->values[mtx->nrows * mtx->stride], values, mtx->ncols * sizeof (sptScalar));
+    }
     ++mtx->nrows;
     return 0;
 }
