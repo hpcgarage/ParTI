@@ -32,12 +32,12 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
         }
     }
     dest->stride = ((dest->ndims[mode]-1)/8+1)*8;
-    result = sptNewVector(&dest->values, dest->nnz * dest->stride, 0);
+    result = sptNewMatrix(&dest->values, dest->nnz, dest->stride);
     if(result) {
         return result;
     }
     for(i = 0; i < dest->nnz; ++i) {
-        dest->values.data[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
+        dest->values.values[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
     }
     // TODO: We need to merge fibers that have identical indices
     // spt_SemiSparseTensorMergeValues(dest)

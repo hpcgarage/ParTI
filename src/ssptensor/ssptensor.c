@@ -28,7 +28,7 @@ int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode,
         }
     }
     tsr->stride = ((ndims[mode]-1)/8+1)*8;
-    result = sptNewVector(&tsr->values, 0, 0);
+    result = sptNewMatrix(&tsr->values, 0, tsr->stride);
     if(result) {
         return result;
     }
@@ -58,7 +58,7 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
         }
     }
     dest->stride = src->stride;
-    result = sptCopyVector(&dest->values, &src->values);
+    result = sptCopyMatrix(&dest->values, &src->values);
     if(result) {
         return result;
     }
@@ -72,5 +72,5 @@ void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr) {
     }
     free(tsr->ndims);
     free(tsr->inds);
-    sptFreeVector(&tsr->values);
+    sptFreeMatrix(&tsr->values);
 }
