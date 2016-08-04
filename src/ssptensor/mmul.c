@@ -8,6 +8,7 @@
 /* sb: Oh, what a long name */
 int sptSparseTensorMulMatrixAsSemiSparseTensor(sptSemiSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U, size_t mode) {
     int result;
+    size_t *ind_buf;
     size_t m, i;
     if(mode >= X->nmodes) {
         return -1;
@@ -23,7 +24,7 @@ int sptSparseTensorMulMatrixAsSemiSparseTensor(sptSemiSparseTensor *Y, const spt
         ind_buf[m] = X->ndims[m];
     }
     ind_buf[mode] = U->ncols;
-    sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
+    result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     if(result) {
         free(ind_buf);
         return result;
