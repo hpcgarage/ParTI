@@ -7,7 +7,7 @@ static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, size_t l, size_t r, spt
 static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]);
 
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr) {
-    sptScalar *buffer = malloc(tsr->nmodes * sizeof (sptScalar));
+    sptScalar *buffer = malloc(tsr->stride * sizeof (sptScalar));
     if(!buffer) {
         fprintf(stderr, "SpTOL: memory failure\n");
         return -1;
@@ -55,8 +55,8 @@ static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, s
         }
     }
     if(ind1 != ind2) {
-        memcpy(buffer, &tsr->values.values[ind1*tsr->stride], tsr->nmodes * sizeof (sptScalar));
-        memcpy(&tsr->values.values[ind1*tsr->stride], &tsr->values.values[ind2*tsr->stride], tsr->nmodes * sizeof (sptScalar));
-        memcpy(&tsr->values.values[ind2*tsr->stride], buffer, tsr->nmodes * sizeof (sptScalar));
+        memcpy(buffer, &tsr->values.values[ind1*tsr->stride], tsr->stride * sizeof (sptScalar));
+        memcpy(&tsr->values.values[ind1*tsr->stride], &tsr->values.values[ind2*tsr->stride], tsr->stride * sizeof (sptScalar));
+        memcpy(&tsr->values.values[ind2*tsr->stride], buffer, tsr->stride * sizeof (sptScalar));
     }
 }

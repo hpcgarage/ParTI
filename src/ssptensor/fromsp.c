@@ -1,4 +1,5 @@
 #include <SpTOL.h>
+#include "ssptensor.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -39,7 +40,6 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
     for(i = 0; i < dest->nnz; ++i) {
         dest->values.values[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
     }
-    // TODO: We need to merge fibers that have identical indices
-    // spt_SemiSparseTensorMergeValues(dest)
+    spt_SemiSparseTensorMergeValues(dest);
     return 0;
 }

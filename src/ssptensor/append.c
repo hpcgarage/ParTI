@@ -17,6 +17,7 @@ static int spt_CompareIndices(const sptSemiSparseTensor *tsr, size_t el_idx, con
 }
 
 int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[], sptScalar value) {
+    int result;
     int need_resize = 0;
     if(tsr->nnz == 0) {
         need_resize = 1;
@@ -27,12 +28,19 @@ int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[],
         size_t i;
         for(i = 0; i < tsr->nmodes; ++i) {
             if(i != tsr->mode) {
-                sptAppendSizeVector(&tsr->inds[i], indices[i]);
+                result = sptAppendSizeVector(&tsr->inds[i], indices[i]);
+                if(result) {
+                    return result;
+                }
             }
         }
-        sptAppendMatrix(&tsr->values, NULL);
+        result = sptAppendMatrix(&tsr->values, NULL);
+        if(result) {
+            return result;
+        }
         memset(&tsr->values.values[tsr->nnz * tsr->stride], 0, tsr->nmodes * sizeof (sptScalar));
         ++tsr->nnz;
     }
     tsr->values.values[(tsr->nnz-1) * tsr->stride + indices[tsr->mode]] = value;
+    return 0;
 }
