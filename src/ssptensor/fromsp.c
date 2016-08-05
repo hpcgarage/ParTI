@@ -40,6 +40,7 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
     for(i = 0; i < dest->nnz; ++i) {
         dest->values.values[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
     }
+    sptSemiSparseTensorSortIndex(dest);
     spt_SemiSparseTensorMergeValues(dest);
     return 0;
 }
