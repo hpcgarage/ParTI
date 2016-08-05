@@ -77,6 +77,7 @@ int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const
                     free(ind_buf);
                     return result;
                 }
+                ++Y->nnz;
                 sptSparseTensorSortIndex(Y);
             }
         }
