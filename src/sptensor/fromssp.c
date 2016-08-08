@@ -29,19 +29,19 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
     }
     for(i = 0; i < src->nnz; ++i) {
         size_t j;
-        for(j = 0; j < src->ndims[nmodes-1]; ++j) {
+        for(j = 0; j < src->ndims[src->mode]; ++j) {
             sptScalar data = src->values.values[i*src->stride + j];
             if(data != 0) {
                 size_t m;
-                for(m = 0; m < nmodes-1; ++m) {
-                    result = sptAppendSizeVector(&dest->inds[m], src->inds[m].data[i]);
+                for(m = 0; m < nmodes; ++m) {
+                    if(m != src->mode) {
+                        result = sptAppendSizeVector(&dest->inds[m], src->inds[m].data[i]);
+                    } else {
+                        result = sptAppendSizeVector(&dest->inds[src->mode], j);
+                    }
                     if(result) {
                         return result;
                     }
-                }
-                result = sptAppendSizeVector(&dest->inds[nmodes-1], j);
-                if(result) {
-                    return result;
                 }
                 result = sptAppendVector(&dest->values, data);
                 if(result) {
@@ -50,5 +50,6 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
             }
         }
     }
+    sptSparseTensorSortIndex(dest);
     return 0;
 }
