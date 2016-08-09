@@ -1,7 +1,7 @@
 CFLAGS=-Wall -Wextra -std=c99 -fopenmp -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 
-TARGETS=loadstore add kronecker khatri-rao
+TARGETS=loadstore add kronecker khatri-rao convert
 
 .PHONY: all clean
 
