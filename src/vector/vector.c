@@ -61,7 +61,7 @@ int sptAppendVectorWithVector(sptVector *vec, sptVector *append_vec) {
         vec->data[vec->len + i] = append_vec->data[i];
         ++vec->len;
     }
-    
+
     return 0;
 }
 
@@ -142,7 +142,7 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, sptSizeVector *append_vec)
         vec->data[vec->len + i] = append_vec->data[i];
         ++vec->len;
     }
-    
+
     return 0;
 }
 
