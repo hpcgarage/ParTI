@@ -30,7 +30,11 @@ int sptCopyVector(sptVector *dest, const sptVector *src) {
 
 int sptAppendVector(sptVector *vec, sptScalar value) {
     if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
         size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
         sptScalar *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         if(!newdata) {
             return -1;
@@ -107,7 +111,11 @@ int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src) {
 
 int sptAppendSizeVector(sptSizeVector *vec, size_t value) {
     if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
         size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
         size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         if(!newdata) {
             return -1;

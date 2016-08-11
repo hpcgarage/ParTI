@@ -38,7 +38,11 @@ int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src) {
 
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]) {
     if(mtx->cap <= mtx->nrows) {
+#ifndef MEMCHECK_MODE
         size_t newcap = mtx->cap + mtx->cap/2;
+#else
+        size_t newcap = mtx->nrows+1;
+#endif
         sptScalar *newdata;
 #ifdef _ISOC11_SOURCE
         newdata = aligned_alloc(8 * sizeof (sptScalar), newcap * mtx->stride * sizeof (sptScalar));
