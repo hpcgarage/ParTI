@@ -23,7 +23,7 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
         return -1;
     }
     for(i = 0; i < nmodes; ++i) {
-        if(i == mode) {
+        if(i != mode) {
             result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
         } else {
             result = sptNewSizeVector(&dest->inds[i], 0, 0);
