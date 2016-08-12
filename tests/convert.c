@@ -22,7 +22,7 @@ int main(int argc, char const *argv[]) {
     assert(sptLoadSparseTensor(&a, fi) == 0);
     fclose(fi);
 
-    assert(sptSparseTensorToSemiSparseTensor(&b, &a, 0) == 0);
+    assert(sptSparseTensorToSemiSparseTensor(&b, &a, mode) == 0);
     sptFreeSparseTensor(&a);
     assert(sptSemiSparseTensorToSparseTensor(&c, &b) == 0);
     sptFreeSemiSparseTensor(&b);
