@@ -119,7 +119,8 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp);
-int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src);
+/* epsilon is a small positive value, every -epsilon < x < x would be considered as zero */
+int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon);
 
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]);
 int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);

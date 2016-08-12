@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src) {
+int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon) {
     size_t i;
     int result;
     size_t nmodes = src->nmodes;
+    assert(epsilon > 0);
     dest->nmodes = nmodes;
     dest->ndims = malloc(nmodes * sizeof *dest->ndims);
     if(!dest->ndims) {
@@ -31,7 +32,7 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
         size_t j;
         for(j = 0; j < src->ndims[src->mode]; ++j) {
             sptScalar data = src->values.values[i*src->stride + j];
-            if(data != 0) {
+            if(data < epsilon && data > -epsilon) {
                 size_t m;
                 for(m = 0; m < nmodes; ++m) {
                     if(m != src->mode) {

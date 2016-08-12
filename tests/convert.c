@@ -24,7 +24,7 @@ int main(int argc, char const *argv[]) {
 
     assert(sptSparseTensorToSemiSparseTensor(&b, &a, mode) == 0);
     sptFreeSparseTensor(&a);
-    assert(sptSemiSparseTensorToSparseTensor(&c, &b) == 0);
+    assert(sptSemiSparseTensorToSparseTensor(&c, &b, 1e-6) == 0);
     sptFreeSemiSparseTensor(&b);
 
     fo = fopen(argv[2], "w");
