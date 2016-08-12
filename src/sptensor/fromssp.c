@@ -47,6 +47,7 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
                 if(result) {
                     return result;
                 }
+                ++dest->nnz;
             }
         }
     }
