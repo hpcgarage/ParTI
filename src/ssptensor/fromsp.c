@@ -37,6 +37,7 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
     if(result) {
         return result;
     }
+    memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptScalar));
     for(i = 0; i < dest->nnz; ++i) {
         dest->values.values[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
     }
