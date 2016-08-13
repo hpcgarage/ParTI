@@ -32,11 +32,11 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
             return result;
         }
     }
-    dest->stride = ((dest->ndims[mode]-1)/8+1)*8;
-    result = sptNewMatrix(&dest->values, dest->nnz, dest->stride);
+    result = sptNewMatrix(&dest->values, dest->nnz, dest->ndims[mode]);
     if(result) {
         return result;
     }
+    dest->stride = dest->values.stride;
     memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptScalar));
     for(i = 0; i < dest->nnz; ++i) {
         dest->values.values[i*dest->stride + src->inds[mode].data[i]] = src->values.data[i];
