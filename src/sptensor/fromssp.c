@@ -32,7 +32,7 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
         size_t j;
         for(j = 0; j < src->ndims[src->mode]; ++j) {
             sptScalar data = src->values.values[i*src->stride + j];
-            if(data < epsilon && data > -epsilon) {
+            if(!(data < epsilon && data > -epsilon)) {
                 size_t m;
                 for(m = 0; m < nmodes; ++m) {
                     if(m != src->mode) {
