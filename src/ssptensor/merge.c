@@ -8,11 +8,18 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     int result;
     size_t i;
     sptSizeVector collided;
-    sptScalar *buffer = malloc(tsr->stride * sizeof (sptScalar));
+    sptScalar *buffer;
+
+    if(tsr->nnz == 0) {
+        return 0;
+    }
+
+    buffer = malloc(tsr->stride * sizeof (sptScalar));
     if(!buffer) {
         fprintf(stderr, "SpTOL: memory failure\n");
         return -1;
     }
+
     result = sptNewSizeVector(&collided, 0, 0);
     if(result) {
         free(buffer);
