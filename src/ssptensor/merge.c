@@ -40,13 +40,11 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
 
     // Swap the last invalidated item with the last item
     i = collided.len;
-    for(;;) {
-        spt_SwapValues(tsr, i, tsr->nnz-1, buffer);
-        --tsr->nnz;
-        if(i == 0) {
-            break;
-        }
+    while(i) {
         --i;
+        assert(tsr->nnz != 0);
+        spt_SwapValues(tsr, collided.data[i], tsr->nnz-1, buffer);
+        --tsr->nnz;
     }
 
     // Make sure all Vectors and Matrices have correct sizes
