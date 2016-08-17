@@ -2,7 +2,6 @@
 #include "ssptensor.h"
 #include <stdlib.h>
 
-
 int sptSemiSparseTensorMulMatrix(
     sptSemiSparseTensor *Y,
     const sptSemiSparseTensor *X,
