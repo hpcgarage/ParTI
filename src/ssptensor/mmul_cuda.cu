@@ -40,7 +40,7 @@ __global__ static void spt_TTMKernel(
     size_t mode
 ) {
     size_t r, k;
-    for(r = 0; r < U_Ncols; ++r) {
+    for(r = 0; r < U_ncols; ++r) {
         Y_val[r] = 0;
         for(k = 0; k < U_nrows; ++k) {
             Y_val[k] += X_val[r] * U_val[r*U_stride + k];
