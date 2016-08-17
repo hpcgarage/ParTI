@@ -1,23 +1,22 @@
 #include <SpTOL.h>
 
 
-int sptCudaSparseTensorMulMatrixAsSemiSparseTensor(
+int sptCudaSemiSparseTensorMulMatrix(
     sptSemiSparseTensor *Y,
-    const sptSparseTensor *X,
+    const sptSemiSparseTensor *X,
     const sptMatrix *U,
     size_t mode
 ) {
-    cudaSetDevice(0);
     int result;
     size_t *ind_buf;
-    size_t m, i;
-    if(mode >= X->nmodes) {
+    size_t m;
+    if(mode != X->mode) {
         return -1;
     }
     if(X->ndims[mode] != U->nrows) {
         return -1;
     }
-    ind_buf = malloc(X->nmodes * sizeof *ind_buf);
+    ind_buf = new size_t[X->nmodes * sizeof *ind_buf];
     if(!ind_buf) {
         return -1;
     }
@@ -27,19 +26,25 @@ int sptCudaSparseTensorMulMatrixAsSemiSparseTensor(
     ind_buf[mode] = U->ncols;
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     if(result) {
-        free(ind_buf);
+        delete[] ind_buf;
         return result;
     }
-    // TODO
     return -1;
 }
 
-
 __global__ static void spt_TTMKernel(
-    sptSemiSparseTensor *Y,
-    const sptSparseTensor *X,
-    const sptMatrix *U,
+    sptScalar *Y_val,
+    const sptScalar *X_val,
+    size_t X_ncols,
+    const sptScalar *U_val,
+    size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t mode
 ) {
-
+    size_t r, k;
+    for(r = 0; r < X_ncols; ++r) {
+        Y_val[r] = 0;
+        for(k = 0; k < U_nrows; ++k) {
+            Y_val[k] += X_val[r] * U_val[r*U_stride + k];
+        }
+    }
 }
