@@ -35,13 +35,12 @@ int sptCudaSemiSparseTensorMulMatrix(
 __global__ static void spt_TTMKernel(
     sptScalar *Y_val,
     const sptScalar *X_val,
-    size_t X_ncols,
     const sptScalar *U_val,
     size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t mode
 ) {
     size_t r, k;
-    for(r = 0; r < X_ncols; ++r) {
+    for(r = 0; r < U_Ncols; ++r) {
         Y_val[r] = 0;
         for(k = 0; k < U_nrows; ++k) {
             Y_val[k] += X_val[r] * U_val[r*U_stride + k];
