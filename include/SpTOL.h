@@ -109,6 +109,7 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
+int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);

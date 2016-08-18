@@ -30,22 +30,22 @@ int sptSemiSparseTensorMulMatrix(
     if(result) {
         return result;
     }
-    for(i = 0; i < X->nnz; ++i) {
-        size_t r, k;
-        for(m = 0; m < X->nmodes; ++m) {
-            if(m != mode) {
-                result = sptAppendSizeVector(&Y->inds[m], X->inds[m].data[i]);
-                if(result) {
-                    free(ind_buf);
-                    return result;
-                }
+    for(m = 0; m < Y->nmodes; ++m) {
+        if(m != mode) {
+            sptFreeSizeVector(&Y->inds[m]);
+            result = sptCopySizeVector(&Y->inds[m], &X->inds[m]);
+            if(result != 0) {
+                return result;
             }
         }
-        result = sptAppendMatrix(&Y->values, NULL);
-        if(result) {
-            return result;
-        }
-        memset(&Y->values.values[i*Y->stride], 0, Y->stride * sizeof (sptScalar));
+    }
+    result = sptResizeMatrix(&Y->values, X->nnz);
+    if(result != 0) {
+        return result;
+    }
+    memset(&Y->values.values, 0, Y->nnz * Y->stride * sizeof (sptScalar));
+    for(i = 0; i < X->nnz; ++i) {
+        size_t r, k;
         for(r = 0; r < U->ncols; ++r) {
             for(k = 0; k < U->nrows; ++k) {
                 Y->values.values[i*Y->stride + k] += X->values.values[i*X->stride + r] * U->values[r*U->stride + k];
