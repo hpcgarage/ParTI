@@ -1,7 +1,9 @@
 CFLAGS=-Wall -Wextra -std=c99 -fopenmp -g -I../include
 LDLIBS=../build/libSpTOL_s.a
+NVCC=nvcc
+NVCCFLAGS=-g -I../include
 
-TARGETS=loadstore add kronecker khatri-rao convert
+TARGETS=loadstore add kronecker khatri-rao convert ttm
 
 .PHONY: all clean
 
@@ -13,8 +15,11 @@ clean:
 
 %: %.c ../build/libSpTOL_s.a
 
+%: %.cu ../build/libSpTOL_s.a
+	$(NVCC) $(NVCCFLAGS) -o $@ $< $(LDLIBS)
+
 ../build/libSpTOL_s.a:
 	mkdir -p ../build
 	cd ../build && \
-	cmake .. -DCMAKE_C_FLAGS="-Wall -Wextra -std=c99 -fopenmp -g" && \
+	cmake .. -DCMAKE_C_FLAGS="-Wall -Wextra -std=c99 -fopenmp -g -fPIC" -DCMAKE_CXX_FLAGS="-Wall -Wextra -fopenmp -g -fPIC" && \
 	$(MAKE)

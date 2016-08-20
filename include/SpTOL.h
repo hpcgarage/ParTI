@@ -91,6 +91,10 @@ typedef struct {
 
 const char *sptExplainError(int errcode);
 
+/* Helper function for pure C module */
+int sptCudaSetDevice(int device);
+int sptCudaGetLastError(void);
+
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
 int sptAppendVector(sptVector *vec, sptScalar value);
@@ -143,12 +147,12 @@ int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sp
 int sptSparseTensorDotDiv(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 
 /**
- * Sparse tensor times a dense matrix (TTM)
- * Input: sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
+ * Semi-sparse tensor times a dense matrix (TTM)
+ * Input: semi-sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
  * Output: sparse tensor Y[I][J][R] (e.g. n=2)
  */
-int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptSemiSparseTensorMulMatrix(sptSemiSparseTensor *Y, const sptSemiSparseTensor *X, const sptMatrix *U, size_t mode);
+int sptCudaSemiSparseTensorMulMatrix(sptSemiSparseTensor *Y, const sptSemiSparseTensor *X, const sptMatrix *U, size_t mode);
 /**
  * Kronecker product
  */
