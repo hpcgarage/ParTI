@@ -44,7 +44,7 @@ int sptSemiSparseTensorMulMatrix(
         return result;
     }
     Y->nnz = X->nnz;
-    memset(&Y->values.values, 0, Y->nnz * Y->stride * sizeof (sptScalar));
+    memset(Y->values.values, 0, Y->nnz * Y->stride * sizeof (sptScalar));
     for(i = 0; i < X->nnz; ++i) {
         size_t r, k;
         for(k = 0; k < U->nrows; ++k) {
