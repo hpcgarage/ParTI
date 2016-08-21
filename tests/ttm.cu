@@ -27,7 +27,9 @@ int main(int argc, char const *argv[]) {
     fclose(fU);
 
     sscanf(argv[4], "%zu", &mode);
-    sscanf(argv[5], "%d", &cuda_dev_id);
+    if(argc >= 6) {
+        sscanf(argv[5], "%d", &cuda_dev_id);
+    }
 
     assert(sptSparseTensorToSemiSparseTensor(&X, &spX, mode) == 0);
     sptFreeSparseTensor(&spX);
