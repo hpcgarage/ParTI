@@ -72,29 +72,27 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]) {
 }
 
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {
-    if(mtx->cap <= mtx->nrows) {
-        sptScalar *newdata;
+    sptScalar *newdata;
 #ifdef _ISOC11_SOURCE
-        newdata = aligned_alloc(8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
+    newdata = aligned_alloc(8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
 #elif _POSIX_C_SOURCE >= 200112L
-        {
-            int ok = posix_memalign((void **) &newdata, 8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
-            if(!ok) {
-                newdata = NULL;
-            }
+    {
+        int ok = posix_memalign((void **) &newdata, 8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
+        if(!ok) {
+            newdata = NULL;
         }
-#else
-        newdata = malloc(newsize * mtx->stride * sizeof (sptScalar));
-#endif
-        if(!newdata) {
-            return -1;
-        }
-        memcpy(newdata, mtx->values, mtx->nrows * mtx->stride * sizeof (sptScalar));
-        free(mtx->values);
-        mtx->nrows = newsize;
-        mtx->cap = newsize;
-        mtx->values = newdata;
     }
+#else
+    newdata = malloc(newsize * mtx->stride * sizeof (sptScalar));
+#endif
+    if(!newdata) {
+        return -1;
+    }
+    memcpy(newdata, mtx->values, mtx->nrows * mtx->stride * sizeof (sptScalar));
+    free(mtx->values);
+    mtx->nrows = newsize;
+    mtx->cap = newsize;
+    mtx->values = newdata;
     return 0;
 }
 
