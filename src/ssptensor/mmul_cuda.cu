@@ -40,7 +40,7 @@ int sptCudaSemiSparseTensorMulMatrix(
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }
-    ind_buf[mode] = U->ncols;
+    ind_buf[mode] = U->nrows;
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     delete[] ind_buf;
     if(result) {
