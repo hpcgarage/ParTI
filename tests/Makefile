@@ -1,7 +1,7 @@
 CFLAGS=-Wall -Wextra -std=c99 -fopenmp -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 NVCC=nvcc
-NVCCFLAGS=-g -I../include
+NVCCFLAGS=-I../include
 
 TARGETS=loadstore add kronecker khatri-rao convert ttm
 
@@ -21,5 +21,5 @@ clean:
 ../build/libSpTOL_s.a:
 	mkdir -p ../build
 	cd ../build && \
-	cmake .. -DCMAKE_C_FLAGS="-Wall -Wextra -std=c99 -fopenmp -g -fPIC" -DCMAKE_CXX_FLAGS="-Wall -Wextra -fopenmp -g -fPIC" && \
+	cmake .. -DCMAKE_C_FLAGS="-Wall -Wextra -std=c99 -fopenmp -g -fPIC" -DCMAKE_CXX_FLAGS="-Wall -Wextra -fopenmp -g -fPIC" -DCUDA_NVCC_FLAGS="-g" && \
 	$(MAKE)
