@@ -59,6 +59,7 @@ int sptCudaSemiSparseTensorMulMatrix(
     if(result != 0) {
         return result;
     }
+    Y->nnz = X->nnz;
 
     sptScalar *Y_val = NULL;
     result = cudaMalloc((void **) &Y_val, Y->nnz * Y->stride * sizeof (sptScalar));
