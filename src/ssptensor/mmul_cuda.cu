@@ -10,9 +10,9 @@ __global__ static void spt_TTMKernel(
 ) {
     size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
     size_t r, k;
-    for(k = 0; k < U_nrows; ++k) {
+    for(k = 0; k < U_ncols; ++k) {
         Y_val[tid*XY_stride + k] = 0;
-        for(r = 0; r < U_ncols; ++r) {
+        for(r = 0; r < U_nrows; ++r) {
             Y_val[tid*XY_stride + k] += X_val[tid*XY_stride + r] * U_val[r*U_stride + k];
         }
     }
@@ -40,7 +40,7 @@ int sptCudaSemiSparseTensorMulMatrix(
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }
-    ind_buf[mode] = U->nrows;
+    ind_buf[mode] = U->ncols;
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     delete[] ind_buf;
     if(result) {

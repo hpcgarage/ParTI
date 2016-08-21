@@ -24,7 +24,7 @@ int sptSemiSparseTensorMulMatrix(
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }
-    ind_buf[mode] = U->nrows;
+    ind_buf[mode] = U->ncols;
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     free(ind_buf);
     if(result) {
@@ -47,8 +47,8 @@ int sptSemiSparseTensorMulMatrix(
     memset(Y->values.values, 0, Y->nnz * Y->stride * sizeof (sptScalar));
     for(i = 0; i < X->nnz; ++i) {
         size_t r, k;
-        for(k = 0; k < U->nrows; ++k) {
-            for(r = 0; r < U->ncols; ++r) {
+        for(k = 0; k < U->ncols; ++k) {
+            for(r = 0; r < U->nrows; ++r) {
                 Y->values.values[i*Y->stride + k] += X->values.values[i*X->stride + r] * U->values[r*U->stride + k];
             }
         }
