@@ -17,6 +17,7 @@ int sptSemiSparseTensorMulMatrix(
     if(X->ndims[mode] != U->nrows) {
         return -1;
     }
+    // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     if(!ind_buf) {
         return -1;
@@ -25,6 +26,7 @@ int sptSemiSparseTensorMulMatrix(
         ind_buf[m] = X->ndims[m];
     }
     ind_buf[mode] = U->ncols;
+    // jli: use pre-processing to allocate Y size outside this function.
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     free(ind_buf);
     if(result) {
