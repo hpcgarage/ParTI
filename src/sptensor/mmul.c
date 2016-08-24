@@ -30,6 +30,7 @@ static int spt_SparseTensorFindIndex(size_t *index, const sptSparseTensor *tsr, 
     Output a "semi-sparse" tensor in the timing mode.
     This function can be kept for the future. */
 int sptSparseTensorMulMatrix(sptSparseTensor *Y, const sptSparseTensor *X, const sptMatrix *U, size_t mode) {
+    // FIXME: This function needs refactor
     int result;
     size_t *ind_buf;
     size_t m, i;
