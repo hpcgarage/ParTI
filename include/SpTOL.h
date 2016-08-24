@@ -125,8 +125,15 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp);
-/* epsilon is a small positive value, every -epsilon < x < x would be considered as zero */
+/**
+ * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
+ */
 int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon);
+/**
+ * Set indices of a semi-sparse according to a reference sparse
+ * Call sptSparseTensorSortIndexAtMode on ref first
+ */
+int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fiberidx, const sptSparseTensor *ref);
 
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]);
 int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
@@ -134,6 +141,7 @@ void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
 
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
 

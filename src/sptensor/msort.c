@@ -5,7 +5,7 @@ static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t
 static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode);
 static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
-void spt_SparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode) {
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode) {
     spt_QuickSortAtMode(tsr, 0, tsr->nnz, mode);
 }
 

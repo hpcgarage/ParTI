@@ -17,7 +17,4 @@ void sptDistSparseTensorFixed(sptSparseTensor * tsr,
     size_t * const dist_nnzs,
     size_t * dist_nrows);
 
-void spt_SparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
-
-
 #endif
