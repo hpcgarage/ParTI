@@ -27,6 +27,7 @@ int sptSemiSparseTensorSetIndices(
                 }
             }
             lastidx = i;
+            ++dest->nnz;
             if(fiberidx != NULL) {
                 result = sptAppendSizeVector(fiberidx, i);
                 if(result != 0) {
@@ -35,5 +36,16 @@ int sptSemiSparseTensorSetIndices(
             }
         }
     }
+    if(fiberidx != NULL) {
+        result = sptAppendSizeVector(fiberidx, ref->nnz);
+        if(result != 0) {
+            return result;
+        }
+    }
+    result = sptResizeMatrix(&dest->values, dest->nnz);
+    if(result != 0) {
+        return result;
+    }
+    memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptScalar));
     return 0;
 }
