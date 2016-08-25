@@ -173,7 +173,6 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  */
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
-
 /**
  * Matricized tensor times Khatri-Rao product.
  */
