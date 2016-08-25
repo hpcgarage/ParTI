@@ -154,6 +154,8 @@ int sptSparseTensorSub(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
 int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 int sptSparseTensorDotDiv(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 
+int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
+
 /**
  * Semi-sparse tensor times a dense matrix (TTM)
  * Input: semi-sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
