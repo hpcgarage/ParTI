@@ -1,2 +1,0 @@
-/home/jli/Work/SpTOL/build/CMakeFiles/SpTOL_s.dir
-/home/jli/Work/SpTOL/build/CMakeFiles/SpTOL.dir
