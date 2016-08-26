@@ -1,7 +1,7 @@
 CFLAGS=-Wall -Wextra -std=c99 -fopenmp -g -I../include
 LDLIBS=../build/libSpTOL_s.a
 NVCC=nvcc
-NVCCFLAGS=-I../include
+NVCCFLAGS=-g -I../include
 
 TARGETS=loadstore add kronecker khatri-rao convert ttm sttm
 
