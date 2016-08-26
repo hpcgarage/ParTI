@@ -6,12 +6,15 @@
 int sptSemiSparseTensorSetIndices(
     sptSemiSparseTensor *dest,
     sptSizeVector *fiberidx,
-    const sptSparseTensor *ref
+    sptSparseTensor *ref
 ) {
     size_t lastidx = ref->nnz;
     size_t i, m;
     int result;
     assert(dest->nmodes == ref->nmodes);
+    if(ref->sortkey != dest->mode) {
+        sptSparseTensorSortIndexAtMode(ref, dest->mode);
+    }
     result = sptNewSizeVector(fiberidx, 0, 0);
     if(result != 0) {
         return result;

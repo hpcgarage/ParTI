@@ -12,7 +12,9 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     if(X->ndims[mode] != U->nrows) {
         return -1;
     }
-    sptSparseTensorSortIndexAtMode(X, mode);
+    if(X->sortkey != mode) {
+        sptSparseTensorSortIndexAtMode(X, mode);
+    }
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     if(!ind_buf) {

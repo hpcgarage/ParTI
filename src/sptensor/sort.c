@@ -6,6 +6,11 @@ static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
 void sptSparseTensorSortIndex(sptSparseTensor *tsr) {
     spt_QuickSortIndex(tsr, 0, tsr->nnz);
+    if(tsr->nmodes != 0) {
+        tsr->sortkey = tsr->nmodes - 1;
+    } else {
+        tsr->sortkey = 0;
+    }
 }
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {

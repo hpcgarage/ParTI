@@ -64,11 +64,12 @@ typedef struct {
  * Sparse tensor type
  */
 typedef struct {
-    size_t        nmodes; /// # modes
-    size_t        *ndims; /// size of each mode, length nmodes
-    size_t        nnz;    /// # non-zeros
-    sptSizeVector *inds;  /// indices of each element, length [nmodes][nnz]
-    sptVector     values; /// non-zero values, length nnz
+    size_t        nmodes;  /// # modes
+    size_t        sortkey; /// the least significant mode during sort
+    size_t        *ndims;  /// size of each mode, length nmodes
+    size_t        nnz;     /// # non-zeros
+    sptSizeVector *inds;   /// indices of each element, length [nmodes][nnz]
+    sptVector     values;  /// non-zero values, length nnz
 } sptSparseTensor;
 
 /**
@@ -133,7 +134,7 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
  * Set indices of a semi-sparse according to a reference sparse
  * Call sptSparseTensorSortIndexAtMode on ref first
  */
-int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fiberidx, const sptSparseTensor *ref);
+int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fiberidx, sptSparseTensor *ref);
 
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]);
 int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
