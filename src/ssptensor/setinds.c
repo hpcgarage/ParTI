@@ -21,6 +21,7 @@ int sptSemiSparseTensorSetIndices(
     if(result != 0) {
         return result;
     }
+    dest->nnz = 0;
     for(i = 0; i < ref->nnz; ++i) {
         if(lastidx == ref->nnz || spt_SparseTensorCompareExceptMode(ref, lastidx, ref, i, dest->mode) != 0) {
             for(m = 0; m < dest->nmodes; ++m) {
