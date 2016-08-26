@@ -5,8 +5,8 @@
 
 int main(int argc, char const *argv[]) {
     FILE *fX, *fU, *fY;
-    sptSparseTensor X, spU, spY;
-    sptSemiSparseTensor Y;
+    sptSparseTensor spX, spU, spY;
+    sptSemiSparseTensor X, Y;
     sptMatrix U;
     size_t mode = 0;
     int cuda_dev_id = -1;
@@ -18,7 +18,7 @@ int main(int argc, char const *argv[]) {
 
     fX = fopen(argv[1], "r");
     assert(fX != NULL);
-    assert(sptLoadSparseTensor(&X, fX) == 0);
+    assert(sptLoadSparseTensor(&spX, fX) == 0);
     fclose(fX);
 
     fU = fopen(argv[2], "r");
@@ -31,21 +31,23 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[5], "%d", &cuda_dev_id);
     }
 
+    assert(sptSparseTensorToSemiSparseTensor(&X, &spX, mode) == 0);
+    sptFreeSparseTensor(&spX);
     assert(sptSparseTensorToMatrix(&U, &spU) == 0);
     sptFreeSparseTensor(&spU);
 
     if(cuda_dev_id == -1) {
-        assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        assert(sptSemiSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        //assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        assert(sptCudaSemiSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
 
     assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
 
     sptFreeSemiSparseTensor(&Y);
     sptFreeMatrix(&U);
-    sptFreeSparseTensor(&X);
+    sptFreeSemiSparseTensor(&X);
 
     fY = fopen(argv[3], "w");
     assert(fY != NULL);
