@@ -42,5 +42,6 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
             }
         }
     }
+    sptFreeSizeVector(&fiberidx);
     return 0;
 }
