@@ -38,7 +38,7 @@ int main(int argc, char const *argv[]) {
         assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        //assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
 
     assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
