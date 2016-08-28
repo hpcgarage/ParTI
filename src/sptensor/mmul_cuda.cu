@@ -4,19 +4,33 @@ __global__ static void spt_TTMKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
     const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_ncols, size_t U_stride
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride
 ) {
+    __shared__ char *mem_pool;
     size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+    sptScalar *const Y_shr = (sptScalar *) &mem_pool[0]; // size U_ncols
+    sptScalar *const X_shr = (sptScalar *) &mem_pool[U_ncols * sizeof (sptScalar)]; // size U_nrows
+    size_t *const r_shr = (size_t *) &mem_pool[(U_ncols+U_nrows) * sizeof (sptScalar)]; // size U_nrows
     if(tid < Y_nnz) {
         size_t inz_begin = fiberidx_val[tid];
         size_t inz_end = fiberidx_val[tid+1];
         size_t j, k;
         for(k = 0; k < U_ncols; ++k) {
-            Y_val[tid*Y_stride + k] = 0;
-            for(j = inz_begin; j < inz_end; ++j) {
-                size_t r = X_inds_m[j];
-                Y_val[tid*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
+            Y_val[j] = 0;
+        }
+        for(j = 0; j < inz_end-inz_begin; ++j) {
+            X_shr[j] = X_val[j+inz_begin];
+        }
+        for(j = 0; j < inz_end-inz_begin; ++j) {
+            r_shr[j] = X_inds_m[j+inz_begin];
+        }
+        for(k = 0; k < U_ncols; ++k) {
+            for(j = 0; j < inz_end-inz_begin; ++j) {
+                Y_shr[k] += X_shr[j] * U_val[r_shr[j]*U_stride + k];
             }
+        }
+        for(k = 0; k < U_ncols; ++k) {
+            Y_val[tid*Y_stride + k] = Y_shr[k];
         }
     }
 }
@@ -90,11 +104,13 @@ int sptCudaSparseTensorMulMatrix(
     }
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
-    spt_TTMKernel<<<blocks_count, 256>>>(
+    size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
+
+    spt_TTMKernel<<<blocks_count, 256, sharedMem>>>(
         Y_val, Y->stride, Y->nnz,
         X_val, X->nnz, X_inds_m,
         fiberidx_val, fiberidx.len,
-        U_val, U->ncols, U->stride
+        U_val, U->nrows, U->ncols, U->stride
     );
 
     cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
