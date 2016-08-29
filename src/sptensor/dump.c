@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include <stdio.h>
 
-int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp) {
+int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     int iores;
     size_t mode, i;
     iores = fprintf(fp, "%zu\n", tsr->nmodes);
@@ -23,7 +23,7 @@ int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp) {
     fputs("\n", fp);
     for(i = 0; i < tsr->nnz; ++i) {
         for(mode = 0; mode < tsr->nmodes; ++mode) {
-            iores = fprintf(fp, "%zu\t", tsr->inds[mode].data[i]);
+            iores = fprintf(fp, "%zu\t", tsr->inds[mode].data[i]+start_index);
             if(iores < 0) {
                 return -1;
             }

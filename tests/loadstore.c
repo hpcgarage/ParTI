@@ -13,12 +13,12 @@ int main(int argc, char *argv[]) {
 
     fi = fopen(argv[1], "r");
     assert(fi != NULL);
-    assert(sptLoadSparseTensor(&tsr, fi) == 0);
+    assert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
 
     fo = fopen(argv[2], "w");
     assert(fo != NULL);
-    assert(sptDumpSparseTensor(&tsr, fo) == 0);
+    assert(sptDumpSparseTensor(&tsr, 1, fo) == 0);
     fclose(fo);
 
     sptFreeSparseTensor(&tsr);

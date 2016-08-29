@@ -20,12 +20,12 @@ int main(int argc, char *argv[]) {
 
     fa = fopen(argv[3], "r");
     assert(fa != NULL);
-    assert(sptLoadSparseTensor(&a, fa) == 0);
+    assert(sptLoadSparseTensor(&a, 1, fa) == 0);
     fclose(fa);
 
     fb = fopen(argv[4], "r");
     assert(fb != NULL);
-    assert(sptLoadSparseTensor(&b, fb) == 0);
+    assert(sptLoadSparseTensor(&b, 1, fb) == 0);
     fclose(fb);
 
     sptSparseTensorSortIndex(&a);
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
     fo = fopen(argv[5], "w");
     assert(fo != NULL);
-    assert(sptDumpSparseTensor(&c, fo) == 0);
+    assert(sptDumpSparseTensor(&c, 1, fo) == 0);
     fclose(fo);
 
     return 0;

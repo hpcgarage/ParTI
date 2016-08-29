@@ -14,6 +14,7 @@ clean:
 	rm -f $(TARGETS)
 
 %: %.c ../build/libSpTOL_s.a
+	$(CC) $(CFLAGS) -o $@ $< $(LDLIBS)
 
 %: %.cu ../build/libSpTOL_s.a
 	$(NVCC) $(NVCCFLAGS) -o $@ $< $(LDLIBS)

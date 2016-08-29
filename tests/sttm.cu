@@ -18,12 +18,12 @@ int main(int argc, char const *argv[]) {
 
     fX = fopen(argv[1], "r");
     assert(fX != NULL);
-    assert(sptLoadSparseTensor(&spX, fX) == 0);
+    assert(sptLoadSparseTensor(&spX, 1, fX) == 0);
     fclose(fX);
 
     fU = fopen(argv[2], "r");
     assert(fU != NULL);
-    assert(sptLoadSparseTensor(&spU, fU) == 0);
+    assert(sptLoadSparseTensor(&spU, 1, fU) == 0);
     fclose(fU);
 
     sscanf(argv[4], "%zu", &mode);
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]) {
 
     fY = fopen(argv[3], "w");
     assert(fY != NULL);
-    assert(sptDumpSparseTensor(&spY, fY) == 0);
+    assert(sptDumpSparseTensor(&spY, 1, fY) == 0);
     fclose(fY);
 
     sptFreeSparseTensor(&spY);

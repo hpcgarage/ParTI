@@ -1,9 +1,10 @@
 #include <SpTOL.h>
 #include "sptensor.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
+int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     int iores, retval;
     size_t mode;
     iores = fscanf(fp, "%zu", &tsr->nmodes);
@@ -44,7 +45,8 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp) {
                 retval = -1;
                 break;
             }
-            sptAppendSizeVector(&tsr->inds[mode], index);
+            assert(index >= start_index);
+            sptAppendSizeVector(&tsr->inds[mode], index-start_index);
         }
         if(retval == 0) {
             iores = fscanf(fp, "%lf", &value);

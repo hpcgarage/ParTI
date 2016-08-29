@@ -124,8 +124,8 @@ void sptFreeSparseMatrix(sptSparseMatrix *mtx);
 int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
-int sptLoadSparseTensor(sptSparseTensor *tsr, FILE *fp);
-int sptDumpSparseTensor(const sptSparseTensor *tsr, FILE *fp);
+int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
+int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
  */

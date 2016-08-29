@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
 
     fi = fopen(argv[1], "r");
     assert(fi);
-    assert(sptLoadSparseTensor(&a, fi) == 0);
+    assert(sptLoadSparseTensor(&a, 1, fi) == 0);
     fclose(fi);
 
     assert(sptSparseTensorToSemiSparseTensor(&b, &a, mode) == 0);
@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
     sptFreeSemiSparseTensor(&b);
 
     fo = fopen(argv[2], "w");
-    assert(sptDumpSparseTensor(&c, fo) == 0);
+    assert(sptDumpSparseTensor(&c, 1, fo) == 0);
     fclose(fo);
 
     sptFreeSparseTensor(&c);
