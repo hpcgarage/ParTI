@@ -15,6 +15,7 @@ __global__ static void spt_TTMKernel(
         size_t inz_begin = fiberidx_val[tid];
         size_t inz_end = fiberidx_val[tid+1];
         size_t j, k;
+        // FIXME: A BUG HERE, GOING TO FIX
         for(k = 0; k < U_ncols; ++k) {
             Y_val[j] = 0;
         }
