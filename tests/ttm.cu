@@ -9,7 +9,7 @@ int main(int argc, char const *argv[]) {
     sptSemiSparseTensor Y;
     sptMatrix U;
     size_t mode = 0;
-    int cuda_dev_id = -1;
+    int cuda_dev_id = -2;
 
     if(argc < 5) {
         printf("Usage: %s X U Y mode [cuda_dev_id]\n\n", argv[0]);
@@ -34,8 +34,10 @@ int main(int argc, char const *argv[]) {
     assert(sptSparseTensorToMatrix(&U, &spU) == 0);
     sptFreeSparseTensor(&spU);
 
-    if(cuda_dev_id == -1) {
+    if(cuda_dev_id == -2) {
         assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+    } else if(cuda_dev_id == -1) {
+        assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
         assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
