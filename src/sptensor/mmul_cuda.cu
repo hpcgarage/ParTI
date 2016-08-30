@@ -6,38 +6,36 @@ __global__ static void spt_TTMKernel(
     size_t *fiberidx_val, size_t fiberidx_len,
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride
 ) {
-    __shared__ char *mem_pool;
-    size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+    extern __shared__ char mem_pool[];
+    const size_t bid = blockIdx.x;
+    const size_t tid = threadIdx.x;
     sptScalar *const Y_shr = (sptScalar *) &mem_pool[0]; // size U_ncols
     sptScalar *const X_shr = (sptScalar *) &mem_pool[U_ncols * sizeof (sptScalar)]; // size U_nrows
     size_t *const r_shr = (size_t *) &mem_pool[(U_ncols+U_nrows) * sizeof (sptScalar)]; // size U_nrows
-    if(tid < Y_nnz) {
-        size_t inz_begin = fiberidx_val[tid];
-        size_t inz_end = fiberidx_val[tid+1];
-        size_t j, k;
-        // FIXME: A BUG HERE, GOING TO FIX
-        for(k = 0; k < U_ncols; ++k) {
-            Y_val[j] = 0;
-        }
-        for(j = 0; j < inz_end-inz_begin; ++j) {
-            X_shr[j] = X_val[j+inz_begin];
-        }
-        for(j = 0; j < inz_end-inz_begin; ++j) {
-            r_shr[j] = X_inds_m[j+inz_begin];
-        }
-        for(k = 0; k < U_ncols; ++k) {
-            for(j = 0; j < inz_end-inz_begin; ++j) {
-                Y_shr[k] += X_shr[j] * U_val[r_shr[j]*U_stride + k];
-            }
-        }
-        for(k = 0; k < U_ncols; ++k) {
-            Y_val[tid*Y_stride + k] = Y_shr[k];
-        }
-    }
-}
 
-static size_t spt_GetBlockCount(size_t threads) {
-    return (threads / 256) + ((threads & 255) != 0);
+    const size_t inz_begin = fiberidx_val[bid];
+    const size_t inz_end = fiberidx_val[bid+1];
+    size_t i;
+    // Fill Y_shr with 0, length U_ncols
+    Y_shr[tid] = 0;
+    // Fill X_shr with X_val, length inz_end-inz_begin
+    for(i = tid; i < inz_end-inz_begin; i += blockDim.x) {
+        X_shr[i] = X_val[i+inz_begin];
+    }
+    // Fill r_shr with X_inds_m, length U_ncols
+    for(i = tid; i < inz_end-inz_begin; i += blockDim.x) {
+        r_shr[i] = X_inds_m[i+inz_begin];
+    }
+    __syncthreads();
+    // Do calculations, U_ncols threads
+    for(i = 0; i < inz_end-inz_begin; ++i) {
+        Y_shr[tid] += X_shr[i] * U_val[r_shr[i]*U_stride + tid];
+    }
+    __syncthreads();
+    // Write back from Y_shr, length U_ncols
+    for(i = tid; i < U_ncols; ++i) {
+        Y_val[bid*Y_stride + i] = Y_shr[i];
+    }
 }
 
 int sptCudaSparseTensorMulMatrix(
@@ -74,7 +72,6 @@ int sptCudaSparseTensorMulMatrix(
     }
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
 
-    size_t blocks_count = spt_GetBlockCount(Y->nnz);
     sptScalar *Y_val = NULL;
     result = cudaMalloc((void **) &Y_val, Y->nnz * Y->stride * sizeof (sptScalar));
     if(result != 0) {
@@ -107,7 +104,7 @@ int sptCudaSparseTensorMulMatrix(
 
     size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
 
-    spt_TTMKernel<<<blocks_count, 256, sharedMem>>>(
+    spt_TTMKernel<<<Y->nnz, U->ncols, sharedMem>>>(
         Y_val, Y->stride, Y->nnz,
         X_val, X->nnz, X_inds_m,
         fiberidx_val, fiberidx.len,
