@@ -20,7 +20,6 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     if(!ind_buf) {
         return -1;
     }
-    #pragma omp parallel for
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }
