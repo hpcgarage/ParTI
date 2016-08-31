@@ -28,7 +28,7 @@ def human_size(nbytes):
             return '%.1f GiB' % (nbytes / 1073741824.0)
 
 def main(argv):
-    if len(argv) < 2:
+    if len(argv) < 3:
         print('Usage:   %s output.tns [nonzero_rate%%]mode_dimension ...' % argv[0])
         print()
         print('Example: %s output.tns 256 50%%1024 2%%4096' % argv[0])
