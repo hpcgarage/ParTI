@@ -15,21 +15,23 @@ __global__ static void spt_TTMKernel(
 
     const size_t inz_begin = fiberidx_val[bid];
     const size_t inz_end = fiberidx_val[bid+1];
-    size_t i;
+    size_t i, j;
     // Fill Y_shr with 0, length U_ncols
     Y_shr[tid] = 0;
     // Fill X_shr with X_val, length inz_end-inz_begin
     for(i = tid; i < inz_end-inz_begin; i += blockDim.x) {
         X_shr[i] = X_val[i+inz_begin];
     }
-    // Fill r_shr with X_inds_m, length U_ncols
+    // Fill r_shr with X_inds_m, length inz_end-inz_begin
     for(i = tid; i < inz_end-inz_begin; i += blockDim.x) {
         r_shr[i] = X_inds_m[i+inz_begin];
     }
     __syncthreads();
-    // Do calculations, U_ncols threads
-    for(i = 0; i < inz_end-inz_begin; ++i) {
-        Y_shr[tid] += X_shr[i] * U_val[r_shr[i]*U_stride + tid];
+    // Do calculations, length U_ncols
+    for(i = tid; i < U_ncols; i += blockDim.x) {
+        for(j = 0; j < inz_end-inz_begin; ++j) {
+            Y_shr[i] += X_shr[j] * U_val[r_shr[j]*U_stride + i];
+        }
     }
     __syncthreads();
     // Write back from Y_shr, length U_ncols
@@ -103,8 +105,9 @@ int sptCudaSparseTensorMulMatrix(
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
     size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
+    size_t nthreads = U->ncols < 1024 ? U->ncols : 1024;
 
-    spt_TTMKernel<<<Y->nnz, U->ncols, sharedMem>>>(
+    spt_TTMKernel<<<Y->nnz, nthreads, sharedMem>>>(
         Y_val, Y->stride, Y->nnz,
         X_val, X->nnz, X_inds_m,
         fiberidx_val, fiberidx.len,
