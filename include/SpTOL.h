@@ -90,11 +90,19 @@ typedef struct {
     sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
 } sptSemiSparseTensor;
 
+typedef struct sptTagTimer *sptTimer;
+
 const char *sptExplainError(int errcode);
 
 /* Helper function for pure C module */
 int sptCudaSetDevice(int device);
 int sptCudaGetLastError(void);
+
+int sptNewTimer(sptTimer *timer, int use_cuda);
+int sptStartTimer(sptTimer timer);
+int sptStopTimer(sptTimer timer);
+double sptElapsedTime(const sptTimer timer);
+int sptFreeTimer(sptTimer timer);
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
