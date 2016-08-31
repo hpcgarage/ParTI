@@ -34,10 +34,6 @@ int main(int argc, char const *argv[]) {
     assert(sptSparseTensorToMatrix(&U, &spU) == 0);
     sptFreeSparseTensor(&spU);
 
-    sptTimer timer;
-    sptNewTimer(&timer, cuda_dev_id >= 0);
-    sptStartTimer(timer);
-
     if(cuda_dev_id == -2) {
         assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else if(cuda_dev_id == -1) {
@@ -46,10 +42,6 @@ int main(int argc, char const *argv[]) {
         sptCudaSetDevice(cuda_dev_id);
         assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
-
-    sptStopTimer(timer);
-    printf("Elapsed %.09lf s\n", sptElapsedTime(timer));
-    sptFreeTimer(timer);
 
     assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
 

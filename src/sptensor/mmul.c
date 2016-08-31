@@ -31,6 +31,11 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
         return result;
     }
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
+
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
+
     for(i = 0; i < Y->nnz; ++i) {
         size_t inz_begin = fiberidx.data[i];
         size_t inz_end = fiberidx.data[i+1];
@@ -42,6 +47,11 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
             }
         }
     }
+
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "CPU  SpTns * Mtx");
+    sptFreeTimer(timer);
+
     sptFreeSizeVector(&fiberidx);
     return 0;
 }

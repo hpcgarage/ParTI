@@ -107,12 +107,20 @@ int sptCudaSparseTensorMulMatrix(
     size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
     size_t nthreads = U->ncols < 1024 ? U->ncols : 1024;
 
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
+
     spt_TTMKernel<<<Y->nnz, nthreads, sharedMem>>>(
         Y_val, Y->stride, Y->nnz,
         X_val, X->nnz, X_inds_m,
         fiberidx_val, fiberidx.len,
         U_val, U->nrows, U->ncols, U->stride
     );
+
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "CUDA SpTns * Mtx");
+    sptFreeTimer(timer);
 
     cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
     cudaFree(fiberidx_val); cudaFree(U_val); cudaFree(X_inds_m); cudaFree(X_val); cudaFree(Y_val);

@@ -31,6 +31,11 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
         return result;
     }
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
+
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
+
     #pragma omp parallel for
     for(i = 0; i < Y->nnz; ++i) {
         size_t inz_begin = fiberidx.data[i];
@@ -43,6 +48,11 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
             }
         }
     }
+
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "OMP  SpTns * Mtx");
+    sptFreeTimer(timer);
+
     sptFreeSizeVector(&fiberidx);
     return 0;
 }

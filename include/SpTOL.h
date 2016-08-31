@@ -102,6 +102,7 @@ int sptNewTimer(sptTimer *timer, int use_cuda);
 int sptStartTimer(sptTimer timer);
 int sptStopTimer(sptTimer timer);
 double sptElapsedTime(const sptTimer timer);
+double sptPrintElapsedTime(const sptTimer timer, const char *name);
 int sptFreeTimer(sptTimer timer);
 
 int sptNewVector(sptVector *vec, size_t len, size_t cap);

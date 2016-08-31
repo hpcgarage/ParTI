@@ -1,4 +1,5 @@
 #include <SpTOL.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -10,7 +11,6 @@ struct sptTagTimer {
     cudaEvent_t start_event;
     cudaEvent_t stop_event;
 };
-
 
 int sptNewTimer(sptTimer *timer, int use_cuda) {
     *timer = (sptTimer) malloc(sizeof **timer);
@@ -74,6 +74,12 @@ double sptElapsedTime(const sptTimer timer) {
         return timer->stop_timespec.tv_sec - timer->start_timespec.tv_sec
             + (timer->stop_timespec.tv_nsec - timer->start_timespec.tv_nsec) * 1e-9;
     }
+}
+
+double sptPrintElapsedTime(const sptTimer timer, const char *name) {
+    double elapsed_time = sptElapsedTime(timer);
+    fprintf(stderr, "[%s] operation took %.9lf s\n", name, elapsed_time);
+    return elapsed_time;
 }
 
 int sptFreeTimer(sptTimer timer) {
