@@ -106,21 +106,22 @@ int sptCudaSparseTensorMulMatrix(
     }
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
+    const size_t max_nblocks = 32768;
+    const size_t max_nthreads = 1024;
     size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
-    size_t nthreads = U->ncols < 1024 ? U->ncols : 1024;
-    fprintf(stderr, "[CUDA SpTns * Mtx] sharedMem: %zu bytes\n", sharedMem);
-    fprintf(stderr, "[CUDA SpTns * Mtx] nthreads: %zu\n", nthreads);
+    size_t nblocks = Y->nnz < max_nblocks ? Y->nnz : max_nblocks;
+    size_t nthreads = U->ncols < max_nthreads ? U->ncols : max_nthreads;
+    fprintf(stderr, "[CUDA SpTns * Mtx] grid is <<<%zu, %zu, %zu>>>\n", nblocks, nthreads, sharedMem);
 
     sptTimer timer;
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    for(size_t block_offset = 0; block_offset < Y->nnz; block_offset += 32768) {
+    for(size_t block_offset = 0; block_offset < Y->nnz; block_offset += max_nblocks) {
         size_t nblocks = Y->nnz - block_offset;
-        if(nblocks > 32768) {
-            nblocks = 32768;
+        if(nblocks > max_nblocks) {
+            nblocks = max_nblocks;
         }
-        fprintf(stderr, "[CUDA SpTns * Mtx] nblocks: %zu\n", nblocks);
         spt_TTMKernel<<<nblocks, nthreads, sharedMem>>>(
             Y_val, Y->stride, Y->nnz,
             X_val, X->nnz, X_inds_m,
