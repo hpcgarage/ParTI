@@ -1,4 +1,5 @@
 #include <SpTOL.h>
+#include <stdio.h>
 
 __global__ static void spt_TTMKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
@@ -105,13 +106,15 @@ int sptCudaSparseTensorMulMatrix(
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
     size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
-    size_t nthreads = U->ncols < 1024 ? U->ncols : 1024;
+    size_t nblocks = U->ncols < 16 ? U->ncols : 16;
+    fprintf(stderr, "[CUDA SpTns * Mtx] sharedMem: %zu bytes\n", sharedMem);
+    fprintf(stderr, "[CUDA SpTns * Mtx] nblocks: %zu\n", nblocks);
 
     sptTimer timer;
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    spt_TTMKernel<<<Y->nnz, nthreads, sharedMem>>>(
+    spt_TTMKernel<<<Y->nnz, nblocks, sharedMem>>>(
         Y_val, Y->stride, Y->nnz,
         X_val, X->nnz, X_inds_m,
         fiberidx_val, fiberidx.len,
