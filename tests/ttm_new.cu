@@ -11,6 +11,7 @@ int main(int argc, char const *argv[]) {
     size_t mode = 0;
     size_t R = 16;
     int cuda_dev_id = -2;
+    int niters = 3;
 
     if(argc < 3) {
         printf("Usage: %s X mode [cuda_dev_id, R, Y]\n\n", argv[0]);
@@ -32,6 +33,7 @@ int main(int argc, char const *argv[]) {
 
     assert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
 
+    /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else if(cuda_dev_id == -1) {
@@ -39,6 +41,17 @@ int main(int argc, char const *argv[]) {
     } else {
         sptCudaSetDevice(cuda_dev_id);
         assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+    }
+
+    for(int it=0; it<niters; ++it) {
+        if(cuda_dev_id == -2) {
+            assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        } else if(cuda_dev_id == -1) {
+            assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        } else {
+            sptCudaSetDevice(cuda_dev_id);
+            assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        }
     }
 
     assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
