@@ -44,6 +44,7 @@ int main(int argc, char const *argv[]) {
     }
 
     for(int it=0; it<niters; ++it) {
+        sptFreeSemiSparseTensor(&Y);
         if(cuda_dev_id == -2) {
             assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
         } else if(cuda_dev_id == -1) {
