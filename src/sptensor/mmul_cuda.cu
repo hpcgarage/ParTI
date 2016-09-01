@@ -117,6 +117,10 @@ int sptCudaSparseTensorMulMatrix(
         fiberidx_val, fiberidx.len,
         U_val, U->nrows, U->ncols, U->stride
     );
+    result = cudaGetLastError();
+    if(result != 0) {
+        return result;
+    }
 
     sptStopTimer(timer);
     sptPrintElapsedTime(timer, "CUDA SpTns * Mtx");

@@ -89,6 +89,10 @@ int sptCudaSemiSparseTensorMulMatrix(
     cudaMemcpy(U_val, U->values, U->nrows * U->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
 
     spt_TTMKernel<<<blocks_count, 256>>>(Y_val, X_val, Y->stride, Y->nnz, U_val, U->nrows, U->ncols, U->stride, mode);
+    result = cudaGetLastError();
+    if(result != 0) {
+        return result;
+    }
 
     cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
     cudaFree(U_val); cudaFree(X_val); cudaFree(Y_val);
