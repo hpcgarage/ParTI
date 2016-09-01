@@ -11,7 +11,7 @@ int main(int argc, char const *argv[]) {
     size_t mode = 0;
     size_t R = 16;
     int cuda_dev_id = -2;
-    int niters = 3;
+    int niters = 5;
 
     if(argc < 3) {
         printf("Usage: %s X mode [cuda_dev_id, R, Y]\n\n", argv[0]);
