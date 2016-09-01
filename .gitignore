@@ -2,3 +2,11 @@ sftp-config.json
 *.DS_Store
 .tags*
 build
+tests/add
+tests/convert
+tests/khatri-rao
+tests/kronecker
+tests/loadstore
+tests/sttm
+tests/ttm
+tests/ttm_new
