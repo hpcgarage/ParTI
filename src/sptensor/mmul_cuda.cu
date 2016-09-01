@@ -5,10 +5,11 @@ __global__ static void spt_TTMKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
     const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
+    size_t block_offset
 ) {
     extern __shared__ char mem_pool[];
-    const size_t bid = blockIdx.x;
+    const size_t bid = blockIdx.x + block_offset;
     const size_t tid = threadIdx.x;
     sptScalar *const Y_shr = (sptScalar *) &mem_pool[0]; // size U_ncols
     sptScalar *const X_shr = (sptScalar *) &mem_pool[U_ncols * sizeof (sptScalar)]; // size U_nrows
@@ -106,7 +107,7 @@ int sptCudaSparseTensorMulMatrix(
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
     size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
-    size_t nthreads = U->ncols < 16 ? U->ncols : 16;
+    size_t nthreads = U->ncols < 1024 ? U->ncols : 1024;
     fprintf(stderr, "[CUDA SpTns * Mtx] sharedMem: %zu bytes\n", sharedMem);
     fprintf(stderr, "[CUDA SpTns * Mtx] nthreads: %zu\n", nthreads);
 
@@ -114,15 +115,23 @@ int sptCudaSparseTensorMulMatrix(
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    spt_TTMKernel<<<Y->nnz, nthreads, sharedMem>>>(
-        Y_val, Y->stride, Y->nnz,
-        X_val, X->nnz, X_inds_m,
-        fiberidx_val, fiberidx.len,
-        U_val, U->nrows, U->ncols, U->stride
-    );
-    result = cudaGetLastError();
-    if(result != 0) {
-        return result;
+    for(size_t block_offset = 0; block_offset < Y->nnz; block_offset += 32768) {
+        size_t nblocks = Y->nnz - block_offset;
+        if(nblocks > 32768) {
+            nblocks = 32768;
+        }
+        fprintf(stderr, "[CUDA SpTns * Mtx] nblocks: %zu\n", nblocks);
+        spt_TTMKernel<<<nblocks, nthreads, sharedMem>>>(
+            Y_val, Y->stride, Y->nnz,
+            X_val, X->nnz, X_inds_m,
+            fiberidx_val, fiberidx.len,
+            U_val, U->nrows, U->ncols, U->stride,
+            block_offset
+        );
+        result = cudaGetLastError();
+        if(result != 0) {
+            return result;
+        }
     }
 
     sptStopTimer(timer);
