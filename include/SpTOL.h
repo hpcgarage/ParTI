@@ -120,6 +120,7 @@ int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
 
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);

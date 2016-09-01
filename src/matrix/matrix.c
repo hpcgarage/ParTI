@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     mtx->nrows = nrows;
@@ -24,6 +25,15 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
         return -1;
     }
     return 0;
+}
+
+int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
+  assert(sptNewMatrix(mtx, nrows, ncols) == 0);
+  srand(time(NULL));
+  for(size_t i=0; i<nrows; ++i)
+    for(size_t j=0; j<ncols; ++j)
+      mtx->values[i * mtx->stride + j] = (sptScalar) rand() / (sptScalar) RAND_MAX;
+  return 0;
 }
 
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src) {
