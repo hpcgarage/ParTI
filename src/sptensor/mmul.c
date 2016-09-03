@@ -42,8 +42,8 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
         size_t j, k;
         // jli: exchange the two loops
         for(j = inz_begin; j < inz_end; ++j) {
+            size_t r = X->inds[mode].data[j];
             for(k = 0; k < U->ncols; ++k) {
-                size_t r = X->inds[mode].data[j];
                 Y->values.values[i*Y->stride + k] += X->values.data[j] * U->values[r*U->stride + k];
             }
         }
