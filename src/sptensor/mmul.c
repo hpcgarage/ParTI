@@ -40,8 +40,9 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
         size_t inz_begin = fiberidx.data[i];
         size_t inz_end = fiberidx.data[i+1];
         size_t j, k;
-        for(k = 0; k < U->ncols; ++k) {
-            for(j = inz_begin; j < inz_end; ++j) {
+        // jli: exchange the two loops
+        for(j = inz_begin; j < inz_end; ++j) {
+            for(k = 0; k < U->ncols; ++k) {
                 size_t r = X->inds[mode].data[j];
                 Y->values.values[i*Y->stride + k] += X->values.data[j] * U->values[r*U->stride + k];
             }

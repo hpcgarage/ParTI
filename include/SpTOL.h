@@ -172,8 +172,7 @@ int sptCudaSparseTensorMulMatrixNew(
     sptSemiSparseTensor *Y,
     sptSparseTensor *X,
     const sptMatrix *U,
-    size_t mode,
-    const cudaDeviceProp *deviceProp
+    size_t mode
 );
 
 /**
