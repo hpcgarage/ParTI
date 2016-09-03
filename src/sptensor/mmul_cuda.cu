@@ -9,38 +9,32 @@ __global__ static void spt_TTMKernel(
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
 ) {
-    extern __shared__ char mem_pool[];
-    const size_t bid = blockIdx.x + block_offset;
-    const size_t tid = threadIdx.x;
-    // jli: no need to store Y_shr, X_shr, and r_shr in shared memory, Only U.
-    sptScalar *const Y_shr = (sptScalar *) &mem_pool[0]; // size U_ncols
-    sptScalar *const X_shr = (sptScalar *) &mem_pool[U_ncols * sizeof (sptScalar)]; // size U_nrows
-    size_t *const r_shr = (size_t *) &mem_pool[(U_ncols+U_nrows) * sizeof (sptScalar)]; // size U_nrows
+    extern __shared__ sptScalar mem_pool[];
 
-    const size_t inz_begin = fiberidx_val[bid];
-    const size_t inz_end = fiberidx_val[bid+1];
-    size_t i, j;
-    // Fill Y_shr with 0, length U_ncols
-    Y_shr[tid] = 0;
-    // Fill X_shr with X_val, length inz_end-inz_begin
-    for(i = tid; i < inz_end-inz_begin; i += blockDim.x) {
-        X_shr[i] = X_val[i+inz_begin];
+    const size_t tidx = threadIdx.x;
+    const size_t tidy = threadIdx.y;
+    const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
+    const size_t off = blockIdx.x * blockDim.x + tidx;
+    const size_t inz_begin = fiberidx_val[i];
+    const size_t inz_end = fiberidx_val[i+1];
+
+    sptScalar *const Y_shr = (sptScalar *) &mem_pool[U_ncols*2*tidx]; // size U_ncols
+    sptScalar *const U_shr = (sptScalar *) &mem_pool[U_ncols*2*tidx+U_ncols]; // size U_ncols
+
+    for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
+        Y_shr[off*Y_stride + k] = 0;
     }
-    // Fill r_shr with X_inds_m, length inz_end-inz_begin
-    for(i = tid; i < inz_end-inz_begin; i += blockDim.x) {
-        r_shr[i] = X_inds_m[i+inz_begin];
-    }
-    __syncthreads();
-    // Do calculations, length U_ncols
-    for(i = tid; i < U_ncols; i += blockDim.x) {
-        for(j = 0; j < inz_end-inz_begin; ++j) {
-            Y_shr[i] += X_shr[j] * U_val[r_shr[j]*U_stride + i];
+    for(size_t j = inz_begin; j < inz_end; ++j) {
+        const size_t r = X_inds_m[j];
+        for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
+            U_shr[k] = U_val[r*U_stride + k];
+        }
+        for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
+            Y_shr[off*Y_stride + k] += X_val[j] * U_shr[k];
         }
     }
-    __syncthreads();
-    // Write back from Y_shr, length U_ncols
-    for(i = tid; i < U_ncols; ++i) {
-        Y_val[bid*Y_stride + i] = Y_shr[i];
+    for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
+        Y_val[i*Y_stride + k] = Y_shr[off*Y_stride + k];
     }
 }
 
@@ -66,8 +60,8 @@ __global__ static void spt_TTMNaiveKernel(
     //     }
     // }
     for(size_t j = inz_begin; j < inz_end; ++j) {
+        const size_t r = X_inds_m[j];
         for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-            size_t r = X_inds_m[j];
             Y_val[i*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
         }
     }
@@ -167,17 +161,17 @@ int sptCudaSparseTensorMulMatrix(
     const size_t max_nthreads = 1024;
     // size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
     size_t nthreadsX = 32;
-    size_t sharedMem = nthreadsX * U->ncols *sizeof (sptScalar);
-    
+    size_t sharedMem = nthreadsX * U->ncols*2 * sizeof (sptScalar);
+
     size_t all_nblocks = Y->nnz % nthreadsX == 0 ? Y->nnz / nthreadsX : Y->nnz / nthreadsX + 1;
     assert(U->ncols < max_nthreads);
-    dim3 dimBlock(nthreadsX,U->ncols);
+    dim3 dimBlock(nthreadsX, U->ncols);
     // size_t nblocks = Y->nnz < max_nblocks ? Y->nnz : max_nblocks;
-    
+
     if(!use_naive_kernel) {
-        fprintf(stderr, "[CUDA SpTns * Mtx] spt_TTMKernel<<<%zu, <%zu, %zu>, %zu>>>\n", all_nblocks, nthreadsX, U->ncols, sharedMem);
+        fprintf(stderr, "[CUDA SpTns * Mtx] spt_TTMKernel<<<%zu, (%u, %u), %zu>>>\n", all_nblocks, dimBlock.x, dimBlock.y, sharedMem);
     } else {
-        fprintf(stderr, "[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<%zu, <%zu, %zu>, 0>>>\n", all_nblocks, nthreadsX, U->ncols);
+        fprintf(stderr, "[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<%zu, (%u, %u), 0>>>\n", all_nblocks, dimBlock.x, dimBlock.y);
     }
 
     sptTimer timer;
