@@ -40,7 +40,9 @@ int main(int argc, char const *argv[]) {
         assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        cudaDeviceProp deviceProp;
+        cudaGetDeviceProperties(&deviceProp, cuda_dev_id);
+        assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode, &deviceProp) == 0);
     }
 
     for(int it=0; it<niters; ++it) {
