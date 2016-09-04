@@ -15,7 +15,7 @@ __global__ static void spt_TTMKernel(
     const size_t tidy = threadIdx.y;
     const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
     const size_t off = blockIdx.x * blockDim.x + tidx;
-    if(i > Y_nnz || tidy > U_ncols) return;
+    if(i > Y_nnz) return;
     const size_t inz_begin = fiberidx_val[i];
     const size_t inz_end = fiberidx_val[i+1];
 
@@ -50,7 +50,7 @@ __global__ static void spt_TTMNaiveKernel(
     const size_t tidy = threadIdx.y;
     const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
     // const size_t i = blockIdx.x + block_offset;
-    if(i > Y_nnz || tidy > U_ncols) return;
+    if(i > Y_nnz) return;
     const size_t inz_begin = fiberidx_val[i];
     const size_t inz_end = fiberidx_val[i+1];
     // for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
