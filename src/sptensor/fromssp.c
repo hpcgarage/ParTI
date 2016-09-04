@@ -1,6 +1,7 @@
 #include <SpTOL.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon) {
     size_t i;
@@ -32,7 +33,12 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
         size_t j;
         for(j = 0; j < src->ndims[src->mode]; ++j) {
             sptScalar data = src->values.values[i*src->stride + j];
-            if(!(data < epsilon && data > -epsilon)) {
+            int data_class = fpclassify(data);
+            if(
+                data_class == FP_NAN ||
+                data_class == FP_INFINITE ||
+                (data_class == FP_NORMAL && !(data < epsilon && data > -epsilon))
+            ) {
                 size_t m;
                 for(m = 0; m < nmodes; ++m) {
                     if(m != src->mode) {
