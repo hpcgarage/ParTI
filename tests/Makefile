@@ -23,4 +23,4 @@ clean:
 	mkdir -p ../build
 	cd ../build && \
 	cmake .. -DCMAKE_C_FLAGS="-Wall -Wextra -std=c99 -fopenmp -g -fPIC" -DCMAKE_CXX_FLAGS="-Wall -Wextra -fopenmp -g -fPIC" -DCUDA_NVCC_FLAGS="-g" && \
-	$(MAKE)
+	$(MAKE) libSpTOL_s.a
