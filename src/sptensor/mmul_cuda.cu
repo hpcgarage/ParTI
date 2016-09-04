@@ -168,7 +168,7 @@ int sptCudaSparseTensorMulMatrix(
     sptStartTimer(timer);
 
     for(size_t block_offset = 0; block_offset < all_nblocks; block_offset += max_nblocks) {
-        size_t nblocks = Y->nnz - block_offset;
+        size_t nblocks = all_nblocks - block_offset;
         if(nblocks > max_nblocks) {
             nblocks = max_nblocks;
         }
