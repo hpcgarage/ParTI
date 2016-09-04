@@ -7,10 +7,10 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     size_t m, i;
     sptSizeVector fiberidx;
     if(mode >= X->nmodes) {
-        return -1;
+        sptCheckError(-1, "OMP  SpTns * Mtx");
     }
     if(X->ndims[mode] != U->nrows) {
-        return -1;
+        sptCheckError(-1, "OMP  SpTns * Mtx");
     }
     if(X->sortkey != mode) {
         sptSparseTensorSortIndexAtMode(X, mode);
@@ -18,7 +18,7 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     if(!ind_buf) {
-        return -1;
+        sptCheckError(-1, "OMP  SpTns * Mtx");
     }
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
@@ -27,9 +27,7 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     // jli: use pre-processing to allocate Y size outside this function.
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     free(ind_buf);
-    if(result) {
-        return result;
-    }
+    sptCheckError(result, "OMP  SpTns * Mtx");
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
 
     sptTimer timer;
