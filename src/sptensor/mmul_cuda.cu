@@ -24,18 +24,15 @@ __global__ static void spt_TTMKernel(
     for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
         Y_shr[off*Y_stride + k] = 0;
     }
-    __syncthreads();
     for(size_t j = inz_begin; j < inz_end; ++j) {
         const size_t r = X_inds_m[j];
         for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
             Y_shr[off*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
         }
     }
-    __syncthreads();
     for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
         Y_val[i*Y_stride + k] = Y_shr[off*Y_stride + k];
     }
-    __syncthreads();
 }
 
 
