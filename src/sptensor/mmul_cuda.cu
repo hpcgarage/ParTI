@@ -18,8 +18,7 @@ __global__ static void spt_TTMKernel(
     const size_t inz_begin = fiberidx_val[i];
     const size_t inz_end = fiberidx_val[i+1];
 
-    sptScalar *const Y_shr = (sptScalar *) &mem_pool[U_ncols*2*tidx]; // size U_ncols
-    sptScalar *const U_shr = (sptScalar *) &mem_pool[U_ncols*2*tidx+U_ncols]; // size U_ncols
+    sptScalar *const Y_shr = (sptScalar *) &mem_pool[U_ncols*tidx]; // size U_ncols
 
     for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
         Y_shr[off*Y_stride + k] = 0;
@@ -27,10 +26,7 @@ __global__ static void spt_TTMKernel(
     for(size_t j = inz_begin; j < inz_end; ++j) {
         const size_t r = X_inds_m[j];
         for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-            U_shr[k] = U_val[r*U_stride + k];
-        }
-        for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-            Y_shr[off*Y_stride + k] += X_val[j] * U_shr[k];
+            Y_shr[off*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
         }
     }
     for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
@@ -161,7 +157,7 @@ int sptCudaSparseTensorMulMatrix(
     const size_t max_nthreads = 1024;
     // size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
     size_t nthreadsX = 32;
-    size_t sharedMem = nthreadsX * U->ncols*2 * sizeof (sptScalar);
+    size_t sharedMem = nthreadsX * U->ncols * sizeof (sptScalar);
 
     size_t all_nblocks = Y->nnz % nthreadsX == 0 ? Y->nnz / nthreadsX : Y->nnz / nthreadsX + 1;
     assert(U->ncols < max_nthreads);
