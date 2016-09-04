@@ -95,7 +95,7 @@ typedef struct sptTagTimer *sptTimer;
 #ifndef NDEBUG
 #define sptCheckError(errcode, name) \
     if((errcode) != 0) { \
-        spt_ComplainError((errcode), name, __FILE__, __LINE__); \
+        spt_ComplainError(name, (errcode), __FILE__, __LINE__); \
         return (errcode); \
     }
 #else
@@ -105,7 +105,7 @@ typedef struct sptTagTimer *sptTimer;
     }
 #endif
 
-void spt_ComplainError(int errcode, const char *name, const char *file, unsigned line);
+void spt_ComplainError(const char *name, int errcode, const char *file, unsigned line);
 const char *sptExplainError(int errcode);
 
 /* Helper function for pure C module */
