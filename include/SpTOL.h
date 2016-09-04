@@ -92,6 +92,20 @@ typedef struct {
 
 typedef struct sptTagTimer *sptTimer;
 
+#ifndef NDEBUG
+#define sptCheckError(errcode, name) \
+    if((errcode) != 0) { \
+        sptComplainError((errcode), name, __FILE__, __LINE__); \
+        return (errcode); \
+    }
+#else
+#define sptCheckError(errcode, name) \
+    if((errcode) != 0) { \
+        return (errcode); \
+    }
+#endif
+
+void spt_ComplainError(int errcode, const char *name, const char *file, unsigned line);
 const char *sptExplainError(int errcode);
 
 /* Helper function for pure C module */
