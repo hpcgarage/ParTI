@@ -100,25 +100,15 @@ __global__ static void spt_TTMNaiveKernel(
     const size_t tidx = threadIdx.x;
     const size_t tidy = threadIdx.y;
     const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
-    // const size_t i = blockIdx.x + block_offset;
-    if(i >= Y_nnz) return;
+
+    if(i >= Y_nnz || tidy >= U_ncols) return;
     const size_t inz_begin = fiberidx_val[i];
     const size_t inz_end = fiberidx_val[i+1];
-    // for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-    //     Y_val[i*Y_stride + k] = 0;
-    //     for(size_t j = inz_begin; j < inz_end; ++j) {
-    //         size_t r = X_inds_m[j];
-    //         Y_val[i*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
-    //     }
-    // }
-    for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-        Y_val[i*Y_stride + k] = 0;
-    }
+
+    Y_val[i*Y_stride + tidy] = 0;
     for(size_t j = inz_begin; j < inz_end; ++j) {
         const size_t r = X_inds_m[j];
-        for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-            Y_val[i*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
-        }
+        Y_val[i*Y_stride + tidy] += X_val[j] * U_val[r*U_stride + tidy];
     }
 }
 
