@@ -14,6 +14,48 @@ __global__ static void spt_TTMKernel(
     const size_t tidx = threadIdx.x;
     const size_t tidy = threadIdx.y;
     const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
+    //const size_t off = blockIdx.x * blockDim.x + tidx;
+    size_t inz_begin, inz_end;
+    if(i < Y_nnz) {
+        inz_begin = fiberidx_val[i];
+        inz_end = fiberidx_val[i+1];
+    }
+    __syncthreads();
+
+    //sptScalar * const Y_shr = (sptScalar *) &mem_pool[tidx*Y_stride]; // size U_ncols
+    sptScalar * const Y_shr = (sptScalar *) mem_pool; // size U_ncols
+    if(i < Y_nnz && tidy < U_ncols) {
+        Y_shr[tidx * Y_stride + tidy] = 0;
+    }
+    __syncthreads();
+
+    if(i < Y_nnz && tidy < U_ncols) {
+        for(size_t j = inz_begin; j < inz_end; ++j) {
+            const size_t r = X_inds_m[j];
+            Y_shr[tidx * Y_stride + tidy] += X_val[j] * U_val[r*U_stride + tidy];
+        }
+    }
+    __syncthreads();
+
+    if(i < Y_nnz && tidy < U_ncols) {
+        Y_val[i*Y_stride + tidy] = Y_shr[tidx*Y_stride + tidy];
+    }
+    __syncthreads();
+}
+
+#if 0
+__global__ static void spt_TTMKernel(
+    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
+    const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
+    size_t *fiberidx_val, size_t fiberidx_len,
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
+    size_t block_offset
+) {
+    extern __shared__ sptScalar mem_pool[];
+
+    const size_t tidx = threadIdx.x;
+    const size_t tidy = threadIdx.y;
+    const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
     const size_t off = blockIdx.x * blockDim.x + tidx;
     const size_t inz_begin = fiberidx_val[i];
     const size_t inz_end = fiberidx_val[i+1];
@@ -45,6 +87,7 @@ __global__ static void spt_TTMKernel(
         }
     }
 }
+#endif
 
 
 __global__ static void spt_TTMNaiveKernel(
@@ -183,6 +226,7 @@ int sptCudaSparseTensorMulMatrix(
         if(nblocks > max_nblocks) {
             nblocks = max_nblocks;
         }
+        printf("nblocks: %zu\n", nblocks);
         if(!use_naive_kernel) {
             spt_TTMKernel<<<nblocks, dimBlock, sharedMem>>>(
                 Y_val, Y->stride, Y->nnz,
@@ -200,8 +244,8 @@ int sptCudaSparseTensorMulMatrix(
                 block_offset
             );
         }
-        result = cudaGetLastError();
-        sptCheckError(result, "CUDA SpTns * Mtx");
+        result = cudaThreadSynchronize();
+        sptCheckError(result, "CUDA SpTns * Mtx kernel");
     }
 
     sptStopTimer(timer);
@@ -209,7 +253,16 @@ int sptCudaSparseTensorMulMatrix(
     sptFreeTimer(timer);
 
     cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
-    cudaFree(fiberidx_val); cudaFree(U_val); cudaFree(X_inds_m); cudaFree(X_val); cudaFree(Y_val);
+    result = cudaFree(fiberidx_val);
+    sptCheckError(result, "CUDA SpTns * Mtx");
+    result = cudaFree(U_val);
+    sptCheckError(result, "CUDA SpTns * Mtx");
+    result = cudaFree(X_inds_m);
+    sptCheckError(result, "CUDA SpTns * Mtx");
+    result = cudaFree(X_val);
+    sptCheckError(result, "CUDA SpTns * Mtx");
+    result = cudaFree(Y_val);
+    sptCheckError(result, "CUDA SpTns * Mtx");
     sptFreeSizeVector(&fiberidx);
 
     return 0;
