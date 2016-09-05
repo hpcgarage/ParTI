@@ -10,3 +10,4 @@ tests/loadstore
 tests/sttm
 tests/ttm
 tests/ttm_new
+tests/ttm_test
