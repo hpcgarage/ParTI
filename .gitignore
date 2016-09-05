@@ -11,3 +11,4 @@ tests/sttm
 tests/ttm
 tests/ttm_new
 tests/ttm_test
+tests/ttm_omptest
