@@ -494,3 +494,64 @@ OMP nthreads=8
 [OMP  SpTns * Mtx] operation took 4.477438457 s
 [OMP  SpTns * Mtx] operation took 4.469570803 s
 X.nnz = 143599552, X.ndims = [2902330, 2143368, 25495389], Y.nnz = 113299246, Y.ndims = [16, 2143368, 25495389]
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 1
+OMP nthreads=2
+[OMP  SpTns * Mtx] operation took 9.543018899 s
+[OMP  SpTns * Mtx] operation took 9.537547389 s
+[OMP  SpTns * Mtx] operation took 9.542615393 s
+[OMP  SpTns * Mtx] operation took 9.537678412 s
+[OMP  SpTns * Mtx] operation took 9.538117598 s
+[OMP  SpTns * Mtx] operation took 9.537482430 s
+OMP nthreads=4
+[OMP  SpTns * Mtx] operation took 4.885379985 s
+[OMP  SpTns * Mtx] operation took 4.949840537 s
+[OMP  SpTns * Mtx] operation took 4.884280022 s
+[OMP  SpTns * Mtx] operation took 4.951393196 s
+[OMP  SpTns * Mtx] operation took 4.883382536 s
+[OMP  SpTns * Mtx] operation took 4.891746667 s
+OMP nthreads=6
+[OMP  SpTns * Mtx] operation took 5.017200678 s
+[OMP  SpTns * Mtx] operation took 5.601306479 s
+[OMP  SpTns * Mtx] operation took 5.302686381 s
+[OMP  SpTns * Mtx] operation took 4.793639820 s
+[OMP  SpTns * Mtx] operation took 5.242660266 s
+[OMP  SpTns * Mtx] operation took 5.443930235 s
+OMP nthreads=8
+[OMP  SpTns * Mtx] operation took 4.367633298 s
+[OMP  SpTns * Mtx] operation took 4.348732873 s
+[OMP  SpTns * Mtx] operation took 4.349438049 s
+[OMP  SpTns * Mtx] operation took 4.350939369 s
+[OMP  SpTns * Mtx] operation took 4.350571408 s
+[OMP  SpTns * Mtx] operation took 4.348181683 s
+X.nnz = 143599552, X.ndims = [2902330, 2143368, 25495389], Y.nnz = 119126880, Y.ndims = [2902330, 16, 25495389]
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 2
+OMP nthreads=2
+[OMP  SpTns * Mtx] operation took 14.480727627 s
+[OMP  SpTns * Mtx] operation took 14.476706506 s
+[OMP  SpTns * Mtx] operation took 14.475792615 s
+[OMP  SpTns * Mtx] operation took 14.474382076 s
+[OMP  SpTns * Mtx] operation took 14.475902741 s
+[OMP  SpTns * Mtx] operation took 14.475436320 s
+OMP nthreads=4
+[OMP  SpTns * Mtx] operation took 7.648246775 s
+[OMP  SpTns * Mtx] operation took 7.634184802 s
+[OMP  SpTns * Mtx] operation took 7.633162286 s
+[OMP  SpTns * Mtx] operation took 7.614393129 s
+[OMP  SpTns * Mtx] operation took 7.696223348 s
+[OMP  SpTns * Mtx] operation took 7.632703748 s
+OMP nthreads=6
+[OMP  SpTns * Mtx] operation took 6.698992544 s
+[OMP  SpTns * Mtx] operation took 6.827737388 s
+[OMP  SpTns * Mtx] operation took 7.008276213 s
+[OMP  SpTns * Mtx] operation took 7.010212306 s
+[OMP  SpTns * Mtx] operation took 7.003988757 s
+[OMP  SpTns * Mtx] operation took 6.797274238 s
+OMP nthreads=8
+[OMP  SpTns * Mtx] operation took 5.412849066 s
+[OMP  SpTns * Mtx] operation took 5.408048974 s
+[OMP  SpTns * Mtx] operation took 5.409003229 s
+[OMP  SpTns * Mtx] operation took 5.384547639 s
+[OMP  SpTns * Mtx] operation took 5.374304585 s
+[OMP  SpTns * Mtx] operation took 5.374698064 s
+X.nnz = 143599552, X.ndims = [2902330, 2143368, 25495389], Y.nnz = 17372417, Y.ndims = [2902330, 2143368, 16]
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 2
