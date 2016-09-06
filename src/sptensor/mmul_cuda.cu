@@ -193,7 +193,11 @@ int sptCudaSparseTensorMulMatrix(
     const size_t max_nblocks = 32768;
     const size_t max_nthreads = 1024;
     // size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
+    const char *env_SPTOL_TTM_NTHREADS = getenv("SPTOL_TTM_NTHREADS");
     size_t nthreadsX = 32;
+    if(env_SPTOL_TTM_NTHREADS) {
+        sscanf(env_SPTOL_TTM_NTHREADS, "%zu", &nthreadsX);
+    }
     size_t sharedMem = nthreadsX * U->ncols * sizeof (sptScalar);
 
     size_t all_nblocks = Y->nnz % nthreadsX == 0 ? Y->nnz / nthreadsX : Y->nnz / nthreadsX + 1;
