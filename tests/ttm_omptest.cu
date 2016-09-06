@@ -43,12 +43,13 @@ int main(int argc, char const *argv[]) {
     /* We have niters+1 iterations, the first is warm-up */
     for(int nth = 2; nth <= 8; nth += 2) {
         omp_set_num_threads(nth);
-        printf("OMP nthreads=%d\n", nth);
+        fprintf(stderr, "OMP nthreads=%d\n", nth);
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
             assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
         }
     }
+    fprintf(stderr, "X.nnz = %zu, X.ndims = [%zu, %zu, %zu], Y.nnz = %zu, Y.ndims = [%zu, %zu, %zu]\n", X.nnz, X.ndims[0], X.ndims[1], X.ndims[2], Y.nnz, Y.ndims[0], Y.ndims[1], Y.ndims[2]);
 
     assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
 
