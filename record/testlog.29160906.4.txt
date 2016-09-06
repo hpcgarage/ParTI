@@ -1,0 +1,370 @@
+Number of CPU cores (including hyperthreads): 8
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                8
+On-line CPU(s) list:   0-7
+Thread(s) per core:    2
+Core(s) per socket:    4
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 60
+Model name:            Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz
+Stepping:              3
+CPU MHz:               3500.000
+CPU max MHz:           3500.0000
+CPU min MHz:           800.0000
+BogoMIPS:              7012.29
+Virtualization:        VT-x
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              256K
+L3 cache:              8192K
+NUMA node0 CPU(s):     0-7
+Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm arat pln pts
+/usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 2 CUDA Capable device(s)
+
+Device 0: "Tesla K40c"
+  CUDA Driver Version / Runtime Version          8.0 / 7.5
+  CUDA Capability Major/Minor version number:    3.5
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (15) Multiprocessors, (192) CUDA Cores/MP:     2880 CUDA Cores
+  GPU Max Clock rate:                            745 MHz (0.75 GHz)
+  Memory Clock rate:                             3004 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 2 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+Device 1: "GeForce GT 610"
+  CUDA Driver Version / Runtime Version          8.0 / 7.5
+  CUDA Capability Major/Minor version number:    2.1
+  Total amount of global memory:                 1021 MBytes (1070268416 bytes)
+  ( 1) Multiprocessors, ( 48) CUDA Cores/MP:     48 CUDA Cores
+  GPU Max Clock rate:                            1620 MHz (1.62 GHz)
+  Memory Clock rate:                             667 Mhz
+  Memory Bus Width:                              64-bit
+  L2 Cache Size:                                 65536 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65535), 3D=(2048, 2048, 2048)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 32768
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1536
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (65535, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+> Peer access from Tesla K40c (GPU0) -> GeForce GT 610 (GPU1) : No
+> Peer access from GeForce GT 610 (GPU1) -> Tesla K40c (GPU0) : No
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 7.5, NumDevs = 2, Device0 = Tesla K40c, Device1 = GeForce GT 610
+Result = PASS
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns 1 8
+sptRandomizeMatrix(&U, 9184, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:179
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns 2 8
+sptRandomizeMatrix(&U, 28818, 64)
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42171, (8, 64), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.825076128 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42171, (8, 64), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.825729313 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42171, (8, 64), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.825690549 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42171, (8, 64), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.825820839 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42171, (8, 64), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.825955701 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42171, (8, 64), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.826384436 s
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns 0 16
+sptRandomizeMatrix(&U, 532924, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns 1 16
+sptRandomizeMatrix(&U, 17262471, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:183
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns 2 16
+sptRandomizeMatrix(&U, 2480308, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns 0 8
+sptRandomizeMatrix(&U, 532924, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns 1 8
+sptRandomizeMatrix(&U, 17262471, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns 2 8
+sptRandomizeMatrix(&U, 2480308, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 0 16
+sptRandomizeMatrix(&U, 2902330, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 1 16
+sptRandomizeMatrix(&U, 2143368, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 2 16
+Number of CPU cores (including hyperthreads): 8
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                8
+On-line CPU(s) list:   0-7
+Thread(s) per core:    2
+Core(s) per socket:    4
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 60
+Model name:            Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz
+Stepping:              3
+CPU MHz:               3500.000
+CPU max MHz:           3500.0000
+CPU min MHz:           800.0000
+BogoMIPS:              7012.29
+Virtualization:        VT-x
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              256K
+L3 cache:              8192K
+NUMA node0 CPU(s):     0-7
+Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm arat pln pts
+/usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 2 CUDA Capable device(s)
+
+Device 0: "Tesla K40c"
+  CUDA Driver Version / Runtime Version          8.0 / 7.5
+  CUDA Capability Major/Minor version number:    3.5
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (15) Multiprocessors, (192) CUDA Cores/MP:     2880 CUDA Cores
+  GPU Max Clock rate:                            745 MHz (0.75 GHz)
+  Memory Clock rate:                             3004 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 2 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+Device 1: "GeForce GT 610"
+  CUDA Driver Version / Runtime Version          8.0 / 7.5
+  CUDA Capability Major/Minor version number:    2.1
+  Total amount of global memory:                 1021 MBytes (1070268416 bytes)
+  ( 1) Multiprocessors, ( 48) CUDA Cores/MP:     48 CUDA Cores
+  GPU Max Clock rate:                            1620 MHz (1.62 GHz)
+  Memory Clock rate:                             667 Mhz
+  Memory Bus Width:                              64-bit
+  L2 Cache Size:                                 65536 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65535), 3D=(2048, 2048, 2048)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 32768
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1536
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (65535, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+> Peer access from Tesla K40c (GPU0) -> GeForce GT 610 (GPU1) : No
+> Peer access from GeForce GT 610 (GPU1) -> Tesla K40c (GPU0) : No
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 7.5, NumDevs = 2, Device0 = Tesla K40c, Device1 = GeForce GT 610
+Result = PASS
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns 2 8
+sptRandomizeMatrix(&U, 28818, 64)
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42171, (8, 64), 0>>>
+[CUDA SpTns * Mtx] operation took 0.915157832 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42171, (8, 64), 0>>>
+[CUDA SpTns * Mtx] operation took 0.916399143 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42171, (8, 64), 0>>>
+[CUDA SpTns * Mtx] operation took 0.917405269 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42171, (8, 64), 0>>>
+[CUDA SpTns * Mtx] operation took 0.917261212 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42171, (8, 64), 0>>>
+[CUDA SpTns * Mtx] operation took 0.917188136 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42171, (8, 64), 0>>>
+[CUDA SpTns * Mtx] operation took 0.917858948 s
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+nblocks: 32768
+nblocks: 9403
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 2 16
+sptRandomizeMatrix(&U, 25495389, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:183
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 0 8
+sptRandomizeMatrix(&U, 2902330, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 1 8
+sptRandomizeMatrix(&U, 2143368, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns 2 8
+sptRandomizeMatrix(&U, 25495389, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:183
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat 0 8
+sptRandomizeMatrix(&U, 10000, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat 1 8
+sptRandomizeMatrix(&U, 10000, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat 2 8
+sptRandomizeMatrix(&U, 10000, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat 0 16
+sptRandomizeMatrix(&U, 50000, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat 1 16
+sptRandomizeMatrix(&U, 50000, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat 2 16
+sptRandomizeMatrix(&U, 50000, 32)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, mode 0
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat 0 8
+sptRandomizeMatrix(&U, 50000, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, mode 1
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat 1 8
+sptRandomizeMatrix(&U, 50000, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+File: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, mode 2
+do_test /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat 2 8
+sptRandomizeMatrix(&U, 50000, 64)
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_new: ttm_new.cu:44: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
