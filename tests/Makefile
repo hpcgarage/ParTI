@@ -3,7 +3,7 @@ LDLIBS=../build/libSpTOL_s.a
 NVCC=nvcc
 NVCCFLAGS=-I../include -Xcompiler -fopenmp -g
 
-TARGETS=loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test
+TARGETS=loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test ttm_omptest
 
 .PHONY: all clean
 

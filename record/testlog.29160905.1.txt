@@ -1,0 +1,2062 @@
+Number of CPU cores (including hyperthreads): 8
+GPU shared memory info:
+  Total amount of shared memory per block:       49152 bytes
+  Total amount of shared memory per block:       49152 bytes
+File: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, mode 0, CUDA dev 
+[CPU  SpTns * Mtx] operation took 0.120892783 s
+[CPU  SpTns * Mtx] operation took 0.120935769 s
+[CPU  SpTns * Mtx] operation took 0.120957738 s
+[CPU  SpTns * Mtx] operation took 0.120890201 s
+[CPU  SpTns * Mtx] operation took 0.120978657 s
+[CPU  SpTns * Mtx] operation took 0.120907160 s
+[OMP  SpTns * Mtx] operation took 0.062500314 s
+[OMP  SpTns * Mtx] operation took 0.040536838 s
+[OMP  SpTns * Mtx] operation took 0.039869000 s
+[OMP  SpTns * Mtx] operation took 0.039851223 s
+[OMP  SpTns * Mtx] operation took 0.039944873 s
+[OMP  SpTns * Mtx] operation took 0.039873100 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007007907 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006998547 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007006558 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007012950 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006999505 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007000608 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008815178 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008833892 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008826342 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008841259 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008842172 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008840663 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, TTM mode 0nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+nblocks: 5805
+File: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, mode 1, CUDA dev 
+[CPU  SpTns * Mtx] operation took 0.119610978 s
+[CPU  SpTns * Mtx] operation took 0.119575353 s
+[CPU  SpTns * Mtx] operation took 0.119613240 s
+[CPU  SpTns * Mtx] operation took 0.119634570 s
+[CPU  SpTns * Mtx] operation took 0.119606911 s
+[CPU  SpTns * Mtx] operation took 0.119574189 s
+[OMP  SpTns * Mtx] operation took 0.050222473 s
+[OMP  SpTns * Mtx] operation took 0.050220449 s
+[OMP  SpTns * Mtx] operation took 0.050207171 s
+[OMP  SpTns * Mtx] operation took 0.050215864 s
+[OMP  SpTns * Mtx] operation took 0.050203623 s
+[OMP  SpTns * Mtx] operation took 0.050211939 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.077039937 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.077032681 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.077045102 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.077039154 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.077022069 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.077021838 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.092741041 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.092724469 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.092704301 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.092739139 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.092751509 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.092745706 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, TTM mode 1nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+nblocks: 4
+File: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, mode 2, CUDA dev 
+[CPU  SpTns * Mtx] operation took 0.121424169 s
+[CPU  SpTns * Mtx] operation took 0.121216410 s
+[CPU  SpTns * Mtx] operation took 0.121171499 s
+[CPU  SpTns * Mtx] operation took 0.121238102 s
+[CPU  SpTns * Mtx] operation took 0.121251218 s
+[CPU  SpTns * Mtx] operation took 0.121242304 s
+[OMP  SpTns * Mtx] operation took 0.070499034 s
+[OMP  SpTns * Mtx] operation took 0.047876840 s
+[OMP  SpTns * Mtx] operation took 0.044608715 s
+[OMP  SpTns * Mtx] operation took 0.044611034 s
+[OMP  SpTns * Mtx] operation took 0.044603516 s
+[OMP  SpTns * Mtx] operation took 0.044601594 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006584032 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006588831 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006582284 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006588388 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006590836 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006588701 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008122294 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008127336 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008130074 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008124126 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008133147 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008127511 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, TTM mode 2nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+nblocks: 7342
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, mode 0, CUDA dev 
+[CPU  SpTns * Mtx] operation took 6.803312450 s
+[CPU  SpTns * Mtx] operation took 6.803553695 s
+[CPU  SpTns * Mtx] operation took 6.803583007 s
+[CPU  SpTns * Mtx] operation took 6.803540997 s
+[CPU  SpTns * Mtx] operation took 6.803401599 s
+[CPU  SpTns * Mtx] operation took 6.804347262 s
+[OMP  SpTns * Mtx] operation took 2.463474022 s
+[OMP  SpTns * Mtx] operation took 2.486420900 s
+[OMP  SpTns * Mtx] operation took 2.478955325 s
+[OMP  SpTns * Mtx] operation took 2.479230726 s
+[OMP  SpTns * Mtx] operation took 2.478181808 s
+[OMP  SpTns * Mtx] operation took 2.478419648 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.730753280 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.730934422 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.730479985 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.730469987 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.730245819 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.730633389 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.769774396 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.769417692 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.769905219 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.769831589 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.769593095 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.769430791 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, TTM mode 0nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 26051
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, mode 1, CUDA dev 
+[CPU  SpTns * Mtx] operation took 6.638287526 s
+[CPU  SpTns * Mtx] operation took 6.638197307 s
+[CPU  SpTns * Mtx] operation took 6.638350210 s
+[CPU  SpTns * Mtx] operation took 6.638501200 s
+[CPU  SpTns * Mtx] operation took 6.638447991 s
+[CPU  SpTns * Mtx] operation took 6.638234742 s
+[OMP  SpTns * Mtx] operation took 2.183958226 s
+[OMP  SpTns * Mtx] operation took 2.184864804 s
+[OMP  SpTns * Mtx] operation took 2.181344083 s
+[OMP  SpTns * Mtx] operation took 2.186048273 s
+[OMP  SpTns * Mtx] operation took 2.182801592 s
+[OMP  SpTns * Mtx] operation took 2.164386794 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.700730189 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.700519902 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.701137462 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.701343467 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.701313263 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.700874396 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.726282023 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.726423799 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.725968277 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.725820731 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.725853610 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.725844324 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, TTM mode 1nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 15998
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, mode 2, CUDA dev 
+[CPU  SpTns * Mtx] operation took 7.002865373 s
+[CPU  SpTns * Mtx] operation took 7.000467567 s
+[CPU  SpTns * Mtx] operation took 6.999974874 s
+[CPU  SpTns * Mtx] operation took 7.001237539 s
+[CPU  SpTns * Mtx] operation took 7.000749739 s
+[CPU  SpTns * Mtx] operation took 7.000116435 s
+[OMP  SpTns * Mtx] operation took 2.183375471 s
+[OMP  SpTns * Mtx] operation took 2.177767214 s
+[OMP  SpTns * Mtx] operation took 2.178154642 s
+[OMP  SpTns * Mtx] operation took 2.177739554 s
+[OMP  SpTns * Mtx] operation took 2.178035790 s
+[OMP  SpTns * Mtx] operation took 2.177976167 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.710520584 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.709313409 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.709721037 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.710629035 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.710010773 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.710559600 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.832265117 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.833198402 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.833393267 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.833797098 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.832683269 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.832831838 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, TTM mode 2nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+nblocks: 10543
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 0, CUDA dev 
+[CPU  SpTns * Mtx] operation took 15.533083842 s
+[CPU  SpTns * Mtx] operation took 15.534303930 s
+[CPU  SpTns * Mtx] operation took 15.535498314 s
+[CPU  SpTns * Mtx] operation took 15.533745229 s
+[CPU  SpTns * Mtx] operation took 15.533144957 s
+[CPU  SpTns * Mtx] operation took 15.532220027 s
+[OMP  SpTns * Mtx] operation took 4.407788595 s
+[OMP  SpTns * Mtx] operation took 4.395235857 s
+[OMP  SpTns * Mtx] operation took 4.392657777 s
+[OMP  SpTns * Mtx] operation took 4.391269199 s
+[OMP  SpTns * Mtx] operation took 4.392384314 s
+[OMP  SpTns * Mtx] operation took 4.391890388 s
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:187
+ttm_test: ttm_test.cu:53: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, TTM mode 0File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 1, CUDA dev 
+[CPU  SpTns * Mtx] operation took 16.218886640 s
+[CPU  SpTns * Mtx] operation took 16.219138963 s
+[CPU  SpTns * Mtx] operation took 16.218527369 s
+[CPU  SpTns * Mtx] operation took 16.219078562 s
+[CPU  SpTns * Mtx] operation took 16.218915585 s
+[CPU  SpTns * Mtx] operation took 16.219581662 s
+[OMP  SpTns * Mtx] operation took 4.404801054 s
+[OMP  SpTns * Mtx] operation took 4.382381403 s
+[OMP  SpTns * Mtx] operation took 4.381508947 s
+[OMP  SpTns * Mtx] operation took 4.381075424 s
+[OMP  SpTns * Mtx] operation took 4.380246529 s
+[OMP  SpTns * Mtx] operation took 4.379534814 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.422739995 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.424434311 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.425198439 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.425827544 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.421533897 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.424604510 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.461831280 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, TTM mode 1nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+[CUDA SpTns * Mtx] operation took 1.461356716 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.461912689 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.461811889 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.462725788 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.461860369 s
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 22715
+File: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, mode 2, CUDA dev 
+[CPU  SpTns * Mtx] operation took 13.639557857 s
+[CPU  SpTns * Mtx] operation took 13.638701705 s
+[CPU  SpTns * Mtx] operation took 13.638371265 s
+[CPU  SpTns * Mtx] operation took 13.639018714 s
+[CPU  SpTns * Mtx] operation took 13.639758126 s
+[CPU  SpTns * Mtx] operation took 13.639409969 s
+[OMP  SpTns * Mtx] operation took 4.056370686 s
+[OMP  SpTns * Mtx] operation took 4.035263221 s
+[OMP  SpTns * Mtx] operation took 4.033963881 s
+[OMP  SpTns * Mtx] operation took 4.042251611 s
+[OMP  SpTns * Mtx] operation took 4.058276457 s
+[OMP  SpTns * Mtx] operation took 4.035126284 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.969227107 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.968603387 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.968549070 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.968652295 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.968892428 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, TTM mode 2nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nbloc[CUDA SpTns * Mtx] operation took 0.968008703 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.016048305 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.016320035 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.016033464 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.016017819 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.016173752 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+ks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 327[CUDA SpTns * Mtx] operation took 1.015639443 s
+68
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 2236
+File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 0, CUDA dev 
+[CPU  SpTns * Mtx] operation took 14.741164871 s
+[CPU  SpTns * Mtx] operation took 14.740451120 s
+[CPU  SpTns * Mtx] operation took 14.741045269 s
+[CPU  SpTns * Mtx] operation took 14.741374794 s
+[CPU  SpTns * Mtx] operation took 14.741057251 s
+[CPU  SpTns * Mtx] operation took 14.741241980 s
+[OMP  SpTns * Mtx] operation took 4.486347882 s
+[OMP  SpTns * Mtx] operation took 4.492173231 s
+[OMP  SpTns * Mtx] operation took 4.479392012 s
+[OMP  SpTns * Mtx] operation took 4.480747403 s
+[OMP  SpTns * Mtx] operation took 4.483518056 s
+[OMP  SpTns * Mtx] operation took 4.489690451 s
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_test: ttm_test.cu:53: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 0File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 1, CUDA dev 
+[CPU  SpTns * Mtx] operation took 14.073080226 s
+[CPU  SpTns * Mtx] operation took 14.006098832 s
+[CPU  SpTns * Mtx] operation took 14.004660134 s
+[CPU  SpTns * Mtx] operation took 14.008690826 s
+[CPU  SpTns * Mtx] operation took 14.005862445 s
+[CPU  SpTns * Mtx] operation took 14.007605863 s
+[OMP  SpTns * Mtx] operation took 4.387957769 s
+[OMP  SpTns * Mtx] operation took 4.366976572 s
+[OMP  SpTns * Mtx] operation took 4.369247878 s
+[OMP  SpTns * Mtx] operation took 4.366237618 s
+[OMP  SpTns * Mtx] operation took 4.367520457 s
+[OMP  SpTns * Mtx] operation took 4.366485939 s
+[CUDA SpTns * Mtx] error 0x00000002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:170
+ttm_test: ttm_test.cu:53: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 1File: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, mode 2, CUDA dev 
+[CPU  SpTns * Mtx] operation took 22.228913845 s
+[CPU  SpTns * Mtx] operation took 22.227455748 s
+[CPU  SpTns * Mtx] operation took 22.228119309 s
+[CPU  SpTns * Mtx] operation took 22.228851557 s
+[CPU  SpTns * Mtx] operation took 22.228343046 s
+[CPU  SpTns * Mtx] operation took 22.228562360 s
+[OMP  SpTns * Mtx] operation took 5.441786844 s
+[OMP  SpTns * Mtx] operation took 5.414955234 s
+[OMP  SpTns * Mtx] operation took 5.415231874 s
+[OMP  SpTns * Mtx] operation took 5.417142938 s
+[OMP  SpTns * Mtx] operation took 5.414068724 s
+[OMP  SpTns * Mtx] operation took 5.412674477 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.666265352 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.670876047 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.673642135 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.671660865 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.668152729 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.670498900 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.751982242 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.747597831 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.747584351 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.750196626 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.748780936 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.751970220 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 2nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 32768
+nblocks: 18601

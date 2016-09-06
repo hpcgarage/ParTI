@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SpTOL.h>
+#include <omp.h>
 
 int main(int argc, char const *argv[]) {
     FILE *fX, *fY;
@@ -36,26 +37,16 @@ int main(int argc, char const *argv[]) {
 
     assert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
 
+    static const size_t tmp_ndims[2] = {0, 0};
+    sptNewSemiSparseTensor(&Y, 2, 1, tmp_ndims);
+
     /* We have niters+1 iterations, the first is warm-up */
-    assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-    for(int it=0; it<niters; ++it) {
-        sptFreeSemiSparseTensor(&Y);
-        assert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-    }
-    for(int it=0; it<niters+1; ++it) {
-        sptFreeSemiSparseTensor(&Y);
-        assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-    }
-    if(cuda_dev_id >= 0) {
-        unsetenv("SPTOL_TTM_KERNEL");
+    for(int nth = 2; nth <= 8; nth += 2) {
+        omp_set_num_threads(nth);
+        printf("OMP nthreads=%d\n", nth);
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
-            assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-        }
-        setenv("SPTOL_TTM_KERNEL", "naive", 1);
-        for(int it=0; it<niters+1; ++it) {
-            sptFreeSemiSparseTensor(&Y);
-            assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+            assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
         }
     }
 
