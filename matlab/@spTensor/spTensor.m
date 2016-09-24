@@ -10,13 +10,14 @@ classdef spTensor
         values = zeros(0, 1);
     end
     methods
-        function obj = spTensor(ndims)
-            obj.ndims = ndims(:)';
-            obj.nmodes = length(obj.ndims);
+        function tsr = spTensor(ndims)
+            tsr.ndims = ndims(:)';
+            tsr.nmodes = length(tsr.ndims);
         end
-        nwritten = dump(obj, start_index, fp)
+        nwritten = dump(tsr, start_index, fp)
+        tsr = sort(tsr)
     end
     methods (Static)
-        obj = load(start_index, fp)
+        tsr = load(start_index, fp)
     end
 end

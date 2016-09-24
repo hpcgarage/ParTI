@@ -1,10 +1,10 @@
-function nwritten = dump(obj, start_index, fp)
-    fprintf(fp, '%u\n', obj.nmodes);
-    fprintf(fp, '%u ', obj.ndims);
+function nwritten = dump(tsr, start_index, fp)
+    fprintf(fp, '%u\n', tsr.nmodes);
+    fprintf(fp, '%u ', tsr.ndims);
     fprintf(fp, '\n');
-    for i = 1:obj.nnz
-        fprintf(fp, '%u ', obj.inds(:, i) + start_index - 1);
-        fprintf(fp, '%f\n', obj.values(i, 1));
+    for i = 1:tsr.nnz
+        fprintf(fp, '%u ', tsr.inds(:, i) + start_index - 1);
+        fprintf(fp, '%f\n', tsr.values(i));
     end
-    nwritten = obj.nnz;
+    nwritten = tsr.nnz;
 end
