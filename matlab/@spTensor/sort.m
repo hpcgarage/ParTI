@@ -1,10 +1,6 @@
 function tsr = sort(tsr)
     tsr = quickSortIndex(tsr, 1, tsr.nnz);
-    if tsr.nmodes ~= 0
-        tsr.sortkey = tsr.nmodes;
-    else
-        tsr.sortkey = 0;
-    end
+    tsr.sortkey = tsr.nmodes;
 end
 
 function result = compareIndices(tsr, ind1, ind2)
