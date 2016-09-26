@@ -144,6 +144,12 @@ result = tsr.mulMatrix(mtx, mode)
 
 Not implemented
 
+## Class `sspTensor`
+
+A data type representing a semi-sparse tensor
+
+Not implemented
+
 ## License
 
 It's not determined, yet.
