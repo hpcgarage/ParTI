@@ -86,7 +86,6 @@ typedef struct {
     size_t        nnz;    /// # non-zero fibers
     sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes][nnz], the mode-th value is ignored
     size_t        stride; /// ndims[mode] rounded up to 8
-    // sb: TODO migrate to sptMatrix
     sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
 } sptSemiSparseTensor;
 
