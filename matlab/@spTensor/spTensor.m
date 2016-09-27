@@ -16,8 +16,10 @@ classdef spTensor
         end
         nwritten = dump(tsr, start_index, fp)
         tsr = sort(tsr)
+        tsr = sortAtMode(tsr, mode)
     end
     methods (Static)
         tsr = load(start_index, fp)
+        tsr = fromSspTensor(src, epsilon)
     end
 end
