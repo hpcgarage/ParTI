@@ -48,11 +48,11 @@ function tsr = quickSortIndex(tsr, l, r)
         if i >= j
             break;
         end
-        tsr = swapValues(tsr, i, j)
+        tsr = swapValues(tsr, i, j);
         if i == p
-            p = j
+            p = j;
         elseif j == p
-            p = i
+            p = i;
         end
         i = i + 1;
         j = j - 1;
