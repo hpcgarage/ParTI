@@ -1,4 +1,4 @@
-classdef spTensor
+classdef sspTensor
     properties (SetAccess=protected)
         nmodes = 0;
         ndims = zeros(1, 0);
