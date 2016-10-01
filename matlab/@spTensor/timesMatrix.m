@@ -2,14 +2,14 @@ function Y = timesMatrix(X, U, mode)
     if mode > X.nmodes
         throw(MException('invalid mode', 'Invalid mode'));
     end
-    if  X.ndims(mode) ~= U.nrows
+    if X.ndims(mode) ~= size(U)(1)
         throw(MException('dim mismatch', 'dimension mismatch'));
     end
     if X.sortkey ~= mode
         X = X.sortAtMode(mode);
     end
     ind_buf = X.ndims;
-    ind_buf(1, mode)  = U.ncols;
+    ind_buf(1, mode)  = size(U)(2);
     Y = sspTensor(ind_buf, mode);
     fiberidx = Y.setIndices(X);
 

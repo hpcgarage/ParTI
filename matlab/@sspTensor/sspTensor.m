@@ -16,7 +16,7 @@ classdef sspTensor
             tsr.nmodes = length(tsr.ndims);
             tsr.mode = mode;
             tsr.stride = ceil(tsr.ndims(mode)/8)*8;
-            tsr.values = zero(0, tsr.stride);
+            tsr.values = zeros(0, tsr.stride);
         end
     end
 end
