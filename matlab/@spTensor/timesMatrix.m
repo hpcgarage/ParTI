@@ -11,14 +11,16 @@ function Y = timesMatrix(X, U, mode)
     ind_buf = X.ndims;
     ind_buf(1, mode)  = size(U)(2);
     Y = sspTensor(ind_buf, mode);
-    fiberidx = Y.setIndices(X);
+    [Y, fiberidx] = Y.setIndices(X);
 
     for i = 1:Y.nnz
         inz_begin = fiberidx(i);
         inz_end = fiberidx(i+1);
         for j = inz_begin:(inz_end-1)
             r = X.inds(mode, j);
-            Y.values(i, k) = Y.values(i, j) + X.values(j) * U(r, k);
+            for k = 1:size(U)(2)
+                Y.values(i, k) = Y.values(i, k) + X.values(j) * U(r, k);
+            end
         end
     end
 end
