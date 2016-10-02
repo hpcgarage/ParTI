@@ -4,7 +4,7 @@
 
 __global__ static void spt_TTMKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
@@ -46,7 +46,7 @@ __global__ static void spt_TTMKernel(
 #if 0
 __global__ static void spt_TTMKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
@@ -92,7 +92,7 @@ __global__ static void spt_TTMKernel(
 
 __global__ static void spt_TTMNaiveKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
@@ -115,7 +115,7 @@ __global__ static void spt_TTMNaiveKernel(
 
 __global__ static void spt_TTMNaiveKernelBasic(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, size_t *X_inds_m,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
