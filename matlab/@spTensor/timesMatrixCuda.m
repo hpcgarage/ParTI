@@ -44,7 +44,26 @@ function Y = timesMatrix(X, U, mode)
             nblocks = max_nblocks;
         end
         if ~use_naive_kernel
+            kernel.ThreadBlockSize = [nthreadsX size(U)(2) 1];
+            kernel.GridSize = [nblocks 1 1];
+            % kernel.sharedMemory = ...
+            Y.values = feval(kernel,
+                Y.stride, Y.nnz,
+                X.values, X.nnz, X_inds_m,
+                fiberidx_val, length(fiberidx_val),
+                U, size(U)(1), size(U)(2), size(U)(2),
+                block_offset
+            )
         else
+            kernel.ThreadBlockSize = [nthreadsX size(U)(2) 1];
+            kernel.GridSize = [nblocks 1 1];
+            Y.values = feval(kernel,
+                Y.stride, Y.nnz,
+                X.values, X.nnz, X_inds_m,
+                fiberidx_val, length(fiberidx_val),
+                U, size(U)(1), size(U)(2), size(U)(2),
+                block_offset
+            )
         end
         block_offset = block_offset + max_nblocks;
     end
