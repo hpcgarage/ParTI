@@ -4,6 +4,8 @@
 
 When you start, change your current directory here.
 
+Type 'make' to compile CUDA kernel code for your GPU model.
+
 MATLAB will be able to read class declarations and definitions in directories
 starting with `@` when you use the corresponding data type.
 
