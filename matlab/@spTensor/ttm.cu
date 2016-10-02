@@ -1,13 +1,11 @@
-typedef double sptScalar;
-
 __global__ void spt_TTMKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    double *Y_val, size_t Y_stride, size_t Y_nnz,
+    const double *X_val, size_t X_nnz, const size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
+    const double *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
 ) {
-    extern __shared__ sptScalar mem_pool[];
+    extern __shared__ double mem_pool[];
 
     const size_t tidx = threadIdx.x;
     const size_t tidy = threadIdx.y;
@@ -20,8 +18,8 @@ __global__ void spt_TTMKernel(
     }
     __syncthreads();
 
-    //sptScalar * const Y_shr = (sptScalar *) &mem_pool[tidx*Y_stride]; // size U_ncols
-    sptScalar * const Y_shr = (sptScalar *) mem_pool; // size U_ncols
+    //double * const Y_shr = (double *) &mem_pool[tidx*Y_stride]; // size U_ncols
+    double * const Y_shr = (double *) mem_pool; // size U_ncols
     if(i < Y_nnz && tidy < U_ncols) {
         Y_shr[tidx * Y_stride + tidy] = 0;
     }

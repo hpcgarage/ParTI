@@ -1,10 +1,8 @@
-typedef double sptScalar;
-
 __global__ void spt_TTMNaiveKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    double *Y_val, size_t Y_stride, size_t Y_nnz,
+    const double *X_val, size_t X_nnz, const size_t *X_inds_m,
     size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
+    const double *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
 ) {
     const size_t tidx = threadIdx.x;
