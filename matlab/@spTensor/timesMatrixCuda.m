@@ -46,7 +46,7 @@ function Y = timesMatrix(X, U, mode)
         if ~use_naive_kernel
             kernel.ThreadBlockSize = [nthreadsX size(U)(2) 1];
             kernel.GridSize = [nblocks 1 1];
-            % kernel.sharedMemory = ...
+            kernel.SharedMemorySize = sharedMem;
             Y.values = feval(kernel,
                 Y.stride, Y.nnz,
                 X.values, X.nnz, X_inds_m,
