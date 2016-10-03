@@ -7,4 +7,3 @@ function mtx = toMatrix(tsr)
         mtx(tsr.inds(1, i), tsr.inds(2, i)) = tsr.values(i);
     end
 end
-tsr

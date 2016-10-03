@@ -1,12 +1,12 @@
 classdef spTensor
     properties (SetAccess=protected)
         nmodes = 0;
-        ndims = zeros(1, 0);
+        ndims = zeros(1, 0, 'uint64');
     end
     properties
         sortkey = 0;
         nnz = 0;
-        inds = zeros(0, 0);
+        inds = zeros(0, 0, 'uint64');
         values = zeros(0, 1);
     end
     methods

@@ -1,13 +1,13 @@
 classdef sspTensor
     properties (SetAccess=protected)
         nmodes = 0;
-        ndims = zeros(1, 0);
+        ndims = zeros(1, 0, 'uint64');
         mode = 0;
         stride = 0;
     end
     properties
         nnz = 0;
-        inds = zeros(0, 0);
+        inds = zeros(0, 0, 'uint64');
         values = zeros(0, 0);
     end
     methods
