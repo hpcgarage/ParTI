@@ -1,7 +1,7 @@
 __global__ void spt_TTMNaiveKernel(
     double *Y_val, size_t Y_stride, size_t Y_nnz,
     const double *X_val, size_t X_nnz, const size_t *X_inds_m,
-    size_t *fiberidx_val, size_t fiberidx_len,
+    const size_t *fiberidx_val, size_t fiberidx_len,
     const double *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset
 ) {
