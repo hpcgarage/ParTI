@@ -1,2 +1,2 @@
 all:
-	find . -name '*.cu' -print -exec nvcc --ptx '{}' ';'
+	find . -name '*.cu' -print -execdir nvcc --ptx $(NVCCFLAGS) '{}' ';'

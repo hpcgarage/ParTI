@@ -1,4 +1,6 @@
 function ttmtest()
+    g = gpuDevice(1);
+
     fp = fopen('testa.tns', 'r');
     X = spTensor.load(1, fp);
     fclose(fp);
@@ -15,7 +17,7 @@ function ttmtest()
     fclose(fp);
 
     Y = X.timesMatrixCuda(U, 2);
-    Y = gather(Y);
+    Y.values = gather(Y.values);
     Y = spTensor.fromSspTensor(Y, 1e-6);
     fp = fopen('testcuda.tns', 'w');
     Y.dump(1, fp);
