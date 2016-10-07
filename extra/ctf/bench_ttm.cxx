@@ -60,6 +60,10 @@ CTF_Tensor *read_tensor(
     std::vector<int> &ndims
 ) {
     FILE *f = fopen(filename.c_str(), "r");
+    if(!f) {
+        fprintf(stderr, "unable to open %s\n", filename.c_str());
+        exit(2);
+    }
     int nmodes;
     fscanf(f, "%d", &nmodes);
     ndims.resize(nmodes);
