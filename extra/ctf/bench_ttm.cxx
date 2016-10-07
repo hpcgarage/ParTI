@@ -72,15 +72,15 @@ CTF_Tensor *read_tensor(
     }
     std::vector<int> ns(nmodes, NS);
     CTF_Tensor *result = new CTF_Tensor(nmodes, is_sparse, ndims.data(), ns.data(), dw, Ring<double>(), name.c_str(), true);
-    std::vector<int64_t> inds;
-    std::vector<double> values;
+    std::vector<int64_t> &inds = *new std::vector<int64_t>;
+    std::vector<double> &values = *new std::vector<double>; // leak it.
     for(;;) {
         long ii, jj, kk;
         assert(nmodes == 3);
         if(fscanf(f, "%ld%ld%ld", &ii, &jj, &kk) == 3) {
-            int64_t global_idx = ((ii * ndims[0] + jj) * ndims[1] + kk) * ndims[2];
+            int64_t global_idx = ii + jj*ndims[0] + kk*ndims[0]*ndims[1];
             inds.push_back(global_idx);
-            printf("READ: global idx: %ld, ", global_idx);
+            printf("READ A: global idx: %ld, ", global_idx);
         } else {
             goto read_done;
         }
