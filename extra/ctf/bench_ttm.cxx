@@ -75,17 +75,19 @@ CTF_Tensor *read_tensor(
     std::vector<int64_t> inds;
     std::vector<double> values;
     for(;;) {
-        for(int i = 0; i < nmodes; ++i) {
-            long long t;
-            if(fscanf(f, "%lld", &t) == 1) {
-                inds.push_back(t);
-            } else {
-                goto read_done;
-            }
+        long ii, jj, kk;
+        assert(nmodes == 3);
+        if(fscanf(f, "%ld%ld%ld", &ii, &jj, &kk) == 3) {
+            int64_t global_idx = ((ii * ndims[0] + jj) * ndims[1] + kk) * ndims[2];
+            inds.push_back(global_idx);
+            printf("READ: global idx: %ld, ", global_idx);
+        } else {
+            goto read_done;
         }
         double v;
         if(fscanf(f, "%lf", &v) == 1) {
             values.push_back(v);
+            printf("value: %lf\n", v);
         } else {
             goto read_done;
         }
@@ -119,7 +121,7 @@ int bench_contraction(
   CTF_Tensor *A = read_tensor(filenamea, true, dw, "A", ndimsA);
   CTF_Tensor *B = make_B(dw, "B", ndimsA, ndimsB, mode, 16);
   B->fill_random(-1, 1);
-  CTF_Tensor *C = make_prod(true, dw, "C", ndimsA, ndimsB, mode);
+  CTF_Tensor *C = make_prod(false, dw, "C", ndimsA, ndimsB, mode);
 
   //////////////////////////////////////////////////
   // TODO: read tensor from "filename" into A, B  //
@@ -136,6 +138,8 @@ int bench_contraction(
     printf("Performed %d iterations of mode %d in %lf sec/iter\n",
            niter, mode, (end_time-st_time)/niter);
 
+  A->print();
+  B->print();
   C->print();
 
   delete C;
@@ -181,7 +185,7 @@ int main(int argc, char ** argv){
 
   {
     CTF_World dw(argc, argv);
-    for(int mode = 0; mode < 3; ++mode) {
+    for(int mode = 2; mode >= 0; --mode) {
       bench_contraction(niter, mode, A, B, dw);
     }
   }
