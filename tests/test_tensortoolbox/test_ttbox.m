@@ -9,8 +9,9 @@ sz = [60 22870 9];
 %file = '/home/BIGDATA/Collection/SPLATT/delicious.tns';
 %sz = [532924 17262471 2480308];
 
-mode = 2;
+mode = 1;
 R = 16;
+fprintf('R: %d, mode: %d\n', R, mode);
 
 A = load(file);
 subs = A(:, 1:3);
@@ -21,7 +22,7 @@ U = rand(R, sz(mode));
 
 ts = tic;
 for niter = 1:5
-  res = ttm(spA, U, mode);
+  res = ttm_timing(spA, U, mode);
 end
 time = toc(ts);
 fprintf('time: %f sec\n', time/5);
