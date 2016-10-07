@@ -72,8 +72,8 @@ CTF_Tensor *read_tensor(
     }
     std::vector<int> ns(nmodes, NS);
     CTF_Tensor *result = new CTF_Tensor(nmodes, is_sparse, ndims.data(), ns.data(), dw, Ring<double>(), name.c_str(), true);
-    std::vector<int64_t> &inds = *new std::vector<int64_t>;
-    std::vector<double> &values = *new std::vector<double>; // leak it.
+    std::vector<int64_t> inds;
+    std::vector<double> values;
     for(;;) {
         long ii, jj, kk;
         assert(nmodes == 3);
@@ -116,8 +116,12 @@ int bench_contraction(
   iB[0] = iA[mode];
   iC[mode] = '3';
 
-  std::vector<int> ndimsA, ndimsB;
-  CTF_Tensor *A = read_tensor(filenamea, true, dw, "A", ndimsA);
+  static std::vector<int> ndimsA;
+  std::vector<int> ndimsB;
+  static CTF_Tensor *A = NULL;
+  if(!A) { // read only once
+      A = read_tensor(filenamea, true, dw, "A", ndimsA);
+  }
   CTF_Tensor *B = make_B(dw, "B", ndimsA, ndimsB, mode, 16);
   B->fill_random(-1, 1);
   CTF_Tensor *C = make_prod(false, dw, "C", ndimsA, ndimsB, mode);
@@ -143,7 +147,6 @@ int bench_contraction(
 
   delete C;
   delete B;
-  delete A;
 
   return 1;
 }
