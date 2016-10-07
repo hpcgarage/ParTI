@@ -78,22 +78,21 @@ CTF_Tensor *read_tensor(
         long ii, jj, kk;
         assert(nmodes == 3);
         if(fscanf(f, "%ld%ld%ld", &ii, &jj, &kk) == 3) {
+            ii--; jj--; kk--; // offset 1
             int64_t global_idx = ii + jj*ndims[0] + kk*ndims[0]*ndims[1];
             inds.push_back(global_idx);
-            printf("READ A: global idx: %ld, ", global_idx);
         } else {
             goto read_done;
         }
         double v;
         if(fscanf(f, "%lf", &v) == 1) {
             values.push_back(v);
-            printf("value: %lf\n", v);
         } else {
             goto read_done;
         }
     }
 read_done:
-    result->read(values.size(), inds.data(), values.data());
+    result->write(values.size(), inds.data(), values.data());
     fclose(f);
     return result;
 }
