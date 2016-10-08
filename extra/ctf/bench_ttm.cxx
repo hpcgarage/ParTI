@@ -132,9 +132,10 @@ int bench_contraction(
   // TODO: read tensor from "filename" into A, B  //
   //////////////////////////////////////////////////
 
+  (*C)[iC] = (*A)[iA]*(*B)[iB]; // warm-up
+
   double st_time = MPI_Wtime();
 
-  (*C)[iC] = (*A)[iA]*(*B)[iB]; // warm-up
   for (i=0; i<niter; i++){
     (*C)[iC] = (*A)[iA]*(*B)[iB];
   }
