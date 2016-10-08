@@ -95,7 +95,7 @@ CTF_Tensor *read_tensor(
 read_done:
     result->write(values.size(), inds.data(), values.data());
     fclose(f);
-    print("Read from %s, %ld records.\n", filename.c_str(), (long) values.size());
+    printf("Read from %s, %ld records.\n", filename.c_str(), (long) values.size());
     return result;
 }
 
