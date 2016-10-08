@@ -64,6 +64,7 @@ CTF_Tensor *read_tensor(
         fprintf(stderr, "unable to open %s\n", filename.c_str());
         exit(2);
     }
+    printf("Reading from %s.\n", filename.c_str());
     int nmodes;
     fscanf(f, "%d", &nmodes);
     ndims.resize(nmodes);
@@ -94,6 +95,7 @@ CTF_Tensor *read_tensor(
 read_done:
     result->write(values.size(), inds.data(), values.data());
     fclose(f);
+    print("Read from %s, %ld records.\n", filename.c_str(), (long) values.size());
     return result;
 }
 
@@ -141,9 +143,9 @@ int bench_contraction(
     printf("Performed %d iterations of mode %d in %lf sec/iter\n",
            niter, mode, (end_time-st_time)/niter);
 
-  A->print();
-  B->print();
-  C->print();
+  //A->print();
+  //B->print();
+  //C->print();
 
   delete C;
   delete B;
