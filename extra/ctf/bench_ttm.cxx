@@ -134,6 +134,7 @@ int bench_contraction(
 
   double st_time = MPI_Wtime();
 
+  (*C)[iC] = (*A)[iA]*(*B)[iB]; // warm-up
   for (i=0; i<niter; i++){
     (*C)[iC] = (*A)[iA]*(*B)[iB];
   }
@@ -177,7 +178,7 @@ int main(int argc, char ** argv){
 
   if (getCmdOption(input_str, input_str+in_num, "-niter")){
     niter = atoi(getCmdOption(input_str, input_str+in_num, "-niter"));
-  } else niter = 1000;
+  } else niter = 5;
 
   if (getCmdOption(input_str, input_str+in_num, "-A")){
     A = getCmdOption(input_str, input_str+in_num, "-A");
