@@ -31,6 +31,7 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[4], "%zu", &R);
     }
 
+    fprintf(stderr, "sptRandomizeMatrix(&U, %zu, %zu)\n", X.ndims[mode], R);
     assert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
 
     /* For warm-up caches, timing not included */
