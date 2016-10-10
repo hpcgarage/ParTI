@@ -36,6 +36,19 @@ CTF_Tensor *make_prod(
     return result;
 }
 
+CTF_Tensor *make_A(
+    bool is_sparse,
+    CTF_World &dw,
+    std::string const & name,
+    std::vector<int>  ndimsA
+) {
+    int nmodes = ndimsA.size();
+    std::vector<int> ns(nmodes, NS);
+    CTF_Tensor *result = new CTF_Tensor(nmodes, is_sparse, ndimsA.data(), ns.data(), dw, Ring<double>(), name.c_str(), true);
+    return result;
+}
+
+
 CTF_Tensor *make_B(
     CTF_World &dw,
     std::string const & name,
@@ -52,36 +65,27 @@ CTF_Tensor *make_B(
     return result;
 }
 
-CTF_Tensor *read_tensor(
+void load_tensor(
     std::string const & filename,
-    bool is_sparse,
-    CTF_World &dw,
-    std::string const & name,
-    std::vector<int> &ndims
+    std::vector<int> &ndims,
+    std::vector<int64_t> &inds,
+    std::vector<double> &values
 ) 
 {
-    int rank, num_pes;
-
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &num_pes);
-
-    // if(rank ==0 ) read from file. When finishing reading, do "result->write(values.size(), inds.data(), values.data());"
-    FILE *f = fopen(filename.c_str(), "r");
+    int nmodes;
+    FILE *f;
+    f = fopen(filename.c_str(), "r");
     if(!f) {
         fprintf(stderr, "unable to open %s\n", filename.c_str());
         exit(2);
     }
     printf("Reading from %s.\n", filename.c_str());
-    int nmodes;
     fscanf(f, "%d", &nmodes);
     ndims.resize(nmodes);
     for(int i = 0; i < nmodes; ++i) {
         fscanf(f, "%d", &ndims[i]);
     }
-    std::vector<int> ns(nmodes, NS);
-    CTF_Tensor *result = new CTF_Tensor(nmodes, is_sparse, ndims.data(), ns.data(), dw, Ring<double>(), name.c_str(), true);
-    std::vector<int64_t> inds;
-    std::vector<double> values;
+
     for(;;) {
         long ii, jj, kk;
         assert(nmodes == 3);
@@ -100,9 +104,74 @@ CTF_Tensor *read_tensor(
         }
     }
 read_done:
-    result->write(values.size(), inds.data(), values.data());
     fclose(f);
     printf("Read from %s, %ld records.\n", filename.c_str(), (long) values.size());
+
+    return;
+}
+
+
+CTF_Tensor *read_tensor(
+    std::string const & filename,
+    bool is_sparse,
+    CTF_World &dw,
+    std::string const & name,
+    std::vector<int> &ndims
+) 
+{
+    int rank, num_pes;
+    MPI_Comm comm = dw.comm;
+
+    MPI_Comm_rank(comm, &rank);
+    MPI_Comm_size(comm, &num_pes);
+
+    int nmodes = 3;
+    ndims.push_back(500);
+    ndims.push_back(500);
+    ndims.push_back(500);
+
+    CTF_Tensor *result = make_A(true, dw, "A", ndims);
+    result->fill_sp_random(-1,1,.001);
+    for(int n: ndims) {
+      std::cout<< n << " ";
+    }
+    std::cout<<"\n";
+
+
+    // int nmodes;
+    // std::vector<int64_t> inds;
+    // std::vector<double> values;
+
+    // if(rank == 0) {
+    //   load_tensor(filename, ndims, inds, values);
+    //   nmodes = ndims.size();      
+    // }
+    // MPI_Bcast(&nmodes, 1, MPI_INT, 0, comm); 
+    // printf("[P%d] nmodes: %d\n", rank, nmodes);
+    // fflush(stdout);
+    // if(rank != 0) ndims.resize(nmodes);
+    // MPI_Bcast(ndims.data(), nmodes, MPI_INT, 0, comm); 
+    // for(int n: ndims) {
+    //   std::cout<< n << " ";
+    // }
+    // std::cout<<"\n";
+
+    // CTF_Tensor *result = make_A(true, dw, "A", ndims);
+
+    // int values_size;
+    // int64_t * inds_vec;
+    // double * values_vec;
+    // if(rank == 0) values_size = values.size();
+    // MPI_Bcast(&values_size, 1, MPI_INT, 0, comm); 
+    // printf("values_size: %d\n", values_size);
+    // int own_values_size;
+    // own_values_size = values_size % num_pes == 0 ? values_size / num_pes: values_size / num_pes + 1;
+    // inds_vec = (int64_t *)malloc(own_values_size * sizeof(int64_t));
+    // MPI_Scatter(inds.data(), own_values_size, MPI_INT64_T, inds_vec, own_values_size, MPI_INT64_T, 0, comm);
+    // values_vec = (double *)malloc(own_values_size * sizeof(double));
+    // MPI_Scatter(values.data(), own_values_size, MPI_DOUBLE, values_vec, own_values_size, MPI_DOUBLE, 0, comm);
+    // result->write(own_values_size, inds_vec, values_vec);
+
     return result;
 }
 
@@ -115,9 +184,10 @@ int bench_contraction(
                  ){
 
   int rank, i, num_pes;
+  MPI_Comm comm = dw.comm;
 
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &num_pes);
+  MPI_Comm_rank(comm, &rank);
+  MPI_Comm_size(comm, &num_pes);
 
   char iA[] = "012";
   char iB[] = "-3";
@@ -134,10 +204,6 @@ int bench_contraction(
   CTF_Tensor *B = make_B(dw, "B", ndimsA, ndimsB, mode, 16);
   B->fill_random(-1, 1);
   CTF_Tensor *C = make_prod(false, dw, "C", ndimsA, ndimsB, mode);
-
-  //////////////////////////////////////////////////
-  // TODO: read tensor from "filename" into A, B  //
-  //////////////////////////////////////////////////
 
   (*C)[iC] = (*A)[iA]*(*B)[iB]; // warm-up
 
@@ -196,9 +262,11 @@ int main(int argc, char ** argv){
   } else B = "b.tns";
 
 
-  CTF_World dw(MPI_COMM_WORLD, argc, argv);
-  for(int mode = 2; mode >= 0; --mode) {
-    bench_contraction(niter, mode, A, B, dw);
+  {
+    CTF_World dw(MPI_COMM_WORLD, argc, argv);
+    for(int mode = 2; mode >= 0; --mode) {
+      bench_contraction(niter, mode, A, B, dw);
+    }
   }
 
 
