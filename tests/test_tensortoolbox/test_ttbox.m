@@ -1,9 +1,11 @@
 %A = load('/home/jli/Work/SpTOL/tensors/3D_12031.tns');
 %sz = [100 80 60];
+file = '/home/BIGDATA/Collection/SPLATT/brainq.tns';
+sz = [60 70365 9];
 % file = '/home/BIGDATA/Collection/SPLATT/brainq.fixed.tns';
 % sz = [60 22870 9];
-file = 'rand_1000_0.0001.tns';
-sz = [1000 1000 1000];
+% file = 'rand_1000_0.0001.tns';
+% sz = [1000 1000 1000];
 %file = '/home/BIGDATA/Collection/SPLATT/nell2.tns';
 %sz = [12092 9184 28818];
 %file = '/home/BIGDATA/Collection/SPLATT/nell1.tns';
@@ -11,7 +13,7 @@ sz = [1000 1000 1000];
 %file = '/home/BIGDATA/Collection/SPLATT/delicious.tns';
 %sz = [532924 17262471 2480308];
 
-mode = 3;
+mode = 1;
 R = 16;
 fprintf('R: %d, mode: %d\n', R, mode);
 

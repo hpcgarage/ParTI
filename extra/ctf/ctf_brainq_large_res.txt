@@ -1,0 +1,5 @@
+Reading from /home/BIGDATA/SPLATT/brainq.tns.
+Read from /home/BIGDATA/SPLATT/brainq.tns, 11145540 records.
+Performed 5 iterations of mode 2 in 1.331639 sec/iter
+Performed 5 iterations of mode 1 in 1.069945 sec/iter
+Performed 5 iterations of mode 0 in 1.152260 sec/iter
