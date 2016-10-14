@@ -1,4 +1,5 @@
 function Y = timesMatrix(X, U, mode)
+    g = gpuDevice();
     if mode > X.nmodes
         throw(MException('invalid mode', 'Invalid mode'));
     end
@@ -13,11 +14,11 @@ function Y = timesMatrix(X, U, mode)
     Y = sspTensor(ind_buf, mode);
     [Y, fiberidx] = Y.setIndices(X);
 
-    Y.values = zeros(Y.nnz, Y.stride, 'gpuArray');
-    X.values = gpuArray(X.values);
-    X_inds_m = gpuArray(X.inds(mode, :));
-    U = gpuArray(U);
-    fiberidx = gpuArray(fiberidx);
+    Y.values = zeros(1, Y.nnz*Y.stride, 'gpuArray');
+    X.values = gpuArray(flatten(X.values));
+    X_inds_m = gpuArray(flatten(X.inds(mode, :) - 1));
+    U = gpuArray(flatten(U));
+    fiberidx = gpuArray(flatten(fiberidx - 1));
 
     max_nblocks = 32768;
     max_nthreads = 1024;
@@ -26,7 +27,7 @@ function Y = timesMatrix(X, U, mode)
     sharedMem = nthreadsX * ncols(U) * sizeof_scalar;
 
     all_nblocks = ceil(Y.nnz / nthreadsX);
-    use_naive_kernel = false;
+    use_naive_kernel = true;
     if ~use_naive_kernel
         kernel = parallel.gpu.CUDAKernel('ttm.ptx', 'ttm.cu', 'spt_TTMKernel');
     else
@@ -61,6 +62,12 @@ function Y = timesMatrix(X, U, mode)
                 block_offset ...
             )
         end
+        g.wait()
         block_offset = block_offset + max_nblocks;
     end
+    Y.values = reshape(Y.values, [Y.nnz Y.stride]);
+end
+
+function mtx = flatten(mtx)
+    mtx = reshape(mtx', [1 numel(mtx)]);
 end
