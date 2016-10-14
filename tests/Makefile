@@ -1,5 +1,5 @@
 CFLAGS=-Wall -Wextra -std=c99 -fopenmp -I../include -O3
-LDLIBS=../build/libSpTOL_s.a
+LDLIBS=../build/libSpTOL_s.a -lm
 NVCC=nvcc
 NVCCFLAGS=-I../include -Xcompiler -fopenmp -g
 
