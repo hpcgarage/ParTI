@@ -68,7 +68,7 @@ function Y = timesMatrix(X, U, mode)
         g.wait()
         block_offset = block_offset + max_nblocks;
     end
-    Y.values = reshape(Y.values, [Y.nnz Y.stride]);
+    Y.values = reshape(Y.values, [Y.stride Y.nnz])';
 end
 
 function mtx = flatten(mtx)
