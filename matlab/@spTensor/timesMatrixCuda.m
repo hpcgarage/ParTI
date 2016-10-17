@@ -1,5 +1,4 @@
 function Y = timesMatrix(X, U, mode)
-    g = gpuDevice();
     if mode > X.nmodes
         throw(MException('invalid mode', 'Invalid mode'));
     end
@@ -25,12 +24,21 @@ function Y = timesMatrix(X, U, mode)
 
     max_nblocks = 32768;
     max_nthreads = 1024;
-    nthreadsX = 32;
+    env_SPTOL_TTM_NTHREADS = getenv('SPTOL_TTM_NTHREADS');
+    nthreadsX = str2num(env_SPTOL_TTM_NTHREADS);
+    if length(nthreadsX) == 0
+        nthreadsX = 32;
+    end
     sizeof_scalar = 8;
     sharedMem = nthreadsX * ncols(U) * sizeof_scalar;
 
     all_nblocks = ceil(Y.nnz / nthreadsX);
-    use_naive_kernel = true;
+    env_SPTOL_TTM_KERNEL = getenv('SPTOL_TTM_KERNEL');
+    if length(env_SPTOL_TTM_KERNEL) ~= 0 && env_SPTOL_TTM_KERNEL == 'naive'
+        use_naive_kernel = true;
+    else
+        use_naive_kernel = false;
+    end
     if ~use_naive_kernel
         kernel = parallel.gpu.CUDAKernel('ttm.ptx', 'ttm.cu', 'spt_TTMKernel');
     else
@@ -53,7 +61,7 @@ function Y = timesMatrix(X, U, mode)
                 fiberidx, length(fiberidx), ...
                 U_vals, nrows(U), ncols(U), U_stride, ...
                 block_offset ...
-            )
+            );
         else
             kernel.ThreadBlockSize = [nthreadsX ncols(U) 1];
             kernel.GridSize = [nblocks 1 1];
@@ -63,9 +71,8 @@ function Y = timesMatrix(X, U, mode)
                 fiberidx, length(fiberidx), ...
                 U_vals, nrows(U), ncols(U), U_stride, ...
                 block_offset ...
-            )
+            );
         end
-        g.wait()
         block_offset = block_offset + max_nblocks;
     end
     Y.values = reshape(Y.values, [Y.stride Y.nnz])';
