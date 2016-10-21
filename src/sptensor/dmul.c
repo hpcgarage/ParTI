@@ -10,8 +10,7 @@ int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sp
     }
     for(i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            fprintf(stderr, "SpTOL ERROR: Multiply tensors in different shapes.\n");
-            return -1;
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "spTensor DotMul", "shape mismatch");
         }
     }
 

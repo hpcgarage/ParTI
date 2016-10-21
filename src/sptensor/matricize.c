@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-void sptMatricize(sptSparseTensor const * const X,
+int sptMatricize(sptSparseTensor const * const X,
 	size_t const m,
 	sptSparseMatrix * const A,
 	int const transpose) {
@@ -72,8 +72,7 @@ void sptMatricize(sptSparseTensor const * const X,
 		}
 
 	} else{
-		fprintf(stderr, "SpTOL ERROR: incorrect transpose value.\n");
-		exit(-1);
+		spt_CheckError(SPTERR_VALUE_ERROR, "spTensor Matricize", "incorrect transpose value");
 	}
 
 	free(strides);

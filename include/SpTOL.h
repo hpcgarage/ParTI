@@ -95,6 +95,7 @@ typedef enum {
     SPTERR_NO_ERROR       = 0,
     SPTERR_UNKNOWN        = 1,
     SPTERR_SHAPE_MISMATCH = 2,
+    SPTERR_VALUE_ERROR    = 3,
     SPTERR_OS_ERROR       = 0x10000,
     SPTERR_CUDA_ERROR     = 0x20000,
 } SptError;

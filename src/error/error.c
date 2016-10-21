@@ -13,21 +13,36 @@ static __thread struct {
 } g_last_error = { NULL, 0, NULL, 0, NULL };
 
 void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason) {
-    g_last_error.module = module;
     g_last_error.errcode = errcode;
-    g_last_error.file = file;
-    g_last_error.line = line;
-    free(g_last_error.reason);
-    if(reason) {
-        size_t len = strlen(reason);
-        g_last_error.reason = malloc(len+1);
-        if(!g_last_error.reason) {
-            abort();
+    if(module) {
+        g_last_error.module = module;
+        g_last_error.file = file;
+        g_last_error.line = line;
+        free(g_last_error.reason);
+        if(reason) {
+            size_t len = strlen(reason);
+            g_last_error.reason = malloc(len+1);
+            if(!g_last_error.reason) {
+                abort();
+            }
+            memcpy(g_last_error.reason, reason, len+1);
         }
-        memcpy(g_last_error.reason, reason, len+1);
-        fprintf(stderr, "[%s] error 0x%08x at %s:%u, %s\n", module, errcode, file, line, reason);
+    }
+    if(g_last_error.reason) {
+        fprintf(stderr, "[%s] error 0x%08x at %s:%u, %s\n",
+            g_last_error.module,
+            g_last_error.errcode,
+            g_last_error.file,
+            g_last_error.line,
+            g_last_error.reason
+        );
     } else {
-        fprintf(stderr, "[%s] error 0x%08x at %s:%u\n", module, errcode, file, line);
+        fprintf(stderr, "[%s] error 0x%08x at %s:%u\n",
+            g_last_error.module,
+            g_last_error.errcode,
+            g_last_error.file,
+            g_last_error.line
+        );
     }
 }
 

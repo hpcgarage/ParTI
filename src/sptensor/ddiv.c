@@ -10,8 +10,7 @@ int sptSparseTensorDotDiv(const sptSparseTensor *Y, const sptSparseTensor *X, sp
     }
     for(i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            fprintf(stderr, "SpTOL ERROR: Divide tensors in different shapes.\n");
-            return -1;
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "spTensor DotDiv", "shape mismatch");
         }
     }
 
