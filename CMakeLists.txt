@@ -4,6 +4,7 @@ project(SpTOL)
 find_package(CUDA)
 
 file(GLOB_RECURSE SPTOL_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "*src/*.cu" "src/*.h" "include/*.h")
+list(REMOVE_ITEM SPTOL_SRC "src/sptensor/mttkrp_cuda.cu")
 include_directories("include")
 cuda_add_library(SpTOL SHARED ${SPTOL_SRC})
 cuda_add_library(SpTOL_s STATIC ${SPTOL_SRC})

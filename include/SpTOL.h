@@ -91,21 +91,16 @@ typedef struct {
 
 typedef struct sptTagTimer *sptTimer;
 
-#ifndef NDEBUG
-#define sptCheckError(errcode, name) \
-    if((errcode) != 0) { \
-        spt_ComplainError(name, (errcode), __FILE__, __LINE__); \
-        return (errcode); \
-    }
-#else
-#define sptCheckError(errcode, name) \
-    if((errcode) != 0) { \
-        return (errcode); \
-    }
-#endif
+typedef enum {
+    SPTERR_NO_ERROR       = 0,
+    SPTERR_UNKNOWN        = 1,
+    SPTERR_SHAPE_MISMATCH = 2,
+    SPTERR_OS_ERROR       = 0x10000,
+    SPTERR_CUDA_ERROR     = 0x20000,
+} SptError;
 
-void spt_ComplainError(const char *name, int errcode, const char *file, unsigned line);
-const char *sptExplainError(int errcode);
+int sptGetLastError(const char **module, const char **file, unsigned *line, const char **reason);
+void sptClearLastError(void);
 
 /* Helper function for pure C module */
 int sptCudaSetDevice(int device);
@@ -208,7 +203,7 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
 /**
  * Matricized tensor times Khatri-Rao product.
  */
-void sptMTTKRP(sptSparseTensor const * const X,
+int sptMTTKRP(sptSparseTensor const * const X,
     sptMatrix ** const mats,    // mats[nmodes] as temporary space.
     size_t const * const mats_order,    // Correspond to the mode order of X.
     size_t const mode,

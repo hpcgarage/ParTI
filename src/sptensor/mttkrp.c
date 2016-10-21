@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-void sptMTTKRP(sptSparseTensor const * const X, 
+int sptMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
 	size_t const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
@@ -55,4 +55,5 @@ void sptMTTKRP(sptSparseTensor const * const X,
 		}
 	}
 
+	return 0;
 }

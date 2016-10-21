@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-void sptMTTKRP(sptSparseTensor const * const X, 
+int sptMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
 	size_t const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
@@ -27,7 +27,7 @@ void sptMTTKRP(sptSparseTensor const * const X,
 
 	/* Transfer tensor and matrices */
     sptScalar * Xvals = NULL;
-    result = cudaMalloc((void **) &Xvals, nnz * sizeof (sptScalar));
+    int result = cudaMalloc((void **) &Xvals, nnz * sizeof (sptScalar));
     if(result != 0) {
         return result; // TODO: map error code?
     }
@@ -50,7 +50,7 @@ void sptMTTKRP(sptSparseTensor const * const X,
         return result; // TODO: map error code?
     }
     cudaMemset(mvals, 0, I * R * sizeof (sptScalar));
-    
+
 
 
 
@@ -83,4 +83,5 @@ void sptMTTKRP(sptSparseTensor const * const X,
 		}
 	}
 
+	return 0;
 }

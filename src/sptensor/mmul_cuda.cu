@@ -1,6 +1,7 @@
 #include <SpTOL.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "sptensor.h"
 
 __global__ static void spt_TTMKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
@@ -144,17 +145,17 @@ int sptCudaSparseTensorMulMatrix(
     size_t m;
     sptSizeVector fiberidx;
     if(mode >= X->nmodes) {
-        sptCheckError(-1, "CUDA SpTns * Mtx");
+        sptCheckError(-1, "CUDA SpTns * Mtx", NULL);
     }
     if(X->ndims[mode] != U->nrows) {
-        sptCheckError(-1, "CUDA SpTns * Mtx");
+        sptCheckError(-1, "CUDA SpTns * Mtx", NULL);
     }
     if(X->sortkey != mode) {
         sptSparseTensorSortIndexAtMode(X, mode);
     }
     ind_buf = new size_t[X->nmodes * sizeof *ind_buf];
     if(!ind_buf) {
-        sptCheckError(-1, "CUDA SpTns * Mtx");
+        sptCheckError(-1, "CUDA SpTns * Mtx", NULL);
     }
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
@@ -162,29 +163,29 @@ int sptCudaSparseTensorMulMatrix(
     ind_buf[mode] = U->ncols;
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     delete[] ind_buf;
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
 
     sptScalar *Y_val = NULL;
     result = cudaMalloc((void **) &Y_val, Y->nnz * Y->stride * sizeof (sptScalar));
-    sptCheckError(result, "CUDA SpTns * Mtx"); // TODO: map error code?
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL); // TODO: map error code?
     // jli: Add memset to Y.
     cudaMemset(Y_val, 0, Y->nnz * Y->stride * sizeof (sptScalar));
     sptScalar *X_val = NULL;
     result = cudaMalloc((void **) &X_val, X->nnz * sizeof (sptScalar));
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     cudaMemcpy(X_val, X->values.data, X->nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
     size_t *X_inds_m = NULL;
     result = cudaMalloc((void **) &X_inds_m, X->nnz * sizeof (size_t));
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     cudaMemcpy(X_inds_m, X->inds[mode].data, X->nnz * sizeof (size_t), cudaMemcpyHostToDevice);
     sptScalar *U_val = NULL;
     result = cudaMalloc((void **) &U_val, U->nrows * U->stride * sizeof (sptScalar));
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     cudaMemcpy(U_val, U->values, U->nrows * U->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
     size_t *fiberidx_val = NULL;
     result = cudaMalloc((void **) &fiberidx_val, fiberidx.len * sizeof (size_t));
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
     const char *env_SPTOL_TTM_KERNEL = getenv("SPTOL_TTM_KERNEL");
@@ -239,7 +240,7 @@ int sptCudaSparseTensorMulMatrix(
             );
         }
         result = cudaThreadSynchronize();
-        sptCheckError(result, "CUDA SpTns * Mtx kernel");
+        sptCheckError(result, "CUDA SpTns * Mtx kernel", NULL);
     }
 
     sptStopTimer(timer);
@@ -248,15 +249,15 @@ int sptCudaSparseTensorMulMatrix(
 
     cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
     result = cudaFree(fiberidx_val);
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     result = cudaFree(U_val);
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     result = cudaFree(X_inds_m);
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     result = cudaFree(X_val);
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     result = cudaFree(Y_val);
-    sptCheckError(result, "CUDA SpTns * Mtx");
+    sptCheckError(result, "CUDA SpTns * Mtx", NULL);
     sptFreeSizeVector(&fiberidx);
 
     return 0;

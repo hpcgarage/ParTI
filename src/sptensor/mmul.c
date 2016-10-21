@@ -1,5 +1,6 @@
 #include <SpTOL.h>
 #include <stdlib.h>
+#include "sptensor.h"
 
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode) {
     int result;
@@ -7,10 +8,10 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     size_t m, i;
     sptSizeVector fiberidx;
     if(mode >= X->nmodes) {
-        sptCheckError(-1, "CPU  SpTns * Mtx");
+        sptCheckError(-1, "CPU  SpTns * Mtx", NULL);
     }
     if(X->ndims[mode] != U->nrows) {
-        sptCheckError(-1, "CPU  SpTns * Mtx");
+        sptCheckError(-1, "CPU  SpTns * Mtx", NULL);
     }
     if(X->sortkey != mode) {
         sptSparseTensorSortIndexAtMode(X, mode);
@@ -18,7 +19,7 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     if(!ind_buf) {
-        sptCheckError(-1, "CPU  SpTns * Mtx");
+        sptCheckError(-1, "CPU  SpTns * Mtx", NULL);
     }
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
@@ -27,7 +28,7 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     // jli: use pre-processing to allocate Y size outside this function.
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     free(ind_buf);
-    sptCheckError(result, "CPU  SpTns * Mtx");
+    sptCheckError(result, "CPU  SpTns * Mtx", NULL);
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
 
     sptTimer timer;
