@@ -6,13 +6,13 @@ extern "C" {
 #endif
 
 #ifndef NDEBUG
-#define sptCheckError(errcode, module, reason) \
+#define spt_CheckError(errcode, module, reason) \
     if((errcode) != 0) { \
         spt_ComplainError(module, (errcode), __FILE__, __LINE__, (reason)); \
         return (errcode); \
     }
 #else
-#define sptCheckError(errcode, module, reason) \
+#define spt_CheckError(errcode, module, reason) \
     if((errcode) != 0) { \
         return (errcode); \
     }
