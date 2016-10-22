@@ -2,7 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Value vector functions. */
+/**
+ * Initialize a new value vector
+ *
+ * @param mtx   a valid pointer to an uninitialized sptMatrix variable,
+ * @param nrows the number of rows
+ * @param ncols the number of columns
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
 int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     if(cap < len) {
         cap = len;
@@ -19,6 +27,15 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     return 0;
 }
 
+
+/**
+ * Copy a value vector to an uninitialized value vector
+ *
+ * @param dest a pointer to an uninitialized value vector
+ * @param src  a pointer to an existing valid value vector
+ *
+ * The contents of `src` will be copied to `dest`.
+ */
 int sptCopyVector(sptVector *dest, const sptVector *src) {
     int result = sptNewVector(dest, src->len, src->len);
     if(result) {
@@ -28,6 +45,14 @@ int sptCopyVector(sptVector *dest, const sptVector *src) {
     return 0;
 }
 
+/**
+ * Add a value to the end of a value vector
+ *
+ * @param vec   a pointer to a valid value vector
+ * @param value the value to be appended
+ *
+ * The length of the value vector will be changed to contain the new value.
+ */
 int sptAppendVector(sptVector *vec, sptScalar value) {
     if(vec->cap <= vec->len) {
 #ifndef MEMCHECK_MODE
@@ -47,7 +72,15 @@ int sptAppendVector(sptVector *vec, sptScalar value) {
     return 0;
 }
 
-int sptAppendVectorWithVector(sptVector *vec, sptVector *append_vec) {
+/**
+ * Add a value to the end of a value vector
+ *
+ * @param vec        a pointer to a valid value vector
+ * @param append_vec a pointer to another value vector, containing the values to be appended
+ *
+ * The values from `append_vec` will be appended to `vec`.
+ */
+int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec) {
     if(vec->cap <= vec->len) {
         size_t newcap = vec->cap + append_vec->cap;
         sptScalar *newdata = realloc(vec->data, newcap * sizeof *vec->data);
@@ -65,6 +98,16 @@ int sptAppendVectorWithVector(sptVector *vec, sptVector *append_vec) {
     return 0;
 }
 
+/**
+ * Resize a value vector
+ *
+ * @param vec  the value vector to resize
+ * @param size the new size of the value vector
+ *
+ * If the new size is larger than the current size, new values will be appended
+ * but the values of them are undefined. If the new size if smaller than the
+ * current size, values at the end will be truncated.
+ */
 int sptResizeVector(sptVector *vec, size_t size) {
     if(size != vec->cap) {
         sptScalar *newdata = realloc(vec->data, size * sizeof *vec->data);
@@ -78,6 +121,14 @@ int sptResizeVector(sptVector *vec, size_t size) {
     return 0;
 }
 
+/**
+ * Release the memory buffer a value vector is holding
+ *
+ * @param mtx a pointer to a valid value vector
+ *
+ * By using `sptFreeVector`, a valid value vector would become uninitialized
+ * and should not be used anymore prior to another initialization
+ */
 void sptFreeVector(sptVector *vec) {
     free(vec->data);
 }
@@ -128,7 +179,7 @@ int sptAppendSizeVector(sptSizeVector *vec, size_t value) {
     return 0;
 }
 
-int sptAppendSizeVectorWithVector(sptSizeVector *vec, sptSizeVector *append_vec) {
+int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *append_vec) {
     if(vec->cap <= vec->len) {
         size_t newcap = vec->cap + append_vec->cap;
         size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);

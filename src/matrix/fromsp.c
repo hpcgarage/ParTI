@@ -1,6 +1,12 @@
 #include <SpTOL.h>
 #include <string.h>
 
+/**
+ * Convert sparse tensor to dense matrix
+ *
+ * @param dest pointer to an uninitialized matrix
+ * @param src  pointer to a valid sparse tensor
+ */
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src) {
     size_t i;
     int result;

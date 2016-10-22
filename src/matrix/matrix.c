@@ -8,7 +8,7 @@
 /**
  * Initialize a new dense matrix
  *
- * @param mtx   a valid pointer to an uninitialized sptMatrix variable,
+ * @param mtx   a valid pointer to an uninitialized sptMatrix variable
  * @param nrows the number of rows
  * @param ncols the number of columns
  *
@@ -149,8 +149,8 @@ int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {
  *
  * @param mtx a pointer to a valid matrix
  *
- * By using `sptFreeMatrix`, a valid matrix would becom uninitialized and should
- * not be used anymore prior to another initialization
+ * By using `sptFreeMatrix`, a valid matrix would become uninitialized and
+ * should not be used anymore prior to another initialization
  */
 void sptFreeMatrix(sptMatrix *mtx) {
     free(mtx->values);

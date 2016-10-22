@@ -117,14 +117,14 @@ int sptFreeTimer(sptTimer timer);
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
 int sptAppendVector(sptVector *vec, sptScalar value);
-int sptAppendVectorWithVector(sptVector *vec, sptVector *append_vec);
+int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec);
 int sptResizeVector(sptVector *vec, size_t size);
 void sptFreeVector(sptVector *vec);
 
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
 int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
-int sptAppendSizeVectorWithVector(sptSizeVector *vec, sptSizeVector *append_vec);
+int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *append_vec);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
 
