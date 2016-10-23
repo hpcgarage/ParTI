@@ -89,6 +89,9 @@ typedef struct {
     sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
 } sptSemiSparseTensor;
 
+/**
+ * An opaque data type to store a specific time point, using either CPU or GPU clock.
+ */
 typedef struct sptTagTimer *sptTimer;
 
 typedef enum {
@@ -107,6 +110,7 @@ void sptClearLastError(void);
 int sptCudaSetDevice(int device);
 int sptCudaGetLastError(void);
 
+/* Timer functions, using either CPU or GPU timer */
 int sptNewTimer(sptTimer *timer, int use_cuda);
 int sptStartTimer(sptTimer timer);
 int sptStopTimer(sptTimer timer);
@@ -114,6 +118,7 @@ double sptElapsedTime(const sptTimer timer);
 double sptPrintElapsedTime(const sptTimer timer, const char *name);
 int sptFreeTimer(sptTimer timer);
 
+/* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
 int sptCopyVector(sptVector *dest, const sptVector *src);
 int sptAppendVector(sptVector *vec, sptScalar value);
@@ -121,6 +126,7 @@ int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec);
 int sptResizeVector(sptVector *vec, size_t size);
 void sptFreeVector(sptVector *vec);
 
+/* Dense vector, with size_t type */
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
 int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
@@ -128,6 +134,7 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *appen
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
 
+/* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
@@ -136,39 +143,39 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 
+/* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
 int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src);
 void sptFreeSparseMatrix(sptSparseMatrix *mtx);
 
+/* Sparse tensor */
 int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
+void sptSparseTensorSortIndex(sptSparseTensor *tsr);
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
  */
 int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon);
+
+int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]);
+int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
+void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
+int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
+int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
 /**
  * Set indices of a semi-sparse according to a reference sparse
  * Call sptSparseTensorSortIndexAtMode on ref first
  */
 int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fiberidx, sptSparseTensor *ref);
 
-int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]);
-int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src);
-void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
-int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
-
-void sptSparseTensorSortIndex(sptSparseTensor *tsr);
-void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
-
-int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
-
-/* Unary operations */
+/* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
-/* Binary operations */
+/* Sparse tensor binary operations */
 int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 int sptSparseTensorSub(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
 int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z);
@@ -177,12 +184,7 @@ int sptSparseTensorDotDiv(const sptSparseTensor *Y, const sptSparseTensor *X, sp
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptCudaSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
-int sptCudaSparseTensorMulMatrixNew(
-    sptSemiSparseTensor *Y,
-    sptSparseTensor *X,
-    const sptMatrix *U,
-    size_t mode
-);
+int sptCudaSparseTensorMulMatrixNew(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 
 /**
  * Semi-sparse tensor times a dense matrix (TTM)
