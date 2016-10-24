@@ -74,7 +74,7 @@ typedef struct {
 
 /**
  * Semi-sparse tensor type
- * The last mode is dense, while other modes are sparse.
+ * The chosen mode is dense, while other modes are sparse.
  * Can be considered as "sparse tensor of dense fiber".
  * The "fiber" here can be defined as a vector of elements that have indices
  * only different in the last mode.
