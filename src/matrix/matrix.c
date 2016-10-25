@@ -48,7 +48,7 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
  */
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
   int result = sptNewMatrix(mtx, nrows, ncols);
-  spt_CheckError(result, NULL, NULL);
+  spt_CheckError(result, "Matrix Randomize", NULL);
   srand(time(NULL));
   for(size_t i=0; i<nrows; ++i)
     for(size_t j=0; j<ncols; ++j)

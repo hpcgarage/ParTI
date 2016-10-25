@@ -17,13 +17,13 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     }
     tsr->nnz = 0;
     tsr->inds = malloc(tsr->nmodes * sizeof *tsr->inds);
-    spt_CheckOSError(!tsr->inds, "spTensor Load")
+    spt_CheckOSError(!tsr->inds, "spTensor Load");
     for(mode = 0; mode < tsr->nmodes; ++mode) {
         retval = sptNewSizeVector(&tsr->inds[mode], 0, 0);
-        spt_CheckError(retval, NULL, NULL);
+        spt_CheckError(retval, "spTensor Load", NULL);
     }
     retval = sptNewVector(&tsr->values, 0, 0);
-    spt_CheckError(retval, NULL, NULL);
+    spt_CheckError(retval, "spTensor Load", NULL);
     while(retval == 0) {
         double value;
         for(mode = 0; mode < tsr->nmodes; ++mode) {
