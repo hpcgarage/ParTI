@@ -8,10 +8,7 @@ static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, s
 
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr) {
     sptScalar *buffer = malloc(tsr->stride * sizeof (sptScalar));
-    if(!buffer) {
-        fprintf(stderr, "SpTOL: memory failure\n");
-        return -1;
-    }
+    spt_CheckOSError(!buffer, "SspTns SortIndex");
     spt_QuickSortIndex(tsr, 0, tsr->nnz, buffer);
     free(buffer);
     return 0;

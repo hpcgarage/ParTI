@@ -29,15 +29,11 @@ int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[],
         for(i = 0; i < tsr->nmodes; ++i) {
             if(i != tsr->mode) {
                 result = sptAppendSizeVector(&tsr->inds[i], indices[i]);
-                if(result) {
-                    return result;
-                }
+                spt_CheckError(result, "SspTns Append", NULL);
             }
         }
         result = sptAppendMatrix(&tsr->values, NULL);
-        if(result) {
-            return result;
-        }
+        spt_CheckError(result, "SspTns Append", NULL);
         memset(&tsr->values.values[tsr->nnz * tsr->stride], 0, tsr->nmodes * sizeof (sptScalar));
         ++tsr->nnz;
     }

@@ -15,15 +15,12 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     }
 
     buffer = malloc(tsr->stride * sizeof (sptScalar));
-    if(!buffer) {
-        fprintf(stderr, "SpTOL: memory failure\n");
-        return -1;
-    }
+    spt_CheckOSError(!buffer, "SspTns Merge");
 
     result = sptNewSizeVector(&collided, 0, 0);
     if(result) {
         free(buffer);
-        return result;
+        spt_CheckError(result, "SspTns Merge", NULL);
     }
 
     for(i = 0; i < tsr->nnz-1; ++i) {
@@ -58,7 +55,8 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     sptFreeSizeVector(&collided);
     free(buffer);
 
-    return sptSemiSparseTensorSortIndex(tsr);
+    result = sptSemiSparseTensorSortIndex(tsr);
+    spt_CheckError(result, "SspTns Merge", NULL);
 }
 
 static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]) {

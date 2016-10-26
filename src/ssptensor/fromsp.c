@@ -8,34 +8,26 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
     int result;
     size_t nmodes = src->nmodes;
     if(nmodes < 2) {
-        return -1;
+        spt_CheckError(SPT_SHAPE_MISMATCH, "SpTns -> SspTns", "nmodes < 2");
     }
     dest->nmodes = nmodes;
     dest->ndims = malloc(nmodes * sizeof *dest->ndims);
-    if(!dest->ndims) {
-        return -1;
-    }
+    spt_CheckOSError(!dest->ndims, "SpTns -> SspTns");
     memcpy(dest->ndims, src->ndims, nmodes * sizeof *dest->ndims);
     dest->mode = mode;
     dest->nnz = src->nnz;
     dest->inds = malloc(nmodes * sizeof *dest->inds);
-    if(!dest->inds) {
-        return -1;
-    }
+    spt_CheckOSError(!dest->inds, "SpTns -> SspTns");
     for(i = 0; i < nmodes; ++i) {
         if(i != mode) {
             result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
         } else {
             result = sptNewSizeVector(&dest->inds[i], 0, 0);
         }
-        if(result) {
-            return result;
-        }
+        spt_CheckError(result, "SpTns -> SspTns", NULL);
     }
     result = sptNewMatrix(&dest->values, dest->nnz, dest->ndims[mode]);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpTns -> SspTns", NULL);
     dest->stride = dest->values.stride;
     memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptScalar));
     for(i = 0; i < dest->nnz; ++i) {

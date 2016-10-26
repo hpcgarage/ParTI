@@ -18,40 +18,30 @@ int sptSemiSparseTensorSetIndices(
         sptSparseTensorSortIndexAtMode(ref, dest->mode);
     }
     result = sptNewSizeVector(fiberidx, 0, 0);
-    if(result != 0) {
-        return result;
-    }
+    spt_CheckError(result, "SspTns SetIndices", NULL);
     dest->nnz = 0;
     for(i = 0; i < ref->nnz; ++i) {
         if(lastidx == ref->nnz || spt_SparseTensorCompareExceptMode(ref, lastidx, ref, i, dest->mode) != 0) {
             for(m = 0; m < dest->nmodes; ++m) {
                 if(m != dest->mode) {
                     result = sptAppendSizeVector(&dest->inds[m], ref->inds[m].data[i]);
-                    if(result != 0) {
-                        return result;
-                    }
+                    spt_CheckError(result, "SspTns SetIndices", NULL);
                 }
             }
             lastidx = i;
             ++dest->nnz;
             if(fiberidx != NULL) {
                 result = sptAppendSizeVector(fiberidx, i);
-                if(result != 0) {
-                    return result;
-                }
+                spt_CheckError(result, "SspTns SetIndices", NULL);
             }
         }
     }
     if(fiberidx != NULL) {
         result = sptAppendSizeVector(fiberidx, ref->nnz);
-        if(result != 0) {
-            return result;
-        }
+        spt_CheckError(result, "SspTns SetIndices", NULL);
     }
     result = sptResizeMatrix(&dest->values, dest->nnz);
-    if(result != 0) {
-        return result;
-    }
+    spt_CheckError(result, "SspTns SetIndices", NULL);
     memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptScalar));
     return 0;
 }
