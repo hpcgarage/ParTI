@@ -77,4 +77,5 @@ int sptMatricize(sptSparseTensor const * const X,
 
 	free(strides);
 	free(new_order);
+	return 0;
 }

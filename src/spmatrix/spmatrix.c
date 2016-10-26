@@ -1,4 +1,5 @@
 #include <SpTOL.h>
+#include "../error/error.h"
 
 /**
  * Initialize a new sparse matrix

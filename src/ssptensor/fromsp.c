@@ -8,7 +8,7 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
     int result;
     size_t nmodes = src->nmodes;
     if(nmodes < 2) {
-        spt_CheckError(SPT_SHAPE_MISMATCH, "SpTns -> SspTns", "nmodes < 2");
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns -> SspTns", "nmodes < 2");
     }
     dest->nmodes = nmodes;
     dest->ndims = malloc(nmodes * sizeof *dest->ndims);

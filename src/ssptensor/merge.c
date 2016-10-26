@@ -57,6 +57,7 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
 
     result = sptSemiSparseTensorSortIndex(tsr);
     spt_CheckError(result, "SspTns Merge", NULL);
+    return 0;
 }
 
 static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]) {

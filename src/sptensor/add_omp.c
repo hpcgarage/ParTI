@@ -19,8 +19,8 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
     size_t * dist_nnzs_Y = (size_t*)malloc(nthreads*sizeof(size_t));
     size_t * dist_nrows_Y = (size_t*)malloc(nthreads*sizeof(size_t));
 
-    sptDistSparseTensor(Y, nthreads, dist_nnzs_Y, dist_nrows_Y);
-    sptDistSparseTensorFixed(X, nthreads, dist_nnzs_X, dist_nnzs_Y);
+    spt_DistSparseTensor(Y, nthreads, dist_nnzs_Y, dist_nrows_Y);
+    spt_DistSparseTensorFixed(X, nthreads, dist_nnzs_X, dist_nnzs_Y);
     free(dist_nrows_Y);
 
     printf("dist_nnzs_Y:\n");
@@ -74,10 +74,10 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
                 int result;
                 for(mode = 0; mode < X->nmodes; ++mode) {
                     result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
-                    spt_CheckError(result, "OMP SpTns Add", NULL);
+                    spt_CheckOmpError(result, "OMP SpTns Add", NULL);
                 }
                 result = sptAppendVector(&(local_vals[tid]), X->values.data[i]);
-                spt_CheckError(result, "OMP SpTns Add", NULL);
+                spt_CheckOmpError(result, "OMP SpTns Add", NULL);
                 ++Ynnz;
                 ++i;
             } else {    // X(i) = Y(j)
@@ -92,10 +92,10 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
             int result;
             for(mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
-                spt_CheckError(result, "OMP SpTns Add", NULL);
+                spt_CheckOmpError(result, "OMP SpTns Add", NULL);
             }
             result = sptAppendVector(&(local_vals[tid]), X->values.data[i]);
-            spt_CheckError(result, "OMP SpTns Add", NULL);
+            spt_CheckOmpError(result, "OMP SpTns Add", NULL);
             ++Ynnz;
             ++i;
         }

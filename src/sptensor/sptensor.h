@@ -12,12 +12,12 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, con
 
 void spt_SparseTensorCollectZeros(sptSparseTensor *tsr);
 
-void sptDistSparseTensor(sptSparseTensor * tsr,
+int spt_DistSparseTensor(sptSparseTensor * tsr,
     int const nthreads,
     size_t * const dist_nnzs,
     size_t * dist_nrows);
 
-void sptDistSparseTensorFixed(sptSparseTensor * tsr,
+int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     int const nthreads,
     size_t * const dist_nnzs,
     size_t * dist_nrows);

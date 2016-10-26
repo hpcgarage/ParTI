@@ -37,7 +37,7 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
  */
 int sptCopyVector(sptVector *dest, const sptVector *src) {
     int result = sptNewVector(dest, src->len, src->len);
-    spt_CheckError(result, "Vec Copy");
+    spt_CheckError(result, "Vec Copy", NULL);
     memcpy(dest->data, src->data, src->len * sizeof *src->data);
     return 0;
 }
@@ -159,7 +159,7 @@ int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
  */
 int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src) {
     int result = sptNewSizeVector(dest, src->len, src->len);
-    spt_CheckError(result, "SzVec Copy");
+    spt_CheckError(result, "SzVec Copy", NULL);
     memcpy(dest->data, src->data, src->len * sizeof *src->data);
     return 0;
 }

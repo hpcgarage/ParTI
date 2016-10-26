@@ -1,4 +1,5 @@
 #include <SpTOL.h>
+#include "sptensor.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,11 +27,11 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
     int result;
     dest->nmodes = src->nmodes;
     dest->ndims = malloc(dest->nmodes * sizeof *dest->ndims);
-    spt_CheckOSError(!tsr->ndims, "SpTns Copy");
+    spt_CheckOSError(!dest->ndims, "SpTns Copy");
     memcpy(dest->ndims, src->ndims, src->nmodes * sizeof *src->ndims);
     dest->nnz = src->nnz;
     dest->inds = malloc(dest->nmodes * sizeof *dest->inds);
-    spt_CheckOSError(!tsr->inds, "SpTns Copy");
+    spt_CheckOSError(!dest->inds, "SpTns Copy");
     for(i = 0; i < dest->nmodes; ++i) {
         result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
         spt_CheckError(result, "SpTns Copy", NULL);
@@ -51,7 +52,7 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
 }
 
 
-void sptDistSparseTensor(sptSparseTensor * tsr, 
+int spt_DistSparseTensor(sptSparseTensor * tsr, 
     int const nthreads,
     size_t * const dist_nnzs, 
     size_t * dist_nrows) {
@@ -84,10 +85,12 @@ void sptDistSparseTensor(sptSparseTensor * tsr,
         }
     }
 
+    return 0;
+
 }
 
 
-void sptDistSparseTensorFixed(sptSparseTensor * tsr, 
+int spt_DistSparseTensorFixed(sptSparseTensor * tsr, 
     int const nthreads,
     size_t * const dist_nnzs, 
     size_t * dist_nrows) {
@@ -116,4 +119,5 @@ void sptDistSparseTensorFixed(sptSparseTensor * tsr,
         }
     }
 
+    return 0;
 }

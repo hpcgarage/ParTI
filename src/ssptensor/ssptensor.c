@@ -8,7 +8,7 @@ int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode,
     size_t i;
     int result;
     if(nmodes < 2) {
-        spt_CheckError(SPERR_SHAPE_MISMATCH, "SspTns New", "nmodes < 2");
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "SspTns New", "nmodes < 2");
     }
     tsr->nmodes = nmodes;
     tsr->ndims = malloc(nmodes * sizeof *tsr->ndims);

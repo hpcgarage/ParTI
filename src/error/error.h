@@ -2,6 +2,7 @@
 #define SPTOL_ERROR_H_INCLUDED
 
 #include <errno.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +24,19 @@ extern "C" {
 #define spt_CheckError(errcode, module, reason) \
     if((errcode) != 0) { \
         return (errcode); \
+    }
+#endif
+
+#ifndef NDEBUG
+#define spt_CheckOmpError(errcode, module, reason) \
+    if((errcode) != 0) { \
+        spt_ComplainError(module, (errcode), __FILE__, __LINE__, (reason)); \
+        exit(errcode); \
+    }
+#else
+#define spt_CheckOmpError(errcode, module, reason) \
+    if((errcode) != 0) { \
+        exit(errcode); \
     }
 #endif
 
