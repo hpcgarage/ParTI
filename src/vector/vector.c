@@ -6,9 +6,9 @@
 /**
  * Initialize a new value vector
  *
- * @param mtx   a valid pointer to an uninitialized sptMatrix variable,
- * @param nrows the number of rows
- * @param ncols the number of columns
+ * @param vec a valid pointer to an uninitialized sptVector variable,
+ * @param len number of values to create 
+ * @param cap total number of values to reserve
  *
  * Vector is a type of one-dimentional array with dynamic length
  */
@@ -128,9 +128,9 @@ void sptFreeVector(sptVector *vec) {
 /**
  * Initialize a new size vector
  *
- * @param mtx   a valid pointer to an uninitialized sptMatrix variable,
- * @param nrows the number of rows
- * @param ncols the number of columns
+ * @param vec a valid pointer to an uninitialized sptSizeVector variable,
+ * @param len number of values to create 
+ * @param cap total number of values to reserve
  *
  * Vector is a type of one-dimentional array with dynamic length
  */
