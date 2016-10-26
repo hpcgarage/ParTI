@@ -49,6 +49,8 @@ extern "C" {
         } \
     }
 
+void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason);
+
 #ifdef __cplusplus
 }
 #endif
