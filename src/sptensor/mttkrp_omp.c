@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-int sptMTTKRP(sptSparseTensor const * const X,
+int sptOmpMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
   sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
@@ -30,14 +30,17 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	sptScalar * const mvals = M->values;
 	memset(mvals, 0, I*R*sizeof(sptScalar));
 
+  #pragma omp parallel for
 	for(size_t x=0; x<nnz; ++x) {
 
 		size_t times_mat_index = mats_order->data[0];
 		sptMatrix * times_mat = mats[times_mat_index];
 		size_t * times_inds = X->inds[times_mat_index].data;
 		size_t tmp_i = times_inds[x];
+		sptScalar const entry = vals[x];
+		size_t const mode_i = mode_ind[x];
 		for(size_t r=0; r<R; ++r) {
-			scratch->data[r] = times_mat->values[tmp_i * R + r];
+			scratch->data[x * R + r] = entry * times_mat->values[tmp_i * R + r];
 		}
 
 		for(size_t i=1; i<nmats; ++i) {
@@ -47,14 +50,16 @@ int sptMTTKRP(sptSparseTensor const * const X,
 			tmp_i = times_inds[x];
 
 			for(size_t r=0; r<R; ++r) {
-				scratch->data[r] *= times_mat->values[tmp_i * R + r];
+				scratch->data[x * R + r] *= times_mat->values[tmp_i * R + r];
 			}
 		}
 
-		sptScalar const entry = vals[x];
+  }
+
+	for(size_t x=0; x<nnz; ++x) {
 		size_t const mode_i = mode_ind[x];
 		for(size_t r=0; r<R; ++r) {
-			mvals[mode_i * R + r] += entry * scratch->data[r];
+			mvals[mode_i * R + r] += scratch->data[x * R + r];
 		}
 	}
 

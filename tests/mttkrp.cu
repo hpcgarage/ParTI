@@ -51,23 +51,27 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    sptNewVector(&scratch, X.nnz, X.nnz);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
+        sptNewVector(&scratch, R, R);
         assert(sptMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
     } else if(cuda_dev_id == -1) {
-    //    assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        sptNewVector(&scratch, X.nnz * R, X.nnz * R);
+        assert(sptOmpMTTKRP(&Y, &X, &U, mode) == 0);
     } else {
       //  sptCudaSetDevice(cuda_dev_id);
       //  assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
+    sptFreeVector(&scratch);
 
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
+            sptNewVector(&scratch, R, R);
             assert(sptMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
         } else if(cuda_dev_id == -1) {
-            // assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+            sptNewVector(&scratch, X.nnz * R, X.nnz * R);
+            assert(sptOmpMTTKRP(&Y, &X, &U, mode) == 0);
         } else {
             // sptCudaSetDevice(cuda_dev_id);
             // assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
