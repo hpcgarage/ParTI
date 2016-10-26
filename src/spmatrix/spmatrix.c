@@ -13,17 +13,11 @@ int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols) {
     mtx->ncols = ncols;
     mtx->nnz = 0;
     result = sptNewSizeVector(&mtx->rowind, 0, 0);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpMtx New", NULL);
     result = sptNewSizeVector(&mtx->colind, 0, 0);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpMtx New", NULL);
     result = sptNewVector(&mtx->values, 0, 0);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpMtx New", NULL);
     return 0;
 }
 
@@ -41,17 +35,11 @@ int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src) {
     dest->ncols = src->ncols;
     dest->nnz = src->nnz;
     result = sptCopySizeVector(&dest->rowind, &src->rowind);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpMtx Copy", NULL);
     result = sptCopySizeVector(&dest->colind, &src->colind);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpMtx Copy", NULL);
     result = sptCopyVector(&dest->values, &src->values);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SpMtx Copy", NULL);
     return 0;
 }
 
