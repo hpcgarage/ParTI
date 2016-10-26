@@ -1,6 +1,7 @@
 #include <SpTOL.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../error/error.h"
 
 /**
  * Initialize a new value vector
@@ -21,9 +22,7 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
     vec->len = len;
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
-    if(!vec->data) {
-        return -1;
-    }
+    spt_CheckOSError(!vec->data, "Vec New");
     return 0;
 }
 
@@ -38,9 +37,7 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
  */
 int sptCopyVector(sptVector *dest, const sptVector *src) {
     int result = sptNewVector(dest, src->len, src->len);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "Vec Copy");
     memcpy(dest->data, src->data, src->len * sizeof *src->data);
     return 0;
 }
@@ -61,9 +58,7 @@ int sptAppendVector(sptVector *vec, sptScalar value) {
         size_t newcap = vec->len+1;
 #endif
         sptScalar *newdata = realloc(vec->data, newcap * sizeof *vec->data);
-        if(!newdata) {
-            return -1;
-        }
+        spt_CheckOSError(!newdata, "Vec Append");
         vec->cap = newcap;
         vec->data = newdata;
     }
@@ -84,9 +79,7 @@ int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec) {
     if(vec->cap <= vec->len) {
         size_t newcap = vec->cap + append_vec->cap;
         sptScalar *newdata = realloc(vec->data, newcap * sizeof *vec->data);
-        if(!newdata) {
-            return -1;
-        }
+        spt_CheckOSError(!newdata, "Vec Append Vec");
         vec->cap = newcap;
         vec->data = newdata;
     }
@@ -111,9 +104,7 @@ int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec) {
 int sptResizeVector(sptVector *vec, size_t size) {
     if(size != vec->cap) {
         sptScalar *newdata = realloc(vec->data, size * sizeof *vec->data);
-        if(!newdata) {
-            return -1;
-        }
+        spt_CheckOSError(!newdata, "Vec Resize");
         vec->len = size;
         vec->cap = size;
         vec->data = newdata;
@@ -154,9 +145,7 @@ int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
     vec->len = len;
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
-    if(!vec->data) {
-        return -1;
-    }
+    spt_CheckOSError(!vec->data, "SzVec New");
     return 0;
 }
 
@@ -170,9 +159,7 @@ int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
  */
 int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src) {
     int result = sptNewSizeVector(dest, src->len, src->len);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SzVec Copy");
     memcpy(dest->data, src->data, src->len * sizeof *src->data);
     return 0;
 }
@@ -193,9 +180,7 @@ int sptAppendSizeVector(sptSizeVector *vec, size_t value) {
         size_t newcap = vec->len+1;
 #endif
         size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);
-        if(!newdata) {
-            return -1;
-        }
+        spt_CheckOSError(!newdata, "SzVec Append");
         vec->cap = newcap;
         vec->data = newdata;
     }
@@ -216,9 +201,7 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *appen
     if(vec->cap <= vec->len) {
         size_t newcap = vec->cap + append_vec->cap;
         size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);
-        if(!newdata) {
-            return -1;
-        }
+        spt_CheckOSError(!newdata, "SzVec Append SzVec");
         vec->cap = newcap;
         vec->data = newdata;
     }
@@ -243,9 +226,7 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *appen
 int sptResizeSizeVector(sptSizeVector *vec, size_t size) {
     if(size != vec->cap) {
         size_t *newdata = realloc(vec->data, size * sizeof *vec->data);
-        if(!newdata) {
-            return -1;
-        }
+        spt_CheckOSError(!newdata, "SzVec Resize");
         vec->len = size;
         vec->cap = size;
         vec->data = newdata;
