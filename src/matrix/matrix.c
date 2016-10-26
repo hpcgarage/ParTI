@@ -32,7 +32,7 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 #else
     mtx->values = malloc(mtx->cap * mtx->stride * sizeof (sptScalar));
 #endif
-    spt_CheckOSError(!mtx->values, "Matrix New");
+    spt_CheckOSError(!mtx->values, "Mtx New");
     return 0;
 }
 
@@ -48,7 +48,7 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
  */
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
   int result = sptNewMatrix(mtx, nrows, ncols);
-  spt_CheckError(result, "Matrix Randomize", NULL);
+  spt_CheckError(result, "Mtx Randomize", NULL);
   srand(time(NULL));
   for(size_t i=0; i<nrows; ++i)
     for(size_t j=0; j<ncols; ++j)
@@ -66,9 +66,7 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
  */
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src) {
     int result = sptNewMatrix(dest, src->nrows, src->ncols);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "Mtx Copy", NULL);
     assert(dest->stride == src->stride);
     memcpy(dest->values, src->values, dest->nrows * dest->stride * sizeof (sptScalar));
     return 0;
@@ -100,7 +98,7 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]) {
 #else
         newdata = malloc(newcap * mtx->stride * sizeof (sptScalar));
 #endif
-        spt_CheckOSError(!newdata, "Matrix Append");
+        spt_CheckOSError(!newdata, "Mtx Append");
         memcpy(newdata, mtx->values, mtx->nrows * mtx->stride * sizeof (sptScalar));
         free(mtx->values);
         mtx->cap = newcap;
@@ -133,9 +131,7 @@ int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {
 #else
     newdata = malloc(newsize * mtx->stride * sizeof (sptScalar));
 #endif
-    if(!newdata) {
-        return -1;
-    }
+    spt_CheckOSError(!newdata, "Mtx Resize");
     memcpy(newdata, mtx->values, mtx->nrows * mtx->stride * sizeof (sptScalar));
     free(mtx->values);
     mtx->nrows = newsize;
