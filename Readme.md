@@ -21,6 +21,14 @@ Build tests:
 
 2. Type `make`
 
+Build docs:
+
+1. Install Doxygen
+
+2. Go to `docs`
+
+3. Type `make`
+
 TODO:
 
 1. Sequential
