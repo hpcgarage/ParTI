@@ -214,6 +214,16 @@ int sptMTTKRP(sptSparseTensor const * const X,
   sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
   sptVector * const scratch);
+int sptOmpMTTKRP(sptSparseTensor const * const X,
+	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
+  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
+	size_t const mode,
+  sptVector * const scratch);
+int sptCudaMTTKRP(sptSparseTensor const * const X,
+	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
+	size_t const * const mats_order,	// Correspond to the mode order of X.
+	size_t const mode,
+	sptScalar * const scratch);
 
 /**
  * OMP functions

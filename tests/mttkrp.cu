@@ -58,7 +58,7 @@ int main(int argc, char const *argv[]) {
         assert(sptMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
     } else if(cuda_dev_id == -1) {
         sptNewVector(&scratch, X.nnz * R, X.nnz * R);
-        assert(sptOmpMTTKRP(&Y, &X, &U, mode) == 0);
+        assert(sptOmpMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
     } else {
       //  sptCudaSetDevice(cuda_dev_id);
       //  assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
@@ -71,7 +71,7 @@ int main(int argc, char const *argv[]) {
             assert(sptMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
         } else if(cuda_dev_id == -1) {
             sptNewVector(&scratch, X.nnz * R, X.nnz * R);
-            assert(sptOmpMTTKRP(&Y, &X, &U, mode) == 0);
+            assert(sptOmpMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
         } else {
             // sptCudaSetDevice(cuda_dev_id);
             // assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
