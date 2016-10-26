@@ -138,11 +138,13 @@ void sptFreeSizeVector(sptSizeVector *vec);
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptConstantMatrix(sptMatrix *mtx, size_t nrows, size_t ncols, sptScalar const val);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
+int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -208,10 +210,10 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  * Matricized tensor times Khatri-Rao product.
  */
 int sptMTTKRP(sptSparseTensor const * const X,
-    sptMatrix ** const mats,    // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * const scratch);
+	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
+  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
+	size_t const mode,
+  sptVector * const scratch);
 
 /**
  * OMP functions

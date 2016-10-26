@@ -57,6 +57,25 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 }
 
 /**
+ * Fill a matrix with a specified constant
+ *
+ * @param mtx   a pointer to a valid matrix
+ * @param nrows fill the specified number of rows
+ * @param ncols fill the specified number of columns
+ * @param vala given constant 
+ *
+ */
+int sptConstantMatrix(sptMatrix *mtx, size_t nrows, size_t ncols, sptScalar const val) {
+  int result = sptNewMatrix(mtx, nrows, ncols);
+  spt_CheckError(result, "Mtx Randomize", NULL);
+  for(size_t i=0; i<nrows; ++i)
+    for(size_t j=0; j<ncols; ++j)
+      mtx->values[i * mtx->stride + j] = val;
+  return 0;
+}
+
+
+/**
  * Copy a dense matrix to an uninitialized dense matrix
  *
  * @param dest a pointer to an uninitialized dense matrix
