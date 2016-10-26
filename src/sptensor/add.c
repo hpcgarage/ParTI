@@ -5,11 +5,11 @@ int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
 
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Add", "shape mismatch");
     }
     for(size_t i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "spTensor Add", "shape mismatch");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Add", "shape mismatch");
         }
     }
 
@@ -27,42 +27,30 @@ int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
         if(compare > 0) {    // X(i) > Y(j)
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
-                if(result) {
-                    return result;
-                }
+                spt_CheckError(result, "SpTns Add", NULL);
             }
             result = sptAppendVector(&Z->values, Y->values.data[j]);
-            if(result) {
-                return result;
-            }
+            spt_CheckError(result, "SpTns Add", NULL);
 
             ++Z->nnz;
             ++j;
         } else if(compare < 0) {    // X(i) < Y(j)
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
-                if(result) {
-                    return result;
-                }
+                spt_CheckError(result, "SpTns Add", NULL);
             }
             result = sptAppendVector(&Z->values, X->values.data[i]);
-            if(result) {
-                return result;
-            }
+            spt_CheckError(result, "SpTns Add", NULL);
 
             ++Z->nnz;
             ++i;
         } else {    // X(i) = Y(j)
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
-                if(result) {
-                    return result;
-                }
+                spt_CheckError(result, "SpTns Add", NULL);
             }
             result = sptAppendVector(&Z->values, Y->values.data[j]);
-            if(result) {
-                return result;
-            }
+            spt_CheckError(result, "SpTns Add", NULL);
 
             Z->values.data[Z->nnz] += X->values.data[i];
             ++Z->nnz;
@@ -78,14 +66,10 @@ int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSp
     while(i < X->nnz) {
         for(size_t mode = 0; mode < X->nmodes; ++mode) {
             result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
-            if(result) {
-                return result;
-            }
+            spt_CheckError(result, "SpTns Add", NULL);
         }
         result = sptAppendVector(&Z->values, X->values.data[i]);
-        if(result) {
-            return result;
-        }
+        spt_CheckError(result, "SpTns Add", NULL);
         ++Z->nnz;
         ++i;
     }

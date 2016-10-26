@@ -9,21 +9,17 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
     size_t i, j;
     int result;
     if(A->nmodes != B->nmodes) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Kronecker", "shape mismatch");
     }
     nmodes = A->nmodes;
     inds = malloc(nmodes * sizeof *inds);
-    if(!inds) {
-        return -1;
-    }
+    spt_CheckOSError(!inds, "SpTns Kronecker");
     for(mode = 0; mode < nmodes; ++mode) {
         inds[mode] = A->ndims[mode] * B->ndims[mode];
     }
     result = sptNewSparseTensor(Y, nmodes, inds);
     free(inds);
-    if(result) {
-        return -1;
-    }
+    spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Kronecker", "shape mismatch");
     /* For each element in A and B */
     for(i = 0; i < A->nnz; ++i) {
         for(j = 0; j < B->nnz; ++j) {
@@ -34,7 +30,10 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
             /* jli: (TODO). Append when acculumating a certain number (e.g. 10) of elements. 
                 Don't do realloc only increasing length by one. 
                 ! More important: The resulting Kronecker-product size is fixed, nnzA * nnzB. 
-                Don't need realloc. */
+                Don't need realloc.
+
+               sb: sptAppendSizeVector already do acculumating
+            */
             for(mode = 0; mode < nmodes; ++mode) {
                 sptAppendSizeVector(&Y->inds[mode], A->inds[mode].data[i] * B->ndims[mode] + B->inds[mode].data[j]);
             }

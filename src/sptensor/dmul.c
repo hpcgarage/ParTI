@@ -6,11 +6,11 @@ int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sp
     int result;
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns DotMul", "shape mismatch");
     }
     for(i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "spTensor DotMul", "shape mismatch");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns DotMul", "shape mismatch");
         }
     }
 
@@ -29,14 +29,10 @@ int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sp
         } else {
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
-                if(result) {
-                    return result;
-                }
+                spt_CheckError(result, "SpTns DotMul", NULL);
             }
             result = sptAppendVector(&Z->values, Y->values.data[j]);
-            if(result) {
-                return result;
-            }
+            spt_CheckError(result, "SpTns DotMul", NULL);
 
             Y->values.data[Z->nnz] *= X->values.data[i];
             ++Z->nnz;

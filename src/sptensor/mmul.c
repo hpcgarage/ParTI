@@ -8,19 +8,17 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     size_t m, i;
     sptSizeVector fiberidx;
     if(mode >= X->nmodes) {
-        spt_CheckError(-1, "CPU  SpTns * Mtx", NULL);
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns * Mtx", "shape mismatch");
     }
     if(X->ndims[mode] != U->nrows) {
-        spt_CheckError(-1, "CPU  SpTns * Mtx", NULL);
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns * Mtx", "shape mismatch");
     }
     if(X->sortkey != mode) {
         sptSparseTensorSortIndexAtMode(X, mode);
     }
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
-    if(!ind_buf) {
-        spt_CheckError(-1, "CPU  SpTns * Mtx", NULL);
-    }
+    spt_CheckOSError(!ind_buf, "CPU  SpTns * Mtx");
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }

@@ -15,8 +15,12 @@ int sptMTTKRP(sptSparseTensor const * const X,
 
 	/* Check the mats. */
 	for(size_t i=0; i<nmodes; ++i) {
-		assert(mats[i]->ncols == mats[nmodes]->ncols);
-		assert(mats[i]->nrows == ndims[i]);
+		if(mats[i]->ncols != mats[nmodes]->ncols) {
+			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+                }
+		if(mats[i]->nrows != ndims[i]) {
+			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+		}
 	}
 
 	size_t const I = mats[mode]->nrows;

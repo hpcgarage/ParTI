@@ -17,7 +17,7 @@ static __thread struct {
 
 /**
  * Set last error information as specified and print the error message.
- * Should not be called directly, use the macro `sptCheckError`.
+ * Should not be called directly, use the macro `spt_CheckError`.
  */
 void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason) {
     g_last_error.errcode = errcode;

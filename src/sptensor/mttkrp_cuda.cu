@@ -14,8 +14,12 @@ int sptMTTKRP(sptSparseTensor const * const X,
 
 	/* Check the mats. */
 	for(size_t i=0; i<nmodes; ++i) {
-		assert(mats[i]->ncols == mats[nmodes]->ncols);
-		assert(mats[i]->nrows == ndims[i]);
+		if(mats[i]->ncols != mats[nmodes]->ncols) {
+			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+                }
+		if(mats[i]->nrows != ndims[i]) {
+			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+		}
 	}
 
 	size_t const I = mats[mode]->nrows;
@@ -28,27 +32,19 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	/* Transfer tensor and matrices */
     sptScalar * Xvals = NULL;
     int result = cudaMalloc((void **) &Xvals, nnz * sizeof (sptScalar));
-    if(result != 0) {
-        return result; // TODO: map error code?
-    }
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
     cudaMemcpy(Xvals, X->values.data, nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
 
     size_t * Xinds = NULL;
     size_t pitch;
     result = cudaMallocPitch((void **) &Xinds, &pitch, nnz * sizeof (sptScalar), nmodes);
-    if(result != 0) {
-        return result; // TODO: map error code?
-    }
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
     result = cudaMemcpy2D(Xinds, pitch, X->inds, nnz * sizeof(sptScalar), nnz * sizeof(sptScalar), nmodes, cudaMemcpyHostToDevice);
-    if(result != 0) {
-        return result; // TODO: map error code?
-    }
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
     sptScalar * mvals = NULL;
     result = cudaMalloc((void **) &mvals, I * R * sizeof (sptScalar));
-    if(result != 0) {
-        return result; // TODO: map error code?
-    }
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
     cudaMemset(mvals, 0, I * R * sizeof (sptScalar));
 
 

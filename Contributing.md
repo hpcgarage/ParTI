@@ -29,7 +29,7 @@ Names of functions and types follow `PascalCase`. Constants and enumerations fol
 Error checking
 --------------
 
-`sptCheckError`, `sptCheckOSError`, `sptCheckCudaError` are used to check for invalid input or environmental exceptions.
+`spt_CheckError`, `spt_CheckOSError`, `spt_CheckCudaError` are used to check for invalid input or environmental exceptions.
 
 Use `assert` to check for some conditions that should never happen on a production system, such as wrong data produced by other parts of SpTOL. I/O error or invalid data from the outside should not go into this category.
 

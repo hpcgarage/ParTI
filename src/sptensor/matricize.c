@@ -72,7 +72,7 @@ int sptMatricize(sptSparseTensor const * const X,
 		}
 
 	} else{
-		spt_CheckError(SPTERR_VALUE_ERROR, "spTensor Matricize", "incorrect transpose value");
+		spt_CheckError(SPTERR_VALUE_ERROR, "SpTns Matricize", "incorrect transpose value");
 	}
 
 	free(strides);

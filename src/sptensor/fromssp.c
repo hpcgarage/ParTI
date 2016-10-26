@@ -10,25 +10,17 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
     assert(epsilon > 0);
     dest->nmodes = nmodes;
     dest->ndims = malloc(nmodes * sizeof *dest->ndims);
-    if(!dest->ndims) {
-        return -1;
-    }
+    spt_CheckOSError(!dest->ndims, "SspTns -> SpTns");
     memcpy(dest->ndims, src->ndims, nmodes * sizeof *dest->ndims);
     dest->nnz = 0;
     dest->inds = malloc(nmodes * sizeof *dest->inds);
-    if(!dest->inds) {
-        return -1;
-    }
+    spt_CheckOSError(!dest->inds, "SspTns -> SpTns");
     for(i = 0; i < nmodes; ++i) {
         result = sptNewSizeVector(&dest->inds[i], 0, src->nnz);
-        if(result) {
-            return result;
-        }
+        spt_CheckError(result, "SspTns -> SpTns", NULL);
     }
     result = sptNewVector(&dest->values, 0, src->nnz);
-    if(result) {
-        return result;
-    }
+    spt_CheckError(result, "SspTns -> SpTns", NULL);
     for(i = 0; i < src->nnz; ++i) {
         size_t j;
         for(j = 0; j < src->ndims[src->mode]; ++j) {
@@ -46,14 +38,10 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
                     } else {
                         result = sptAppendSizeVector(&dest->inds[src->mode], j);
                     }
-                    if(result) {
-                        return result;
-                    }
+                    spt_CheckError(result, "SspTns -> SpTns", NULL);
                 }
                 result = sptAppendVector(&dest->values, data);
-                if(result) {
-                    return result;
-                }
+                spt_CheckError(result, "SspTns -> SpTns", NULL);
                 ++dest->nnz;
             }
         }

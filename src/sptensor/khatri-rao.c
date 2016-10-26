@@ -12,28 +12,24 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
     size_t i, j;
     int result;
     if(A->nmodes != B->nmodes) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "Khatri-Rao", "shape mismatch");
     }
     nmodes = A->nmodes;
     if(nmodes == 0) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "Khatri-Rao", "shape mismatch");
     }
     if(A->ndims[nmodes-1] != B->ndims[nmodes-1]) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "Khatri-Rao", "shape mismatch");
     }
     inds = malloc(nmodes * sizeof *inds);
-    if(!inds) {
-        return -1;
-    }
+    spt_CheckOSError(!inds, "Khatri-Rao");
     for(mode = 0; mode < nmodes-1; ++mode) {
         inds[mode] = A->ndims[mode] * B->ndims[mode];
     }
     inds[nmodes-1] = A->ndims[mode];
     result = sptNewSparseTensor(Y, nmodes, inds);
     free(inds);
-    if(result) {
-        return -1;
-    }
+    spt_CheckError(result, "Khatri-Rao", NULL);
     /* For each element in A and B */
     for(i = 0; i < A->nnz; ++i) {
         for(j = 0; j < B->nnz; ++j) {

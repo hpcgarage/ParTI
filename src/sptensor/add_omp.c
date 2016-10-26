@@ -6,11 +6,11 @@
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads) {
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP SpTns Add", "shape mismatch");
     }
     for(size_t i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP spTensor Add", "shape mismatch");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP SpTns Add", "shape mismatch");
         }
     }
 
@@ -74,14 +74,10 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
                 int result;
                 for(mode = 0; mode < X->nmodes; ++mode) {
                     result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
-                    if(result) {
-                        exit(result);
-                    }
+                    spt_CheckError(result, "OMP SpTns Add", NULL);
                 }
                 result = sptAppendVector(&(local_vals[tid]), X->values.data[i]);
-                if(result) {
-                    exit(result);
-                }
+                spt_CheckError(result, "OMP SpTns Add", NULL);
                 ++Ynnz;
                 ++i;
             } else {    // X(i) = Y(j)
@@ -96,14 +92,10 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
             int result;
             for(mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
-                if(result) {
-                    exit(result);
-                }
+                spt_CheckError(result, "OMP SpTns Add", NULL);
             }
             result = sptAppendVector(&(local_vals[tid]), X->values.data[i]);
-            if(result) {
-                exit(result);
-            }
+            spt_CheckError(result, "OMP SpTns Add", NULL);
             ++Ynnz;
             ++i;
         }

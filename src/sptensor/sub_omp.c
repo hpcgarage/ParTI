@@ -5,12 +5,11 @@
 int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads) {
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
-        return -1;
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP SpTns Sub", "shape mismatch");
     }
     for(size_t i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
-            fprintf(stderr, "SpTOL ERROR: Substracting tensors in different shapes.\n");
-            return -1;
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP SpTns Sub", "shape mismatch");
         }
     }
 
@@ -74,14 +73,10 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
                 int result;
                 for(mode = 0; mode < X->nmodes; ++mode) {
                     result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
-                    if(result) {
-                        exit(result);
-                    }
+                    spt_CheckError(result, "OMP SpTns Sub", NULL);
                 }
                 result = sptAppendVector(&(local_vals[tid]), -X->values.data[i]);
-                if(result) {
-                    exit(result);
-                }
+                spt_CheckError(result, "OMP SpTns Sub", NULL);
                 ++Ynnz;
                 ++i;
             } else {
@@ -96,14 +91,10 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
             int result;
             for(mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
-                if(result) {
-                    exit(result);
-                }
+                spt_CheckError(result, "OMP SpTns Sub", NULL);
             }
             result = sptAppendVector(&(local_vals[tid]), -X->values.data[i]);
-            if(result) {
-                exit(result);
-            }
+            spt_CheckError(result, "OMP SpTns Sub", NULL);
             ++Ynnz;
             ++i;
         }
