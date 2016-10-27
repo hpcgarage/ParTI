@@ -1,8 +1,8 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-int sptSparseTensorSub(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z) {
-    
+int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
+
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Sub", "shape mismatch");

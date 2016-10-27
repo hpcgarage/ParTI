@@ -1,7 +1,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-int sptSparseTensorDotMul(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z) {
+int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
     size_t i, j;
     int result;
     /* Ensure X and Y are in same shape */
