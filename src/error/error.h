@@ -46,7 +46,7 @@ extern "C" {
  * @param module the module name of current procedure
  */
 #define spt_CheckOSError(cond, module) \
-    if((cond) && errno != 0) { \
+    if((cond)) { \
         spt_CheckError(errno + SPTERR_OS_ERROR, (module), strerror(errno)); \
     }
 
@@ -58,9 +58,7 @@ extern "C" {
 #define spt_CheckCudaError(cond, module) \
     if((cond)) { \
         cudaError_t _cuda_error = cudaGetLastError(); \
-        if(_cuda_error != 0) { \
-            spt_CheckError(_cuda_error + SPTERR_CUDA_ERROR, (module), cudaGetErrorString(_cuda_error)); \
-        } \
+        spt_CheckError(_cuda_error + SPTERR_CUDA_ERROR, (module), cudaGetErrorString(_cuda_error)); \
     }
 
 void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason);

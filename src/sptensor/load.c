@@ -29,13 +29,21 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
         for(mode = 0; mode < tsr->nmodes; ++mode) {
             size_t index;
             iores = fscanf(fp, "%zu", &index);
-            spt_CheckOSError(iores != 1, "SpTns Load");
-            assert(index >= start_index);
+            if(iores != 1) {
+                retval = -1;
+                break;
+            }
+            if(index < start_index) {
+                spt_CheckError(SPTERR_VALUE_ERROR, "SpTns Load", "index < start_index");
+            }
             sptAppendSizeVector(&tsr->inds[mode], index-start_index);
         }
         if(retval == 0) {
             iores = fscanf(fp, "%lf", &value);
-            spt_CheckOSError(iores != 1, "SpTns Load");
+            if(iores != 1) {
+                retval = -1;
+                break;
+            }
             sptAppendVector(&tsr->values, value);
             ++tsr->nnz;
         }
