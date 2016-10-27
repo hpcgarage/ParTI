@@ -1,6 +1,12 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
+/**
+ * Element wise multiply two sparse tensors
+ * @param[out] Z the result of X*Y, should be uninitialized
+ * @param[in]  X the input X
+ * @param[in]  Y the input Y
+ */
 int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
     size_t i, j;
     int result;

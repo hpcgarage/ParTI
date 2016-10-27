@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include "sptensor.h"
 
+/**
+ * Save the contents of a sparse tensor into a text file
+ * @param tsr         th sparse tensor used to write
+ * @param start_index the index of the first element in array. Set to 1 for MATLAB compability, else set to 0
+ * @param fp          the file to write into
+ */
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     int iores;
     size_t mode, i;

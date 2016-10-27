@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * Load the contents of a sparse tensor fro a text file
+ * @param tsr         th sparse tensor to store into
+ * @param start_index the index of the first element in array. Set to 1 for MATLAB compability, else set to 0
+ * @param fp          the file to read from
+ */
 int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     int iores, retval;
     size_t mode;
