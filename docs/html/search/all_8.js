@@ -12,5 +12,6 @@ var searchData=
   ['module',['module',['../error_8c.html#a885ecdfcb963f1d1a7ba3144e9b6c8f8',1,'error.c']]],
   ['msort_2ec',['msort.c',['../msort_8c.html',1,'']]],
   ['mttkrp_2ec',['mttkrp.c',['../mttkrp_8c.html',1,'']]],
-  ['mttkrp_5fcuda_2ecu',['mttkrp_cuda.cu',['../mttkrp__cuda_8cu.html',1,'']]]
+  ['mttkrp_5fcuda_2ecu',['mttkrp_cuda.cu',['../mttkrp__cuda_8cu.html',1,'']]],
+  ['mttkrp_5fomp_2ec',['mttkrp_omp.c',['../mttkrp__omp_8c.html',1,'']]]
 ];

@@ -1,6 +1,7 @@
 var matrix_8c =
 [
     [ "sptAppendMatrix", "matrix_8c.html#a2065d39c0d3bf06112f26303e890611c", null ],
+    [ "sptConstantMatrix", "matrix_8c.html#ae80ffce6502052546e58388f7ffd792a", null ],
     [ "sptCopyMatrix", "matrix_8c.html#aabe2daae8647508b9bdf750c0fc1e081", null ],
     [ "sptFreeMatrix", "matrix_8c.html#adf59ceda1369e7704bfb7ca9ba49d2ac", null ],
     [ "sptNewMatrix", "matrix_8c.html#ae65e2a756dbce526def839e919b727b7", null ],

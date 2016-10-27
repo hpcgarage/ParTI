@@ -2,6 +2,14 @@
 #include "sptensor.h"
 #include <assert.h>
 
+/**
+ * compare two indices from two identical or distinct sparse tensors lexicographically
+ * @param tsr1 the first sparse tensor
+ * @param ind1 the order of the element in the first sparse tensor whose index is to be compared
+ * @param tsr2 the second sparse tensor
+ * @param ind2 the order of the element in the second sparse tensor whose index is to be compared
+ * @return -1 for less, 0 for equal, 1 for greater
+ */
 int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2) {
     size_t i;
     assert(tsr1->nmodes == tsr2->nmodes);
