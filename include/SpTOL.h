@@ -121,24 +121,28 @@ int sptFreeTimer(sptTimer timer);
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
+int sptConstantVector(sptVector * const vec, sptScalar const val);
 int sptCopyVector(sptVector *dest, const sptVector *src);
 int sptAppendVector(sptVector *vec, sptScalar value);
 int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec);
 int sptResizeVector(sptVector *vec, size_t size);
 void sptFreeVector(sptVector *vec);
+int sptDumpVector(sptVector *vec, FILE *fp);
 
 /* Dense vector, with size_t type */
 int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap);
+int sptConstantSizeVector(sptSizeVector * const vec, size_t const num);
 int sptCopySizeVector(sptSizeVector *dest, const sptSizeVector *src);
 int sptAppendSizeVector(sptSizeVector *vec, size_t value);
 int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *append_vec);
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
+int sptDumpSizeVector(sptSizeVector *vec, FILE *fp);
 
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
-int sptConstantMatrix(sptMatrix *mtx, size_t nrows, size_t ncols, sptScalar const val);
+int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
@@ -213,17 +217,17 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
   sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
-  sptVector * const scratch);
+  sptVector * scratch);
 int sptOmpMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
   sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
-  sptVector * const scratch);
+  sptVector * scratch);
 int sptCudaMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
 	size_t const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
-	sptScalar * const scratch);
+	sptScalar * scratch);
 
 /**
  * OMP functions

@@ -6,13 +6,14 @@
 int main(int argc, char const *argv[]) {
     FILE *fX, *fo;
     sptSparseTensor X;
-    sptMatrix * U;
+    sptMatrix ** U;
     sptSizeVector mats_order;
     sptVector scratch;
     size_t mode = 0;
     size_t R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
+    int nthreads;
 
     if(argc < 3) {
         printf("Usage: %s X mode [cuda_dev_id, R, Y]\n\n", argv[0]);
@@ -33,14 +34,21 @@ int main(int argc, char const *argv[]) {
     }
 
     size_t nmodes = X.nmodes;
-    U = (sptMatrix *)malloc((nmodes+1) * sizeof(sptMatrix));
+    U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
+    for(size_t m=0; m<nmodes+1; ++m) {
+      U[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
+    }
     size_t max_ndims = 0;
     for(size_t m=0; m<nmodes; ++m) {
-      assert(sptRandomizeMatrix(&(U[m]), X.ndims[m], R) == 0);
+      // assert(sptRandomizeMatrix(U[m], X.ndims[m], R) == 0);
+      assert(sptNewMatrix(U[m], X.ndims[m], R) == 0);
+      assert(sptConstantMatrix(U[m], 1) == 0);
       if(X.ndims[m] > max_ndims)
         max_ndims = X.ndims[m];
     }
-    assert(sptConstantMatrix(&(U[nmodes]), max_ndims, R, 0) == 0);
+    assert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
+    assert(sptConstantMatrix(U[nmodes], 0) == 0);
+
 
     sptNewSizeVector(&mats_order, nmodes-1, nmodes-1);
     size_t j = 0;
@@ -54,46 +62,53 @@ int main(int argc, char const *argv[]) {
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
+        nthreads = 1;
         sptNewVector(&scratch, R, R);
-        assert(sptMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
+        sptConstantVector(&scratch, 0);
+        assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
     } else if(cuda_dev_id == -1) {
+        omp_set_num_threads(4);
+        nthreads = omp_get_num_threads();
+        printf("nthreads: %d\n", nthreads);
         sptNewVector(&scratch, X.nnz * R, X.nnz * R);
-        assert(sptOmpMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
+        sptConstantVector(&scratch, 0);
+        assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
     } else {
       //  sptCudaSetDevice(cuda_dev_id);
       //  assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
+    sptDumpMatrix(U[nmodes], stdout);
     sptFreeVector(&scratch);
 
-    for(int it=0; it<niters; ++it) {
-        if(cuda_dev_id == -2) {
-            sptNewVector(&scratch, R, R);
-            assert(sptMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
-        } else if(cuda_dev_id == -1) {
-            sptNewVector(&scratch, X.nnz * R, X.nnz * R);
-            assert(sptOmpMTTKRP(&X, &U, &mats_order, mode, &scratch) == 0);
-        } else {
-            // sptCudaSetDevice(cuda_dev_id);
-            // assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-        }
-    }
+    // for(int it=0; it<niters; ++it) {
+    //     if(cuda_dev_id == -2) {
+    //         sptNewVector(&scratch, R, R);
+    //         assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+    //     } else if(cuda_dev_id == -1) {
+    //         sptNewVector(&scratch, X.nnz * R, X.nnz * R);
+    //         assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+    //     } else {
+    //         // sptCudaSetDevice(cuda_dev_id);
+    //         // assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+    //     }
+    // }
+    // sptFreeVector(&scratch);
 
 
     for(size_t m=0; m<nmodes; ++m) {
-        sptFreeMatrix(&(U[m]));
+        sptFreeMatrix(U[m]);
     }
     sptFreeSparseTensor(&X);
     sptFreeSizeVector(&mats_order);
-    sptFreeVector(&scratch);
 
     if(argc >= 6) {
         fo = fopen(argv[5], "w");
         assert(fo != NULL);
-        assert(sptDumpMatrix(&(U[nmodes]), fo) == 0);
+        assert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
     }
 
-    sptFreeMatrix(&(U[nmodes]));
+    sptFreeMatrix(U[nmodes]);
     free(U);
 
     return 0;

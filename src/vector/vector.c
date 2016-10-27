@@ -28,6 +28,20 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
 
 
 /**
+ * Fill an existed dense value vector with a specified constant
+ *
+ * @param vec   a valid pointer to an existed sptVector variable,
+ * @param val   a given value constant 
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+int sptConstantVector(sptVector * const vec, sptScalar const val) {
+    for(size_t i=0; i<vec->len; ++i)
+        vec->data[i] = val;
+    return 0;
+}
+
+/**
  * Copy a value vector to an uninitialized value vector
  *
  * @param dest a pointer to an uninitialized value vector
@@ -148,6 +162,22 @@ int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
     spt_CheckOSError(!vec->data, "SzVec New");
     return 0;
 }
+
+
+/**
+ * Fill an existed dense size vector with a specified constant
+ *
+ * @param vec   a valid pointer to an existed sptSizeVector variable,
+ * @param num   a given value constant 
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+int sptConstantSizeVector(sptSizeVector * const vec, size_t const num) {
+    for(size_t i=0; i<vec->len; ++i)
+        vec->data[i] = num;
+    return 0;
+}
+
 
 /**
  * Copy a size vector to an uninitialized size vector

@@ -5,13 +5,23 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
   sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
 	size_t const mode,
-  sptVector * const scratch) {
+  sptVector * scratch) {
 
 	size_t const nmodes = X->nmodes;
 	size_t const nnz = X->nnz;
 	size_t const * const ndims = X->ndims;
 	sptScalar const * const vals = X->values.data;
 	size_t const nmats = nmodes - 1;
+
+	printf("OK\n"); fflush(stdout);
+    for(size_t m=0; m<nmodes+1; ++m) {
+			printf("mats %zu\n", m); fflush(stdout);
+      sptDumpMatrix(mats[m], stdout);
+    }
+ 	printf("mats_order:\n"); fflush(stdout);
+	sptDumpSizeVector(mats_order, stdout);
+	printf("scratch:\n"); fflush(stdout);
+	sptDumpVector(scratch, stdout);
 
 	/* Check the mats. */
 	for(size_t i=0; i<nmodes; ++i) {

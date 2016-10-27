@@ -21,7 +21,7 @@ int sptDumpMatrix(sptMatrix *mtx, FILE *fp) {
     spt_CheckOSError(iores < 0, "SpMtx Dump");
     for(size_t i=0; i < nrows; ++i) {
       for(size_t j=0; j < ncols; ++j) {
-          iores = fprintf(fp, "%lf\t", mtx->values[i * ncols + j]);
+          iores = fprintf(fp, "%.2lf\t", mtx->values[i * ncols + j]);
           spt_CheckOSError(iores < 0, "SpMtx Dump");
       }
       iores = fprintf(fp, "\n");
