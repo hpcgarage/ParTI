@@ -22,6 +22,10 @@ int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sp
 
     sptNewSparseTensor(Z, X->nmodes, X->ndims);
 
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
+
     /* Multiply elements one by one, assume indices are ordered */
     i = 0;
     j = 0;
@@ -46,6 +50,11 @@ int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sp
             ++j;
         }
     }
+
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "CPU  SpTns DotMul");
+    sptFreeTimer(timer);
+
     /* Check whether elements become zero after adding.
        If so, fill the gap with the [nnz-1]'th element.
     */

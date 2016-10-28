@@ -39,8 +39,7 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
 
 	size_t const nmodes = X->nmodes;
   if(nmodes != 3)
-    spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "nmodes ! =3 for
-        GPU MTTKRP");
+    spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "nmodes ! =3 for GPU MTTKRP");
 	size_t const nnz = X->nnz;
 	size_t const * const ndims = X->ndims;
 	size_t const nmats = nmodes - 1;
@@ -63,23 +62,24 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   int result = cudaMalloc((void **) &Xndims, nmodes * sizeof (size_t));
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
   cudaMemcpy(Xndims, ndims, nmodes * sizeof (size_t), cudaMemcpyHostToDevice);
-
-  size_t * dev_mats_order = NULL;
-  int result = cudaMalloc((void **) &dev_mats_order, nmats * sizeof (size_t));
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  cudaMemcpy(dev_mats_order, mats_order, nmats * sizeof (size_t), cudaMemcpyHostToDevice);
-
-  sptScalar * Xvals = NULL;
-  int result = cudaMalloc((void **) &Xvals, nnz * sizeof (sptScalar));
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  cudaMemcpy(Xvals, X->values.data, nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
-
+  
   size_t * Xinds = NULL;
   size_t pitch;
   result = cudaMallocPitch((void **) &Xinds, &pitch, nnz * sizeof (sptScalar), nmodes);
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
   result = cudaMemcpy2D(Xinds, pitch, X->inds, nnz * sizeof(sptScalar), nnz * sizeof(sptScalar), nmodes, cudaMemcpyHostToDevice);
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  sptScalar * Xvals = NULL;
+  int result = cudaMalloc((void **) &Xvals, nnz * sizeof (sptScalar));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  cudaMemcpy(Xvals, X->values.data, nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
+
+  size_t * dev_mats_order = NULL;
+  int result = cudaMalloc((void **) &dev_mats_order, nmats * sizeof (size_t));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  cudaMemcpy(dev_mats_order, mats_order, nmats * sizeof (size_t), cudaMemcpyHostToDevice);
 
   /* Only for 3D tensors */
   size_t times_mat_index = mats_order->data[0];
