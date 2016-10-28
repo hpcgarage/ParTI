@@ -6,6 +6,10 @@
 static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, size_t l, size_t r, sptScalar buffer[]);
 static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]);
 
+/**
+ * Reorder the elements in a semi sparse tensor lexicographically
+ * @param tsr  the semi sparse tensor to operate on
+ */
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr) {
     sptScalar *buffer = malloc(tsr->stride * sizeof (sptScalar));
     spt_CheckOSError(!buffer, "SspTns SortIndex");

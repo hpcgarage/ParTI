@@ -155,8 +155,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Sparse tensor times a dense matrix (SpTTM) </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">Y</td><td>the result of X*U, should be uninitialized </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">X</td><td>the sparse tensor input X </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">U</td><td>the dense matrix input U </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">mode</td><td>the mode on which the multiplication is done on</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>This function will sort Y with <code>sptSparseTensorSortIndexAtMode</code> automatically, this operation can be undone with <code>sptSparseTensorSortIndex</code> if you need to access raw data. Anyway, you do not have to take this side-effect into consideration if you do not need to access raw data. </p>
 
-<p>Definition at line <a class="el" href="sptensor_2mmul_8c_source.html#l00005">5</a> of file <a class="el" href="sptensor_2mmul_8c_source.html">mmul.c</a>.</p>
+<p>Definition at line <a class="el" href="sptensor_2mmul_8c_source.html#l00018">18</a> of file <a class="el" href="sptensor_2mmul_8c_source.html">mmul.c</a>.</p>
 
 </div>
 </div>

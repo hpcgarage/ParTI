@@ -5,6 +5,11 @@ static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t
 static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode);
 static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
+/**
+ * Reorder the elements in a sparse tensor lexicographically, but consider mode `mode` the last one
+ * @param tsr  the sparse tensor to operate on
+ * @param mode the mode to be considered the last
+ */
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode) {
     spt_QuickSortAtMode(tsr, 0, tsr->nnz, mode);
     tsr->sortkey = mode;

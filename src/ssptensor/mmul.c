@@ -2,6 +2,13 @@
 #include "ssptensor.h"
 #include <stdlib.h>
 
+/**
+ * Semi sparse tensor times a dense matrix (SspTTM)
+ * @param[out] Y    the result of X*U, should be uninitialized
+ * @param[in]  X    the semi sparse tensor input X
+ * @param[in]  U    the dense matrix input U
+ * @param      mode the mode on which the multiplication is done on
+ */
 int sptSemiSparseTensorMulMatrix(
     sptSemiSparseTensor *Y,
     const sptSemiSparseTensor *X,

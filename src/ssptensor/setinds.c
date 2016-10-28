@@ -5,6 +5,13 @@
 
 static int spt_SparseTensorCompareExceptMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode);
 
+/**
+ * Convert a sparse tensor into a semi sparse tensor, but only set the indices
+ * without setting any actual data
+ * @param[out] dest     a pointer to an uninitialized semi sparse tensor
+ * @param[out] fiberidx a vector to store the starting position of each fiber, should be uninitialized
+ * @param[in]  ref      a pointer to a valid sparse tensor
+ */
 int sptSemiSparseTensorSetIndices(
     sptSemiSparseTensor *dest,
     sptSizeVector *fiberidx,

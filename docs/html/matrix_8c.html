@@ -123,8 +123,8 @@ Functions</h2></td></tr>
 <tr class="separator:ae65e2a756dbce526def839e919b727b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9e35bee8fd9c5af876d196771a8cd31"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix_8c.html#ae9e35bee8fd9c5af876d196771a8cd31">sptRandomizeMatrix</a> (<a class="el" href="structspt_matrix.html">sptMatrix</a> *mtx, size_t nrows, size_t ncols)</td></tr>
 <tr class="separator:ae9e35bee8fd9c5af876d196771a8cd31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae80ffce6502052546e58388f7ffd792a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix_8c.html#ae80ffce6502052546e58388f7ffd792a">sptConstantMatrix</a> (<a class="el" href="structspt_matrix.html">sptMatrix</a> *mtx, size_t nrows, size_t ncols, <a class="el" href="_sp_t_o_l_8h.html#ab9cfc7eddd200feba26e530cfd745172">sptScalar</a> const val)</td></tr>
-<tr class="separator:ae80ffce6502052546e58388f7ffd792a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a2fffe23b228bbef097a8aa73615e9d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix_8c.html#a6a2fffe23b228bbef097a8aa73615e9d">sptConstantMatrix</a> (<a class="el" href="structspt_matrix.html">sptMatrix</a> *mtx, <a class="el" href="_sp_t_o_l_8h.html#ab9cfc7eddd200feba26e530cfd745172">sptScalar</a> const val)</td></tr>
+<tr class="separator:a6a2fffe23b228bbef097a8aa73615e9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aabe2daae8647508b9bdf750c0fc1e081"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix_8c.html#aabe2daae8647508b9bdf750c0fc1e081">sptCopyMatrix</a> (<a class="el" href="structspt_matrix.html">sptMatrix</a> *dest, const <a class="el" href="structspt_matrix.html">sptMatrix</a> *src)</td></tr>
 <tr class="separator:aabe2daae8647508b9bdf750c0fc1e081"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2065d39c0d3bf06112f26303e890611c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix_8c.html#a2065d39c0d3bf06112f26303e890611c">sptAppendMatrix</a> (<a class="el" href="structspt_matrix.html">sptMatrix</a> *mtx, const <a class="el" href="_sp_t_o_l_8h.html#ab9cfc7eddd200feba26e530cfd745172">sptScalar</a> values[])</td></tr>
@@ -167,11 +167,11 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="matrix_8c_source.html#l00100">100</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
+<p>Definition at line <a class="el" href="matrix_8c_source.html#l00097">97</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ae80ffce6502052546e58388f7ffd792a"></a>
+<a class="anchor" id="a6a2fffe23b228bbef097a8aa73615e9d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -180,18 +180,6 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structspt_matrix.html">sptMatrix</a> *&#160;</td>
           <td class="paramname"><em>mtx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>nrows</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>ncols</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -206,18 +194,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Fill a matrix with a specified constant</p>
+<p>Fill an existed dense matrix with a specified constant</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">mtx</td><td>a pointer to a valid matrix </td></tr>
-    <tr><td class="paramname">nrows</td><td>fill the specified number of rows </td></tr>
-    <tr><td class="paramname">ncols</td><td>fill the specified number of columns </td></tr>
-    <tr><td class="paramname">vala</td><td>given constant </td></tr>
+    <tr><td class="paramname">val</td><td>a given value constant </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="matrix_8c_source.html#l00068">68</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
+<p>Definition at line <a class="el" href="matrix_8c_source.html#l00067">67</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
 
 </div>
 </div>
@@ -254,7 +240,7 @@ Functions</h2></td></tr>
 </dl>
 <p>The contents of <code>src</code> will be copied to <code>dest</code>. </p>
 
-<p>Definition at line <a class="el" href="matrix_8c_source.html#l00086">86</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
+<p>Definition at line <a class="el" href="matrix_8c_source.html#l00083">83</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
 
 </div>
 </div>
@@ -280,7 +266,7 @@ Functions</h2></td></tr>
 </dl>
 <p>By using <code>sptFreeMatrix</code>, a valid matrix would become uninitialized and should not be used anymore prior to another initialization </p>
 
-<p>Definition at line <a class="el" href="matrix_8c_source.html#l00170">170</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
+<p>Definition at line <a class="el" href="matrix_8c_source.html#l00167">167</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
 
 </div>
 </div>
@@ -404,7 +390,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="matrix_8c_source.html#l00139">139</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
+<p>Definition at line <a class="el" href="matrix_8c_source.html#l00136">136</a> of file <a class="el" href="matrix_8c_source.html">matrix.c</a>.</p>
 
 </div>
 </div>

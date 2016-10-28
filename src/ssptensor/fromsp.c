@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Convert a sparse tensor into a semi sparse tensor
+ * @param[out] dest    a pointer to an uninitialized semi sparse tensor
+ * @param[in]  src     a pointer to a valid sparse tensor
+ * @param      mode    the mode to be stored in dense format
+ */
 int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode) {
     size_t i;
     int result;

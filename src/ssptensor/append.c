@@ -16,6 +16,12 @@ static int spt_CompareIndices(const sptSemiSparseTensor *tsr, size_t el_idx, con
     return 0;
 }
 
+/**
+ * Insert or replace a single element into a semi sparse tensor
+ * @param tsr     the tensor to operate on
+ * @param indices the indices to locate the element to insert
+ * @param value   the value of the element to insert
+ */
 int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[], sptScalar value) {
     int result;
     int need_resize = 0;

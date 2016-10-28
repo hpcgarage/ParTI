@@ -4,6 +4,10 @@
 
 static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]);
 
+/**
+ * Merge fibers with identical indices of an invalid semi sparse tensor, making it valid
+ * @param tsr the semi sparse tensor to operate on
+ */
 int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     int result;
     size_t i;

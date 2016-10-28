@@ -2,6 +2,19 @@
 #include <stdlib.h>
 #include "sptensor.h"
 
+/**
+ * Sparse tensor times a dense matrix (SpTTM)
+ * @param[out] Y    the result of X*U, should be uninitialized
+ * @param[in]  X    the sparse tensor input X
+ * @param[in]  U    the dense matrix input U
+ * @param      mode the mode on which the multiplication is done on
+ *
+ * This function will sort Y with `sptSparseTensorSortIndexAtMode`
+ * automatically, this operation can be undone with `sptSparseTensorSortIndex`
+ * if you need to access raw data.
+ * Anyway, you do not have to take this side-effect into consideration if you
+ * do not need to access raw data.
+ */
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode) {
     int result;
     size_t *ind_buf;
