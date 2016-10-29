@@ -12,6 +12,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
 	size_t const * const ndims = X->ndims;
 	sptScalar const * const vals = X->values.data;
 	size_t const nmats = nmodes - 1;
+	size_t const stride = mats[0]->stride;
 
 	/* Check the mats. */
 	for(size_t i=0; i<nmodes; ++i) {
@@ -28,7 +29,11 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
 	size_t const * const mode_ind = X->inds[mode].data;
 	sptMatrix * const M = mats[nmodes];
 	sptScalar * const mvals = M->values;
-	memset(mvals, 0, I*R*sizeof(sptScalar));
+	memset(mvals, 0, I*stride*sizeof(sptScalar));
+
+  sptTimer timer;
+  sptNewTimer(&timer, 0);
+  sptStartTimer(timer);
 
   #pragma omp parallel for
 	for(size_t x=0; x<nnz; ++x) {
@@ -40,7 +45,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
 		sptScalar const entry = vals[x];
 		size_t const mode_i = mode_ind[x];
 		for(size_t r=0; r<R; ++r) {
-			scratch->data[x * R + r] = entry * times_mat->values[tmp_i * R + r];
+			scratch->data[x * stride + r] = entry * times_mat->values[tmp_i * stride + r];
 		}
 
 		for(size_t i=1; i<nmats; ++i) {
@@ -50,7 +55,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
 			tmp_i = times_inds[x];
 
 			for(size_t r=0; r<R; ++r) {
-				scratch->data[x * R + r] *= times_mat->values[tmp_i * R + r];
+				scratch->data[x * stride + r] *= times_mat->values[tmp_i * stride + r];
 			}
 		}
 
@@ -59,9 +64,13 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
 	for(size_t x=0; x<nnz; ++x) {
 		size_t const mode_i = mode_ind[x];
 		for(size_t r=0; r<R; ++r) {
-			mvals[mode_i * R + r] += scratch->data[x * R + r];
+			mvals[mode_i * stride + r] += scratch->data[x * stride + r];
 		}
 	}
+
+  sptStopTimer(timer);
+  sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
+  sptFreeTimer(timer);
 
 	return 0;
 }

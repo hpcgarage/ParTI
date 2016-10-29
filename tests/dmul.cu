@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
-        assert(sptSparseTensorDotMul(&Z, &X, &Y) == 0);
+        assert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
     }  else if(cuda_dev_id >= 0) {
         sptCudaSetDevice(cuda_dev_id);
         assert(sptCudaSparseTensorDotMul(&Z, &X, &Y) == 0);
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
-            assert(sptSparseTensorDotMul(&Z, &X, &Y) == 0);
+            assert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
         }  else if(cuda_dev_id >= 0) {
             sptCudaSetDevice(cuda_dev_id);
             assert(sptCudaSparseTensorDotMul(&Z, &X, &Y) == 0);

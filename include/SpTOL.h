@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <omp.h>
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -186,6 +187,7 @@ int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
+int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptCudaSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 
@@ -225,10 +227,10 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
 	size_t const mode,
   sptVector * scratch);
 int sptCudaMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-	size_t const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-	sptScalar * scratch);
+    sptMatrix ** const mats,    // mats[nmodes] as temporary space.
+    sptSizeVector const * const mats_order, // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch);
 
 /**
  * OMP functions

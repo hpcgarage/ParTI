@@ -1,9 +1,9 @@
 CFLAGS=-Wall -Wextra -std=c99 -fopenmp -I../include -O3
 LDLIBS=../build/libSpTOL_s.a -lm
 NVCC=nvcc
-NVCCFLAGS=-I../include -Xcompiler -fopenmp -g
+NVCCFLAGS=-arch=sm_21 -I../include -Xcompiler -fopenmp -g
 
-TARGETS=loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test ttm_omptest mttkrp dmul
+TARGETS=loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test ttm_omptest mttkrp
 
 .PHONY: all clean
 

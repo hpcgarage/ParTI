@@ -48,6 +48,7 @@ int main(int argc, char const *argv[]) {
     }
     assert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     assert(sptConstantMatrix(U[nmodes], 0) == 0);
+    size_t stride = U[0]->stride;
 
 
     sptNewSizeVector(&mats_order, nmodes-1, nmodes-1);
@@ -66,33 +67,46 @@ int main(int argc, char const *argv[]) {
         sptNewVector(&scratch, R, R);
         sptConstantVector(&scratch, 0);
         assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        sptFreeVector(&scratch);
     } else if(cuda_dev_id == -1) {
-        omp_set_num_threads(4);
-        nthreads = omp_get_num_threads();
+        #pragma omp parallel 
+        {
+            nthreads = omp_get_num_threads();
+        }
         printf("nthreads: %d\n", nthreads);
-        sptNewVector(&scratch, X.nnz * R, X.nnz * R);
+        sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
         sptConstantVector(&scratch, 0);
         assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        sptFreeVector(&scratch);
     } else {
-      //  sptCudaSetDevice(cuda_dev_id);
-      //  assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+       sptCudaSetDevice(cuda_dev_id);
+       assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
     }
-    sptDumpMatrix(U[nmodes], stdout);
-    sptFreeVector(&scratch);
+    // sptDumpMatrix(U[nmodes], stdout);
+    
 
-    // for(int it=0; it<niters; ++it) {
-    //     if(cuda_dev_id == -2) {
-    //         sptNewVector(&scratch, R, R);
-    //         assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
-    //     } else if(cuda_dev_id == -1) {
-    //         sptNewVector(&scratch, X.nnz * R, X.nnz * R);
-    //         assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
-    //     } else {
-    //         // sptCudaSetDevice(cuda_dev_id);
-    //         // assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-    //     }
-    // }
-    // sptFreeVector(&scratch);
+    for(int it=0; it<niters; ++it) {
+        if(cuda_dev_id == -2) {
+            nthreads = 1;
+            sptNewVector(&scratch, R, R);
+            sptConstantVector(&scratch, 0);
+            assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+            sptFreeVector(&scratch);
+        } else if(cuda_dev_id == -1) {
+            #pragma omp parallel 
+            {
+                nthreads = omp_get_num_threads();
+            }
+            printf("nthreads: %d\n", nthreads);
+            sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
+            sptConstantVector(&scratch, 0);
+            assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+            sptFreeVector(&scratch);
+        } else {
+           sptCudaSetDevice(cuda_dev_id);
+           assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        }
+    }
 
 
     for(size_t m=0; m<nmodes; ++m) {

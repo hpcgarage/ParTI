@@ -12,16 +12,16 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	size_t const * const ndims = X->ndims;
 	sptScalar const * const vals = X->values.data;
 	size_t const nmats = nmodes - 1;
+	size_t const stride = mats[0]->stride;
 
-	printf("OK\n"); fflush(stdout);
-    for(size_t m=0; m<nmodes+1; ++m) {
-			printf("mats %zu\n", m); fflush(stdout);
-      sptDumpMatrix(mats[m], stdout);
-    }
- 	printf("mats_order:\n"); fflush(stdout);
-	sptDumpSizeVector(mats_order, stdout);
-	printf("scratch:\n"); fflush(stdout);
-	sptDumpVector(scratch, stdout);
+ //  for(size_t m=0; m<nmodes+1; ++m) {
+	// 	printf("mats %zu\n", m); fflush(stdout);
+ //    sptDumpMatrix(mats[m], stdout);
+ //  }
+ // 	printf("mats_order:\n"); fflush(stdout);
+	// sptDumpSizeVector(mats_order, stdout);
+	// printf("scratch:\n"); fflush(stdout);
+	// sptDumpVector(scratch, stdout);
 
 	/* Check the mats. */
 	for(size_t i=0; i<nmodes; ++i) {
@@ -38,7 +38,11 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	size_t const * const mode_ind = X->inds[mode].data;
 	sptMatrix * const M = mats[nmodes];
 	sptScalar * const mvals = M->values;
-	memset(mvals, 0, I*R*sizeof(sptScalar));
+	memset(mvals, 0, I*stride*sizeof(sptScalar));
+
+  sptTimer timer;
+  sptNewTimer(&timer, 0);
+  sptStartTimer(timer);
 
 	for(size_t x=0; x<nnz; ++x) {
 
@@ -47,7 +51,7 @@ int sptMTTKRP(sptSparseTensor const * const X,
 		size_t * times_inds = X->inds[times_mat_index].data;
 		size_t tmp_i = times_inds[x];
 		for(size_t r=0; r<R; ++r) {
-			scratch->data[r] = times_mat->values[tmp_i * R + r];
+			scratch->data[r] = times_mat->values[tmp_i * stride + r];
 		}
 
 		for(size_t i=1; i<nmats; ++i) {
@@ -57,16 +61,20 @@ int sptMTTKRP(sptSparseTensor const * const X,
 			tmp_i = times_inds[x];
 
 			for(size_t r=0; r<R; ++r) {
-				scratch->data[r] *= times_mat->values[tmp_i * R + r];
+				scratch->data[r] *= times_mat->values[tmp_i * stride + r];
 			}
 		}
 
 		sptScalar const entry = vals[x];
 		size_t const mode_i = mode_ind[x];
 		for(size_t r=0; r<R; ++r) {
-			mvals[mode_i * R + r] += entry * scratch->data[r];
+			mvals[mode_i * stride + r] += entry * scratch->data[r];
 		}
 	}
+
+  sptStopTimer(timer);
+  sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
+  sptFreeTimer(timer);
 
 	return 0;
 }
