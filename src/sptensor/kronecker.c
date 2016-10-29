@@ -3,6 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Kronecker product of two sparse tensors
+ * @param[out] Y the result of A(*)B, should be uninitialized
+ * @param[in]  A the input A
+ * @param[in]  B the input B
+ */
 int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B) {
     size_t nmodes;
     size_t mode;

@@ -6,6 +6,7 @@ var dir_c2f982dd032c2466da5f1dc5a9f1a436 =
     [ "compare.c", "sptensor_2compare_8c.html", "sptensor_2compare_8c" ],
     [ "ddiv.c", "ddiv_8c.html", "ddiv_8c" ],
     [ "dmul.c", "dmul_8c.html", "dmul_8c" ],
+    [ "dmul_cuda.cu", "dmul__cuda_8cu.html", "dmul__cuda_8cu" ],
     [ "dump.c", "sptensor_2dump_8c.html", "sptensor_2dump_8c" ],
     [ "fromssp.c", "fromssp_8c.html", "fromssp_8c" ],
     [ "khatri-rao.c", "khatri-rao_8c.html", "khatri-rao_8c" ],

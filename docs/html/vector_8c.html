@@ -119,6 +119,8 @@ $(document).ready(function(){initNavTree('vector_8c.html','');});
 Functions</h2></td></tr>
 <tr class="memitem:ab202fd7d1924263c99ac4aa903a640ff"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#ab202fd7d1924263c99ac4aa903a640ff">sptNewVector</a> (<a class="el" href="structspt_vector.html">sptVector</a> *vec, size_t len, size_t cap)</td></tr>
 <tr class="separator:ab202fd7d1924263c99ac4aa903a640ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20634af5e854719281af4c3ad42661c6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#a20634af5e854719281af4c3ad42661c6">sptConstantVector</a> (<a class="el" href="structspt_vector.html">sptVector</a> *const vec, <a class="el" href="_sp_t_o_l_8h.html#ab9cfc7eddd200feba26e530cfd745172">sptScalar</a> const val)</td></tr>
+<tr class="separator:a20634af5e854719281af4c3ad42661c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a77c6345d3c06c5b3cc8fb58e3ac4bca3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#a77c6345d3c06c5b3cc8fb58e3ac4bca3">sptCopyVector</a> (<a class="el" href="structspt_vector.html">sptVector</a> *dest, const <a class="el" href="structspt_vector.html">sptVector</a> *src)</td></tr>
 <tr class="separator:a77c6345d3c06c5b3cc8fb58e3ac4bca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab043fa6070f338517c20c059f911d6ef"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#ab043fa6070f338517c20c059f911d6ef">sptAppendVector</a> (<a class="el" href="structspt_vector.html">sptVector</a> *vec, <a class="el" href="_sp_t_o_l_8h.html#ab9cfc7eddd200feba26e530cfd745172">sptScalar</a> value)</td></tr>
@@ -131,6 +133,8 @@ Functions</h2></td></tr>
 <tr class="separator:a80abce2b75a158aaf2fc6b1272d761a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c1199f1ad512fa338d20bcf70211b98"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#a7c1199f1ad512fa338d20bcf70211b98">sptNewSizeVector</a> (<a class="el" href="structspt_size_vector.html">sptSizeVector</a> *vec, size_t len, size_t cap)</td></tr>
 <tr class="separator:a7c1199f1ad512fa338d20bcf70211b98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaca520b7ca0e14090802bc1378f9dd05"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#aaca520b7ca0e14090802bc1378f9dd05">sptConstantSizeVector</a> (<a class="el" href="structspt_size_vector.html">sptSizeVector</a> *const vec, size_t const num)</td></tr>
+<tr class="separator:aaca520b7ca0e14090802bc1378f9dd05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26efd9fe07d2618dbd33e7ba13ebfa27"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#a26efd9fe07d2618dbd33e7ba13ebfa27">sptCopySizeVector</a> (<a class="el" href="structspt_size_vector.html">sptSizeVector</a> *dest, const <a class="el" href="structspt_size_vector.html">sptSizeVector</a> *src)</td></tr>
 <tr class="separator:a26efd9fe07d2618dbd33e7ba13ebfa27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a6f74155e98b09f94902f4133235841"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="vector_8c.html#a3a6f74155e98b09f94902f4133235841">sptAppendSizeVector</a> (<a class="el" href="structspt_size_vector.html">sptSizeVector</a> *vec, size_t value)</td></tr>
@@ -176,7 +180,7 @@ Functions</h2></td></tr>
 </dl>
 <p>The length of the size vector will be changed to contain the new value. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00175">175</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00205">205</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -213,7 +217,7 @@ Functions</h2></td></tr>
 </dl>
 <p>The values from <code>append_vec</code> will be appended to <code>vec</code>. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00200">200</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00230">230</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -250,7 +254,7 @@ Functions</h2></td></tr>
 </dl>
 <p>The length of the value vector will be changed to contain the new value. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00053">53</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00067">67</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -287,7 +291,81 @@ Functions</h2></td></tr>
 </dl>
 <p>The values from <code>append_vec</code> will be appended to <code>vec</code>. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00078">78</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00092">92</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aaca520b7ca0e14090802bc1378f9dd05"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sptConstantSizeVector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structspt_size_vector.html">sptSizeVector</a> *const&#160;</td>
+          <td class="paramname"><em>vec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t const&#160;</td>
+          <td class="paramname"><em>num</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Fill an existed dense size vector with a specified constant</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vec</td><td>a valid pointer to an existed <a class="el" href="structspt_size_vector.html">sptSizeVector</a> variable, </td></tr>
+    <tr><td class="paramname">num</td><td>a given value constant</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Vector is a type of one-dimentional array with dynamic length </p>
+
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00175">175</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a20634af5e854719281af4c3ad42661c6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sptConstantVector </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structspt_vector.html">sptVector</a> *const&#160;</td>
+          <td class="paramname"><em>vec</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="_sp_t_o_l_8h.html#ab9cfc7eddd200feba26e530cfd745172">sptScalar</a> const&#160;</td>
+          <td class="paramname"><em>val</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Fill an existed dense value vector with a specified constant</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vec</td><td>a valid pointer to an existed <a class="el" href="structspt_vector.html">sptVector</a> variable, </td></tr>
+    <tr><td class="paramname">val</td><td>a given value constant</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Vector is a type of one-dimentional array with dynamic length </p>
+
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00038">38</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -324,7 +402,7 @@ Functions</h2></td></tr>
 </dl>
 <p>The contents of <code>src</code> will be copied to <code>dest</code>. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00160">160</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00190">190</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -361,7 +439,7 @@ Functions</h2></td></tr>
 </dl>
 <p>The contents of <code>src</code> will be copied to <code>dest</code>. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00038">38</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00052">52</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -387,7 +465,7 @@ Functions</h2></td></tr>
 </dl>
 <p>By using <code>sptFreeSizeVector</code>, a valid size vector would become uninitialized and should not be used anymore prior to another initialization </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00245">245</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00275">275</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -413,7 +491,7 @@ Functions</h2></td></tr>
 </dl>
 <p>By using <code>sptFreeVector</code>, a valid value vector would become uninitialized and should not be used anymore prior to another initialization </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00123">123</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00137">137</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -457,7 +535,7 @@ Functions</h2></td></tr>
 </dl>
 <p>Vector is a type of one-dimentional array with dynamic length </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00138">138</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00152">152</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -538,7 +616,7 @@ Functions</h2></td></tr>
 </dl>
 <p>If the new size is larger than the current size, new values will be appended but the values of them are undefined. If the new size if smaller than the current size, values at the end will be truncated. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00226">226</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00256">256</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>
@@ -575,7 +653,7 @@ Functions</h2></td></tr>
 </dl>
 <p>If the new size is larger than the current size, new values will be appended but the values of them are undefined. If the new size if smaller than the current size, values at the end will be truncated. </p>
 
-<p>Definition at line <a class="el" href="vector_8c_source.html#l00104">104</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
+<p>Definition at line <a class="el" href="vector_8c_source.html#l00118">118</a> of file <a class="el" href="vector_8c_source.html">vector.c</a>.</p>
 
 </div>
 </div>

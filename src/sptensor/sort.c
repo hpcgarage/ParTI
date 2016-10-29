@@ -4,6 +4,10 @@
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
 static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
+/**
+ * Reorder the elements in a sparse tensor lexicographically
+ * @param tsr  the sparse tensor to operate on
+ */
 void sptSparseTensorSortIndex(sptSparseTensor *tsr) {
     spt_QuickSortIndex(tsr, 0, tsr->nnz);
     if(tsr->nmodes != 0) {

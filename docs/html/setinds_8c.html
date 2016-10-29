@@ -150,9 +150,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Set indices of a semi-sparse according to a reference sparse Call sptSparseTensorSortIndexAtMode on ref first </p>
+<p>Convert a sparse tensor into a semi sparse tensor, but only set the indices without setting any actual data </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">dest</td><td>a pointer to an uninitialized semi sparse tensor </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">fiberidx</td><td>a vector to store the starting position of each fiber, should be uninitialized </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ref</td><td>a pointer to a valid sparse tensor </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="setinds_8c_source.html#l00008">8</a> of file <a class="el" href="setinds_8c_source.html">setinds.c</a>.</p>
+<p>Definition at line <a class="el" href="setinds_8c_source.html#l00015">15</a> of file <a class="el" href="setinds_8c_source.html">setinds.c</a>.</p>
 
 </div>
 </div>

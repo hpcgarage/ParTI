@@ -4,6 +4,13 @@
 #include <string.h>
 #include "ssptensor.h"
 
+/**
+ * Create a new semi sparse tensor
+ * @param tsr    a pointer to an uninitialized semi sparse tensor
+ * @param nmodes number of modes the tensor will have
+ * @param mode   the mode which will be stored in dense format
+ * @param ndims  the dimension of each mode the tensor will have
+ */
 int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]) {
     size_t i;
     int result;
@@ -28,6 +35,11 @@ int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode,
     return 0;
 }
 
+/**
+ * Copy a semi sparse tensor
+ * @param[out] dest a pointer to an uninitialized semi sparse tensor
+ * @param[in]  src  a pointer to a valid semi sparse tensor
+ */
 int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor *src) {
     size_t i;
     int result;
@@ -50,6 +62,10 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
     return 0;
 }
 
+/**
+ * Release any memory the semi sparse tensor is holding
+ * @param tsr the tensor to release
+ */
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr) {
     size_t i;
     for(i = 0; i < tsr->nmodes; ++i) {

@@ -151,9 +151,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>epsilon is a small positive value, every -epsilon &lt; x &lt; x would be considered as zero </p>
+<p>Convert a semi sparse tensor into a sparse tensor </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">dest</td><td>a pointer to an uninitialized sparse tensor </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">src</td><td>a pointer to a valid semi sparse tensor </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">epsilon</td><td>a small positive value, usually 1e-6, which is considered approximately equal to zero </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fromssp_8c_source.html#l00007">7</a> of file <a class="el" href="fromssp_8c_source.html">fromssp.c</a>.</p>
+<p>Definition at line <a class="el" href="fromssp_8c_source.html#l00013">13</a> of file <a class="el" href="fromssp_8c_source.html">fromssp.c</a>.</p>
 
 </div>
 </div>

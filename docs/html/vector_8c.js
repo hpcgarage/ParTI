@@ -4,6 +4,8 @@ var vector_8c =
     [ "sptAppendSizeVectorWithVector", "vector_8c.html#a37de66db7b2db54be84b4989683030ae", null ],
     [ "sptAppendVector", "vector_8c.html#ab043fa6070f338517c20c059f911d6ef", null ],
     [ "sptAppendVectorWithVector", "vector_8c.html#adda47654c91ec195e8a2cad73ee93338", null ],
+    [ "sptConstantSizeVector", "vector_8c.html#aaca520b7ca0e14090802bc1378f9dd05", null ],
+    [ "sptConstantVector", "vector_8c.html#a20634af5e854719281af4c3ad42661c6", null ],
     [ "sptCopySizeVector", "vector_8c.html#a26efd9fe07d2618dbd33e7ba13ebfa27", null ],
     [ "sptCopyVector", "vector_8c.html#a77c6345d3c06c5b3cc8fb58e3ac4bca3", null ],
     [ "sptFreeSizeVector", "vector_8c.html#a82a84ebd46c55b433f36a4d9add436da", null ],

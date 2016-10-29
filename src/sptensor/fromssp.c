@@ -4,6 +4,12 @@
 #include <string.h>
 #include <math.h>
 
+/**
+ * Convert a semi sparse tensor into a sparse tensor
+ * @param[out] dest    a pointer to an uninitialized sparse tensor
+ * @param[in]  src     a pointer to a valid semi sparse tensor
+ * @param      epsilon a small positive value, usually 1e-6, which is considered approximately equal to zero
+ */
 int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon) {
     size_t i;
     int result;

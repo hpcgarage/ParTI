@@ -86,4 +86,4 @@ Operating system `errno` and CUDA error code are also captured and converted.
 
 If you need to make sure a procedure produces no error, call `sptClearLastError` first, since succes procedures does not clear last error status automatically.
 
-Limitation: memory might not be released properly when an error happened. This might be fixed in future releases.
+Limitation: Memory might not be released properly when an error happened. The application will be in an inconsistent state. This might be fixed in future releases.
