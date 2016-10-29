@@ -1,13 +1,15 @@
 #include <SpTOL.h>
 #include "sptensor.h"
+#include <cuda_runtime.h>
+
 
 __device__ void lock(int* mutex) {
   /* compare mutex to 0.
      when it equals 0, set it to 1
      we will break out of the loop after mutex gets set to  */
-  while (atomicCAS(mutex, 0, 1) != 0) {
+     while (atomicCAS(mutex, 0, 1) != 0) {
     /* do nothing */
-  }
+    }
 }
 
 
@@ -32,12 +34,13 @@ __global__ static void spt_MTTKRPKernel(
 ) {
     const size_t tidx = threadIdx.x;
     const size_t x = blockIdx.x * blockDim.x + tidx;
+    // __shared__ int mutex = 0;
 
     size_t const nmats = nmodes - 1;
     size_t const I = Xndims[mode];
     size_t const * const mode_ind = Xinds[mode];
     /* The 64-bit floating-point version of atomicAdd() is only supported by devices of compute capability 6.x and higher. */
-    float * const mvals = (float*)dev_mats[nmodes];
+    sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
 
     /* nnz > I */
     // if(x < I) {
@@ -71,21 +74,13 @@ __global__ static void spt_MTTKRPKernel(
 
     if(x < nnz) {
       size_t const mode_i = mode_ind[x];
-      // int mutex;
       // lock(&mutex);
       for(size_t r=0; r<R; ++r) {
         // mvals[mode_i * stride + r] += dev_scratch[x * stride + r];
-        atomicAdd(&(mvals[mode_i * stride + r]), (float)dev_scratch[x * stride + r]);
+        atomicAdd(&(mvals[mode_i * stride + r]), dev_scratch[x * stride + r]);
       }
       // unlock(&mutex);
     }
-    // if(x == 0) {
-    //   printf("x: %d\n", x);
-    //   for(size_t r=0; r<R; ++r) {
-    //     printf("%.2lf\t", dev_scratch[x * stride + r]);
-    //   }
-    //   printf("\n");
-    // }
     __syncthreads();
 
 }

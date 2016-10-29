@@ -18,7 +18,8 @@ extern "C" {
  * Define sptScalar as 64-bit float
  * (or 32-bit float, if an old GPU is not good at 64-bit arithmetic
  */
-typedef double sptScalar;
+// typedef double sptScalar;
+typedef float sptScalar;
 
 /**
  * Dense dynamic array of scalars
@@ -188,6 +189,7 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
 int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
+int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptCudaSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 

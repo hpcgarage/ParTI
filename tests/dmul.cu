@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     sptSparseTensor X, Y, Z;
     int cuda_dev_id = -2;
     int niters = 5;
+    int nthreads;
 
     if(argc < 3) {
         printf("Usage: %s X Y [cuda_dev_id, niters, out]\n\n", argv[0]);
@@ -37,7 +38,14 @@ int main(int argc, char *argv[]) {
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         assert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
-    }  else if(cuda_dev_id >= 0) {
+    } else if(cuda_dev_id == -1) {
+        #pragma omp parallel 
+        {
+            nthreads = omp_get_num_threads();
+        }
+        printf("nthreads: %d\n", nthreads);
+        assert(sptOmpSparseTensorDotMulEq(&Z, &X, &Y) == 0);
+    } else if(cuda_dev_id >= 0) {
         sptCudaSetDevice(cuda_dev_id);
         assert(sptCudaSparseTensorDotMul(&Z, &X, &Y) == 0);
     }
@@ -45,7 +53,14 @@ int main(int argc, char *argv[]) {
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
             assert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
-        }  else if(cuda_dev_id >= 0) {
+        } else if(cuda_dev_id == -1) {
+            #pragma omp parallel 
+            {
+                nthreads = omp_get_num_threads();
+            }
+            printf("nthreads: %d\n", nthreads);
+            assert(sptOmpSparseTensorDotMulEq(&Z, &X, &Y) == 0);
+        } else if(cuda_dev_id >= 0) {
             sptCudaSetDevice(cuda_dev_id);
             assert(sptCudaSparseTensorDotMul(&Z, &X, &Y) == 0);
         }
