@@ -4,6 +4,8 @@ TODO:
   * Tensor and matrices locate on GPU memory
     * Sparse tensor distribution
   * Tensor and matrices CANNOT locate on GPU memory
+2. Finish Element-wise OMP and GPU
+
 
 
 Future TODO:
