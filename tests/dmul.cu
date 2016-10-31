@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
         assert(sptOmpSparseTensorDotMulEq(&Z, &X, &Y) == 0);
     } else if(cuda_dev_id >= 0) {
         sptCudaSetDevice(cuda_dev_id);
-        assert(sptCudaSparseTensorDotMul(&Z, &X, &Y) == 0);
+        assert(sptCudaSparseTensorDotMulEq(&Z, &X, &Y) == 0);
     }
 
     for(int it=0; it<niters; ++it) {
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
             assert(sptOmpSparseTensorDotMulEq(&Z, &X, &Y) == 0);
         } else if(cuda_dev_id >= 0) {
             sptCudaSetDevice(cuda_dev_id);
-            assert(sptCudaSparseTensorDotMul(&Z, &X, &Y) == 0);
+            assert(sptCudaSparseTensorDotMulEq(&Z, &X, &Y) == 0);
         }
     }
 
