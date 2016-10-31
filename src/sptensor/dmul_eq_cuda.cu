@@ -15,12 +15,13 @@ __global__ static void spt_DotMulKernel(size_t nnz, sptScalar *Z_val, sptScalar 
 
 
 /**
- * Element wise multiply two sparse tensors
+ * CUDA parallelized Element wise multiply two sparse tensors, with exactly the same nonzero
+ * distribution.
  * @param[out] Z the result of X*Y, should be uninitialized
  * @param[in]  X the input X
  * @param[in]  Y the input Y
  */
-int sptCudaSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
+int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
     size_t i;
     int result;
     /* Ensure X and Y are in same shape */

@@ -2,12 +2,13 @@
 #include "sptensor.h"
 
 /**
- * Element wise multiply two sparse tensors
+ * Openmp parallelized Element wise multiply two sparse tensors, with exactly the same nonzero
+ * distribution.
  * @param[out] Z the result of X*Y, should be uninitialized
  * @param[in]  X the input X
  * @param[in]  Y the input Y
  */
-int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
+int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
     size_t i, j;
     int result;
     /* Ensure X and Y are in same shape */
@@ -31,6 +32,7 @@ int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const 
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
+    #pragma omp parallel for
     for(i=0; i< nnz; ++i)
         Z->values.data[i] = X->values.data[i] * Y->values.data[i];
 

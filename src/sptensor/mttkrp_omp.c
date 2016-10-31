@@ -1,6 +1,20 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
+/**
+ * OpenMP parallelized Matriced sparse tensor times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
+ * @param[out] mats[nmodes]    the result of MTTKRP, a dense matrix, with size
+ * ndims[mode] * R 
+ * @param[in]  X    the sparse tensor input X
+ * @param[in]  mats    (N+1) dense matrices, with mats[nmodes] as temporary
+ * @param[in]  mats_order    the order of the Khatri-Rao products 
+ * @param[in]  mode   the mode on which the MTTKRP is performed 
+ * @param[in]  scratch an temporary array to store intermediate results, space assigned before this function
+ *
+ * This function uses support arbitrary-order sparse tensors with Khatri-Rao
+ * products of dense factor matrices, the output is the updated dense matrix for the "mode".
+ * In this version, a large scratch is used to maximize parallelism. (To be optimized)
+ */
 int sptOmpMTTKRP(sptSparseTensor const * const X,
 	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
   sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
