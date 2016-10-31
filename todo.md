@@ -6,6 +6,7 @@ TODO:
   * Tensor and matrices CANNOT locate on GPU memory
 2. Finish Element-wise OMP and GPU
 3. Documentation: Add main introduction
+4. Matlab: How to call CUDA code from Matlab code?
 
 
 
