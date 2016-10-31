@@ -6,7 +6,7 @@ TODO:
   * Tensor and matrices CANNOT locate on GPU memory
 2. Finish Element-wise OMP and GPU
 3. Documentation: Add main introduction
-4. Matlab: Haven't tested it.
+4. Matlab: Need to confirm first, then test it.
 
 
 
