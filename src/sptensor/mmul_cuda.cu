@@ -197,7 +197,7 @@ int sptCudaSparseTensorMulMatrix(
     if(env_SPTOL_TTM_NTHREADS) {
         sscanf(env_SPTOL_TTM_NTHREADS, "%zu", &nthreadsX);
     }
-    size_t sharedMem = nthreadsX * U->ncols * sizeof (sptScalar);
+    size_t sharedMem = nthreadsX * Y->stride * sizeof (sptScalar);
 
     size_t all_nblocks = Y->nnz % nthreadsX == 0 ? Y->nnz / nthreadsX : Y->nnz / nthreadsX + 1;
     assert(U->ncols < max_nthreads);

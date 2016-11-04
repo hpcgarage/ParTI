@@ -30,7 +30,7 @@ function Y = timesMatrix(X, U, mode)
         nthreadsX = 32;
     end
     sizeof_scalar = 8;
-    sharedMem = nthreadsX * ncols(U) * sizeof_scalar;
+    sharedMem = nthreadsX * Y.stride * sizeof_scalar;
 
     all_nblocks = ceil(Y.nnz / nthreadsX);
     env_SPTOL_TTM_KERNEL = getenv('SPTOL_TTM_KERNEL');
