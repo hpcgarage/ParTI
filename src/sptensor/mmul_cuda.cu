@@ -219,7 +219,6 @@ int sptCudaSparseTensorMulMatrix(
         if(nblocks > max_nblocks) {
             nblocks = max_nblocks;
         }
-        printf("nblocks: %zu\n", nblocks);
         if(!use_naive_kernel) {
             spt_TTMKernel<<<nblocks, dimBlock, sharedMem>>>(
                 Y_val, Y->stride, Y->nnz,
