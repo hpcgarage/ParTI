@@ -3,7 +3,7 @@ LDLIBS=../build/libSpTOL_s.a -lm
 NVCC=nvcc
 NVCCFLAGS=-gencode arch=compute_35,code=sm_35 -I../include -Xcompiler -fopenmp -g
 
-TARGETS=loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test ttm_omptest mttkrp dmul
+TARGETS=reset loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test ttm_omptest mttkrp dmul
 
 .PHONY: all clean
 
