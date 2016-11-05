@@ -47,11 +47,13 @@ int main(int argc, char const *argv[]) {
         assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
     if(cuda_dev_id >= 0) {
+        cudaDeviceReset();
         unsetenv("SPTOL_TTM_KERNEL");
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
             assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
         }
+        cudaDeviceReset();
         setenv("SPTOL_TTM_KERNEL", "naive", 1);
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
@@ -59,7 +61,9 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
+    if(argc >= 6) {
+        assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
+    }
 
     sptFreeSemiSparseTensor(&Y);
     sptFreeMatrix(&U);
@@ -70,9 +74,8 @@ int main(int argc, char const *argv[]) {
         assert(fY != NULL);
         assert(sptDumpSparseTensor(&spY, 1, fY) == 0);
         fclose(fY);
+        sptFreeSparseTensor(&spY);
     }
-
-    sptFreeSparseTensor(&spY);
 
     return 0;
 }
