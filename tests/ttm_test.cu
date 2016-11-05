@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[4], "%zu", &R);
     }
 
-    printf("Tensor: %s, TTM mode %zu\n", argv[1], mode);
+    fprintf(stderr, "Tensor: %s, TTM mode %zu\n", argv[1], mode);
 
     assert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
 
