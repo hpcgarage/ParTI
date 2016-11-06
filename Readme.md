@@ -1,4 +1,9 @@
-Supported sparse tensor operations:
+SpTOL
+-----
+
+Sparse Tensor Operation Library
+
+## Supported sparse tensor operations:
 
 * Scala-tensor mul/div
 * Element-wise tensor add/sub/mul/div
@@ -8,20 +13,24 @@ Supported sparse tensor operations:
 * Matricized tensor times Khatri-Rao product (MTTKRP)
 * Tensor matricization
 
-Build requirements:
+## Build requirements:
 
 - C Compiler (GCC or Clang)
 
-- CMake ( https://cmake.org )
+- [CUDA SDK](https://developer.nvidia.com/cuda-downloads)
+
+- [CMake](https://cmake.org)
 
 
-Build tests:
+## Build:
 
-1. Go to `tests`
+1. Type `cmake .`
 
 2. Type `make`
 
-Build docs:
+You may also create an empty directory, type `cmake <path to SpTOL>` there, followed by `make`, which will prevent polluting source tree.
+
+## Build docs:
 
 1. Install Doxygen
 
