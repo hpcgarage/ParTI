@@ -48,13 +48,13 @@ int main(int argc, char const *argv[]) {
     }
     if(cuda_dev_id >= 0) {
         cudaDeviceReset();
-        unsetenv("SPTOL_TTM_KERNEL");
+        setenv("SPTOL_TTM_KERNEL", "naive", 1);
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
             assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
         }
         cudaDeviceReset();
-        setenv("SPTOL_TTM_KERNEL", "naive", 1);
+        unsetenv("SPTOL_TTM_KERNEL");
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
             assert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
