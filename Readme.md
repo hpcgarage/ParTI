@@ -1,7 +1,10 @@
 SpTOL
 -----
 
-Sparse Tensor Operation Library
+Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tensor operations on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition). 
+
+## Publication
+* **Optimizing Sparse Tensor Times Matrix on multi-core and many-core architectures**. Jiajia Li, Yuchen Ma, Chenggang Yan, Richard Vuduc. The sixth Workshop on Irregular Applications: Architectures and Algorithms (IA^3), co-located with SC’16. 2016. [pdf](http://fruitfly1026.github.io/static/files/sc16-ia3.pdf)
 
 ## Supported sparse tensor operations:
 
@@ -9,9 +12,9 @@ Sparse Tensor Operation Library
 * Element-wise tensor add/sub/mul/div
 * Kronecker product
 * Khatri-Rao product
-* Sparse tensor-times-dense matrix (TTM)
-* Matricized tensor times Khatri-Rao product (MTTKRP)
-* Tensor matricization
+* Sparse tensor-times-dense matrix (SpTTM)
+* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP)
+* Sparse tensor matricization
 
 ## Build requirements:
 
