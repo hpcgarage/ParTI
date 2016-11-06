@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 
+# This file is part of SpTOL.
+#
+# SpTOL is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.
+#
+# SpTOL is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with SpTOL.
+# If not, see <http://www.gnu.org/licenses/>.
+
 import math
 import random
 import sys
@@ -82,7 +98,7 @@ def main(argv):
             new_percent = int(written * 100.0 / nnz)
             if new_percent < 100 and new_percent != percent:
                 percent = new_percent
-                print('%3d%% completed, %d generated, %s written.' % (percent, written, human_size(f.tell())))
+                print('%3d%% completed, %d generated, %s written.' % (percent, written, human_size(f.tell())), end='\r', flush=True)
 
         for i in range(ndims-1, 0, -1):
             if ptrs[i] == len(inds[i]):
@@ -93,7 +109,7 @@ def main(argv):
                     inds[i].sort()
                 ptrs[i] = 0
                 ptrs[i-1] += 1
-    
+
     print('100%% completed, %d generated, %s written.' % (written, human_size(f.tell())))
     f.close()
     print('Successfully written into %s.' % output)
