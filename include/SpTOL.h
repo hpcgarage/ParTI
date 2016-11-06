@@ -211,18 +211,16 @@ int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, con
 int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 
+/**
+ * Sparse tensor times a dense matrix (TTM)
+ * Input: sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
+ * Output: sparse tensor Y[I][J][R] (e.g. n=2)
+ */
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptCudaSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptCudaSparseTensorMulMatrixNew(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 
-/**
- * Semi-sparse tensor times a dense matrix (TTM)
- * Input: semi-sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
- * Output: sparse tensor Y[I][J][R] (e.g. n=2)
- */
-int sptSemiSparseTensorMulMatrix(sptSemiSparseTensor *Y, const sptSemiSparseTensor *X, const sptMatrix *U, size_t mode);
-int sptCudaSemiSparseTensorMulMatrix(sptSemiSparseTensor *Y, const sptSemiSparseTensor *X, const sptMatrix *U, size_t mode);
 /**
  * Kronecker product
  */
@@ -252,9 +250,7 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
     size_t const mode,
     sptVector * scratch);
 
-/**
- * OMP functions
- */
+/* OMP functions */
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
 int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
 

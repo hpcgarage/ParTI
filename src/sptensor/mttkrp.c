@@ -45,15 +45,6 @@ int sptMTTKRP(sptSparseTensor const * const X,
 	size_t const nmats = nmodes - 1;
 	size_t const stride = mats[0]->stride;
 
- //  for(size_t m=0; m<nmodes+1; ++m) {
-	// 	printf("mats %zu\n", m); fflush(stdout);
- //    sptDumpMatrix(mats[m], stdout);
- //  }
- // 	printf("mats_order:\n"); fflush(stdout);
-	// sptDumpSizeVector(mats_order, stdout);
-	// printf("scratch:\n"); fflush(stdout);
-	// sptDumpVector(scratch, stdout);
-
 	/* Check the mats. */
 	for(size_t i=0; i<nmodes; ++i) {
 		if(mats[i]->ncols != mats[nmodes]->ncols) {

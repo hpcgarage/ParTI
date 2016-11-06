@@ -81,10 +81,6 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
             ++i;
             ++j;
         }
-        // printf("Z->values:\n");
-        // for(size_t ti=0; ti<Z->values.len; ++ti)
-        //     printf("%lf ", Z->values.data[ti]);
-        // printf("\n");
     }
     /* Append remaining elements of X to Y */
     while(i < X->nnz) {
