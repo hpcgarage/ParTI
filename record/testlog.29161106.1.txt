@@ -1,0 +1,754 @@
+Number of CPU cores (including hyperthreads): 8
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                8
+On-line CPU(s) list:   0-7
+Thread(s) per core:    2
+Core(s) per socket:    4
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 60
+Model name:            Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz
+Stepping:              3
+CPU MHz:               3500.000
+CPU max MHz:           3500.0000
+CPU min MHz:           800.0000
+BogoMIPS:              7011.80
+Virtualization:        VT-x
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              256K
+L3 cache:              8192K
+NUMA node0 CPU(s):     0-7
+Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm arat pln pts
+/usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 2 CUDA Capable device(s)
+
+Device 0: "Tesla K40c"
+  CUDA Driver Version / Runtime Version          8.0 / 7.5
+  CUDA Capability Major/Minor version number:    3.5
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (15) Multiprocessors, (192) CUDA Cores/MP:     2880 CUDA Cores
+  GPU Max Clock rate:                            745 MHz (0.75 GHz)
+  Memory Clock rate:                             3004 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 2 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+Device 1: "GeForce GT 610"
+  CUDA Driver Version / Runtime Version          8.0 / 7.5
+  CUDA Capability Major/Minor version number:    2.1
+  Total amount of global memory:                 1021 MBytes (1070268416 bytes)
+  ( 1) Multiprocessors, ( 48) CUDA Cores/MP:     48 CUDA Cores
+  GPU Max Clock rate:                            1620 MHz (1.62 GHz)
+  Memory Clock rate:                             667 Mhz
+  Memory Bus Width:                              64-bit
+  L2 Cache Size:                                 65536 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65535), 3D=(2048, 2048, 2048)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 32768
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1536
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (65535, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     Yes
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+> Peer access from Tesla K40c (GPU0) -> GeForce GT 610 (GPU1) : No
+> Peer access from GeForce GT 610 (GPU1) -> Tesla K40c (GPU0) : No
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 8.0, CUDA Runtime Version = 7.5, NumDevs = 2, Device0 = Tesla K40c, Device1 = GeForce GT 610
+Result = PASS
+Sun Nov  6 01:43:21 EDT 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.tns, TTM mode 0
+[CPU  SpTns * Mtx] operation took 0.884575996 s
+[CPU  SpTns * Mtx] operation took 0.884657017 s
+[CPU  SpTns * Mtx] operation took 0.884667687 s
+[CPU  SpTns * Mtx] operation took 0.884651912 s
+[CPU  SpTns * Mtx] operation took 0.884695219 s
+[CPU  SpTns * Mtx] operation took 0.884663263 s
+[OMP  SpTns * Mtx] operation took 0.314514216 s
+[OMP  SpTns * Mtx] operation took 0.291328255 s
+[OMP  SpTns * Mtx] operation took 0.291092750 s
+[OMP  SpTns * Mtx] operation took 0.291145782 s
+[OMP  SpTns * Mtx] operation took 0.291083576 s
+[OMP  SpTns * Mtx] operation took 0.291122938 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.089053404 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.089018457 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.089104538 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.089061940 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.089066945 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.089100339 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.069360287 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.069318974 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.069358346 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.069368495 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.069395411 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.069290132 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.tns, TTM mode 1
+[CPU  SpTns * Mtx] operation took 0.887917601 s
+[CPU  SpTns * Mtx] operation took 0.887856095 s
+[CPU  SpTns * Mtx] operation took 0.887846217 s
+[CPU  SpTns * Mtx] operation took 0.888060483 s
+[CPU  SpTns * Mtx] operation took 0.887921029 s
+[CPU  SpTns * Mtx] operation took 0.887771529 s
+[OMP  SpTns * Mtx] operation took 0.313412431 s
+[OMP  SpTns * Mtx] operation took 0.294192393 s
+[OMP  SpTns * Mtx] operation took 0.294070461 s
+[OMP  SpTns * Mtx] operation took 0.293967647 s
+[OMP  SpTns * Mtx] operation took 0.294046015 s
+[OMP  SpTns * Mtx] operation took 0.294016932 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<17, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.170772791 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<17, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.171095074 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<17, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.170770857 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<17, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.171002510 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<17, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.170727181 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<17, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.171088581 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<17, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.146774063 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<17, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.146746117 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<17, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.146734238 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<17, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.146801270 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<17, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.146806197 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<17, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.147033422 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.tns, TTM mode 2
+[CPU  SpTns * Mtx] operation took 0.896287277 s
+[CPU  SpTns * Mtx] operation took 0.896251446 s
+[CPU  SpTns * Mtx] operation took 0.896265714 s
+[CPU  SpTns * Mtx] operation took 0.896375907 s
+[CPU  SpTns * Mtx] operation took 0.981909307 s
+[CPU  SpTns * Mtx] operation took 0.896139189 s
+[OMP  SpTns * Mtx] operation took 0.321698990 s
+[OMP  SpTns * Mtx] operation took 0.294182914 s
+[OMP  SpTns * Mtx] operation took 0.293982160 s
+[OMP  SpTns * Mtx] operation took 0.294090258 s
+[OMP  SpTns * Mtx] operation took 0.293971542 s
+[OMP  SpTns * Mtx] operation took 0.294012087 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42882, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.062263548 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42882, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.062262308 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42882, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.062256398 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42882, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.062264682 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42882, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.062253059 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<42882, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.062251595 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42882, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.048453583 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42882, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.048475101 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42882, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.048463482 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42882, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.048479899 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42882, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.048467388 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42882, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.048469972 s
+Sun Nov  6 01:44:58 EDT 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, TTM mode 0
+[CPU  SpTns * Mtx] operation took 0.120556172 s
+[CPU  SpTns * Mtx] operation took 0.120760611 s
+[CPU  SpTns * Mtx] operation took 0.120769902 s
+[CPU  SpTns * Mtx] operation took 0.120723667 s
+[CPU  SpTns * Mtx] operation took 0.120740687 s
+[CPU  SpTns * Mtx] operation took 0.120754159 s
+[OMP  SpTns * Mtx] operation took 0.057843740 s
+[OMP  SpTns * Mtx] operation took 0.039832447 s
+[OMP  SpTns * Mtx] operation took 0.039753965 s
+[OMP  SpTns * Mtx] operation took 0.039774341 s
+[OMP  SpTns * Mtx] operation took 0.039858375 s
+[OMP  SpTns * Mtx] operation took 0.039751437 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008824220 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008832971 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008832053 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008833506 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008839865 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<5805, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008833593 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007009458 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007003078 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007005849 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007007456 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007012398 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<5805, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.007014433 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, TTM mode 1
+[CPU  SpTns * Mtx] operation took 0.118795716 s
+[CPU  SpTns * Mtx] operation took 0.118767028 s
+[CPU  SpTns * Mtx] operation took 0.118748726 s
+[CPU  SpTns * Mtx] operation took 0.118757157 s
+[CPU  SpTns * Mtx] operation took 0.118755764 s
+[CPU  SpTns * Mtx] operation took 0.118776628 s
+[OMP  SpTns * Mtx] operation took 0.062590014 s
+[OMP  SpTns * Mtx] operation took 0.047070512 s
+[OMP  SpTns * Mtx] operation took 0.047055484 s
+[OMP  SpTns * Mtx] operation took 0.047052327 s
+[OMP  SpTns * Mtx] operation took 0.047056488 s
+[OMP  SpTns * Mtx] operation took 0.047179430 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.094475427 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.094429657 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.094348858 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.094372824 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.094396000 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<4, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.094334758 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.078299290 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.078292888 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.078314651 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.078302157 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.078290749 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<4, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.078290703 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/brainq.fixed.tns, TTM mode 2
+[CPU  SpTns * Mtx] operation took 0.122454501 s
+[CPU  SpTns * Mtx] operation took 0.121614042 s
+[CPU  SpTns * Mtx] operation took 0.121013022 s
+[CPU  SpTns * Mtx] operation took 0.120995838 s
+[CPU  SpTns * Mtx] operation took 0.120928099 s
+[CPU  SpTns * Mtx] operation took 0.121003126 s
+[OMP  SpTns * Mtx] operation took 0.051583757 s
+[OMP  SpTns * Mtx] operation took 0.043659143 s
+[OMP  SpTns * Mtx] operation took 0.047420875 s
+[OMP  SpTns * Mtx] operation took 0.044670899 s
+[OMP  SpTns * Mtx] operation took 0.044686030 s
+[OMP  SpTns * Mtx] operation took 0.044702518 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008265387 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008268074 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008271089 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008267612 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008267181 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<7342, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.008267737 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006696479 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006682806 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006694511 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006695115 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006696174 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<7342, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.006695404 s
+Sun Nov  6 01:45:21 EDT 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, TTM mode 0
+[CPU  SpTns * Mtx] operation took 6.704335262 s
+[CPU  SpTns * Mtx] operation took 6.704024051 s
+[CPU  SpTns * Mtx] operation took 6.703864128 s
+[CPU  SpTns * Mtx] operation took 6.704635069 s
+[CPU  SpTns * Mtx] operation took 6.703613941 s
+[CPU  SpTns * Mtx] operation took 6.703770792 s
+[OMP  SpTns * Mtx] operation took 2.411550471 s
+[OMP  SpTns * Mtx] operation took 2.209829175 s
+[OMP  SpTns * Mtx] operation took 2.207866322 s
+[OMP  SpTns * Mtx] operation took 2.206502524 s
+[OMP  SpTns * Mtx] operation took 2.207153954 s
+[OMP  SpTns * Mtx] operation took 2.199577698 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.782599781 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.782582978 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.782555582 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.782499222 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.782425334 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<517571, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.782430416 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.741802377 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.742406023 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.741914592 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.742362459 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.742479147 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<517571, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.742344962 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, TTM mode 1
+[CPU  SpTns * Mtx] operation took 6.575262842 s
+[CPU  SpTns * Mtx] operation took 6.608598255 s
+[CPU  SpTns * Mtx] operation took 6.575861688 s
+[CPU  SpTns * Mtx] operation took 6.730614685 s
+[CPU  SpTns * Mtx] operation took 6.575437102 s
+[CPU  SpTns * Mtx] operation took 6.575961433 s
+[OMP  SpTns * Mtx] operation took 2.147341280 s
+[OMP  SpTns * Mtx] operation took 2.160572968 s
+[OMP  SpTns * Mtx] operation took 2.161328070 s
+[OMP  SpTns * Mtx] operation took 2.157251458 s
+[OMP  SpTns * Mtx] operation took 2.160496469 s
+[OMP  SpTns * Mtx] operation took 2.160513896 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.738699498 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.738949230 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.738900860 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.738788696 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.738898275 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<671358, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.738607219 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.712275380 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.712534545 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.712836144 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.712870985 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.712848402 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<671358, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.712611081 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell2.tns, TTM mode 2
+[CPU  SpTns * Mtx] operation took 7.067949116 s
+[CPU  SpTns * Mtx] operation took 7.068106498 s
+[CPU  SpTns * Mtx] operation took 7.068357645 s
+[CPU  SpTns * Mtx] operation took 7.067764981 s
+[CPU  SpTns * Mtx] operation took 7.067792635 s
+[CPU  SpTns * Mtx] operation took 7.068056517 s
+[OMP  SpTns * Mtx] operation took 2.207843615 s
+[OMP  SpTns * Mtx] operation took 2.203479995 s
+[OMP  SpTns * Mtx] operation took 2.203834419 s
+[OMP  SpTns * Mtx] operation took 2.203672597 s
+[OMP  SpTns * Mtx] operation took 2.166679880 s
+[OMP  SpTns * Mtx] operation took 2.203684354 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.846639394 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.847391282 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.847828080 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.847363945 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.847624376 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<10543, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.847705829 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.720935432 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.721336511 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.721918667 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.721289460 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.721518816 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.721604703 s
+Sun Nov  6 01:55:29 EDT 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, TTM mode 0
+[CPU  SpTns * Mtx] operation took 15.509424193 s
+[CPU  SpTns * Mtx] operation took 15.494621273 s
+[CPU  SpTns * Mtx] operation took 15.494687564 s
+[CPU  SpTns * Mtx] operation took 15.573783978 s
+[CPU  SpTns * Mtx] operation took 15.495968321 s
+[CPU  SpTns * Mtx] operation took 15.494897335 s
+[OMP  SpTns * Mtx] operation took 4.388420157 s
+[OMP  SpTns * Mtx] operation took 4.354201160 s
+[OMP  SpTns * Mtx] operation took 4.353401838 s
+[OMP  SpTns * Mtx] operation took 4.346920404 s
+[OMP  SpTns * Mtx] operation took 4.357281531 s
+[OMP  SpTns * Mtx] operation took 4.351934466 s
+[CUDA SpTns * Mtx] error 0x00020002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:186, out of memory
+ttm_test: ttm_test.cu:54: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, TTM mode 1
+[CPU  SpTns * Mtx] operation took 16.712833841 s
+[CPU  SpTns * Mtx] operation took 17.774929520 s
+[CPU  SpTns * Mtx] operation took 16.712355909 s
+[CPU  SpTns * Mtx] operation took 16.720559618 s
+[CPU  SpTns * Mtx] operation took 16.181621101 s
+[CPU  SpTns * Mtx] operation took 18.305978468 s
+[OMP  SpTns * Mtx] operation took 4.438486678 s
+[OMP  SpTns * Mtx] operation took 4.401947950 s
+[OMP  SpTns * Mtx] operation took 4.399686594 s
+[OMP  SpTns * Mtx] operation took 4.399682749 s
+[OMP  SpTns * Mtx] operation took 4.401326125 s
+[OMP  SpTns * Mtx] operation took 4.404292720 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.486445143 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.484336683 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.486235091 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.485650423 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.485380608 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1169595, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.485438948 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.442988092 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.445334117 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.445285279 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.443213170 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.443458426 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1169595, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.444744382 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/delicious.tns, TTM mode 2
+[CPU  SpTns * Mtx] operation took 13.568692249 s
+[CPU  SpTns * Mtx] operation took 13.629847471 s
+[CPU  SpTns * Mtx] operation took 13.546337714 s
+[CPU  SpTns * Mtx] operation took 13.546023978 s
+[CPU  SpTns * Mtx] operation took 13.564867190 s
+[CPU  SpTns * Mtx] operation took 13.544219458 s
+[OMP  SpTns * Mtx] operation took 4.074708840 s
+[OMP  SpTns * Mtx] operation took 4.052743951 s
+[OMP  SpTns * Mtx] operation took 4.050916706 s
+[OMP  SpTns * Mtx] operation took 4.051844750 s
+[OMP  SpTns * Mtx] operation took 4.051389069 s
+[OMP  SpTns * Mtx] operation took 4.048776853 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.033947862 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.033465007 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.033834858 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.033512214 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.033310485 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<1476796, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.033379872 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.983302795 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.983431071 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.983411427 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.983727877 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.983372595 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.983034441 s
+Sun Nov  6 01:15:27 EST 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 0
+[CPU  SpTns * Mtx] operation took 14.664807409 s
+[CPU  SpTns * Mtx] operation took 14.630275098 s
+[CPU  SpTns * Mtx] operation took 14.628540848 s
+[CPU  SpTns * Mtx] operation took 14.630174278 s
+[CPU  SpTns * Mtx] operation took 14.627948713 s
+[CPU  SpTns * Mtx] operation took 14.631926981 s
+[OMP  SpTns * Mtx] operation took 4.515772387 s
+[OMP  SpTns * Mtx] operation took 4.488963729 s
+[OMP  SpTns * Mtx] operation took 4.485877777 s
+[OMP  SpTns * Mtx] operation took 4.479604434 s
+[OMP  SpTns * Mtx] operation took 4.485837903 s
+[OMP  SpTns * Mtx] operation took 4.486278520 s
+[CUDA SpTns * Mtx] error 0x00020002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:169, out of memory
+ttm_test: ttm_test.cu:54: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 1
+[CPU  SpTns * Mtx] operation took 14.045902792 s
+[CPU  SpTns * Mtx] operation took 14.009378096 s
+[CPU  SpTns * Mtx] operation took 14.008815410 s
+[CPU  SpTns * Mtx] operation took 14.013702610 s
+[CPU  SpTns * Mtx] operation took 14.003080594 s
+[CPU  SpTns * Mtx] operation took 14.031501760 s
+[OMP  SpTns * Mtx] operation took 4.399525987 s
+[OMP  SpTns * Mtx] operation took 4.365141569 s
+[OMP  SpTns * Mtx] operation took 4.365697445 s
+[OMP  SpTns * Mtx] operation took 4.365147300 s
+[OMP  SpTns * Mtx] operation took 4.369995431 s
+[OMP  SpTns * Mtx] operation took 4.365299779 s
+[CUDA SpTns * Mtx] error 0x00020002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:169, out of memory
+ttm_test: ttm_test.cu:54: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/nell1.tns, TTM mode 2
+[CPU  SpTns * Mtx] operation took 22.071951269 s
+[CPU  SpTns * Mtx] operation took 22.000866139 s
+[CPU  SpTns * Mtx] operation took 22.021409061 s
+[CPU  SpTns * Mtx] operation took 22.006591573 s
+[CPU  SpTns * Mtx] operation took 22.001816644 s
+[CPU  SpTns * Mtx] operation took 22.003511080 s
+[OMP  SpTns * Mtx] operation took 5.409393773 s
+[OMP  SpTns * Mtx] operation took 5.407170248 s
+[OMP  SpTns * Mtx] operation took 5.407228107 s
+[OMP  SpTns * Mtx] operation took 5.405466898 s
+[OMP  SpTns * Mtx] operation took 5.404532614 s
+[OMP  SpTns * Mtx] operation took 5.404198658 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.774004707 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.775902486 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.774307660 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.774847705 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.774327277 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<542889, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 1.775311661 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.688687621 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.689083178 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.690489061 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.687509604 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.691614734 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 1.689570273 s
+Sun Nov  6 01:38:14 EST 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat, TTM mode 0
+[CPU  SpTns * Mtx] operation took 9.559038155 s
+[CPU  SpTns * Mtx] operation took 9.529322747 s
+[CPU  SpTns * Mtx] operation took 9.529300965 s
+[CPU  SpTns * Mtx] operation took 9.617685956 s
+[CPU  SpTns * Mtx] operation took 9.613812298 s
+[CPU  SpTns * Mtx] operation took 9.536144596 s
+[OMP  SpTns * Mtx] operation took 2.843383522 s
+[OMP  SpTns * Mtx] operation took 2.839125305 s
+[OMP  SpTns * Mtx] operation took 2.839816702 s
+[OMP  SpTns * Mtx] operation took 2.839605170 s
+[OMP  SpTns * Mtx] operation took 2.839834121 s
+[OMP  SpTns * Mtx] operation took 2.838928195 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977055, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820535650 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977055, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820629776 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977055, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820445253 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977055, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820401478 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977055, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820183505 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977055, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820091256 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977055, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775664968 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977055, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775612045 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977055, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775757861 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977055, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775505248 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977055, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775453144 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977055, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775330114 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat, TTM mode 1
+[CPU  SpTns * Mtx] operation took 9.684580631 s
+[CPU  SpTns * Mtx] operation took 9.544765777 s
+[CPU  SpTns * Mtx] operation took 9.544610876 s
+[CPU  SpTns * Mtx] operation took 9.683994829 s
+[CPU  SpTns * Mtx] operation took 9.543911263 s
+[CPU  SpTns * Mtx] operation took 9.544119482 s
+[OMP  SpTns * Mtx] operation took 2.842399058 s
+[OMP  SpTns * Mtx] operation took 2.831536465 s
+[OMP  SpTns * Mtx] operation took 2.831490978 s
+[OMP  SpTns * Mtx] operation took 2.831457956 s
+[OMP  SpTns * Mtx] operation took 2.830156235 s
+[OMP  SpTns * Mtx] operation took 2.828264898 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977251, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820456856 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977251, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820572419 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977251, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820519940 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977251, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820435419 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977251, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820371909 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<977251, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820341884 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977251, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775820683 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977251, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775805668 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977251, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775923030 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977251, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775893103 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977251, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775627932 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<977251, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775692169 s
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/3D_99883309.dat, TTM mode 2
+[CPU  SpTns * Mtx] operation took 9.557375397 s
+[CPU  SpTns * Mtx] operation took 9.556904206 s
+[CPU  SpTns * Mtx] operation took 9.557146959 s
+[CPU  SpTns * Mtx] operation took 9.556963829 s
+[CPU  SpTns * Mtx] operation took 9.556783449 s
+[CPU  SpTns * Mtx] operation took 9.557156770 s
+[OMP  SpTns * Mtx] operation took 2.850542725 s
+[OMP  SpTns * Mtx] operation took 2.825575899 s
+[OMP  SpTns * Mtx] operation took 2.830473393 s
+[OMP  SpTns * Mtx] operation took 2.830631144 s
+[OMP  SpTns * Mtx] operation took 2.830216161 s
+[OMP  SpTns * Mtx] operation took 2.830158274 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<976374, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820827162 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<976374, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820913074 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<976374, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820644655 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<976374, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820594459 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<976374, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820632690 s
+[CUDA SpTns * Mtx] spt_TTMNaiveKernel<<<976374, (32, 16), 0>>>
+[CUDA SpTns * Mtx] operation took 0.820593050 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<976374, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.776167797 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<976374, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775992186 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<976374, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.776142346 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<976374, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.776032307 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<976374, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775942274 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<976374, (32, 16), 4096>>>
+[CUDA SpTns * Mtx] operation took 0.775727687 s
+Sun Nov  6 01:54:38 EST 2016
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, TTM mode 0
+[CPU  SpTns * Mtx] operation took 14.245727649 s
+[CPU  SpTns * Mtx] operation took 14.239270480 s
+[CPU  SpTns * Mtx] operation took 14.239732193 s
+[CPU  SpTns * Mtx] operation took 14.465258565 s
+[CPU  SpTns * Mtx] operation took 14.505184641 s
+[CPU  SpTns * Mtx] operation took 14.232706615 s
+[OMP  SpTns * Mtx] operation took 3.904654024 s
+[OMP  SpTns * Mtx] operation took 3.867002218 s
+[OMP  SpTns * Mtx] operation took 3.871648243 s
+[OMP  SpTns * Mtx] operation took 3.873058956 s
+[OMP  SpTns * Mtx] operation took 3.870078052 s
+[OMP  SpTns * Mtx] operation took 3.869640471 s
+[CUDA SpTns * Mtx] error 0x00020002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:169, out of memory
+ttm_test: ttm_test.cu:54: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, TTM mode 1
+[CPU  SpTns * Mtx] operation took 13.807079482 s
+[CPU  SpTns * Mtx] operation took 13.815606616 s
+[CPU  SpTns * Mtx] operation took 13.804794084 s
+[CPU  SpTns * Mtx] operation took 13.808653889 s
+[CPU  SpTns * Mtx] operation took 13.813081914 s
+[CPU  SpTns * Mtx] operation took 13.806593200 s
+[OMP  SpTns * Mtx] operation took 3.875094132 s
+[OMP  SpTns * Mtx] operation took 3.852855967 s
+[OMP  SpTns * Mtx] operation took 3.848691547 s
+[OMP  SpTns * Mtx] operation took 3.856761394 s
+[OMP  SpTns * Mtx] operation took 3.856443855 s
+[OMP  SpTns * Mtx] operation took 3.849555582 s
+[CUDA SpTns * Mtx] error 0x00020002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:169, out of memory
+ttm_test: ttm_test.cu:54: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
+Tensor: /mnt/BIGDATA/jli/BIGTENSORS/3D_124996124.dat, TTM mode 2
+[CPU  SpTns * Mtx] operation took 13.908359588 s
+[CPU  SpTns * Mtx] operation took 13.911127557 s
+[CPU  SpTns * Mtx] operation took 13.928772528 s
+[CPU  SpTns * Mtx] operation took 13.867697375 s
+[CPU  SpTns * Mtx] operation took 13.861166217 s
+[CPU  SpTns * Mtx] operation took 13.860370557 s
+[OMP  SpTns * Mtx] operation took 3.910808427 s
+[OMP  SpTns * Mtx] operation took 3.829331446 s
+[OMP  SpTns * Mtx] operation took 3.826293026 s
+[OMP  SpTns * Mtx] operation took 3.826539335 s
+[OMP  SpTns * Mtx] operation took 3.817938961 s
+[OMP  SpTns * Mtx] operation took 3.820255460 s
+[CUDA SpTns * Mtx] error 0x00020002 at /home/jli/Work/SpTOL/src/sptensor/mmul_cuda.cu:169, out of memory
+ttm_test: ttm_test.cu:54: int main(int, const char**): Assertion `sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0' failed.
