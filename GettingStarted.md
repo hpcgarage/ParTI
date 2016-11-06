@@ -13,25 +13,25 @@ Link your code with
 -fopenmp -lSpTOL -lm
 ```
 
-I hope this intro document can help you get used to the basics of SpTOL.
+This intro document can help you get used to the basics of SpTOL.
 
 
 Data types
 ----------
 
-`sptScalar`: the default real value data type. It is defined as `double` type. For some devices without 64-bit float point support, you might want to define `sptScalar` as `float`.
+`sptScalar`: the default real value data type. It is defined as `float` or `double` type. For some devices without 64-bit float point support or data is out-of-memory in `double` type, you might need to define `sptScalar` as `float`.
 
-`sptVector`: dense dynamic array of scalars. It is implemented as a one-dimensional array. It uses preallocation to reduce the overhead of the append operation.
+`sptVector`: dense dynamic array of `sptScalar` type scalars. It is implemented as a one-dimensional array. It uses preallocation to reduce the overhead of the append operation.
 
-`sptSizeVector`: the same thing, but with `size_t`. C does not have templates, that is why they are implemented twice.
+`sptSizeVector`: dense dynamic array of `size_t` type scalars. This is implemented twice to avoid templates for CUDA code.
 
-`sptMatrix`: dense matrix type. It is implemented as a two-dimensional array. Column count is rounded up to multiples of 8, to optimize for CPU and GPU cache.
+`sptMatrix`: dense matrix type. It is implemented as a two-dimensional array. Column count is aligned as multiples of 8.
 
-`sptSparseMatrix`: sparse matrix type. It uses COO storage format, which stores the coordinate and the value of each non-zero element.
+`sptSparseMatrix`: sparse matrix type in coordinate (COO) storage format. It stores the coordinates and the value of every non-zero entry.
 
-`sptSparseTensor`: sparse tensor type. It works similar to `sptSparseMatrix`, but the modes (number of dimensions) can be arbitary.
+`sptSparseTensor`: sparse tensor type in coordinate (COO) storage format. It works similar to `sptSparseMatrix`, but supports tensors with arbitary modes (number of dimensions).
 
-`sptSemiSparseTensor`: semi sparse tensor type. Can be considered as "sparse tensor of dense fiber".
+`sptSemiSparseTensor`: semi-sparse tensor type in sCOO storage format (details explained in [our SC16-IA3 paper](http://fruitfly1026.github.io/static/files/sc16-ia3.pdf). It can be considered as "a sparse tensor with dense fibers".
 
 
 Creating objects
