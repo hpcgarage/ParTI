@@ -1,0 +1,14 @@
+Script started on Sun 09 Oct 2016 11:20:35 AM EDT
+jli@zoka:~/Work$ SpTOL/
+build/   .git/    matlab/  src/     tests/   
+extra/   include/ record/  tensors/ tools/   
+jli@zoka:~/Work$ SpTOL/tests/
+add                 kronecker           ttm_new
+bench_SpTOL.sh      loadstore           ttm_omptest
+bench_suppl.sh      sttm                ttm_test
+convert             test_tensortoolbox/ 
+khatri-rao          ttm                 
+jli@zoka:~/Work$ SpTOL/tests/ttm_omptest ^C
+jli@zoka:~/Work$ exit
+
+Script done on Sun 09 Oct 2016 11:21:16 AM EDT
