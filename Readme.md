@@ -3,8 +3,6 @@ SpTOL
 
 Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tensor operations on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition). 
 
-## Publication
-* **Optimizing Sparse Tensor Times Matrix on multi-core and many-core architectures**. Jiajia Li, Yuchen Ma, Chenggang Yan, Richard Vuduc. The sixth Workshop on Irregular Applications: Architectures and Algorithms (IA^3), co-located with SC’16. 2016. [pdf](http://fruitfly1026.github.io/static/files/sc16-ia3.pdf)
 
 ## Supported sparse tensor operations:
 
@@ -40,4 +38,10 @@ You may also create an empty directory, type `cmake <path to SpTOL>` there, foll
 2. Go to `docs`
 
 3. Type `make`
+
+
+
+<br/>The algorithms and details are described in the following publications.
+## Publication
+* **Optimizing Sparse Tensor Times Matrix on multi-core and many-core architectures**. Jiajia Li, Yuchen Ma, Chenggang Yan, Richard Vuduc. The sixth Workshop on Irregular Applications: Architectures and Algorithms (IA^3), co-located with SC’16. 2016. [[pdf]](http://fruitfly1026.github.io/static/files/sc16-ia3.pdf)
 
