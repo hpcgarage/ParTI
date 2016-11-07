@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.12"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>SpTOL: /home/brilliant/work/SpTOL/src/sptensor/dump.c File Reference</title>
+<title>SpTOL: /home/brilliant/work/SpTOL/src/sptensor/dmul_eq_cuda.cu File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -61,7 +61,7 @@ $(function() {
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('dump_8c.html','');});
+$(document).ready(function(){initNavTree('dmul__eq__cuda_8cu.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -82,44 +82,43 @@ $(document).ready(function(){initNavTree('dump_8c.html','');});
   <div class="summary">
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
-<div class="title">dump.c File Reference</div>  </div>
+<div class="title">dmul_eq_cuda.cu File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="_sp_t_o_l_8h_source.html">SpTOL.h</a>&gt;</code><br />
-<code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="sptensor_8h_source.html">sptensor.h</a>&quot;</code><br />
 </div>
-<p><a href="dump_8c_source.html">Go to the source code of this file.</a></p>
+<p><a href="dmul__eq__cuda_8cu_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1c9ab2add2f8b16e0671ca3729d4b87c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dump_8c.html#a1c9ab2add2f8b16e0671ca3729d4b87c">sptDumpSparseTensor</a> (const <a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *tsr, size_t start_index, FILE *fp)</td></tr>
-<tr class="separator:a1c9ab2add2f8b16e0671ca3729d4b87c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59d6739c7be9b03110de20f2f60e5c22"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dmul__eq__cuda_8cu.html#a59d6739c7be9b03110de20f2f60e5c22">sptCudaSparseTensorDotMulEq</a> (<a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *Z, const <a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *X, const <a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *Y)</td></tr>
+<tr class="separator:a59d6739c7be9b03110de20f2f60e5c22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a1c9ab2add2f8b16e0671ca3729d4b87c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c9ab2add2f8b16e0671ca3729d4b87c">&sect;&nbsp;</a></span>sptDumpSparseTensor()</h2>
+<a id="a59d6739c7be9b03110de20f2f60e5c22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59d6739c7be9b03110de20f2f60e5c22">&sect;&nbsp;</a></span>sptCudaSparseTensorDotMulEq()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int sptDumpSparseTensor </td>
+          <td class="memname">int sptCudaSparseTensorDotMulEq </td>
           <td>(</td>
+          <td class="paramtype"><a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *&#160;</td>
+          <td class="paramname"><em>Z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">const <a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *&#160;</td>
-          <td class="paramname"><em>tsr</em>, </td>
+          <td class="paramname"><em>X</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>start_index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">FILE *&#160;</td>
-          <td class="paramname"><em>fp</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structspt_sparse_tensor.html">sptSparseTensor</a> *&#160;</td>
+          <td class="paramname"><em>Y</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -128,8 +127,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>CUDA parallelized Element wise multiply two sparse tensors, with exactly the same nonzero distribution. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">Z</td><td>the result of X*Y, should be uninitialized </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">X</td><td>the input X </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">Y</td><td>the input Y </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="dump_8c_source.html#l00005">5</a> of file <a class="el" href="dump_8c_source.html">dump.c</a>.</p>
+<p>Definition at line <a class="el" href="dmul__eq__cuda_8cu_source.html#l00042">42</a> of file <a class="el" href="dmul__eq__cuda_8cu_source.html">dmul_eq_cuda.cu</a>.</p>
 
 </div>
 </div>
@@ -138,7 +145,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_c2f982dd032c2466da5f1dc5a9f1a436.html">sptensor</a></li><li class="navelem"><a class="el" href="dump_8c.html">dump.c</a></li>
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_c2f982dd032c2466da5f1dc5a9f1a436.html">sptensor</a></li><li class="navelem"><a class="el" href="dmul__eq__cuda_8cu.html">dmul_eq_cuda.cu</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.12 </li>
