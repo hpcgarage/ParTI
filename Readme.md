@@ -25,11 +25,11 @@ Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tens
 
 ## Build:
 
-1. Type `cmake .`
+1. Type `./build.sh`
 
-2. Type `make`
+2. Check `build` for resulting library
 
-You may also create an empty directory, type `cmake <path to SpTOL>` there, followed by `make`, which will prevent polluting source tree.
+3. Check `build/examples` for example programs
 
 ## Build docs:
 
