@@ -12,3 +12,4 @@ cuda_add_library(SpTOL SHARED ${SPTOL_SRC})
 cuda_add_library(SpTOL_s STATIC ${SPTOL_SRC})
 
 add_subdirectory("examples")
+add_subdirectory("tests")
