@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include "error/error.h"
 
 struct sptTagTimer {
     int use_cuda;
@@ -36,47 +37,37 @@ int sptNewTimer(sptTimer *timer, int use_cuda) {
     if(use_cuda) {
         int result;
         result = cudaEventCreate(&(*timer)->start_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
         result = cudaEventCreate(&(*timer)->stop_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
     }
     return 0;
 }
 
 int sptStartTimer(sptTimer timer) {
+    int result;
     if(timer->use_cuda) {
-        int result;
         result = cudaEventRecord(timer->start_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
         result = cudaEventSynchronize(timer->start_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
     } else {
-        return clock_gettime(CLOCK_MONOTONIC, &timer->start_timespec);
+        result = clock_gettime(CLOCK_MONOTONIC, &timer->start_timespec);
+        spt_CheckOSError(result, "Timer New");
     }
     return 0;
 }
 
 int sptStopTimer(sptTimer timer) {
+    int result;
     if(timer->use_cuda) {
-        int result;
         result = cudaEventRecord(timer->stop_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
         result = cudaEventSynchronize(timer->stop_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
     } else {
-        return clock_gettime(CLOCK_MONOTONIC, &timer->stop_timespec);
+        result = clock_gettime(CLOCK_MONOTONIC, &timer->stop_timespec);
+        spt_CheckOSError(result, "Timer New");
     }
     return 0;
 }
@@ -104,13 +95,9 @@ int sptFreeTimer(sptTimer timer) {
     if(timer->use_cuda) {
         int result;
         result = cudaEventDestroy(timer->start_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
         result = cudaEventDestroy(timer->stop_event);
-        if(result) {
-            return result;
-        }
+        spt_CheckCudaError(result, "Timer New");
     }
     free(timer);
     return 0;
