@@ -46,8 +46,6 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
     j = 0;
     while(i < X->nnz && j < Y->nnz) {
         int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
-        printf("i: %zu, j: %zu, compare: %d\n", i,j,compare);
-
         if(compare > 0) {    // X(i) > Y(j)
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
