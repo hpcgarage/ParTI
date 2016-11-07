@@ -16,7 +16,24 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-int main() {
-    cudaDeviceReset();
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    int i;
+    if(argc == 1) {
+        cudaDeviceReset();
+        printf("CUDA device reset.\n");
+    } else {
+        for(i = 1; i < argc; ++i) {
+            int dev_id;
+            if(sscanf(argv[i], "%d", &dev_id) == 1) {
+                cudaSetDevice(i);
+                cudaDeviceReset();
+                printf("CUDA device #%d reset.\n", dev_id);
+            } else {
+                fprintf(stderr, "Invalid CUDA device ID: %s\n", argv[i]);
+            }
+        }
+    }
     return 0;
 }
