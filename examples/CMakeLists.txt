@@ -5,5 +5,6 @@ file(GLOB_RECURSE EXAMPLE_SRCS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.c" "*.c
 foreach(EXAMPLE_SRC IN LISTS EXAMPLE_SRCS)
   get_filename_component(EXAMPLE_EXE "${EXAMPLE_SRC}" NAME_WE)
   cuda_add_executable("${EXAMPLE_EXE}" "${EXAMPLE_SRC}")
+  set_target_properties("${EXAMPLE_EXE}" PROPERTIES C_STANDARD 99)
   target_link_libraries("${EXAMPLE_EXE}" SpTOL_s)
 endforeach(EXAMPLE_SRC)

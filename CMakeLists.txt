@@ -11,5 +11,8 @@ include_directories("include")
 cuda_add_library(SpTOL SHARED ${SPTOL_SRC})
 cuda_add_library(SpTOL_s STATIC ${SPTOL_SRC})
 
+set_target_properties(SpTOL PROPERTIES C_STANDARD 99)
+set_target_properties(SpTOL_s PROPERTIES C_STANDARD 99)
+
 add_subdirectory("examples")
 add_subdirectory("tests")
