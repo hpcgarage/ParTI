@@ -45,3 +45,8 @@ Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tens
 ## Publication
 * **Optimizing Sparse Tensor Times Matrix on multi-core and many-core architectures**. Jiajia Li, Yuchen Ma, Chenggang Yan, Richard Vuduc. The sixth Workshop on Irregular Applications: Architectures and Algorithms (IA^3), co-located with SC’16. 2016. [[pdf]](http://fruitfly1026.github.io/static/files/sc16-ia3.pdf)
 
+
+## Contributiors
+
+* Yuchen Ma
+* Jiajia Li (Contact: jiajiali@gatech.edu)
