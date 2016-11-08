@@ -214,7 +214,6 @@ int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sp
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptCudaSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
-int sptCudaSparseTensorMulMatrixNew(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 
 /**
  * Semi-sparse tensor times a dense matrix (TTM)
