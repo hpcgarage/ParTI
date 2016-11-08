@@ -18,6 +18,7 @@
 
 #include <SpTOL.h>
 #include "sptensor.h"
+#include <assert.h>
 
 static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t mode);
 static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode);

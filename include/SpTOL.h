@@ -21,11 +21,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
-#include <assert.h>
-#include <omp.h>
 
 
 #ifdef __cplusplus
@@ -33,10 +29,10 @@ extern "C" {
 #endif
 
 /**
- * Define sptScalar as 64-bit float
- * (or 32-bit float, if an old GPU is not good at 64-bit arithmetic
+ * Define sptScalar as 32-bit float
+ *
+ * You can adjust this type to suit the application
  */
-// typedef double sptScalar;
 typedef float sptScalar;
 
 /**
