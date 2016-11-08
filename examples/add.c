@@ -21,11 +21,11 @@
 #include <SpTOL.h>
 
 int main(int argc, char *argv[]) {
-    FILE *fa, *fb, *fo;
-    sptSparseTensor a, b, c;
+    FILE *fA, *fB, *fY;
+    sptSparseTensor A, B, Y;
 
     if(argc != 4 && argc != 5) {
-        printf("Usage: %s a b out [num_iters]\n\n", argv[0]);
+        printf("Usage: %s A B Y [num_iters]\n\n", argv[0]);
         exit(1);
     }
 
@@ -38,27 +38,27 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    fa = fopen(argv[1], "r");
-    if(!fa) {
+    fA = fopen(argv[1], "r");
+    if(!fA) {
         fprintf(stderr, "Error: failed to open file \"%s\"\n", argv[1]);
         exit(1);
     }
-    if(sptLoadSparseTensor(&a, 1, fa)) {
+    if(sptLoadSparseTensor(&A, 1, fA)) {
         fprintf(stderr, "Error: failed to load tensor A\n");
         exit(1);
     }
-    fclose(fa);
+    fclose(fA);
 
-    fb = fopen(argv[2], "r");
-    if(!fb) {
+    fB = fopen(argv[2], "r");
+    if(!fB) {
         fprintf(stderr, "Error: failed to open file \"%s\"\n", argv[2]);
         exit(1);
     }
-    if(sptLoadSparseTensor(&b, 1, fb)) {
+    if(sptLoadSparseTensor(&B, 1, fB)) {
         fprintf(stderr, "Error: failed to load tensor B\n");
         exit(1);
     }
-    fclose(fb);
+    fclose(fB);
 
     sptTimer timer;
     if(sptNewTimer(&timer, 0)) {
@@ -70,8 +70,11 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    for(int i = 0; i<niters; ++i) {
-        if(sptSparseTensorAdd(&c, &a, &b)) {
+    for(int i = 0; i < niters; ++i) {
+        if(i != 0) {
+            sptFreeSparseTensor(&Y);
+        }
+        if(sptSparseTensorAdd(&Y, &A, &B)) {
             fprintf(stderr, "Error: failed to calculate A+B\n");
             exit(1);
         }
@@ -83,16 +86,16 @@ int main(int argc, char *argv[]) {
     }
     sptPrintElapsedTime(timer, "Add");
 
-    fo = fopen(argv[3], "w");
-    if(!fo) {
+    fY = fopen(argv[3], "w");
+    if(!fY) {
         fprintf(stderr, "Error: failed to open file \"%s\"\n", argv[3]);
         exit(1);
     }
-    if(sptDumpSparseTensor(&c, 1, fo)) {
-        fprintf(stderr, "Error: failed to dump tensor\n");
+    if(sptDumpSparseTensor(&Y, 1, fY)) {
+        fprintf(stderr, "Error: failed to dump tensor Y\n");
         exit(1);
     }
-    fclose(fo);
+    fclose(fY);
 
     return 0;
 }
