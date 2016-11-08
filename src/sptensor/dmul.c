@@ -24,6 +24,9 @@
  * @param[out] Z the result of X*Y, should be uninitialized
  * @param[in]  X the input X
  * @param[in]  Y the input Y
+ *
+ * The name "DotMul" comes from the MATLAB operator ".*". This function is not
+ * for "inner product" or "outer product".
  */
 int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
     size_t i, j;
