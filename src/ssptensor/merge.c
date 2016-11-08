@@ -18,6 +18,7 @@
 
 #include <SpTOL.h>
 #include "ssptensor.h"
+#include <assert.h>
 #include <string.h>
 
 static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]);
