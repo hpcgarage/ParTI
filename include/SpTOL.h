@@ -231,25 +231,6 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  */
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
-/**
- * Matricized tensor times Khatri-Rao product.
- */
-int sptMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch);
-int sptOmpMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch);
-int sptCudaMTTKRP(sptSparseTensor const * const X,
-    sptMatrix ** const mats,    // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order, // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch);
-
 /* OMP functions */
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
 int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
