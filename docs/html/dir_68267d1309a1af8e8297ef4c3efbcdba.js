@@ -6,5 +6,6 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "sptensor", "dir_c2f982dd032c2466da5f1dc5a9f1a436.html", "dir_c2f982dd032c2466da5f1dc5a9f1a436" ],
     [ "ssptensor", "dir_3043c345aee330f6f6f18568b3cbd54e.html", "dir_3043c345aee330f6f6f18568b3cbd54e" ],
     [ "vector", "dir_0baa9f3d984dd29d1429171590d769d6.html", "dir_0baa9f3d984dd29d1429171590d769d6" ],
-    [ "cudawrap.cu", "cudawrap_8cu.html", "cudawrap_8cu" ]
+    [ "cudawrap.cu", "cudawrap_8cu.html", "cudawrap_8cu" ],
+    [ "timer.cu", "timer_8cu.html", "timer_8cu" ]
 ];

@@ -8,8 +8,5 @@ var searchData=
   ['mmul_5fomp_2ec',['mmul_omp.c',['../mmul__omp_8c.html',1,'']]],
   ['mode',['mode',['../structspt_semi_sparse_tensor.html#aaa8f7e0de170b12cb228098b5b178912',1,'sptSemiSparseTensor']]],
   ['module',['module',['../error_8c.html#a885ecdfcb963f1d1a7ba3144e9b6c8f8',1,'error.c']]],
-  ['msort_2ec',['msort.c',['../msort_8c.html',1,'']]],
-  ['mttkrp_2ec',['mttkrp.c',['../mttkrp_8c.html',1,'']]],
-  ['mttkrp_5fcuda_2ecu',['mttkrp_cuda.cu',['../mttkrp__cuda_8cu.html',1,'']]],
-  ['mttkrp_5fomp_2ec',['mttkrp_omp.c',['../mttkrp__omp_8c.html',1,'']]]
+  ['msort_2ec',['msort.c',['../msort_8c.html',1,'']]]
 ];
