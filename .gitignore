@@ -1,0 +1,6 @@
+*.ptx
+*.swp
+.DS_Store
+.tags*
+build
+sftp-config.json
