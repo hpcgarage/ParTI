@@ -24,6 +24,8 @@
  * @param[out] Z the result of X/Y, should be uninitialized
  * @param[in]  X the input X
  * @param[in]  Y the input Y
+ *
+ * The name "DotDiv" comes from the MATLAB operator "./".
  */
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
     size_t i, j;
