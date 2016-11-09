@@ -48,5 +48,5 @@ Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tens
 
 ## Contributiors
 
-* Yuchen Ma
+* Yuchen Ma (Contact: m13253@hotmail.com)
 * Jiajia Li (Contact: jiajiali@gatech.edu)
