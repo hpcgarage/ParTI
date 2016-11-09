@@ -43,4 +43,4 @@ Using `const`
 Licensing and copyright
 -----------------------
 
-Contribution to SpTOL must license the code under (LICENSE NAME HERE). Put a copyright notice alongside with your name at the top of each file you modify.
+Contribution to SpTOL must license the code under LGPL version 3. Put a copyright notice alongside with your name at the top of each file you modify.
