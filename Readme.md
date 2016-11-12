@@ -1,7 +1,7 @@
-SpTOL 
+SpTOL
 -----
 
-Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tensor operations on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition). 
+Sparse Tensor Operation Library (SpTOL) is to support fast essential sparse tensor operations on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition).
 
 
 ## Supported sparse tensor operations:

@@ -70,7 +70,7 @@ Validation
 
 For the sake of simplicity, properties are not designed. You can directly modify any field of any struct.
 
-Every function assumes the input is valid, and gurantees the output is valid. This reduces the the need to check the input for most of the time, and improves the performance as a math library. 
+Every function assumes the input is valid, and gurantees the output is valid. This reduces the the need to check the input for most of the time, and improves the performance as a math library.
 
 But if you modify the data structure directly, you must keep it valid. Some functions expect ordered input, you should sort them with functions like `sptSparseTensorSortIndex` after your modification, or the functions may not work correctly. These functions usually also produces ordered output.
 
