@@ -140,6 +140,8 @@ int sptResizeVector(sptVector *vec, size_t size) {
         vec->len = size;
         vec->cap = size;
         vec->data = newdata;
+    } else {
+        vec->len = size;
     }
     return 0;
 }
@@ -278,6 +280,8 @@ int sptResizeSizeVector(sptSizeVector *vec, size_t size) {
         vec->len = size;
         vec->cap = size;
         vec->data = newdata;
+    } else {
+        vec->len = size;
     }
     return 0;
 }
