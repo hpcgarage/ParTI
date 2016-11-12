@@ -85,9 +85,9 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
 }
 
 
-int spt_DistSparseTensor(sptSparseTensor * tsr, 
+int spt_DistSparseTensor(sptSparseTensor * tsr,
     int const nthreads,
-    size_t * const dist_nnzs, 
+    size_t * const dist_nnzs,
     size_t * dist_nrows) {
 
     size_t global_nnz = tsr->nnz;
@@ -123,9 +123,9 @@ int spt_DistSparseTensor(sptSparseTensor * tsr,
 }
 
 
-int spt_DistSparseTensorFixed(sptSparseTensor * tsr, 
+int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     int const nthreads,
-    size_t * const dist_nnzs, 
+    size_t * const dist_nnzs,
     size_t * dist_nrows) {
 
     size_t global_nnz = tsr->nnz;

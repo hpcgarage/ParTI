@@ -28,7 +28,7 @@
  * Dum a dense matrix to file
  *
  * @param mtx   a valid pointer to a sptMatrix variable
- * @param fp a file pointer 
+ * @param fp a file pointer
  *
  */
 int sptDumpMatrix(sptMatrix *mtx, FILE *fp) {

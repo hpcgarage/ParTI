@@ -79,7 +79,7 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
  * Fill an existed dense matrix with a specified constant
  *
  * @param mtx   a pointer to a valid matrix
- * @param val   a given value constant 
+ * @param val   a given value constant
  *
  */
 int sptConstantMatrix(sptMatrix *mtx, sptScalar const val) {

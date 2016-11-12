@@ -23,7 +23,7 @@
 int main(int argc, char *argv[]) {
     FILE *fa, *fb, *fo;
     sptSparseTensor a, b, out;
-    
+
     if(argc != 4) {
         printf("Usage: %s a b out\n\n", argv[0]);
         return 1;

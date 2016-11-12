@@ -52,9 +52,9 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
                 Y[f(i1,j1), ..., f(i(N-1), j(N-1)] = a[i1, ..., i(N-1)] * b[j1, ..., j(N-1)]
                 where f(in, jn) = jn + in * Jn
             */
-            /* jli: (TODO). Append when acculumating a certain number (e.g. 10) of elements. 
-                Don't do realloc only increasing length by one. 
-                ! More important: The resulting Kronecker-product size is fixed, nnzA * nnzB. 
+            /* jli: (TODO). Append when acculumating a certain number (e.g. 10) of elements.
+                Don't do realloc only increasing length by one.
+                ! More important: The resulting Kronecker-product size is fixed, nnzA * nnzB.
                 Don't need realloc.
 
                sb: sptAppendSizeVector already do acculumating

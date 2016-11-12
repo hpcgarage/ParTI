@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     if(cuda_dev_id == -2) {
         assert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
     } else if(cuda_dev_id == -1) {
-        #pragma omp parallel 
+        #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
         }
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
         if(cuda_dev_id == -2) {
             assert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
         } else if(cuda_dev_id == -1) {
-            #pragma omp parallel 
+            #pragma omp parallel
             {
                 nthreads = omp_get_num_threads();
             }

@@ -66,7 +66,7 @@ __global__ static void spt_MTTKRPKernel(
     //     mvals[x * stride + r] = 0;
     // }
 
-    
+
     if(x < nnz) {
       size_t times_mat_index = dev_mats_order[0];
       sptScalar * times_mat = dev_mats[times_mat_index];
@@ -109,11 +109,11 @@ __global__ static void spt_MTTKRPKernel(
 /**
  * CUDA parallelized Matriced sparse tensor times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
  * @param[out] mats[nmodes]    the result of MTTKRP, a dense matrix, with size
- * ndims[mode] * R 
+ * ndims[mode] * R
  * @param[in]  X    the sparse tensor input X
  * @param[in]  mats    (N+1) dense matrices, with mats[nmodes] as temporary
- * @param[in]  mats_order    the order of the Khatri-Rao products 
- * @param[in]  mode   the mode on which the MTTKRP is performed 
+ * @param[in]  mats_order    the order of the Khatri-Rao products
+ * @param[in]  mode   the mode on which the MTTKRP is performed
  * @param[in]  scratch an temporary array to store intermediate results, space assigned before this function
  *
  * This function uses support arbitrary-order sparse tensors with Khatri-Rao

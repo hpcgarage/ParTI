@@ -19,7 +19,7 @@
 #include <SpTOL.h>
 #include "sptensor.h"
 
-__global__ static void spt_DotMulKernel(size_t nnz, sptScalar *Z_val, sptScalar *X_val, sptScalar *Y_val) 
+__global__ static void spt_DotMulKernel(size_t nnz, sptScalar *Z_val, sptScalar *X_val, sptScalar *Y_val)
 {
     const size_t tidx = threadIdx.x;
     const size_t i = blockIdx.x * blockDim.x + tidx;

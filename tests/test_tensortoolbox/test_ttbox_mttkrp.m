@@ -47,7 +47,7 @@ spA = sptensor(subs, vals, sz);
 
 U = cell(nmodes);
 for i = 1:nmodes
-  U{i} = rand(sz(i), R); 
+  U{i} = rand(sz(i), R);
 end
 
 

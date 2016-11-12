@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
         assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
         sptFreeVector(&scratch);
     } else if(cuda_dev_id == -1) {
-        #pragma omp parallel 
+        #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
         }
@@ -102,7 +102,7 @@ int main(int argc, char const *argv[]) {
        assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
     }
     // sptDumpMatrix(U[nmodes], stdout);
-    
+
 
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
@@ -112,7 +112,7 @@ int main(int argc, char const *argv[]) {
             assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
             sptFreeVector(&scratch);
         } else if(cuda_dev_id == -1) {
-            #pragma omp parallel 
+            #pragma omp parallel
             {
                 nthreads = omp_get_num_threads();
             }

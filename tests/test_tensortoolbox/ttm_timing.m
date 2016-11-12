@@ -24,7 +24,7 @@ function Y = ttm_timing(X,V,varargin)
 %   dimension (or mode) of X along which A should be multiplied.  If
 %   size(A) = [J,I], then X must have size(X,N) = I.  The result will
 %   will be a (dense) tensor or sptensor of the same order and size as X
-%   except that size(Y,N) = J. 
+%   except that size(Y,N) = J.
 %
 %   Y = TTM(X,{A,B,C,...}) computes the n-mode product of the sptensor
 %   X with a sequence of matrices in the cell array.  The n-mode
@@ -88,7 +88,7 @@ elseif numel(varargin) == 2
 end
 
 %% Handle cell array
-if iscell(V)   
+if iscell(V)
     % Copy n into dims
     dims = n;
     % Check that the dimensions are valid
@@ -139,7 +139,7 @@ rdims = Xnt.rdims;
 cdims = Xnt.cdims;
 
 % Convert to sparse matrix and do the multiplication; result is generally a
-% dense matrix 
+% dense matrix
 Z = double(Xnt) * V';
 
 if nnz(Z) <= 0.5 * prod(siz)

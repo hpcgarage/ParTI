@@ -25,7 +25,7 @@
  * Initialize a new value vector
  *
  * @param vec a valid pointer to an uninitialized sptVector variable,
- * @param len number of values to create 
+ * @param len number of values to create
  * @param cap total number of values to reserve
  *
  * Vector is a type of one-dimentional array with dynamic length
@@ -49,7 +49,7 @@ int sptNewVector(sptVector *vec, size_t len, size_t cap) {
  * Fill an existed dense value vector with a specified constant
  *
  * @param vec   a valid pointer to an existed sptVector variable,
- * @param val   a given value constant 
+ * @param val   a given value constant
  *
  * Vector is a type of one-dimentional array with dynamic length
  */
@@ -163,7 +163,7 @@ void sptFreeVector(sptVector *vec) {
  * Initialize a new size vector
  *
  * @param vec a valid pointer to an uninitialized sptSizeVector variable,
- * @param len number of values to create 
+ * @param len number of values to create
  * @param cap total number of values to reserve
  *
  * Vector is a type of one-dimentional array with dynamic length
@@ -188,7 +188,7 @@ int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {
  * Fill an existed dense size vector with a specified constant
  *
  * @param vec   a valid pointer to an existed sptSizeVector variable,
- * @param num   a given value constant 
+ * @param num   a given value constant
  *
  * Vector is a type of one-dimentional array with dynamic length
  */

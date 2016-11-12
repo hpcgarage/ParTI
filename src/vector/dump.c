@@ -26,7 +26,7 @@
  * Dum a dense value vector to file
  *
  * @param vec a pointer to a valid value vector
- * @param fp a file pointer 
+ * @param fp a file pointer
  *
  */
 int sptDumpVector(sptVector *vec, FILE *fp) {
@@ -48,7 +48,7 @@ int sptDumpVector(sptVector *vec, FILE *fp) {
  * Dum a dense size vector to file
  *
  * @param vec a pointer to a valid size vector
- * @param fp a file pointer 
+ * @param fp a file pointer
  *
  */
 int sptDumpSizeVector(sptSizeVector *vec, FILE *fp) {
