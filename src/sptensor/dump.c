@@ -45,7 +45,7 @@ int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp
             iores = fprintf(fp, "%zu\t", tsr->inds[mode].data[i]+start_index);
             spt_CheckOSError(iores < 0, "SpTns Dump");
         }
-        iores = fprintf(fp, "%lf\n", (double) tsr->values.data[i]);
+        iores = fprintf(fp, "%lg\n", (double) tsr->values.data[i]);
         spt_CheckOSError(iores < 0, "SpTns Dump");
     }
     return 0;
