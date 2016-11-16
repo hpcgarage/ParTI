@@ -7,7 +7,7 @@ echo "This script will do an out-of-tree build of SpTOL into the 'build' directo
 mkdir -p build
 cd build
 
-cmake ..
+cmake .. "$@"
 # Use this if you have GCC >= 6.0 and CUDA <= 8.0
 #cmake .. -DCMAKE_C_COMPILER=gcc-5
 
