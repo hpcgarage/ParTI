@@ -43,7 +43,7 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 #elif _POSIX_C_SOURCE >= 200112L
     {
         int ok = posix_memalign((void **) &mtx->values, 8 * sizeof (sptScalar), mtx->cap * mtx->stride * sizeof (sptScalar));
-        if(!ok) {
+        if(ok != 0) {
             mtx->values = NULL;
         }
     }
