@@ -42,8 +42,8 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     mtx->values = aligned_alloc(8 * sizeof (sptScalar), mtx->cap * mtx->stride * sizeof (sptScalar));
 #elif _POSIX_C_SOURCE >= 200112L
     {
-        int ok = posix_memalign((void **) &mtx->values, 8 * sizeof (sptScalar), mtx->cap * mtx->stride * sizeof (sptScalar));
-        if(ok != 0) {
+        int result = posix_memalign((void **) &mtx->values, 8 * sizeof (sptScalar), mtx->cap * mtx->stride * sizeof (sptScalar));
+        if(result != 0) {
             mtx->values = NULL;
         }
     }
@@ -124,8 +124,8 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]) {
         newdata = aligned_alloc(8 * sizeof (sptScalar), newcap * mtx->stride * sizeof (sptScalar));
 #elif _POSIX_C_SOURCE >= 200112L
         {
-            int ok = posix_memalign((void **) &newdata, 8 * sizeof (sptScalar), newcap * mtx->stride * sizeof (sptScalar));
-            if(!ok) {
+            int result = posix_memalign((void **) &newdata, 8 * sizeof (sptScalar), newcap * mtx->stride * sizeof (sptScalar));
+            if(result != 0) {
                 newdata = NULL;
             }
         }
@@ -157,8 +157,8 @@ int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {
     newdata = aligned_alloc(8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
 #elif _POSIX_C_SOURCE >= 200112L
     {
-        int ok = posix_memalign((void **) &newdata, 8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
-        if(!ok) {
+        int result = posix_memalign((void **) &newdata, 8 * sizeof (sptScalar), newsize * mtx->stride * sizeof (sptScalar));
+        if(result != 0) {
             newdata = NULL;
         }
     }
