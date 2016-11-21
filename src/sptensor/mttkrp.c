@@ -33,81 +33,81 @@
  * products of dense factor matrices, the output is the updated dense matrix for the "mode".
  */
 int sptMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch) {
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch) {
 
-	size_t const nmodes = X->nmodes;
-	size_t const nnz = X->nnz;
-	size_t const * const ndims = X->ndims;
-	sptScalar const * const vals = X->values.data;
-	size_t const nmats = nmodes - 1;
-	size_t const stride = mats[0]->stride;
+    size_t const nmodes = X->nmodes;
+    size_t const nnz = X->nnz;
+    size_t const * const ndims = X->ndims;
+    sptScalar const * const vals = X->values.data;
+    size_t const nmats = nmodes - 1;
+    size_t const stride = mats[0]->stride;
 
-	sptResizeVector(scratch, X->nnz * stride);
+    sptResizeVector(scratch, X->nnz * stride);
 
- //  for(size_t m=0; m<nmodes+1; ++m) {
-	// 	printf("mats %zu\n", m); fflush(stdout);
- //    sptDumpMatrix(mats[m], stdout);
- //  }
- // 	printf("mats_order:\n"); fflush(stdout);
-	// sptDumpSizeVector(mats_order, stdout);
-	// printf("scratch:\n"); fflush(stdout);
-	// sptDumpVector(scratch, stdout);
+    //  for(size_t m=0; m<nmodes+1; ++m) {
+    //      printf("mats %zu\n", m); fflush(stdout);
+    //      sptDumpMatrix(mats[m], stdout);
+    //  }
+    //  printf("mats_order:\n"); fflush(stdout);
+    //  sptDumpSizeVector(mats_order, stdout);
+    //  printf("scratch:\n"); fflush(stdout);
+    //  sptDumpVector(scratch, stdout);
 
-	/* Check the mats. */
-	for(size_t i=0; i<nmodes; ++i) {
-		if(mats[i]->ncols != mats[nmodes]->ncols) {
-			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
-                }
-		if(mats[i]->nrows != ndims[i]) {
-			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
-		}
-	}
+    /* Check the mats. */
+    for(size_t i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
 
-	size_t const I = mats[mode]->nrows;
-	size_t const R = mats[mode]->ncols;
-	size_t const * const mode_ind = X->inds[mode].data;
-	sptMatrix * const M = mats[nmodes];
-	sptScalar * const mvals = M->values;
-	memset(mvals, 0, I*stride*sizeof(sptScalar));
+    size_t const I = mats[mode]->nrows;
+    size_t const R = mats[mode]->ncols;
+    size_t const * const mode_ind = X->inds[mode].data;
+    sptMatrix * const M = mats[nmodes];
+    sptScalar * const mvals = M->values;
+    memset(mvals, 0, I*stride*sizeof(sptScalar));
 
-  sptTimer timer;
-  sptNewTimer(&timer, 0);
-  sptStartTimer(timer);
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
 
-	for(size_t x=0; x<nnz; ++x) {
+    for(size_t x=0; x<nnz; ++x) {
 
-		size_t times_mat_index = mats_order->data[0];
-		sptMatrix * times_mat = mats[times_mat_index];
-		size_t * times_inds = X->inds[times_mat_index].data;
-		size_t tmp_i = times_inds[x];
-		for(size_t r=0; r<R; ++r) {
-			scratch->data[r] = times_mat->values[tmp_i * stride + r];
-		}
+        size_t times_mat_index = mats_order->data[0];
+        sptMatrix * times_mat = mats[times_mat_index];
+        size_t * times_inds = X->inds[times_mat_index].data;
+        size_t tmp_i = times_inds[x];
+        for(size_t r=0; r<R; ++r) {
+            scratch->data[r] = times_mat->values[tmp_i * stride + r];
+        }
 
-		for(size_t i=1; i<nmats; ++i) {
-			times_mat_index = mats_order->data[i];
-			times_mat = mats[times_mat_index];
-			times_inds = X->inds[times_mat_index].data;
-			tmp_i = times_inds[x];
+        for(size_t i=1; i<nmats; ++i) {
+            times_mat_index = mats_order->data[i];
+            times_mat = mats[times_mat_index];
+            times_inds = X->inds[times_mat_index].data;
+            tmp_i = times_inds[x];
 
-			for(size_t r=0; r<R; ++r) {
-				scratch->data[r] *= times_mat->values[tmp_i * stride + r];
-			}
-		}
+            for(size_t r=0; r<R; ++r) {
+                scratch->data[r] *= times_mat->values[tmp_i * stride + r];
+            }
+        }
 
-		sptScalar const entry = vals[x];
-		size_t const mode_i = mode_ind[x];
-		for(size_t r=0; r<R; ++r) {
-			mvals[mode_i * stride + r] += entry * scratch->data[r];
-		}
-	}
+        sptScalar const entry = vals[x];
+        size_t const mode_i = mode_ind[x];
+        for(size_t r=0; r<R; ++r) {
+            mvals[mode_i * stride + r] += entry * scratch->data[r];
+        }
+    }
 
-  sptStopTimer(timer);
-  sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
-  sptFreeTimer(timer);
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
+    sptFreeTimer(timer);
 
-	return 0;
+    return 0;
 }

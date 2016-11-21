@@ -25,14 +25,14 @@ __device__ void lock(int* mutex) {
   /* compare mutex to 0.
      when it equals 0, set it to 1
      we will break out of the loop after mutex gets set to  */
-     while (atomicCAS(mutex, 0, 1) != 0) {
+    while (atomicCAS(mutex, 0, 1) != 0) {
     /* do nothing */
     }
 }
 
 
 __device__ void unlock(int* mutex) {
-  atomicExch(mutex, 0);
+    atomicExch(mutex, 0);
 }
 
 
@@ -122,31 +122,31 @@ __global__ static void spt_MTTKRPKernel(
  * scratch is used to maximize parallelism. (To be optimized)
  */
 int sptCudaMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-	sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-	sptVector * scratch) {
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch) {
 
-	size_t const nmodes = X->nmodes;
-	size_t const nnz = X->nnz;
-	size_t const * const ndims = X->ndims;
-  size_t const R = mats[mode]->ncols;
-  size_t const stride = mats[mode]->stride;
-  size_t const nmats = nmodes - 1;
-  int result;
+    size_t const nmodes = X->nmodes;
+    size_t const nnz = X->nnz;
+    size_t const * const ndims = X->ndims;
+    size_t const R = mats[mode]->ncols;
+    size_t const stride = mats[mode]->stride;
+    size_t const nmats = nmodes - 1;
+    int result;
 
-	/* Check the mats. */
-	for(size_t i=0; i<nmodes; ++i) {
-		if(mats[i]->ncols != mats[nmodes]->ncols) {
-			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
-                }
-		if(mats[i]->nrows != ndims[i]) {
-			spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
-		}
-	}
+    /* Check the mats. */
+    for(size_t i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
 
 
-	/* Transfer tensor and matrices */
+    /* Transfer tensor and matrices */
   size_t * Xndims = NULL;
   result = cudaMalloc((void **) &Xndims, nmodes * sizeof (size_t));
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
