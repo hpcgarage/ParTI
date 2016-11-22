@@ -40,6 +40,8 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     size_t * const dist_nnzs,
     size_t * dist_nrows);
     
+int spt_SplitSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]);
+
 #ifdef __cplusplus
 }
 #endif
