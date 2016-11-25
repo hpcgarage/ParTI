@@ -140,3 +140,11 @@ int spt_SplitSparseTensor(sptSparseTensor *dest, struct spt_SplitStatus *status)
     // Mode should be 0 now, which means unable to find the next chunk
     spt_CheckError(SPTERR_NO_MORE, "SpTns Star Split", "no more splits");
 }
+
+void spt_FinishSplitSparseTensor(struct spt_SplitStatus *status) {
+    status->tsr = NULL;
+    sptFreeSizeVector(&status->cuts_by_mode);
+    sptFreeSizeVector(&status->partial_low);
+    sptFreeSizeVector(&status->partial_high);
+    sptFreeSizeVector(&status->index_step);
+}
