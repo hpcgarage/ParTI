@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <assert.h>
 #include <math.h>
 
 
@@ -105,6 +106,17 @@ typedef struct {
     sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
 } sptSemiSparseTensor;
 
+
+typedef struct {
+  size_t nmodes;
+  size_t rank;
+  sptScalar * lambda;
+  double fit;
+  size_t * dims;
+  sptMatrix ** factors;
+} sptKruskalTensor;
+
+
 /**
  * An opaque data type to store a specific time point, using either CPU or GPU clock.
  */
@@ -135,6 +147,10 @@ int sptStopTimer(sptTimer timer);
 double sptElapsedTime(const sptTimer timer);
 double sptPrintElapsedTime(const sptTimer timer, const char *name);
 int sptFreeTimer(sptTimer timer);
+
+/* Base functions */
+size_t sptMaxSizeArray(size_t const * const indices, size_t const size);
+
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -196,6 +212,12 @@ int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
  */
 int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fiberidx, sptSparseTensor *ref);
 
+
+/* Kruskal tensor */
+int sptNewKruskalTensor(sptKruskalTensor *ktsr, size_t nmodes, const size_t ndims[]);
+void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
+void sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp);
+
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
@@ -247,6 +269,18 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
     sptSizeVector const * const mats_order, // Correspond to the mode order of X.
     size_t const mode,
     sptVector * scratch);
+
+
+/**
+ * CP-ALS
+ */
+int sptCpdAls(
+  sptSparseTensor const * const spten,
+  size_t const rank,
+  size_t const niters,
+  double const tol,
+  sptKruskalTensor * ktensor);
+
 
 /**
  * OMP functions
