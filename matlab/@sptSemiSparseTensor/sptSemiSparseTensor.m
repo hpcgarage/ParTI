@@ -18,7 +18,6 @@
 
 classdef sptSemiSparseTensor
     properties
-        _ptrlo = 0;
-        _ptrhi = 0;
+        ptr = uint64(0);
     end
 end
