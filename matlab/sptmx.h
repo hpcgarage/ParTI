@@ -113,3 +113,14 @@ static int funcname(const mxArray *pm, size_t idx, T value) {               \
     return 0;                                                               \
 }
 
+static inline void *spt_mxGetPointer(const mxArray *pa) {
+    mxArray *pm = mxGetProperty(pa, 0, "ptr");
+    if(mxGetClassID(pm) != mxUINT64_CLASS || mxGetNumberOfElements(pm) < 1) {
+        return NULL;
+    }
+    size_t *pptr = mxGetData(pm);
+    void *ptr = (void *) pptr[0];
+    mxDestroyArray(pm);
+
+    return ptr;
+}

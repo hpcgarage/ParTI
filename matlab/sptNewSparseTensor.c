@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "matrix.h"
 #include "mex.h"
-#include "sptCast.h"
+#include "sptmx.h"
 
 spt_DefineSetScalar(spt_mxSetSize, size_t)
 spt_DefineCastArray(spt_mxArrayToSize, size_t)
