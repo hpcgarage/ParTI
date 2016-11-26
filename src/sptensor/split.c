@@ -31,8 +31,12 @@ struct spt_SplitStatus {
 int spt_StartSplitSparseTensor(struct spt_SplitStatus *status, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
     int result = 0;
 
-    if(status->tsr->nnz == 0) {
-        spt_CheckError(SPTERR_NO_MORE, "SpTns Star Split", "no splits");
+    if(tsr->nnz == 0) {
+        spt_CheckError(SPTERR_NO_MORE, "SpTns Start Split", "no splits");
+    }
+
+    if(tsr->sortkey != tsr->nmodes-1) {
+        spt_CheckError(SPTERR_VALUE_ERROR, "SpTns Start Split", "sortkey != nmodes-1");
     }
 
     status->tsr = tsr;
@@ -103,8 +107,21 @@ int spt_SplitSparseTensor(sptSparseTensor *dest, struct spt_SplitStatus *status)
     }
 
     // Now we have gone through the initial cutting for all modes
-    // status->partial_low through status->partial_high should be the next cut
-    // TODO: Do the cut
+    size_t cut_low = status->partial_low.data[status->tsr->nmodes-1];
+    size_t cut_high = status->partial_low.data[status->tsr->nmodes-1];
+
+    // Copy values[cut_low] through values[cut_high] into the new tensor
+    result = sptNewSparseTensor(dest, status->tsr->nmodes, status->tsr->ndims);
+    spt_CheckError(result, "SpTns Split", NULL);
+    for(mode = 0; mode < status->tsr->nmodes; ++mode) {
+        result = sptResizeSizeVector(&dest->inds[mode], cut_high-cut_low);
+        spt_CheckError(result, "SpTns Split", NULL);
+        memcpy(dest->inds[mode].data, &status->tsr->inds[mode].data[cut_low], (cut_high - cut_low) * sizeof (size_t));
+    }
+    result = sptResizeVector(&dest->values, cut_high-cut_low);
+    spt_CheckError(result, "SpTns Split", NULL);
+    memcpy(dest->values.data, &status->tsr->values.data[cut_low], (cut_high - cut_low) * sizeof (sptScalar));
+    dest->nnz = cut_high - cut_low;
 
     // Find the next chunk and return current function
     mode = status->tsr->nmodes;
