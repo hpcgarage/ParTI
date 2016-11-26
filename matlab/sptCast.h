@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "matrix.h"
 
-#define DefineCastArray(funcname, T)                                        \
+#define spt_DefineCastArray(funcname, T)                                    \
 T *funcname(const mxArray *pm) {                                            \
     mxClassID clsid = mxGetClassID(pm);                                     \
     void *data = mxGetData(pm);                                             \

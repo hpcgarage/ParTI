@@ -3,16 +3,5 @@ sftp-config.json
 .tags*
 build
 *.ptx
-tests/add
-tests/convert
-tests/khatri-rao
-tests/kronecker
-tests/loadstore
-tests/mttkrp
-tests/reset
-tests/sttm
-tests/ttm
-tests/ttm_new
-tests/ttm_omptest
-tests/ttm_test
+*.mex*
 docs/latex
