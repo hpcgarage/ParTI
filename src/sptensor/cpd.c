@@ -57,19 +57,13 @@ double CpdAlsStep(
   sptSizeVector mats_order;
   sptNewSizeVector(&mats_order, nmats, nmats);
 
-  // timer_start(&g_timers[TIMER_CPD]);
   for(size_t it=0; it < niters; ++it) {
     // timer_fstart(&itertime);
     for(size_t m=0; m < nmodes; ++m) {
       // printf("\nmode %lu \n", m);
-      // PrintDenseMatrixArray(mats, nmodes, "mats", "debug.txt");
-      // PrintDenseMatrixArray(ata, nmodes, "ata", "debug.txt");
 
-      // timer_fstart(&modetime[m]);
       assert(spten->ndims[m] == mats[m]->nrows);
       tmp_mat->nrows = mats[m]->nrows;
-
-      // timer_start(&g_timers[TIMER_MTTKRP]);
 
       /* Factor Matrices order */
       size_t j = 0;
@@ -84,7 +78,6 @@ double CpdAlsStep(
 
       assert (sptMTTKRP(spten, mats, &mats_order, m, &scratch) == 0);
       sptDumpMatrix(mats[nmodes], stdout);
-      // timer_stop(&g_timers[TIMER_MTTKRP]);
 
       // InverseHadamardGramMatrices(m, ata, nmodes);
       // PrintDenseMatrixArray(ata, nmodes+1, "ata after InverseHadamardGramMatrices", stdout);
@@ -116,7 +109,6 @@ double CpdAlsStep(
     }
     oldfit = fit;
   }
-  // timer_stop(&g_timers[TIMER_CPD]);
 
   // GetFinalLambda(rank, nmodes, mats, lambda);
 
