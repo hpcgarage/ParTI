@@ -16,13 +16,9 @@
     If not, see <http://www.gnu.org/licenses/>.
 %}
 
-function nwritten = dump(tsr, start_index, fp)
-    fprintf(fp, '%u\n', tsr.nmodes);
-    fprintf(fp, '%u\t', tsr.ndims);
-    fprintf(fp, '\n');
-    for i = 1:tsr.nnz
-        fprintf(fp, '%u\t', tsr.inds(:, i) + start_index - 1);
-        fprintf(fp, '%f\n', tsr.values(i));
+classdef sptVector
+    properties
+        _ptrlo = 0;
+        _ptrhi = 0;
     end
-    nwritten = tsr.nnz;
 end

@@ -16,12 +16,9 @@
     If not, see <http://www.gnu.org/licenses/>.
 %}
 
-function mtx = toMatrix(tsr)
-    if tsr.nmodes ~= 2
-        throw(MException('dim mismatch', 'dimension mismatch'));
-    end
-    mtx = zeros(tsr.ndims(1), tsr.ndims(2));
-    for i = 1:tsr.nnz
-        mtx(tsr.inds(1, i), tsr.inds(2, i)) = tsr.values(i);
+classdef sptSparseTensor
+    properties
+        _ptrlo = 0;
+        _ptrhi = 0;
     end
 end

@@ -16,25 +16,9 @@
     If not, see <http://www.gnu.org/licenses/>.
 %}
 
-classdef sspTensor
-    properties (SetAccess=protected)
-        nmodes = 0;
-        ndims = zeros(1, 0, 'uint64');
-        mode = 0;
-        stride = 0;
-    end
+classdef sptSemiSparseTensor
     properties
-        nnz = 0;
-        inds = zeros(0, 0, 'uint64');
-        values = zeros(0, 0);
-    end
-    methods
-        function tsr = sspTensor(ndims, mode)
-            tsr.ndims = ndims(:)';
-            tsr.nmodes = length(tsr.ndims);
-            tsr.mode = mode;
-            tsr.stride = ceil(tsr.ndims(mode)/8)*8;
-            tsr.values = zeros(0, tsr.stride);
-        end
+        _ptrlo = 0;
+        _ptrhi = 0;
     end
 end
