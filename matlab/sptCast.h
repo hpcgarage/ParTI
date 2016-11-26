@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "matrix.h"
 
 #define DefineCastArray(funcname, T)                                        \
