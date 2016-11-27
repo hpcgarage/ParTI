@@ -35,9 +35,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mats[m] = spt_mxGetPointer(prhs[1], m);
     }
     sptSizeVector *mats_order = spt_mxGetPointer(prhs[2], 0);
-    size_t mode = mxGetScalar(prhs[3]);
+    size_t mode = mxGetScalar(prhs[3])-1;
     sptVector *scratch = spt_mxGetPointer(prhs[4], 0);
 
+    for(m = 0; m < mats_order->len; ++m) {
+        --mats_order->data[m];
+    }
     sptCudaMTTKRP(X, mats, mats_order, mode, scratch);
+    for(m = 0; m < mats_order->len; ++m) {
+        ++mats_order->data[m];
+    }
     free(mats);
 }

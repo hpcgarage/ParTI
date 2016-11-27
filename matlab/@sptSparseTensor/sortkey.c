@@ -31,5 +31,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     mxDestroyArray(plhs[0]);
     plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
-    spt_mxSetSize(plhs[0], 0, tsr->sortkey);
+    spt_mxSetSize(plhs[0], 0, tsr->sortkey+1);
 }

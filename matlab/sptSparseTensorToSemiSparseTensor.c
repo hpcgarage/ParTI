@@ -26,7 +26,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptSparseTensorToSemiSparseTensor", 1, "One", 2, "Two");
 
     sptSparseTensor *src = spt_mxGetPointer(prhs[0], 0);
-    size_t mode = mxGetScalar(prhs[1]);
+    size_t mode = mxGetScalar(prhs[1])-1;
 
     sptSemiSparseTensor *dest = malloc(sizeof *dest);
     int result = sptSparseTensorToSemiSparseTensor(dest, src, mode);

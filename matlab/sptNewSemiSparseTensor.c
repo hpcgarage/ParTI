@@ -28,7 +28,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptNewSemiSparseTensor", 1, "One", 3, "Three");
 
     size_t nmodes = mxGetScalar(prhs[0]);
-    size_t mode = mxGetScalar(prhs[1]);
+    size_t mode = mxGetScalar(prhs[1])-1;
     if(mxGetNumberOfElements(prhs[2]) != nmodes) {
         mexErrMsgIdAndTxt("SpTOL:sptNewSemiSparseTensor", "length of ndims should be nmodes");
     }

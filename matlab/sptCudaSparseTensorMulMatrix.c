@@ -27,7 +27,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     sptSparseTensor *X = spt_mxGetPointer(prhs[0], 0);
     sptMatrix *U = spt_mxGetPointer(prhs[1], 0);
-    size_t mode = mxGetScalar(prhs[2]);
+    size_t mode = mxGetScalar(prhs[2])-1;
 
     sptSemiSparseTensor *Y = malloc(sizeof *Y);
     int result = sptCudaSparseTensorMulMatrix(Y, X, U, mode);
