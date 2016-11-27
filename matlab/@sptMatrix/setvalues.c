@@ -27,26 +27,21 @@ spt_DefineCastArray(spt_mxArrayToScalar, sptScalar)
 void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptMatrix:setvalues", 0, "No", 2, "Two");
 
-    mxArray *mxvalues = NULL;
-    mexCallMATLAB(1, &mxvalues, 1, (mxArray **) &prhs[1], "transpose");
-
     sptMatrix *mtx = spt_mxGetPointer(prhs[0], 0);
-    sptScalar *values = spt_mxArrayToScalar(mxvalues);
-    size_t n = mxGetNumberOfElements(mxvalues);
+    sptScalar *values = spt_mxArrayToScalar(prhs[1]);
+    size_t m = mxGetM(prhs[1]);
+    size_t n = mxGetN(prhs[1]);
 
     size_t i, j;
-    for(i = 0; i < mtx->nrows; ++i) {
-        for(j = 0; j < mtx->ncols; ++j) {
-            size_t mxoffset = i * mtx->ncols + j;
+    for(i = 0; i < mtx->nrows && i < m; ++i) {
+        for(j = 0; j < mtx->ncols && j < n; ++j) {
+            size_t mxoffset = j * m + i;
             size_t sptoffset = i * mtx->stride + j;
-            if(mxoffset < n) {
-                mtx->values[sptoffset] = values[mxoffset];
-            }
+            mtx->values[sptoffset] = values[mxoffset];
         }
     }
 
     free(values);
-    mxDestroyArray(mxvalues);
 }
 
 void mexFunction3(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
