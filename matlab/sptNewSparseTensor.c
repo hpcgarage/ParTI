@@ -27,7 +27,7 @@ spt_DefineCastArray(spt_mxArrayToSize, size_t)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptNewSparseTensor", 1, "One", 2, "Two");
 
-    size_t nmodes = mxGetScalar(prhs[0]);
+    size_t nmodes = mxGetScalar(prhs[0], 0);
     if(mxGetNumberOfElements(prhs[1]) != nmodes) {
         mexErrMsgIdAndTxt("SpTOL:sptNewSparseTensor", "length of ndims should be nmodes");
     }

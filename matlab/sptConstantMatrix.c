@@ -26,7 +26,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptConstantMatrix", 1, "One", 1, "One");
 
     sptMatrix *mtx = spt_mxGetPointer(prhs[0]);
-    sptScalar val = mxGetScalar(prhs[1]);
+    sptScalar val = mxGetScalar(prhs[1], 0);
 
     int result = sptConstantMatrix(mtx, val);
 }

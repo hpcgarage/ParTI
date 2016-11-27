@@ -27,7 +27,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptDumpSparseTensor", 0, "No", 3, "Three");
 
     sptSparseTensor *tsr = spt_mxGetPointer(prhs[0]);
-    size_t start_idx = mxGetScalar(prhs[1]);
+    size_t start_idx = mxGetScalar(prhs[1], 0);
     char *fn = mxArrayToString(prhs[2]);
     FILE *fp = fopen(fn, "w");
     mxFree(fn);

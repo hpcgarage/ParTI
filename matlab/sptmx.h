@@ -154,8 +154,8 @@ static int funcname(const mxArray *pm, size_t idx, T value) {               \
     return 0;                                                               \
 }
 
-static inline void *spt_mxGetPointer(const mxArray *pa) {
-    mxArray *pm = mxGetProperty(pa, 0, "ptr");
+static inline void *spt_mxGetPointer(const mxArray *pa, mwIndex idx) {
+    mxArray *pm = mxGetProperty(pa, idx, "ptr");
     if(mxGetClassID(pm) != mxUINT64_CLASS || mxGetNumberOfElements(pm) < 1) {
         return NULL;
     }
@@ -166,10 +166,10 @@ static inline void *spt_mxGetPointer(const mxArray *pa) {
     return ptr;
 }
 
-static inline void spt_mxSetPointer(mxArray *pa, void *ptr) {
+static inline void spt_mxSetPointer(mxArray *pa, mwIndex idx, void *ptr) {
     mxArray *mxptr = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
     size_t *pptr = mxGetData(mxptr);
     pptr[0] = (size_t) ptr;
-    mxSetProperty(pa, 0, "ptr", mxptr);
+    mxSetProperty(pa, idx, "ptr", mxptr);
     mxDestroyArray(mxptr);
 }

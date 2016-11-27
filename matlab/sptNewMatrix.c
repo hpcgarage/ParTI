@@ -27,8 +27,8 @@ spt_DefineCastArray(spt_mxArrayToSize, size_t)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptNewMatrix", 1, "One", 2, "Two");
 
-    size_t nrows = mxGetScalar(prhs[0]);
-    size_t ncols = mxGetScalar(prhs[1]);
+    size_t nrows = mxGetScalar(prhs[0], 0);
+    size_t ncols = mxGetScalar(prhs[1], 0);
 
     sptMatrix *mtx = malloc(sizeof *mtx);
     int result = sptNewMatrix(mtx, nrows, ncols);
