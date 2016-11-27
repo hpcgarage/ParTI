@@ -25,7 +25,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptFreeSizeVector", 0, "No", 1, "One");
 
-    sptSizeVector *tsr = spt_mxGetPointer(prhs[0], 0);
-    sptFreeSizeVector(tsr);
-    free(tsr);
+    sptSizeVector *vec = spt_mxGetPointer(prhs[0], 0);
+    sptFreeSizeVector(vec);
+    free(vec);
 }

@@ -20,15 +20,16 @@
 #include <stdlib.h>
 #include "matrix.h"
 #include "mex.h"
-#include "sptmx.h"
+#include "../sptmx.h"
 
-spt_DefineCastArray(spt_mxArrayToScalar, sptScalar)
+spt_DefineSetScalar(spt_mxSetSize, size_t)
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptResizeSizeVector", 0, "No", 2, "Two");
+    spt_mxCheckArgs("sptVector:cap", 1, "One", 1, "One");
 
-    sptSizeVector *vec = spt_mxGetPointer(prhs[0], 0);
-    size_t size = mxGetScalar(prhs[2]);
+    sptVector *vec = spt_mxGetPointer(prhs[0], 0);
 
-    int result = sptResizeSizeVector(vec, size);
+    mxDestroyArray(plhs[0]);
+    plhs[0] = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+    spt_mxSetSize(plhs[0], 0, vec->cap);
 }

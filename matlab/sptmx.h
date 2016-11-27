@@ -22,16 +22,16 @@
 #define spt_mxCheckArgs(funcname, lnum, ltxt, rnum, rtxt)                   \
 if(nrhs != rnum) {                                                          \
     if(rnum != 1) {                                                         \
-        mexErrMsgIdAndTxt("SpTOL:" #funcname, #rtxt "inputs required.");    \
+        mexErrMsgIdAndTxt("SpTOL:" funcname, rtxt " inputs required.");    \
     } else {                                                                \
-        mexErrMsgIdAndTxt("SpTOL:" #funcname, #rtxt "input required.");     \
+        mexErrMsgIdAndTxt("SpTOL:" funcname, rtxt " input required.");     \
     }                                                                       \
 }                                                                           \
 if(nlhs != lnum) {                                                          \
     if(lnum != 1) {                                                         \
-        mexErrMsgIdAndTxt("SpTOL:" #funcname, #ltxt "outputs required.");   \
+        mexErrMsgIdAndTxt("SpTOL:" funcname, ltxt " outputs required.");   \
     } else {                                                                \
-        mexErrMsgIdAndTxt("SpTOL:" #funcname, #ltxt "output required.");    \
+        mexErrMsgIdAndTxt("SpTOL:" funcname, ltxt " output required.");    \
     }                                                                       \
 }
 

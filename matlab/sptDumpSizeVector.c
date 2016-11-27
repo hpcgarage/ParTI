@@ -26,7 +26,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptDumpSizeVector", 0, "No", 2, "Two");
 
-    sptSizeVector *mtx = spt_mxGetPointer(prhs[0], 0);
+    sptSizeVector *vec = spt_mxGetPointer(prhs[0], 0);
     char *fn = mxArrayToString(prhs[1]);
     FILE *fp = fopen(fn, "w");
     mxFree(fn);
@@ -34,6 +34,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgIdAndTxt("SpTOL:sptDumpSizeVector", "Cannot open file.");
     }
 
-    int result = sptDumpSizeVector(mtx, fp);
+    int result = sptDumpSizeVector(vec, fp);
     fclose(fp);
 }

@@ -25,7 +25,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptFreeMatrix", 0, "No", 1, "One");
 
-    sptMatrix *tsr = spt_mxGetPointer(prhs[0], 0);
-    sptFreeMatrix(tsr);
-    free(tsr);
+    sptMatrix *mtx = spt_mxGetPointer(prhs[0], 0);
+    sptFreeMatrix(mtx);
+    free(mtx);
 }

@@ -27,8 +27,8 @@ spt_DefineCastArray(spt_mxArrayToScalar, sptScalar)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptResizeVector", 0, "No", 2, "Two");
 
-    sptVector *mtx = spt_mxGetPointer(prhs[0], 0);
+    sptVector *vec = spt_mxGetPointer(prhs[0], 0);
     size_t size = mxGetScalar(prhs[2]);
 
-    int result = sptResizeVector(mtx, size);
+    int result = sptResizeVector(vec, size);
 }

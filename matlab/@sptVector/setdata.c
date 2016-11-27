@@ -20,15 +20,39 @@
 #include <stdlib.h>
 #include "matrix.h"
 #include "mex.h"
-#include "sptmx.h"
+#include "../sptmx.h"
 
 spt_DefineCastArray(spt_mxArrayToScalar, sptScalar)
 
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptAppendVector", 0, "No", 2, "Two");
+void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+    spt_mxCheckArgs("sptVector:setdata", 0, "No", 2, "Two");
 
     sptVector *vec = spt_mxGetPointer(prhs[0], 0);
+    sptScalar *values = spt_mxArrayToScalar(prhs[1]);
+    size_t n = mxGetNumberOfElements(prhs[1]);
+
+    size_t i;
+    for(i = 0; i < vec->len && i < n; ++i) {
+        vec->data[i] = values[i];
+    }
+
+    free(values);
+}
+
+void mexFunction3(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+    spt_mxCheckArgs("sptVector:setdata", 0, "No", 3, "Three");
+
+    sptVector *vec = spt_mxGetPointer(prhs[0], 0);
+    size_t i = mxGetScalar(prhs[1])-1;
     sptScalar value = mxGetScalar(prhs[2]);
 
-    int result = sptAppendVector(vec, value);
+    vec->data[i] = value;
+}
+
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
+    if(nrhs == 3) {
+        mexFunction3(nlhs, plhs, nrhs, prhs);
+    } else {
+        mexFunction2(nlhs, plhs, nrhs, prhs);
+    }
 }

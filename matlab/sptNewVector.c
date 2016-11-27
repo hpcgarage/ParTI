@@ -30,13 +30,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     size_t len = mxGetScalar(prhs[0]);
     size_t cap = mxGetScalar(prhs[1]);
 
-    sptVector *mtx = malloc(sizeof *mtx);
-    int result = sptNewVector(mtx, len, cap);
+    sptVector *vec = malloc(sizeof *vec);
+    int result = sptNewVector(vec, len, cap);
     if(result) {
-        free(mtx);
-        mtx = NULL;
+        free(vec);
+        vec = NULL;
     }
 
     mexCallMATLAB(nlhs, plhs, 0, NULL, "sptVector");
-    spt_mxSetPointer(plhs[0], 0, mtx);
+    spt_mxSetPointer(plhs[0], 0, vec);
 }

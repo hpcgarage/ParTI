@@ -15,10 +15,10 @@ all.mexw64:
 	find -name '*.c' | sed 's/\.c$$/.mexw64/' | xargs $(MAKE)
 
 %.mexa64: %.c
-	mex CFLAGS='$$CFLAGS -std=gnu99 -Wall' -I../include -L../build $< -lSpTOL
+	mex CFLAGS='$$CFLAGS -std=gnu99 -Wall' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lSpTOL
 
 %.mexmaci64: %.c
-	mex CFLAGS='$$CFLAGS -std=gnu99 -Wall' -I../include -L../build $< -lSpTOL
+	mex CFLAGS='$$CFLAGS -std=gnu99 -Wall' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lSpTOL
 
 %.mexw64: %.c
-	mex CFLAGS='$$CFLAGS -std=gnu99 -Wall' -I../include -L../build $< -lSpTOL
+	mex CFLAGS='$$CFLAGS -std=gnu99 -Wall' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lSpTOL
