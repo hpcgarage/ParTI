@@ -3,7 +3,7 @@
 all: all.mexa64
 
 clean:
-	rm -f *.mexa64 *.mexmaci64 *.mexw64
+	find -name '*.mex*' -exec rm '{}' +
 
 all.mexa64:
 	find -name '*.c' | sed 's/\.c$$/.mexa64/' | xargs $(MAKE)

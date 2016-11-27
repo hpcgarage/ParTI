@@ -1,5 +1,39 @@
+/*
+    This file is part of SpTOL.
+
+    SpTOL is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of
+    the License, or (at your option) any later version.
+
+    SpTOL is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with SpTOL.
+    If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdlib.h>
 #include "matrix.h"
+
+#define spt_mxCheckArgs(funcname, lnum, ltxt, rnum, rtxt)                   \
+if(nrhs != rnum) {                                                          \
+    if(rnum != 1) {                                                         \
+        mexErrMsgIdAndTxt("SpTOL:" #funcname, #rtxt "inputs required.");    \
+    } else {                                                                \
+        mexErrMsgIdAndTxt("SpTOL:" #funcname, #rtxt "input required.");     \
+    }                                                                       \
+}                                                                           \
+if(nlhs != lnum) {                                                          \
+    if(lnum != 1) {                                                         \
+        mexErrMsgIdAndTxt("SpTOL:" #funcname, #ltxt "outputs required.");   \
+    } else {                                                                \
+        mexErrMsgIdAndTxt("SpTOL:" #funcname, #ltxt "output required.");    \
+    }                                                                       \
+}
 
 #define spt_DefineCastArray(funcname, T)                                    \
 T *funcname(const mxArray *pm) {                                            \
@@ -9,6 +43,11 @@ T *funcname(const mxArray *pm) {                                            \
     size_t i;                                                               \
     T *result = malloc(n * sizeof (T));                                     \
     switch(clsid) {                                                         \
+    case mxLOGICAL_CLASS:                                                   \
+        for(i = 0; i < n; ++i) {                                            \
+            result[i] = (T) ((mxLogical *) data)[i];                        \
+        }                                                                   \
+        break;                                                              \
     case mxINT8_CLASS:                                                      \
         for(i = 0; i < n; ++i) {                                            \
             result[i] = (T) ((signed char *) data)[i];                      \
@@ -25,6 +64,7 @@ T *funcname(const mxArray *pm) {                                            \
         }                                                                   \
         break;                                                              \
     case mxUINT16_CLASS:                                                    \
+    case mxCHAR_CLASS:                                                      \
         for(i = 0; i < n; ++i) {                                            \
             result[i] = (T) ((unsigned short *) data)[i];                   \
         }                                                                   \
@@ -87,6 +127,7 @@ static int funcname(const mxArray *pm, size_t idx, T value) {               \
         ((short *) data)[idx] = (short) value;                              \
         break;                                                              \
     case mxUINT16_CLASS:                                                    \
+    case mxCHAR_CLASS:                                                      \
         ((unsigned short *) data)[idx] = (unsigned short) value;            \
         break;                                                              \
     case mxINT32_CLASS:                                                     \
@@ -123,4 +164,12 @@ static inline void *spt_mxGetPointer(const mxArray *pa) {
     mxDestroyArray(pm);
 
     return ptr;
+}
+
+static inline void spt_mxSetPointer(mxArray *pa, void *ptr) {
+    mxArray *mxptr = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+    size_t *pptr = mxGetData(mxptr);
+    pptr[0] = (size_t) ptr;
+    mxSetProperty(pa, 0, "ptr", mxptr);
+    mxDestroyArray(mxptr);
 }
