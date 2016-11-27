@@ -42,5 +42,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
 
     mexCallMATLAB(nlhs, plhs, 0, NULL, "sptSparseTensor");
-    spt_mxSetPointer(plhs[0], tsr);
+    spt_mxSetPointer(plhs[0], 0, tsr);
 }

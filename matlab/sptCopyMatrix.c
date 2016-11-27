@@ -25,7 +25,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptCopyMatrix", 1, "One", 1, "One");
 
-    sptMatrix *src = spt_mxGetPointer(prhs[0]);
+    sptMatrix *src = spt_mxGetPointer(prhs[0], 0);
 
     sptMatrix *dest = malloc(sizeof *dest);
     int result = sptCopyMatrix(dest, src);
@@ -35,5 +35,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
 
     mexCallMATLAB(nlhs, plhs, 0, NULL, "sptMatrix");
-    spt_mxSetPointer(plhs[0], dest);
+    spt_mxSetPointer(plhs[0], 0, dest);
 }

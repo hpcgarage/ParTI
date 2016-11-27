@@ -38,5 +38,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
 
     mexCallMATLAB(nlhs, plhs, 0, NULL, "sptMatrix");
-    spt_mxSetPointer(plhs[0], mtx);
+    spt_mxSetPointer(plhs[0], 0, mtx);
 }

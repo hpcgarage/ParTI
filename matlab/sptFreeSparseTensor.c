@@ -25,7 +25,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptFreeSparseTensor", 0, "No", 1, "One");
 
-    sptSparseTensor *tsr = spt_mxGetPointer(prhs[0]);
+    sptSparseTensor *tsr = spt_mxGetPointer(prhs[0], 0);
     sptFreeSparseTensor(tsr);
     free(tsr);
 }

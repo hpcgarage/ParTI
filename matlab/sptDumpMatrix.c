@@ -26,7 +26,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptDumpMatrix", 0, "No", 2, "Two");
 
-    sptMatrix *mtx = spt_mxGetPointer(prhs[0]);
+    sptMatrix *mtx = spt_mxGetPointer(prhs[0], 0);
     char *fn = mxArrayToString(prhs[1]);
     FILE *fp = fopen(fn, "w");
     mxFree(fn);

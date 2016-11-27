@@ -25,7 +25,7 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptCopySparseTensor", 1, "One", 1, "One");
 
-    sptSparseTensor *src = spt_mxGetPointer(prhs[0]);
+    sptSparseTensor *src = spt_mxGetPointer(prhs[0], 0);
 
     sptSparseTensor *dest = malloc(sizeof *dest);
     int result = sptCopySparseTensor(dest, src);
@@ -35,5 +35,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
 
     mexCallMATLAB(nlhs, plhs, 0, NULL, "sptSparseTensor");
-    spt_mxSetPointer(plhs[0], dest);
+    spt_mxSetPointer(plhs[0], 0, dest);
 }
