@@ -45,9 +45,8 @@ void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
     }
 
-    mxDestroyArray(mxvalues);
-
     free(values);
+    mxDestroyArray(mxvalues);
 }
 
 void mexFunction3(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
