@@ -26,7 +26,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptSparseTensorSortIndexAtMode", 0, "No", 2, "Two");
 
     sptSparseTensor *tsr = spt_mxGetPointer(prhs[0], 0);
-    size_t mode = mxGetScalar(prhs[1], 0);
+    size_t mode = mxGetScalar(prhs[1]);
 
     sptSparseTensorSortIndexAtMode(tsr, mode);
 }

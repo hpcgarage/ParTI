@@ -26,8 +26,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptRandomizeMatrix", 0, "No", 3, "Three");
 
     sptMatrix *mtx = spt_mxGetPointer(prhs[0], 0);
-    size_t nrows = mxGetScalar(prhs[1], 0);
-    size_t ncols = mxGetScalar(prhs[2], 0);
+    size_t nrows = mxGetScalar(prhs[1]);
+    size_t ncols = mxGetScalar(prhs[2]);
 
     int result = sptRandomizeMatrix(mtx, nrows, ncols);
 }

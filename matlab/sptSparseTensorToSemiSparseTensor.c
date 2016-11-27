@@ -22,21 +22,19 @@
 #include "mex.h"
 #include "sptmx.h"
 
-spt_DefineCastArray(spt_mxArrayToSize, size_t)
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptNewMatrix", 1, "One", 2, "Two");
+    spt_mxCheckArgs("sptSparseTensorToSemiSparseTensor", 1, "One", 2, "Two");
 
-    size_t nrows = mxGetScalar(prhs[0]);
-    size_t ncols = mxGetScalar(prhs[1]);
+    sptSparseTensor *src = spt_mxGetPointer(prhs[0], 0);
+    size_t mode = mxGetScalar(prhs[1]);
 
-    sptMatrix *mtx = malloc(sizeof *mtx);
-    int result = sptNewMatrix(mtx, nrows, ncols);
+    sptSemiSparseTensor *dest = malloc(sizeof *dest);
+    int result = sptSparseTensorToSemiSparseTensor(dest, src, mode);
     if(result) {
-        free(mtx);
-        mtx = NULL;
+        free(dest);
+        dest = NULL;
     }
 
-    mexCallMATLAB(nlhs, plhs, 0, NULL, "sptMatrix");
-    spt_mxSetPointer(plhs[0], 0, mtx);
+    mexCallMATLAB(nlhs, plhs, 0, NULL, "sptSemiSparseTensor");
+    spt_mxSetPointer(plhs[0], 0, dest);
 }

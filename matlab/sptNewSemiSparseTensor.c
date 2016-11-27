@@ -25,18 +25,23 @@
 spt_DefineCastArray(spt_mxArrayToSize, size_t)
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptNewMatrix", 1, "One", 2, "Two");
+    spt_mxCheckArgs("sptNewSemiSparseTensor", 1, "One", 3, "Three");
 
-    size_t nrows = mxGetScalar(prhs[0]);
-    size_t ncols = mxGetScalar(prhs[1]);
+    size_t nmodes = mxGetScalar(prhs[0]);
+    size_t mode = mxGetScalar(prhs[1]);
+    if(mxGetNumberOfElements(prhs[2]) != nmodes) {
+        mexErrMsgIdAndTxt("SpTOL:sptNewSemiSparseTensor", "length of ndims should be nmodes");
+    }
+    size_t *ndims = spt_mxArrayToSize(prhs[2]);
 
-    sptMatrix *mtx = malloc(sizeof *mtx);
-    int result = sptNewMatrix(mtx, nrows, ncols);
+    sptSemiSparseTensor *tsr = malloc(sizeof *tsr);
+    int result = sptNewSemiSparseTensor(tsr, nmodes, mode, ndims);
+    free(ndims);
     if(result) {
-        free(mtx);
-        mtx = NULL;
+        free(tsr);
+        tsr = NULL;
     }
 
-    mexCallMATLAB(nlhs, plhs, 0, NULL, "sptMatrix");
-    spt_mxSetPointer(plhs[0], 0, mtx);
+    mexCallMATLAB(nlhs, plhs, 0, NULL, "sptSemiSparseTensor");
+    spt_mxSetPointer(plhs[0], 0, tsr);
 }
