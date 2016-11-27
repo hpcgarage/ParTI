@@ -18,6 +18,7 @@
 
 #include <SpTOL.h>
 #include <stdlib.h>
+#include <string.h>
 #include "matrix.h"
 #include "mex.h"
 #include "../sptmx.h"
@@ -25,22 +26,23 @@
 spt_DefineSetScalar(spt_mxSetScalar, sptScalar)
 
 void mexFunction1(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptSparseTensor:values", 1, "One", 1, "One");
+    spt_mxCheckArgs("sptSparseTensor:inds", 1, "One", 1, "One");
 
     sptSparseTensor *tsr = spt_mxGetPointer(prhs[0], 0);
 
-    mexCallMATLAB(1, plhs, 0, NULL, "sptSizeVector");
-    mxArray *args[] = {plhs[0], 1, tsr->nmodes};
-    mexCallMATLAB(1, plhs, 3, args, "repmat");
+    plhs[0] = mxCreateCellMatrix(1, tsr->nmodes);
 
     size_t m;
     for(m = 0; m < tsr->nmodes; ++m) {
-        spt_mxSetPointer(plhs[0], m, &tsr->inds[m]);
+        mxArray *cell = NULL;
+        mexCallMATLAB(1, &cell, 0, NULL, "sptSizeVector");
+        spt_mxSetPointer(cell, 0, &tsr->inds[m]);
+        mxSetCell(plhs[0], m, cell);
     }
 }
 
 void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptSparseTensor:values", 1, "One", 2, "Two");
+    spt_mxCheckArgs("sptSparseTensor:inds", 1, "One", 2, "Two");
 
     sptSparseTensor *tsr = spt_mxGetPointer(prhs[0], 0);
     size_t m = mxGetScalar(prhs[1])-1;
