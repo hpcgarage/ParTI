@@ -39,4 +39,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptVector *scratch = spt_mxGetPointer(prhs[4], 0);
 
     sptOmpMTTKRP(X, mats, mats_order, mode, scratch);
+    free(mats);
 }

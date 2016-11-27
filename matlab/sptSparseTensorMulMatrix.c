@@ -22,22 +22,20 @@
 #include "mex.h"
 #include "sptmx.h"
 
-spt_DefineCastArray(spt_mxArrayToSize, size_t)
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptMTTKRP", 0, "No", 5, "Five");
+    spt_mxCheckArgs("sptSparseTensorMulMatrix", 1, "One", 3, "Three");
 
     sptSparseTensor *X = spt_mxGetPointer(prhs[0], 0);
-    size_t nmodes = X->nmodes;
-    size_t m;
-    sptMatrix **mats = malloc((nmodes+1) * sizeof *mats);
-    for(m = 0; m < nmodes+1; ++m) {
-        mats[m] = spt_mxGetPointer(prhs[1], m);
-    }
-    sptSizeVector *mats_order = spt_mxGetPointer(prhs[2], 0);
-    size_t mode = mxGetScalar(prhs[3]);
-    sptVector *scratch = spt_mxGetPointer(prhs[4], 0);
+    sptMatrix *U = spt_mxGetPointer(prhs[1], 0);
+    size_t mode = mxGetScalar(prhs[2]);
 
-    sptMTTKRP(X, mats, mats_order, mode, scratch);
-    free(mats);
+    sptSemiSparseTensor *Y = malloc(sizeof *Y);
+    int result = sptSparseTensorMulMatrix(Y, X, U, mode);
+    if(result) {
+        free(Y);
+        Y = NULL;
+    }
+
+    mexCallMATLAB(nlhs, plhs, 0, NULL, "sptSemiSparseTensor");
+    spt_mxSetPointer(plhs[0], 0, Y);
 }
