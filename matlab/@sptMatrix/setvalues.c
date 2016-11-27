@@ -40,7 +40,7 @@ void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
             size_t mxoffset = i * mtx->ncols + j;
             size_t sptoffset = i * mtx->stride + j;
             if(mxoffset < n) {
-                mtx->values[mxoffset] = values[sptoffset];
+                mtx->values[sptoffset] = values[mxoffset];
             }
         }
     }
