@@ -31,6 +31,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptScalar value = mxGetScalar(prhs[2]);
 
     int result = sptAppendVector(mtx, value);
-
-    free(value);
 }

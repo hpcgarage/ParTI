@@ -30,8 +30,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptSparseTensor *X = spt_mxGetPointer(prhs[0], 0);
     size_t nmodes = X->nmodes;
     size_t m;
+    sptMatrix **mats = malloc((nmodes+1) * sizeof *mats);
     for(m = 0; m < nmodes+1; ++m) {
-        sptMatrix *mats = spt_mxGetPointer(prhs[1], m);
+        mats[m] = spt_mxGetPointer(prhs[1], m);
     }
     sptSizeVector *mats_order = spt_mxGetPointer(prhs[2], 0);
     size_t mode = mxGetScalar(prhs[3]);
