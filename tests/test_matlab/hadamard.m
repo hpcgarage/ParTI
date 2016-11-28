@@ -1,8 +1,8 @@
 % ifile = '/home/jli/Work/SpTOL-dev/tensors/3d_3_6.tns'
 % ifile = '/home/jli/Work/SpTOL-dev/tensors/3D_12031.tns'
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/brainq.tns'
-ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell2.tns'
-% ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell1.tns'
+% ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell2.tns'
+ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell1.tns'
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/delicious.tns'
 
 X = sptLoadSparseTensor(1, ifile);
@@ -35,3 +35,7 @@ Z = sptCudaSparseTensorDotMulEq(X, Y);
 end
 time = toc(ts);
 fprintf('cuda Hadamard product time: %f sec\n', time/5);
+
+
+clear
+
