@@ -1,0 +1,71 @@
+brainq
+
+[CPU  SpTns DotMul] operation took 0.078881265 s
+[CPU  SpTns DotMul] operation took 0.079206805 s
+[CPU  SpTns DotMul] operation took 0.078426841 s
+[CPU  SpTns DotMul] operation took 0.079062097 s
+[CPU  SpTns DotMul] operation took 0.078462075 s
+seq Hadamard product time: 2.038546 sec
+[CPU  SpTns DotMul] operation took 0.043327298 s
+[CPU  SpTns DotMul] operation took 0.039018660 s
+[CPU  SpTns DotMul] operation took 0.037802986 s
+[CPU  SpTns DotMul] operation took 0.038679196 s
+[CPU  SpTns DotMul] operation took 0.037358547 s
+omp Hadamard product time: 2.001153 sec
+[CUDA  SpTns DotMul] operation took 0.000229269 s
+[CUDA  SpTns DotMul] operation took 0.000228164 s
+[CUDA  SpTns DotMul] operation took 0.000230171 s
+[CUDA  SpTns DotMul] operation took 0.000228029 s
+[CUDA  SpTns DotMul] operation took 0.000228568 s
+cuda Hadamard product time: 0.828577 sec
+
+
+[CPU  SpTns * Mtx] operation took 2.173737554 s
+[CPU  SpTns * Mtx] operation took 2.182559236 s
+[CPU  SpTns * Mtx] operation took 2.175502673 s
+[CPU  SpTns * Mtx] operation took 2.180823818 s
+[CPU  SpTns * Mtx] operation took 2.235191067 s
+seq TTM time: 2.415492 sec
+[OMP  SpTns * Mtx] operation took 1.101757467 s
+[OMP  SpTns * Mtx] operation took 1.100375835 s
+[OMP  SpTns * Mtx] operation took 1.107575355 s
+[OMP  SpTns * Mtx] operation took 1.101596888 s
+[OMP  SpTns * Mtx] operation took 1.101543072 s
+omp TTM time: 1.329250 sec
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
+[CUDA SpTns * Mtx] operation took 0.037768894 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
+[CUDA SpTns * Mtx] operation took 0.037727900 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
+[CUDA SpTns * Mtx] operation took 0.037745291 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
+[CUDA SpTns * Mtx] operation took 0.037722988 s
+[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
+[CUDA SpTns * Mtx] operation took 0.037720492 s
+cuda TTM time: 0.391788 sec
+
+
+[CPU  SpTns MTTKRP] operation took 2.812910467 s
+[CPU  SpTns MTTKRP] operation took 2.811252866 s
+[CPU  SpTns MTTKRP] operation took 2.812722479 s
+[CPU  SpTns MTTKRP] operation took 2.810656940 s
+[CPU  SpTns MTTKRP] operation took 2.811126689 s
+seq MTTKRP time: 2.811885 sec
+[CPU  SpTns MTTKRP] operation took 2.769423007 s
+[CPU  SpTns MTTKRP] operation took 2.662164888 s
+[CPU  SpTns MTTKRP] operation took 2.664262137 s
+[CPU  SpTns MTTKRP] operation took 2.659682694 s
+[CPU  SpTns MTTKRP] operation took 2.659194352 s
+omp MTTKRP time: 2.683429 sec
+[CUDA SpTns MTTKRP] operation took 0.003511899 s
+[CUDA SpTns MTTKRP] operation took 0.003514868 s
+[CUDA SpTns MTTKRP] operation took 0.003517174 s
+[CUDA SpTns MTTKRP] operation took 0.003513512 s
+[CUDA SpTns MTTKRP] operation took 0.003519359 s
+cuda MTTKRP time: 0.059601 sec
+
+
+nell2:
+
+
+
