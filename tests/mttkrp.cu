@@ -41,7 +41,9 @@ int main(int argc, char const *argv[]) {
 
     fX = fopen(argv[1], "r");
     assert(fX != NULL);
-    assert(sptLoadSparseTensor(&X, 1, fX) == 0);
+    printf("input file: %s\n", argv[1]); fflush(stdout);
+    sptLoadSparseTensor(&X, 1, fX);
+    // assert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
 
     sscanf(argv[2], "%zu", &mode);

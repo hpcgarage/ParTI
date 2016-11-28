@@ -23,10 +23,10 @@
 #include "sptmx.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptConstantMatrix", 0, "Zero", 2, "Two");
+    spt_mxCheckArgs("sptConstantVector", 0, "Zero", 2, "Two");
 
-    sptMatrix *mtx = spt_mxGetPointer(prhs[0], 0);
+    sptVector *vec = spt_mxGetPointer(prhs[0], 0);
     sptScalar val = mxGetScalar(prhs[1]);
 
-    int result = sptConstantMatrix(mtx, val);
+    int result = sptConstantVector(vec, val);
 }
