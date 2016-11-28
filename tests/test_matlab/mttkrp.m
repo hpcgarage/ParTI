@@ -8,7 +8,7 @@ nmodes= tns.nmodes
 ndims = tns.ndims
 max_ndims = max(ndims);
 
-U = cell(nmodes+1);
+U = cell(1,nmodes+1);
 for i = 1:nmodes
 	U{i} = sptNewMatrix(ndims(i), R);
 	sptConstantMatrix(U{i}, 1);
@@ -16,7 +16,7 @@ end
 U{nmodes+1} = sptNewMatrix(max_ndims, R);
 sptConstantMatrix(U{nmodes+1}, 0);
 
-mats_order = sptNewVector(nmodes-1, nmodes-1);
+mats_order = sptNewSizeVector(nmodes-1, nmodes-1);
 mats_order_data = [];
 j = 1;
 for i=nmodes:-1:1
@@ -25,9 +25,14 @@ for i=nmodes:-1:1
       j = j + 1;
   end
 end
-mats_order.setdata(mats_order_data);
+mats_order.setdata(uint64(mats_order_data));
 
 scratch = sptNewVector(R, R);
 sptConstantVector(scratch, 0);
 
-% sptMTTKRP(tns, U, mats_order, m, scratch);
+ts = tic;
+for niter = 1:5
+sptMTTKRP(tns, U, mats_order, m, scratch);
+end
+time = toc(ts);
+fprintf('Hadamard product time: %f sec\n', time/5);
