@@ -28,7 +28,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     size_t start_idx = mxGetScalar(prhs[0]);
     char *fn = mxArrayToString(prhs[1]);
-    FILE *fp = fopen(fn, "w");
+    FILE *fp = fopen(fn, "r");
     mxFree(fn);
     if(!fp) {
         mexErrMsgIdAndTxt("SpTOL:sptLoadSparseTensor", "Cannot open file.");
