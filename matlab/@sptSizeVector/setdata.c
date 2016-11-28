@@ -25,9 +25,9 @@
 spt_DefineCastArray(spt_mxArrayToSize, size_t)
 
 void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptVector:setdata", 0, "No", 2, "Two");
+    spt_mxCheckArgs("sptSizeVector:setdata", 0, "No", 2, "Two");
 
-    sptVector *vec = spt_mxGetPointer(prhs[0], 0);
+    sptSizeVector *vec = spt_mxGetPointer(prhs[0], 0);
     size_t *values = spt_mxArrayToSize(prhs[1]);
     size_t n = mxGetNumberOfElements(prhs[1]);
 
@@ -40,9 +40,9 @@ void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 }
 
 void mexFunction3(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptVector:setdata", 0, "No", 3, "Three");
+    spt_mxCheckArgs("sptSizeVector:setdata", 0, "No", 3, "Three");
 
-    sptVector *vec = spt_mxGetPointer(prhs[0], 0);
+    sptSizeVector *vec = spt_mxGetPointer(prhs[0], 0);
     size_t i = mxGetScalar(prhs[1])-1;
     size_t value = mxGetScalar(prhs[2]);
 
