@@ -1,0 +1,7 @@
+brainq:
+
+Tensorlab: Hadamard product (inprod) time: 2.544682 sec
+
+Tensorlab: MTTKRP (mtkrprod) time: 0.166019 sec
+
+
