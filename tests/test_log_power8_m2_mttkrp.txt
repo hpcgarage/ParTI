@@ -259,8 +259,31 @@ nthreads: 128
 
 File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2, dev 1, normal kernel
 input file: /nethome/jli458/BIGTENSORS/nell1.tns
-[CUDA SpTns MTTKRP] error 0x00020002 at /nethome/jli458/SpTOL-dev/src/sptensor/mttkrp_cuda.cu:209, out of memory
-mttkrp: /nethome/jli458/SpTOL-dev/tests/mttkrp.cu:104: int main(int, const char**): Assertion `sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0' failed.
+csnnz:
+71822770 71776782 
+[CUDA SpTns MTTKRP] operation took 0.024656765 s
+[CUDA SpTns MTTKRP] operation took 0.024619679 s
+csnnz:
+71822770 71776782 
+====
+[CUDA SpTns MTTKRP] operation took 0.024657807 s
+[CUDA SpTns MTTKRP] operation took 0.024633673 s
+csnnz:
+71822770 71776782 
+====
+[CUDA SpTns MTTKRP] operation took 0.024657202 s
+[CUDA SpTns MTTKRP] operation took 0.024612519 s
+csnnz:
+71822770 71776782 
+====
+[CUDA SpTns MTTKRP] operation took 0.024655660 s
+[CUDA SpTns MTTKRP] operation took 0.024627325 s
+csnnz:
+71822770 71776782 
+====
+[CUDA SpTns MTTKRP] operation took 0.024655003 s
+[CUDA SpTns MTTKRP] operation took 0.024638841 s
+
 
 File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2
 input file: /nethome/jli458/BIGTENSORS/delicious.tns

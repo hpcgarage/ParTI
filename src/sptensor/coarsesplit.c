@@ -54,7 +54,6 @@ int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTen
     // }
     // printf("\n");
 
-    size_t tmp_nnz = 0;
     int j = 0;
     for(size_t i=0; i<ndims[0]; ++i) {
         if(csnnz[j] < aver_nnz || j == num - 1) {

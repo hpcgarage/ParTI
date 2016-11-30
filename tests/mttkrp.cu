@@ -82,6 +82,11 @@ int main(int argc, char const *argv[]) {
         }
     }
 
+    sptSparseTensor * csX;
+    if(ncudas > 1) {
+        csX = (sptSparseTensor*)malloc(ncudas * sizeof(sptSparseTensor));
+        sptCoarseSplitSparseTensor(&X, ncudas, csX);
+    }
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
@@ -109,15 +114,8 @@ int main(int argc, char const *argv[]) {
        case 2:
          sptCudaSetDevice(cuda_dev_id);
          sptCudaSetDevice(cuda_dev_id+1);
-         sptSparseTensor * csX = (sptSparseTensor*)malloc(ncudas *
-             sizeof(sptSparseTensor));
-         sptCoarseSplitSparseTensor(&X, ncudas, csX);
          assert(sptCudaMTTKRP(csX, U, &mats_order, mode, &scratch) == 0);
          assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, &scratch) == 0);
-         for(int t=0; t<ncudas; ++t) {
-            free(csX[t].ndims);
-         }
-         free(csX);
          break;
        }
     }
@@ -150,16 +148,9 @@ int main(int argc, char const *argv[]) {
            case 2:
              sptCudaSetDevice(cuda_dev_id);
              sptCudaSetDevice(cuda_dev_id+1);
-             sptSparseTensor * csX = (sptSparseTensor*)malloc(ncudas *
-                 sizeof(sptSparseTensor));
-             sptCoarseSplitSparseTensor(&X, ncudas, csX);
              printf("====\n");
              assert(sptCudaMTTKRP(csX, U, &mats_order, mode, &scratch) == 0);
              assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, &scratch) == 0);
-             for(int t=0; t<ncudas; ++t) {
-                free(csX[t].ndims);
-             }
-             free(csX);
              break;
            }
         }
@@ -181,6 +172,12 @@ int main(int argc, char const *argv[]) {
 
     sptFreeMatrix(U[nmodes]);
     free(U);
+    if(ncudas > 1) {
+        for(int t=0; t<ncudas; ++t) {
+            free(csX[t].ndims);
+        }
+        free(csX);
+    }
 
     return 0;
 }
