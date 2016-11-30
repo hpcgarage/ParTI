@@ -140,9 +140,9 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
         if(mats[i]->ncols != mats[nmodes]->ncols) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
-        if(mats[i]->nrows != ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
-        }
+        // if(mats[i]->nrows != ndims[i]) {
+        //     spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        // }
     }
 
 

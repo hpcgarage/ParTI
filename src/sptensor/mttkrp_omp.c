@@ -101,7 +101,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
     }
 
     sptStopTimer(timer);
-    sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
+    sptPrintElapsedTime(timer, "OMP  SpTns MTTKRP");
     sptFreeTimer(timer);
 
     return 0;

@@ -168,133 +168,121 @@ deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 7.5, CUDA Runtime Versi
 Result = PASS
 
 File: /nethome/jli458/BIGTENSORS/brainq.tns, mode 2
-sptRandomizeMatrix(&U, 9, 16)
-[CPU  SpTns * Mtx] operation took 1.767120981 s
-[CPU  SpTns * Mtx] operation took 1.767714763 s
-[CPU  SpTns * Mtx] operation took 1.765666024 s
-[CPU  SpTns * Mtx] operation took 1.765160342 s
-[CPU  SpTns * Mtx] operation took 1.765689977 s
-[CPU  SpTns * Mtx] operation took 1.765063991 s
+[CPU  SpTns DotMul] operation took 0.078688939 s
+[CPU  SpTns DotMul] operation took 0.078176181 s
+[CPU  SpTns DotMul] operation took 0.078045377 s
+[CPU  SpTns DotMul] operation took 0.078075042 s
+[CPU  SpTns DotMul] operation took 0.077996579 s
+[CPU  SpTns DotMul] operation took 0.078159216 s
 
 File: /nethome/jli458/BIGTENSORS/brainq.tns, mode 2
-sptRandomizeMatrix(&U, 9, 16)
-[OMP  SpTns * Mtx] operation took 0.165432014 s
-[OMP  SpTns * Mtx] operation took 0.145122095 s
-[OMP  SpTns * Mtx] operation took 0.129420782 s
-[OMP  SpTns * Mtx] operation took 0.111638771 s
-[OMP  SpTns * Mtx] operation took 0.101880395 s
-[OMP  SpTns * Mtx] operation took 0.090187555 s
+[CPU  SpTns DotMul] operation took 0.009643679 s
+[CPU  SpTns DotMul] operation took 0.013864929 s
+[CPU  SpTns DotMul] operation took 0.010696830 s
+[CPU  SpTns DotMul] operation took 0.009929943 s
+[CPU  SpTns DotMul] operation took 0.008157210 s
+[CPU  SpTns DotMul] operation took 0.008818187 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
 
 File: /nethome/jli458/BIGTENSORS/brainq.tns, mode 2, dev 1, normal kernel
-sptRandomizeMatrix(&U, 9, 16)
-[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.055497921 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.055576532 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.055550174 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.055560258 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.055525730 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<42870, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.055738847 s
+[CUDA  SpTns DotMul] operation took 0.000243481 s
+[CUDA  SpTns DotMul] operation took 0.000294479 s
+[CUDA  SpTns DotMul] operation took 0.000296551 s
+[CUDA  SpTns DotMul] operation took 0.000294950 s
+[CUDA  SpTns DotMul] operation took 0.000295174 s
+[CUDA  SpTns DotMul] operation took 0.000294501 s
 
 File: /nethome/jli458/BIGTENSORS/nell2.tns, mode 2
-sptRandomizeMatrix(&U, 28818, 16)
-[CPU  SpTns * Mtx] operation took 12.412799287 s
-[CPU  SpTns * Mtx] operation took 12.415463368 s
-[CPU  SpTns * Mtx] operation took 12.412336033 s
-[CPU  SpTns * Mtx] operation took 12.413600078 s
-[CPU  SpTns * Mtx] operation took 12.411571173 s
-[CPU  SpTns * Mtx] operation took 12.418377729 s
+[CPU  SpTns DotMul] operation took 0.544113902 s
+[CPU  SpTns DotMul] operation took 0.542407660 s
+[CPU  SpTns DotMul] operation took 0.542851733 s
+[CPU  SpTns DotMul] operation took 0.541784873 s
+[CPU  SpTns DotMul] operation took 0.559843708 s
+[CPU  SpTns DotMul] operation took 0.544358941 s
 
 File: /nethome/jli458/BIGTENSORS/nell2.tns, mode 2
-sptRandomizeMatrix(&U, 28818, 16)
-[OMP  SpTns * Mtx] operation took 0.750968412 s
-[OMP  SpTns * Mtx] operation took 0.639736439 s
-[OMP  SpTns * Mtx] operation took 0.612300887 s
-[OMP  SpTns * Mtx] operation took 0.633834511 s
-[OMP  SpTns * Mtx] operation took 0.622217350 s
-[OMP  SpTns * Mtx] operation took 0.627929248 s
+[CPU  SpTns DotMul] operation took 0.042060659 s
+[CPU  SpTns DotMul] operation took 0.034483647 s
+[CPU  SpTns DotMul] operation took 0.033363175 s
+[CPU  SpTns DotMul] operation took 0.038089896 s
+[CPU  SpTns DotMul] operation took 0.038135182 s
+[CPU  SpTns DotMul] operation took 0.036363656 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
 
 File: /nethome/jli458/BIGTENSORS/nell2.tns, mode 2, dev 1, normal kernel
-sptRandomizeMatrix(&U, 28818, 16)
-[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.815816463 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.680386078 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.680318456 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.681112046 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.680868400 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<10543, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.681077864 s
+[CUDA  SpTns DotMul] operation took 0.001926915 s
+[CUDA  SpTns DotMul] operation took 0.001953921 s
+[CUDA  SpTns DotMul] operation took 0.001736060 s
+[CUDA  SpTns DotMul] operation took 0.001738597 s
+[CUDA  SpTns DotMul] operation took 0.001740911 s
+[CUDA  SpTns DotMul] operation took 0.001660854 s
 
 File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2
-sptRandomizeMatrix(&U, 25495389, 16)
-[CPU  SpTns * Mtx] operation took 33.701101765 s
-[CPU  SpTns * Mtx] operation took 33.678513010 s
-[CPU  SpTns * Mtx] operation took 33.703835233 s
-[CPU  SpTns * Mtx] operation took 33.697376276 s
-[CPU  SpTns * Mtx] operation took 33.968671359 s
-[CPU  SpTns * Mtx] operation took 34.044019441 s
+[CPU  SpTns DotMul] operation took 1.036456055 s
+[CPU  SpTns DotMul] operation took 1.017810182 s
+[CPU  SpTns DotMul] operation took 1.016284931 s
+[CPU  SpTns DotMul] operation took 1.070706801 s
+[CPU  SpTns DotMul] operation took 1.015379541 s
+[CPU  SpTns DotMul] operation took 1.013069346 s
 
 File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2
-sptRandomizeMatrix(&U, 25495389, 16)
-[OMP  SpTns * Mtx] operation took 1.433950380 s
-[OMP  SpTns * Mtx] operation took 1.262943613 s
-[OMP  SpTns * Mtx] operation took 1.271273435 s
-[OMP  SpTns * Mtx] operation took 1.331722634 s
-[OMP  SpTns * Mtx] operation took 1.301755000 s
-[OMP  SpTns * Mtx] operation took 1.280745233 s
+[CPU  SpTns DotMul] operation took 0.064284793 s
+[CPU  SpTns DotMul] operation took 0.060867634 s
+[CPU  SpTns DotMul] operation took 0.059092608 s
+[CPU  SpTns DotMul] operation took 0.058893897 s
+[CPU  SpTns DotMul] operation took 0.061538322 s
+[CPU  SpTns DotMul] operation took 0.062296107 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
 
 File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2, dev 1, normal kernel
-sptRandomizeMatrix(&U, 25495389, 16)
-[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 1.467948270 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 1.388848842 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 1.421017053 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 1.390075484 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 1.391390745 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<542889, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 1.392805106 s
+[CUDA  SpTns DotMul] operation took 0.003634341 s
+[CUDA  SpTns DotMul] operation took 0.003233116 s
+[CUDA  SpTns DotMul] operation took 0.003098186 s
+[CUDA  SpTns DotMul] operation took 0.003094621 s
+[CUDA  SpTns DotMul] operation took 0.003090715 s
+[CUDA  SpTns DotMul] operation took 0.003087519 s
 
 File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2
-sptRandomizeMatrix(&U, 2480308, 16)
-[CPU  SpTns * Mtx] operation took 24.790814004 s
-[CPU  SpTns * Mtx] operation took 24.754730814 s
-[CPU  SpTns * Mtx] operation took 24.753612534 s
-[CPU  SpTns * Mtx] operation took 24.809282497 s
-[CPU  SpTns * Mtx] operation took 24.745313345 s
-[CPU  SpTns * Mtx] operation took 24.809542987 s
+[CPU  SpTns DotMul] operation took 0.993383490 s
+[CPU  SpTns DotMul] operation took 1.008995838 s
+[CPU  SpTns DotMul] operation took 0.992955748 s
+[CPU  SpTns DotMul] operation took 1.044231472 s
+[CPU  SpTns DotMul] operation took 0.993604903 s
+[CPU  SpTns DotMul] operation took 0.988652246 s
 
 File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2
-sptRandomizeMatrix(&U, 2480308, 16)
-[OMP  SpTns * Mtx] operation took 1.433974426 s
-[OMP  SpTns * Mtx] operation took 1.070102280 s
-[OMP  SpTns * Mtx] operation took 1.056326648 s
-[OMP  SpTns * Mtx] operation took 1.197683653 s
-[OMP  SpTns * Mtx] operation took 1.058339645 s
-[OMP  SpTns * Mtx] operation took 1.137641852 s
+[CPU  SpTns DotMul] operation took 0.065460342 s
+[CPU  SpTns DotMul] operation took 0.063835100 s
+[CPU  SpTns DotMul] operation took 0.065802183 s
+[CPU  SpTns DotMul] operation took 0.061291007 s
+[CPU  SpTns DotMul] operation took 0.052263280 s
+[CPU  SpTns DotMul] operation took 0.055037444 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
 
 File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2, dev 1, normal kernel
-sptRandomizeMatrix(&U, 2480308, 16)
-[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.911708502 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.762843909 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.763070327 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.763313919 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.763558614 s
-[CUDA SpTns * Mtx] spt_TTMKernel<<<1476796, (32, 16), 2048>>>
-[CUDA SpTns * Mtx] operation took 0.857125253 s
+[CUDA  SpTns DotMul] operation took 0.003539983 s
+[CUDA  SpTns DotMul] operation took 0.003151907 s
+[CUDA  SpTns DotMul] operation took 0.003015498 s
+[CUDA  SpTns DotMul] operation took 0.003019041 s
+[CUDA  SpTns DotMul] operation took 0.003018385 s
+[CUDA  SpTns DotMul] operation took 0.003017443 s

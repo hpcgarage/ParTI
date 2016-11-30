@@ -196,6 +196,8 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
+int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr);
+
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
  */

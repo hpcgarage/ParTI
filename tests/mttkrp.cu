@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]) {
     int cuda_dev_id = -2;
     int niters = 5;
     int nthreads;
-    int ncudas = 1;
+    int ncudas = 2;
 
     if(argc < 3) {
         printf("Usage: %s X mode [cuda_dev_id, R, Y]\n\n", argv[0]);
@@ -110,12 +110,12 @@ int main(int argc, char const *argv[]) {
          sptCudaSetDevice(cuda_dev_id);
          sptCudaSetDevice(cuda_dev_id+1);
          sptSparseTensor * csX = (sptSparseTensor*)malloc(ncudas *
-             sizeof(sptSparseTensor);
-         sptCoarseSplitSparseTensor(X, csX);
+             sizeof(sptSparseTensor));
+         sptCoarseSplitSparseTensor(&X, ncudas, csX);
          assert(sptCudaMTTKRP(csX, U, &mats_order, mode, &scratch) == 0);
          assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, &scratch) == 0);
          for(int t=0; t<ncudas; ++t) {
-            sptFreeSparseTensor(csX+t);
+            free(csX[t].ndims);
          }
          free(csX);
          break;
@@ -142,8 +142,26 @@ int main(int argc, char const *argv[]) {
             assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
             sptFreeVector(&scratch);
         } else {
-           sptCudaSetDevice(cuda_dev_id);
-           assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+           switch(ncudas) {
+           case 1:
+             sptCudaSetDevice(cuda_dev_id);
+             assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+             break;
+           case 2:
+             sptCudaSetDevice(cuda_dev_id);
+             sptCudaSetDevice(cuda_dev_id+1);
+             sptSparseTensor * csX = (sptSparseTensor*)malloc(ncudas *
+                 sizeof(sptSparseTensor));
+             sptCoarseSplitSparseTensor(&X, ncudas, csX);
+             printf("====\n");
+             assert(sptCudaMTTKRP(csX, U, &mats_order, mode, &scratch) == 0);
+             assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, &scratch) == 0);
+             for(int t=0; t<ncudas; ++t) {
+                free(csX[t].ndims);
+             }
+             free(csX);
+             break;
+           }
         }
     }
 
