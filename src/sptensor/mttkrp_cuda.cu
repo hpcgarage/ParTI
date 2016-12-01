@@ -55,7 +55,7 @@ __global__ static void spt_MTTKRPKernel(
     // __shared__ int mutex = 0;
 
     size_t const nmats = nmodes - 1;
-    size_t const I = Xndims[mode];
+    // size_t const I = Xndims[mode];
     size_t const * const mode_ind = Xinds[mode];
     /* The 64-bit floating-point version of atomicAdd() is only supported by devices of compute capability 6.x and higher. */
     sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];

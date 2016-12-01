@@ -66,12 +66,12 @@ int sptMTTKRP(sptSparseTensor const * const X,
         }
     }
 
-    size_t const I = mats[mode]->nrows;
+    size_t const tmpI = mats[mode]->nrows;
     size_t const R = mats[mode]->ncols;
     size_t const * const mode_ind = X->inds[mode].data;
     sptMatrix * const M = mats[nmodes];
     sptScalar * const mvals = M->values;
-    memset(mvals, 0, I*stride*sizeof(sptScalar));
+    memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
 
     sptTimer timer;
     sptNewTimer(&timer, 0);
