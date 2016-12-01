@@ -14,7 +14,8 @@ cuda_add_library(SpTOL_s STATIC ${SPTOL_SRC})
 set_target_properties(SpTOL PROPERTIES C_STANDARD 99)
 set_target_properties(SpTOL_s PROPERTIES C_STANDARD 99)
 
-link_libraries(blas lapack)
+target_link_libraries(SpTOL blas lapack)
+target_link_libraries(SpTOL_s blas lapack)
 
 add_subdirectory("examples")
 add_subdirectory("tests")
