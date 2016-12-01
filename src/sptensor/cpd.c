@@ -18,6 +18,7 @@
 
 #include <SpTOL.h>
 #include "sptensor.h"
+#include <cblas.h>
 
 
 double CpdAlsStep(
@@ -38,10 +39,12 @@ double CpdAlsStep(
   for(size_t m=0; m < nmodes; ++m) {
     sptNewMatrix(ata[m], rank, rank);
     // sptMatrixTransposeMultiply(mats[m], ata[m]);  /* The same storage order with mats. */
+    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, mats[m]->nrows, rank, 1.0, 
+      mats[m]->values, rank, mats[m]->values, mats[m]->nrows, 0.0, ata[m]->values, rank);
   }
   sptNewMatrix(ata[nmodes], rank, rank);
-  // for(size_t m=0; m < nmodes+1; ++m)
-  //   sptDumpMatrix(ata[m], stdout);
+  for(size_t m=0; m < nmodes+1; ++m)
+    sptDumpMatrix(ata[m], stdout);
 
   double oldfit = 0;
   double fit = 0;

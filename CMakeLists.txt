@@ -3,11 +3,11 @@ project(SpTOL)
 
 find_package(CUDA)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp -lblas -llapack")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp -lblas -llapack")
 
 file(GLOB_RECURSE SPTOL_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
-include_directories("include")
+include_directories("include" "/usr/include")
 cuda_add_library(SpTOL SHARED ${SPTOL_SRC})
 cuda_add_library(SpTOL_s STATIC ${SPTOL_SRC})
 
