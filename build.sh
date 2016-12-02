@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -11,7 +11,7 @@ cd build
 # write this into 'build.config': -DCMAKE_C_COMPILER=gcc-5
 # You can also write other configuation flags into 'build.config'
 
-CMAKE_FLAGS=()
+declare -a CMAKE_FLAGS
 [ -e build.config ] && CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" $(<build.config))
 CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" "$@")
 
