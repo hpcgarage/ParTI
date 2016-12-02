@@ -1,4 +1,4 @@
-This directory contains the MATLAB wrapper of ParTI library.
+This directory contains the MATLAB wrapper of ParTI! library.
 
 ## Building
 
