@@ -1,22 +1,22 @@
 /*
-    This file is part of SpTOL.
+    This file is part of ParTI!.
 
-    SpTOL is free software: you can redistribute it and/or modify
+    ParTI! is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation, either version 3 of
     the License, or (at your option) any later version.
 
-    SpTOL is distributed in the hope that it will be useful,
+    ParTI! is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with SpTOL.
+    License along with ParTI!.
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <SpTOL.h>
+#include <ParTI.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -205,16 +205,16 @@ int sptCudaSparseTensorMulMatrix(
     spt_CheckCudaError(result != 0, "CUDA SpTns * Mtx");
     cudaMemcpy(fiberidx_val, fiberidx.data, fiberidx.len * sizeof (size_t), cudaMemcpyHostToDevice);
 
-    const char *env_SPTOL_TTM_KERNEL = getenv("SPTOL_TTM_KERNEL");
-    const bool use_naive_kernel = env_SPTOL_TTM_KERNEL && !strcmp(env_SPTOL_TTM_KERNEL, "naive");
+    const char *env_PARTI_TTM_KERNEL = getenv("PARTI_TTM_KERNEL");
+    const bool use_naive_kernel = env_PARTI_TTM_KERNEL && !strcmp(env_PARTI_TTM_KERNEL, "naive");
 
     const size_t max_nblocks = 32768;
     const size_t max_nthreads = 1024;
     // size_t sharedMem = (Y->ndims[mode] + X->ndims[mode])*sizeof (sptScalar) + X->ndims[mode]*sizeof (size_t);
-    const char *env_SPTOL_TTM_NTHREADS = getenv("SPTOL_TTM_NTHREADS");
+    const char *env_PARTI_TTM_NTHREADS = getenv("PARTI_TTM_NTHREADS");
     size_t nthreadsX = 32;
-    if(env_SPTOL_TTM_NTHREADS) {
-        sscanf(env_SPTOL_TTM_NTHREADS, "%zu", &nthreadsX);
+    if(env_PARTI_TTM_NTHREADS) {
+        sscanf(env_PARTI_TTM_NTHREADS, "%zu", &nthreadsX);
     }
     size_t sharedMem = nthreadsX * Y->stride * sizeof (sptScalar);
 

@@ -1,6 +1,6 @@
-% ifile = '/home/jli/Work/SpTOL-dev/tensors/3d_3_6_init.tns'
+% ifile = '/home/jli/Work/ParTI-dev/tensors/3d_3_6_init.tns'
 % sz = [3 3 3];
-% ifile = '/home/jli/Work/SpTOL-dev/tensors/3D_12031_init.tns'
+% ifile = '/home/jli/Work/ParTI-dev/tensors/3D_12031_init.tns'
 % sz = [100 80 60];
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/brainq_init.tns'
 % sz = [60 70365 9];

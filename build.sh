@@ -2,7 +2,7 @@
 
 set -e
 
-echo "This script will do an out-of-tree build of SpTOL into the 'build' directory."
+echo "This script will do an out-of-tree build of ParTI into the 'build' directory."
 
 mkdir -p build
 cd build

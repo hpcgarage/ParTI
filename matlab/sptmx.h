@@ -1,18 +1,18 @@
 /*
-    This file is part of SpTOL.
+    This file is part of ParTI!.
 
-    SpTOL is free software: you can redistribute it and/or modify
+    ParTI! is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation, either version 3 of
     the License, or (at your option) any later version.
 
-    SpTOL is distributed in the hope that it will be useful,
+    ParTI! is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with SpTOL.
+    License along with ParTI!.
     If not, see <http://www.gnu.org/licenses/>.
 */
 
@@ -22,16 +22,16 @@
 #define spt_mxCheckArgs(funcname, lnum, ltxt, rnum, rtxt)                   \
 if(nrhs != rnum) {                                                          \
     if(rnum != 1) {                                                         \
-        mexErrMsgIdAndTxt("SpTOL:" funcname, rtxt " inputs required.");    \
+        mexErrMsgIdAndTxt("ParTI:" funcname, rtxt " inputs required.");    \
     } else {                                                                \
-        mexErrMsgIdAndTxt("SpTOL:" funcname, rtxt " input required.");     \
+        mexErrMsgIdAndTxt("ParTI:" funcname, rtxt " input required.");     \
     }                                                                       \
 }                                                                           \
 if(nlhs != lnum) {                                                          \
     if(lnum != 1) {                                                         \
-        mexErrMsgIdAndTxt("SpTOL:" funcname, ltxt " outputs required.");   \
+        mexErrMsgIdAndTxt("ParTI:" funcname, ltxt " outputs required.");   \
     } else {                                                                \
-        mexErrMsgIdAndTxt("SpTOL:" funcname, ltxt " output required.");    \
+        mexErrMsgIdAndTxt("ParTI:" funcname, ltxt " output required.");    \
     }                                                                       \
 }
 

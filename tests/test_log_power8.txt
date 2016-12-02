@@ -167,8 +167,8 @@ Device 3: "Tesla K80"
 deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 7.5, CUDA Runtime Version = 7.5, NumDevs = 4, Device0 = Tesla K80, Device1 = Tesla K80, Device2 = Tesla K80, Device3 = Tesla K80
 Result = PASS
 
-File: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns, mode 2
-input file: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns
+File: /nethome/jli458/ParTI-dev/tensors/3D_12031.tns, mode 2
+input file: /nethome/jli458/ParTI-dev/tensors/3D_12031.tns
 [CPU  SpTns MTTKRP] operation took 0.004762935 s
 [CPU  SpTns MTTKRP] operation took 0.004808636 s
 [CPU  SpTns MTTKRP] operation took 0.004765570 s
@@ -176,8 +176,8 @@ input file: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns
 [CPU  SpTns MTTKRP] operation took 0.004760593 s
 [CPU  SpTns MTTKRP] operation took 0.004764007 s
 
-File: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns, mode 2
-input file: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns
+File: /nethome/jli458/ParTI-dev/tensors/3D_12031.tns, mode 2
+input file: /nethome/jli458/ParTI-dev/tensors/3D_12031.tns
 [CPU  SpTns MTTKRP] operation took 0.006572639 s
 [CPU  SpTns MTTKRP] operation took 0.008428640 s
 [CPU  SpTns MTTKRP] operation took 0.005700596 s
@@ -191,8 +191,8 @@ nthreads: 128
 nthreads: 128
 nthreads: 128
 
-File: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns, mode 2, dev 1, normal kernel
-input file: /nethome/jli458/SpTOL-dev/tensors/3D_12031.tns
+File: /nethome/jli458/ParTI-dev/tensors/3D_12031.tns, mode 2, dev 1, normal kernel
+input file: /nethome/jli458/ParTI-dev/tensors/3D_12031.tns
 [CUDA SpTns MTTKRP] operation took 0.000259915 s
 [CUDA SpTns MTTKRP] operation took 0.000225005 s
 [CUDA SpTns MTTKRP] operation took 0.000217475 s

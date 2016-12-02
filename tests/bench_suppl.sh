@@ -3,14 +3,14 @@
 do_test() {
     echo "File: $1, mode $2"
     echo "do_test $1 $2 $3"
-    SPTOL_TTM_NTHREADS=$3 ~/Work/SpTOL/tests/ttm_new "$1" "$2" 0 "$((512/$3))" 2>&1
+    PARTI_TTM_NTHREADS=$3 ~/Work/ParTI/tests/ttm_new "$1" "$2" 0 "$((512/$3))" 2>&1
 #    for mode in `seq 0 "$(($2 - 1))"`
 #    do
 #        echo "File: $1, mode $mode"
-#        SPTOL_TTM_NTHX=64 ~/Work/SpTOL/tests/ttm_new "$1" "$mode" 0 2>&1
-#        SPTOL_TTM_NTHX=32 ~/Work/SpTOL/tests/ttm_new "$1" "$mode" 0 2>&1
-#        SPTOL_TTM_NTHX=16 ~/Work/SpTOL/tests/ttm_new "$1" "$mode" 0 2>&1
-#        SPTOL_TTM_NTHX=8 ~/Work/SpTOL/tests/ttm_new "$1" "$mode" 0 2>&1
+#        PARTI_TTM_NTHX=64 ~/Work/ParTI/tests/ttm_new "$1" "$mode" 0 2>&1
+#        PARTI_TTM_NTHX=32 ~/Work/ParTI/tests/ttm_new "$1" "$mode" 0 2>&1
+#        PARTI_TTM_NTHX=16 ~/Work/ParTI/tests/ttm_new "$1" "$mode" 0 2>&1
+#        PARTI_TTM_NTHX=8 ~/Work/ParTI/tests/ttm_new "$1" "$mode" 0 2>&1
 #    done
 }
 
@@ -21,15 +21,15 @@ do_test1() {
         do
             echo
             echo "File: $1, mode $mode"
-            ~/Work/SpTOL/tests/ttm_new "$1" "$mode" "$dev" 2>&1
+            ~/Work/ParTI/tests/ttm_new "$1" "$mode" "$dev" 2>&1
         done
         for dev in 0 1
         do
             echo
             echo "File: $1, mode $mode, dev $dev, normal kernel"
-            ~/Work/SpTOL/tests/ttm_new "$1" "$mode" "$dev" 2>&1
+            ~/Work/ParTI/tests/ttm_new "$1" "$mode" "$dev" 2>&1
             echo "File: $1, mode $mode, dev $dev, naïve kernel"
-            SPTOL_TTM_KERNEL=naive ~/Work/SpTOL/tests/ttm_new "$1" "$mode" "$dev" 2>&1
+            PARTI_TTM_KERNEL=naive ~/Work/ParTI/tests/ttm_new "$1" "$mode" "$dev" 2>&1
         done
     done
 }

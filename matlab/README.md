@@ -1,4 +1,4 @@
-This directory contains the MATLAB wrapper of SpTOL library.
+This directory contains the MATLAB wrapper of ParTI library.
 
 ## Building
 
@@ -6,8 +6,8 @@ Type `make` to build all functions into MEX library.
 
 ## Running
 
-If `libSpTOL.so` is not in the default library search path of your system, you
-will need to set `LD_LIBRARY_PATH` to the directory containing `libSpTOL.so`
+If `libParTI.so` is not in the default library search path of your system, you
+will need to set `LD_LIBRARY_PATH` to the directory containing `libParTI.so`
 before starting MATLAB.
 
 ```bash
@@ -30,7 +30,7 @@ However there are some differences between C interface and MATLAB interface:
 
 - Language convensions
 
-  MATLAB matrices are in FORTRAN style: indices start from 1, memory storage is column major. The MATLAB wrapper for SpTOL follows this kind of conversion.
+  MATLAB matrices are in FORTRAN style: indices start from 1, memory storage is column major. The MATLAB wrapper for ParTI follows this kind of conversion.
 
   When you call `sptLoadSparseTensor` or `sptDumpSparseTensor`, you can choose the indexing style for your file by specifying a value in `start_idx`.
 

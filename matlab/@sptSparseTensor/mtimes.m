@@ -1,18 +1,18 @@
 %{
-    This file is part of SpTOL.
+    This file is part of ParTI!.
 
-    SpTOL is free software: you can redistribute it and/or modify
+    ParTI! is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as
     published by the Free Software Foundation, either version 3 of
     the License, or (at your option) any later version.
 
-    SpTOL is distributed in the hope that it will be useful,
+    ParTI! is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with SpTOL.
+    License along with ParTI!.
     If not, see <http://www.gnu.org/licenses/>.
 %}
 
@@ -22,7 +22,7 @@ function Z = mtimes(X, Y)
     Xistensor = strcmp(classX, 'sptSparseTensor');
     Yistensor = strcmp(classY, 'sptSparseTensor');
     if Xistensor & Yistensor
-        error('SpTOL:sptSparseTensor:mtimes', 'Cannot matrix multiply two tensors.');
+        error('ParTI:sptSparseTensor:mtimes', 'Cannot matrix multiply two tensors.');
     elseif Xistensor & ~Yistensor
         Z = sptCopySparseTensor(X);
         sptSparseTensorMulScalar(Z, Y);
@@ -30,6 +30,6 @@ function Z = mtimes(X, Y)
         Z = sptCopySparseTensor(Y);
         sptSparseTensorMulScalar(Z, X);
     else
-        error('SpTOL:sptSparseTensor:mtimes', 'Input is not sptSparseTensor.');
+        error('ParTI:sptSparseTensor:mtimes', 'Input is not sptSparseTensor.');
     end
 end

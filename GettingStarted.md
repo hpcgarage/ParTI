@@ -1,19 +1,19 @@
-Getting started with SpTOL
-==========================
+Getting started with ParTI!
+===========================
 
 
-To use SpTOL in a C/C++ project, simply add
+To use ParTI! in a C/C++ project, simply add
 ```c
-#include <SpTOL.h>
+#include <ParTI.h>
 ```
 to your source code.
 
 Link your code with
 ```sh
--fopenmp -lSpTOL -lm
+-fopenmp -lParTI -lm
 ```
 
-This intro document can help you get used to the basics of SpTOL.
+This intro document can help you get used to the basics of ParTI!.
 
 
 Data types

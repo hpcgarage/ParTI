@@ -31,9 +31,9 @@ ARCHITECTURE_ID	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	42
 ARCHITECTURE_ID	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	426;"	d	file:
 ARCHITECTURE_ID	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	430;"	d	file:
 CFLAGS	./tests/Makefile	/^CFLAGS=-Wall -Wextra -std=c99 -fopenmp -I..\/include -O3$/;"	m
-CMAKE_BINARY_DIR	./build/Makefile	/^CMAKE_BINARY_DIR = \/home\/jli\/Work\/SpTOL\/build$/;"	m
+CMAKE_BINARY_DIR	./build/Makefile	/^CMAKE_BINARY_DIR = \/home\/jli\/Work\/ParTI\/build$/;"	m
 CMAKE_COMMAND	./build/Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
-CMAKE_SOURCE_DIR	./build/Makefile	/^CMAKE_SOURCE_DIR = \/home\/jli\/Work\/SpTOL$/;"	m
+CMAKE_SOURCE_DIR	./build/Makefile	/^CMAKE_SOURCE_DIR = \/home\/jli\/Work\/ParTI$/;"	m
 COMPILER_ID	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	103;"	d	file:
 COMPILER_ID	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	110;"	d	file:
 COMPILER_ID	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	117;"	d	file:
@@ -261,7 +261,7 @@ EQUALS	./build/Makefile	/^EQUALS = =$/;"	m
 HEX	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	450;"	d	file:
 HEX	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	445;"	d	file:
 ID_VOID_MAIN	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	6;"	d	file:
-LDLIBS	./tests/Makefile	/^LDLIBS=..\/build\/libSpTOL_s.a -lm$/;"	m
+LDLIBS	./tests/Makefile	/^LDLIBS=..\/build\/libParTI_s.a -lm$/;"	m
 NVCC	./tests/Makefile	/^NVCC=nvcc$/;"	m
 NVCCFLAGS	./tests/Makefile	/^NVCCFLAGS=-I..\/include -Xcompiler -fopenmp -g$/;"	m
 PLATFORM_ID	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	293;"	d	file:
@@ -346,40 +346,40 @@ SIMULATE_VERSION_MINOR	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	3
 SIMULATE_VERSION_MINOR	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	165;"	d	file:
 SIMULATE_VERSION_MINOR	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	180;"	d	file:
 SIMULATE_VERSION_MINOR	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	38;"	d	file:
-SPTERR_CUDA_ERROR	./include/SpTOL.h	/^    SPTERR_CUDA_ERROR     = 0x20000,$/;"	e	enum:__anon8
-SPTERR_NO_ERROR	./include/SpTOL.h	/^    SPTERR_NO_ERROR       = 0,$/;"	e	enum:__anon8
-SPTERR_OS_ERROR	./include/SpTOL.h	/^    SPTERR_OS_ERROR       = 0x10000,$/;"	e	enum:__anon8
-SPTERR_SHAPE_MISMATCH	./include/SpTOL.h	/^    SPTERR_SHAPE_MISMATCH = 2,$/;"	e	enum:__anon8
-SPTERR_UNKNOWN	./include/SpTOL.h	/^    SPTERR_UNKNOWN        = 1,$/;"	e	enum:__anon8
-SPTERR_VALUE_ERROR	./include/SpTOL.h	/^    SPTERR_VALUE_ERROR    = 3,$/;"	e	enum:__anon8
-SPTOL_ERROR_H_INCLUDED	./src/error/error.h	2;"	d
-SPTOL_H_INCLUDED	./include/SpTOL.h	2;"	d
-SPTOL_SPTENSOR_H	./src/sptensor/sptensor.h	2;"	d
-SPTOL_SSPTENSOR_H	./src/ssptensor/ssptensor.h	2;"	d
+SPTERR_CUDA_ERROR	./include/ParTI.h	/^    SPTERR_CUDA_ERROR     = 0x20000,$/;"	e	enum:__anon8
+SPTERR_NO_ERROR	./include/ParTI.h	/^    SPTERR_NO_ERROR       = 0,$/;"	e	enum:__anon8
+SPTERR_OS_ERROR	./include/ParTI.h	/^    SPTERR_OS_ERROR       = 0x10000,$/;"	e	enum:__anon8
+SPTERR_SHAPE_MISMATCH	./include/ParTI.h	/^    SPTERR_SHAPE_MISMATCH = 2,$/;"	e	enum:__anon8
+SPTERR_UNKNOWN	./include/ParTI.h	/^    SPTERR_UNKNOWN        = 1,$/;"	e	enum:__anon8
+SPTERR_VALUE_ERROR	./include/ParTI.h	/^    SPTERR_VALUE_ERROR    = 3,$/;"	e	enum:__anon8
+PARTI_ERROR_H_INCLUDED	./src/error/error.h	2;"	d
+PARTI_H_INCLUDED	./include/ParTI.h	2;"	d
+PARTI_SPTENSOR_H	./src/sptensor/sptensor.h	2;"	d
+PARTI_SSPTENSOR_H	./src/ssptensor/ssptensor.h	2;"	d
 STRINGIFY	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	289;"	d	file:
 STRINGIFY	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	284;"	d	file:
 STRINGIFY_HELPER	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	288;"	d	file:
 STRINGIFY_HELPER	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	283;"	d	file:
 SUFFIXES	./build/Makefile	/^SUFFIXES =$/;"	m
-SptError	./include/SpTOL.h	/^} SptError;$/;"	t	typeref:enum:__anon8
+SptError	./include/ParTI.h	/^} SptError;$/;"	t	typeref:enum:__anon8
 Start	./include/timer.h	/^  struct timeval Start;$/;"	m	struct:__anon9	typeref:struct:__anon9::timeval
 Stop	./include/timer.h	/^  struct timeval Stop;$/;"	m	struct:__anon9	typeref:struct:__anon9::timeval
 TARGETS	./tests/Makefile	/^TARGETS=loadstore add kronecker khatri-rao convert ttm sttm ttm_new ttm_test ttm_omptest$/;"	m
 Timer	./include/timer.h	/^} Timer;$/;"	t	typeref:struct:__anon9
 bench_contraction	./extra/ctf/bench_ttm.cxx	/^int bench_contraction($/;"	f
 bench_contraction	./extra/ctf/bench_ttm_mpi.cxx	/^int bench_contraction($/;"	f
-cap	./include/SpTOL.h	/^    size_t    cap;     \/\/\/ # of allocated rows$/;"	m	struct:__anon4
-cap	./include/SpTOL.h	/^    size_t    cap;   \/\/\/ capacity$/;"	m	struct:__anon2
-cap	./include/SpTOL.h	/^    size_t cap;   \/\/\/ capacity$/;"	m	struct:__anon3
-colind	./include/SpTOL.h	/^    sptSizeVector colind; \/\/\/ column indices, length nnz$/;"	m	struct:__anon5
+cap	./include/ParTI.h	/^    size_t    cap;     \/\/\/ # of allocated rows$/;"	m	struct:__anon4
+cap	./include/ParTI.h	/^    size_t    cap;   \/\/\/ capacity$/;"	m	struct:__anon2
+cap	./include/ParTI.h	/^    size_t cap;   \/\/\/ capacity$/;"	m	struct:__anon3
+colind	./include/ParTI.h	/^    sptSizeVector colind; \/\/\/ column indices, length nnz$/;"	m	struct:__anon5
 compareAtMode	./matlab/@spTensor/sortAtMode.m	/^function result = compareAtMode(tsr, ind1, ind2, mode)$/;"	f
 compareExceptMode	./matlab/@sspTensor/setIndices.m	/^function result = compareExceptMode(tsr, ind1, ind2, mode)$/;"	f
 compareIndices	./matlab/@spTensor/sort.m	/^function result = compareIndices(tsr, ind1, ind2)$/;"	f
-data	./include/SpTOL.h	/^    size_t *data; \/\/\/ data$/;"	m	struct:__anon3
-data	./include/SpTOL.h	/^    sptScalar *data; \/\/\/ data$/;"	m	struct:__anon2
-do_test	./tests/bench_SpTOL.sh	/^do_test() {$/;"	f
+data	./include/ParTI.h	/^    size_t *data; \/\/\/ data$/;"	m	struct:__anon3
+data	./include/ParTI.h	/^    sptScalar *data; \/\/\/ data$/;"	m	struct:__anon2
+do_test	./tests/bench_ParTI.sh	/^do_test() {$/;"	f
 do_test	./tests/bench_suppl.sh	/^do_test() {$/;"	f
-do_test1	./tests/bench_SpTOL.sh	/^do_test1() {$/;"	f
+do_test1	./tests/bench_ParTI.sh	/^do_test1() {$/;"	f
 do_test1	./tests/bench_suppl.sh	/^do_test1() {$/;"	f
 dump	./matlab/@spTensor/dump.m	/^function nwritten = dump(tsr, start_index, fp)$/;"	f
 errcode	./src/error/error.c	/^    int errcode;$/;"	m	struct:__anon1	file:
@@ -392,8 +392,8 @@ g_last_error	./src/error/error.c	/^} g_last_error = { NULL, 0, NULL, 0, NULL };$
 getCmdOption	./extra/ctf/bench_ttm.cxx	/^char* getCmdOption(char ** begin,$/;"	f
 getCmdOption	./extra/ctf/bench_ttm_mpi.cxx	/^char* getCmdOption(char ** begin,$/;"	f
 human_size	./tools/gentns.py	/^def human_size(nbytes):$/;"	f
-inds	./include/SpTOL.h	/^    sptSizeVector *inds;   \/\/\/ indices of each element, length [nmodes][nnz]$/;"	m	struct:__anon6
-inds	./include/SpTOL.h	/^    sptSizeVector *inds;  \/\/\/ indices of each dense fiber, length [nmodes][nnz], the mode-th value is ignored$/;"	m	struct:__anon7
+inds	./include/ParTI.h	/^    sptSizeVector *inds;   \/\/\/ indices of each element, length [nmodes][nnz]$/;"	m	struct:__anon6
+inds	./include/ParTI.h	/^    sptSizeVector *inds;  \/\/\/ indices of each dense fiber, length [nmodes][nnz], the mode-th value is ignored$/;"	m	struct:__anon7
 info_arch	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	/^char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";$/;"	v
 info_arch	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";$/;"	v
 info_compiler	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	/^char const* info_compiler = "INFO" ":" "compiler[" COMPILER_ID "]";$/;"	v
@@ -410,8 +410,8 @@ info_simulate_version	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	/^
 info_simulate_version	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_simulate_version[] = {$/;"	v
 info_version	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	/^char const info_version[] = {$/;"	v
 info_version	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const info_version[] = {$/;"	v
-len	./include/SpTOL.h	/^    size_t    len;   \/\/\/ length$/;"	m	struct:__anon2
-len	./include/SpTOL.h	/^    size_t len;   \/\/\/ length$/;"	m	struct:__anon3
+len	./include/ParTI.h	/^    size_t    len;   \/\/\/ length$/;"	m	struct:__anon2
+len	./include/ParTI.h	/^    size_t len;   \/\/\/ length$/;"	m	struct:__anon3
 line	./src/error/error.c	/^    unsigned line;$/;"	m	struct:__anon1	file:
 load	./matlab/@spTensor/load.m	/^function tsr = load(start_index, fp)$/;"	f
 load_tensor	./extra/ctf/bench_ttm_mpi.cxx	/^void load_tensor($/;"	f
@@ -423,7 +423,7 @@ main	./build/CMakeFiles/feature_tests.cxx	/^int main(int argc, char** argv) { (v
 main	./extra/ctf/bench_ttm.cxx	/^int main(int argc, char ** argv){$/;"	f
 main	./extra/ctf/bench_ttm_mpi.cxx	/^int main(int argc, char ** argv){$/;"	f
 main	./tests/add.c	/^int main(int argc, char *argv[]) {$/;"	f
-main	./tests/bench_SpTOL.sh	/^main() {$/;"	f
+main	./tests/bench_ParTI.sh	/^main() {$/;"	f
 main	./tests/bench_suppl.sh	/^main() {$/;"	f
 main	./tests/convert.c	/^int main(int argc, char const *argv[]) {$/;"	f
 main	./tests/khatri-rao.c	/^int main(int argc, char *argv[]) {$/;"	f
@@ -435,20 +435,20 @@ make_B	./extra/ctf/bench_ttm.cxx	/^CTF_Tensor *make_B($/;"	f
 make_B	./extra/ctf/bench_ttm_mpi.cxx	/^CTF_Tensor *make_B($/;"	f
 make_prod	./extra/ctf/bench_ttm.cxx	/^CTF_Tensor *make_prod($/;"	f
 make_prod	./extra/ctf/bench_ttm_mpi.cxx	/^CTF_Tensor *make_prod($/;"	f
-mode	./include/SpTOL.h	/^    size_t        mode;   \/\/\/ the mode where data is stored in dense format$/;"	m	struct:__anon7
+mode	./include/ParTI.h	/^    size_t        mode;   \/\/\/ the mode where data is stored in dense format$/;"	m	struct:__anon7
 module	./src/error/error.c	/^    const char *module;$/;"	m	struct:__anon1	file:
-ncols	./include/SpTOL.h	/^    size_t        ncols;  \/\/\/ # colums$/;"	m	struct:__anon5
-ncols	./include/SpTOL.h	/^    size_t    ncols;   \/\/\/ # columns$/;"	m	struct:__anon4
+ncols	./include/ParTI.h	/^    size_t        ncols;  \/\/\/ # colums$/;"	m	struct:__anon5
+ncols	./include/ParTI.h	/^    size_t    ncols;   \/\/\/ # columns$/;"	m	struct:__anon4
 ncols	./matlab/ncols.m	/^function result = ncols(mtx)$/;"	f
-ndims	./include/SpTOL.h	/^    size_t        *ndims;  \/\/\/ size of each mode, length nmodes$/;"	m	struct:__anon6
-ndims	./include/SpTOL.h	/^    size_t        *ndims; \/\/\/ size of each mode, length nmodes$/;"	m	struct:__anon7
-nmodes	./include/SpTOL.h	/^    size_t        nmodes;  \/\/\/ # modes$/;"	m	struct:__anon6
-nmodes	./include/SpTOL.h	/^    size_t        nmodes; \/\/\/ # Modes, must >= 2$/;"	m	struct:__anon7
-nnz	./include/SpTOL.h	/^    size_t        nnz;     \/\/\/ # non-zeros$/;"	m	struct:__anon6
-nnz	./include/SpTOL.h	/^    size_t        nnz;    \/\/\/ # non-zero fibers$/;"	m	struct:__anon7
-nnz	./include/SpTOL.h	/^    size_t        nnz;    \/\/\/ # non-zeros$/;"	m	struct:__anon5
-nrows	./include/SpTOL.h	/^    size_t        nrows;  \/\/\/ # rows$/;"	m	struct:__anon5
-nrows	./include/SpTOL.h	/^    size_t    nrows;   \/\/\/ # rows$/;"	m	struct:__anon4
+ndims	./include/ParTI.h	/^    size_t        *ndims;  \/\/\/ size of each mode, length nmodes$/;"	m	struct:__anon6
+ndims	./include/ParTI.h	/^    size_t        *ndims; \/\/\/ size of each mode, length nmodes$/;"	m	struct:__anon7
+nmodes	./include/ParTI.h	/^    size_t        nmodes;  \/\/\/ # modes$/;"	m	struct:__anon6
+nmodes	./include/ParTI.h	/^    size_t        nmodes; \/\/\/ # Modes, must >= 2$/;"	m	struct:__anon7
+nnz	./include/ParTI.h	/^    size_t        nnz;     \/\/\/ # non-zeros$/;"	m	struct:__anon6
+nnz	./include/ParTI.h	/^    size_t        nnz;    \/\/\/ # non-zero fibers$/;"	m	struct:__anon7
+nnz	./include/ParTI.h	/^    size_t        nnz;    \/\/\/ # non-zeros$/;"	m	struct:__anon5
+nrows	./include/ParTI.h	/^    size_t        nrows;  \/\/\/ # rows$/;"	m	struct:__anon5
+nrows	./include/ParTI.h	/^    size_t    nrows;   \/\/\/ # rows$/;"	m	struct:__anon4
 nrows	./matlab/nrows.m	/^function result = nrows(mtx)$/;"	f
 qnxnto	./build/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
 qnxnto	./build/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp	/^char const* qnxnto = "INFO" ":" "qnxnto[]";$/;"	v
@@ -459,13 +459,13 @@ range	./tools/gentns.py	/^    range = xrange$/;"	v
 read_tensor	./extra/ctf/bench_ttm.cxx	/^CTF_Tensor *read_tensor($/;"	f
 read_tensor	./extra/ctf/bench_ttm_mpi.cxx	/^CTF_Tensor *read_tensor($/;"	f
 reason	./src/error/error.c	/^    char *reason;$/;"	m	struct:__anon1	file:
-rowind	./include/SpTOL.h	/^    sptSizeVector rowind; \/\/\/ row indices, length nnz$/;"	m	struct:__anon5
+rowind	./include/ParTI.h	/^    sptSizeVector rowind; \/\/\/ row indices, length nnz$/;"	m	struct:__anon5
 running	./include/timer.h	/^  int running;$/;"	m	struct:__anon9
 seconds	./include/timer.h	/^  double seconds;$/;"	m	struct:__anon9
 setIndices	./matlab/@sspTensor/setIndices.m	/^function [dest, fiberidx] = setIndices(dest, ref)$/;"	f
 sort	./matlab/@spTensor/sort.m	/^function tsr = sort(tsr)$/;"	f
 sortAtMode	./matlab/@spTensor/sortAtMode.m	/^function tsr = sortAtMode(tsr, mode)$/;"	f
-sortkey	./include/SpTOL.h	/^    size_t        sortkey; \/\/\/ the least significant mode during sort$/;"	m	struct:__anon6
+sortkey	./include/ParTI.h	/^    size_t        sortkey; \/\/\/ the least significant mode during sort$/;"	m	struct:__anon6
 sptAppendMatrix	./src/matrix/matrix.c	/^int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]) {$/;"	f
 sptAppendSizeVector	./src/vector/vector.c	/^int sptAppendSizeVector(sptSizeVector *vec, size_t value) {$/;"	f
 sptAppendSizeVectorWithVector	./src/vector/vector.c	/^int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *append_vec) {$/;"	f
@@ -491,7 +491,7 @@ sptGetLastError	./src/error/error.c	/^int sptGetLastError(const char **module, c
 sptLoadSparseTensor	./src/sptensor/load.c	/^int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {$/;"	f
 sptMTTKRP	./src/sptensor/mttkrp.c	/^int sptMTTKRP(sptSparseTensor const * const X,$/;"	f
 sptMatricize	./src/sptensor/matricize.c	/^int sptMatricize(sptSparseTensor const * const X,$/;"	f
-sptMatrix	./include/SpTOL.h	/^} sptMatrix;$/;"	t	typeref:struct:__anon4
+sptMatrix	./include/ParTI.h	/^} sptMatrix;$/;"	t	typeref:struct:__anon4
 sptNewMatrix	./src/matrix/matrix.c	/^int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {$/;"	f
 sptNewSemiSparseTensor	./src/ssptensor/ssptensor.c	/^int sptNewSemiSparseTensor(sptSemiSparseTensor *tsr, size_t nmodes, size_t mode, const size_t ndims[]) {$/;"	f
 sptNewSizeVector	./src/vector/vector.c	/^int sptNewSizeVector(sptSizeVector *vec, size_t len, size_t cap) {$/;"	f
@@ -503,15 +503,15 @@ sptRandomizeMatrix	./src/matrix/matrix.c	/^int sptRandomizeMatrix(sptMatrix *mtx
 sptResizeMatrix	./src/matrix/matrix.c	/^int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {$/;"	f
 sptResizeSizeVector	./src/vector/vector.c	/^int sptResizeSizeVector(sptSizeVector *vec, size_t size) {$/;"	f
 sptResizeVector	./src/vector/vector.c	/^int sptResizeVector(sptVector *vec, size_t size) {$/;"	f
-sptScalar	./include/SpTOL.h	/^typedef double sptScalar;$/;"	t
-sptSemiSparseTensor	./include/SpTOL.h	/^} sptSemiSparseTensor;$/;"	t	typeref:struct:__anon7
+sptScalar	./include/ParTI.h	/^typedef double sptScalar;$/;"	t
+sptSemiSparseTensor	./include/ParTI.h	/^} sptSemiSparseTensor;$/;"	t	typeref:struct:__anon7
 sptSemiSparseTensorMulMatrix	./src/ssptensor/mmul.c	/^int sptSemiSparseTensorMulMatrix($/;"	f
 sptSemiSparseTensorSetIndices	./src/ssptensor/setinds.c	/^int sptSemiSparseTensorSetIndices($/;"	f
 sptSemiSparseTensorSortIndex	./src/ssptensor/sort.c	/^int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr) {$/;"	f
 sptSemiSparseTensorToSparseTensor	./src/sptensor/fromssp.c	/^int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon) {$/;"	f
-sptSizeVector	./include/SpTOL.h	/^} sptSizeVector;$/;"	t	typeref:struct:__anon3
-sptSparseMatrix	./include/SpTOL.h	/^} sptSparseMatrix;$/;"	t	typeref:struct:__anon5
-sptSparseTensor	./include/SpTOL.h	/^} sptSparseTensor;$/;"	t	typeref:struct:__anon6
+sptSizeVector	./include/ParTI.h	/^} sptSizeVector;$/;"	t	typeref:struct:__anon3
+sptSparseMatrix	./include/ParTI.h	/^} sptSparseMatrix;$/;"	t	typeref:struct:__anon5
+sptSparseTensor	./include/ParTI.h	/^} sptSparseTensor;$/;"	t	typeref:struct:__anon6
 sptSparseTensorAdd	./src/sptensor/add.c	/^int sptSparseTensorAdd(const sptSparseTensor *Y, const sptSparseTensor *X, sptSparseTensor *Z) {$/;"	f
 sptSparseTensorAddOMP	./src/sptensor/add_omp.c	/^int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads) {$/;"	f
 sptSparseTensorDivScalar	./src/sptensor/sdiv.c	/^int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a) {$/;"	f
@@ -527,8 +527,8 @@ sptSparseTensorSub	./src/sptensor/sub.c	/^int sptSparseTensorSub(const sptSparse
 sptSparseTensorSubOMP	./src/sptensor/sub_omp.c	/^int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads) {$/;"	f
 sptSparseTensorToMatrix	./src/matrix/fromsp.c	/^int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src) {$/;"	f
 sptSparseTensorToSemiSparseTensor	./src/ssptensor/fromsp.c	/^int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode) {$/;"	f
-sptTimer	./include/SpTOL.h	/^typedef struct sptTagTimer *sptTimer;$/;"	t	typeref:struct:sptTagTimer
-sptVector	./include/SpTOL.h	/^} sptVector;$/;"	t	typeref:struct:__anon2
+sptTimer	./include/ParTI.h	/^typedef struct sptTagTimer *sptTimer;$/;"	t	typeref:struct:sptTagTimer
+sptVector	./include/ParTI.h	/^} sptVector;$/;"	t	typeref:struct:__anon2
 spt_CheckCudaError	./src/error/error.h	44;"	d
 spt_CheckError	./src/error/error.h	17;"	d
 spt_CheckError	./src/error/error.h	23;"	d
@@ -549,8 +549,8 @@ spt_SwapValues	./src/sptensor/msort.c	/^static void spt_SwapValues(sptSparseTens
 spt_SwapValues	./src/sptensor/sort.c	/^static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {$/;"	f	file:
 spt_SwapValues	./src/ssptensor/merge.c	/^static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]) {$/;"	f	file:
 spt_SwapValues	./src/ssptensor/sort.c	/^static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]) {$/;"	f	file:
-stride	./include/SpTOL.h	/^    size_t        stride; \/\/\/ ndims[mode] rounded up to 8$/;"	m	struct:__anon7
-stride	./include/SpTOL.h	/^    size_t    stride;  \/\/\/ ncols rounded up to 8$/;"	m	struct:__anon4
+stride	./include/ParTI.h	/^    size_t        stride; \/\/\/ ndims[mode] rounded up to 8$/;"	m	struct:__anon7
+stride	./include/ParTI.h	/^    size_t    stride;  \/\/\/ ncols rounded up to 8$/;"	m	struct:__anon4
 swapValues	./matlab/@spTensor/sort.m	/^function tsr = swapValues(tsr, ind1, ind2)$/;"	f
 swapValues	./matlab/@spTensor/sortAtMode.m	/^function tsr = swapValues(tsr, ind1, ind2)$/;"	f
 timer_fstart	./src/ktimer.c	/^void timer_fstart(Timer * const kTimer) {$/;"	f
@@ -562,7 +562,7 @@ timesMatrix	./matlab/@spTensor/timesMatrixCuda.m	/^function Y = timesMatrix(X, U
 toMatrix	./matlab/@spTensor/toMatrix.m	/^function mtx = toMatrix(tsr)$/;"	f
 ttm_timing	./tests/test_tensortoolbox/ttm_timing.m	/^function Y = ttm_timing(X,V,varargin)$/;"	f
 ttmtest	./matlab/ttmtest.m	/^function ttmtest()$/;"	f
-values	./include/SpTOL.h	/^    sptMatrix     values; \/\/\/ dense fibers, size nnz*ndims[mode]$/;"	m	struct:__anon7
-values	./include/SpTOL.h	/^    sptScalar *values; \/\/\/ values, length cap*stride$/;"	m	struct:__anon4
-values	./include/SpTOL.h	/^    sptVector     values;  \/\/\/ non-zero values, length nnz$/;"	m	struct:__anon6
-values	./include/SpTOL.h	/^    sptVector     values; \/\/\/ non-zero values, length nnz$/;"	m	struct:__anon5
+values	./include/ParTI.h	/^    sptMatrix     values; \/\/\/ dense fibers, size nnz*ndims[mode]$/;"	m	struct:__anon7
+values	./include/ParTI.h	/^    sptScalar *values; \/\/\/ values, length cap*stride$/;"	m	struct:__anon4
+values	./include/ParTI.h	/^    sptVector     values;  \/\/\/ non-zero values, length nnz$/;"	m	struct:__anon6
+values	./include/ParTI.h	/^    sptVector     values; \/\/\/ non-zero values, length nnz$/;"	m	struct:__anon5
