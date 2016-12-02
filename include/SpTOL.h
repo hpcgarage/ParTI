@@ -21,19 +21,11 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <assert.h>
-#include <math.h>
-
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
   
-#include <cblas.h>
-#include <lapacke.h>
-
-
 /**
  * Define sptScalar as 32-bit float
  *

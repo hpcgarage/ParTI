@@ -7,9 +7,15 @@ echo "This script will do an out-of-tree build of SpTOL into the 'build' directo
 mkdir -p build
 cd build
 
-cmake .. "$@"
-# Use this if you have GCC >= 6.0 and CUDA <= 8.0
-#cmake .. -DCMAKE_C_COMPILER=gcc-5
+# If you have GCC >= 6.0 and CUDA <= 8.0,
+# write this into 'build.config': -DCMAKE_C_COMPILER=gcc-5
+# You can also write other configuation flags into 'build.config'
+
+CMAKE_FLAGS=()
+[ -e build.config ] && CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" $(<build.config))
+CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" "$@")
+
+cmake "${CMAKE_FLAGS[@]}" ..
 
 make
 

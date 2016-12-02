@@ -17,6 +17,10 @@
 */
 
 #include <SpTOL.h>
+#include <assert.h>
+#include <math.h>
+#include <cblas.h>
+#include <lapacke.h>
 #include "sptensor.h"
 
 
