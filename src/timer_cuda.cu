@@ -16,6 +16,8 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef PARTI_USE_CUDA
+
 #include <ParTI.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,3 +104,5 @@ int sptFreeTimer(sptTimer timer) {
     free(timer);
     return 0;
 }
+
+#endif
