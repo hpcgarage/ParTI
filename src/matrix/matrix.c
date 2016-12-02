@@ -55,9 +55,9 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 }
 
 /**
- * Fill a matrix with random number
+ * Build a matrix with random number
  *
- * @param mtx   a pointer to a valid matrix
+ * @param mtx   a pointer to an uninitialized matrix
  * @param nrows fill the specified number of rows
  * @param ncols fill the specified number of columns
  *
@@ -74,6 +74,29 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     }
   return 0;
 }
+
+
+/**
+ * Build a unit dense matrix
+ *
+ * @param mtx   a pointer to an uninitialized matrix
+ * @param nrows fill the specified number of rows
+ * @param ncols fill the specified number of columns
+ *
+ */
+int sptUnitMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
+  assert(nrows == ncols);
+  int result = sptNewMatrix(mtx, nrows, ncols);
+  spt_CheckError(result, "Mtx Unit", NULL);
+  for(size_t i=0; i<mtx->nrows; ++i)
+    for(size_t j=0; j<mtx->ncols; ++j)
+      mtx->values[i * mtx->stride + j] = 0;
+  for(size_t i=0; i<mtx->nrows; ++i)
+    mtx->values[i * mtx->stride + i] = 1;
+
+  return 0;
+}
+
 
 /**
  * Fill an existed dense matrix with a specified constant
@@ -184,4 +207,85 @@ int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {
  */
 void sptFreeMatrix(sptMatrix *mtx) {
     free(mtx->values);
+}
+
+
+
+
+int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C)
+{
+    size_t nrows = A->nrows;
+    size_t ncols = A->ncols;
+    size_t stride = A->stride;
+    assert(nrows == B->nrows && nrows == C->nrows);
+    assert(ncols == B->ncols && ncols == C->ncols);
+    assert(stride == B->stride && stride == C->stride);
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            C->values[i*stride+j] = A->values[i*stride+j] * B->values[i*stride+j];
+        }
+    }
+
+    return 0;
+}
+
+
+int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats)
+{
+    size_t const nrows = mats[0]->nrows;
+    size_t const ncols = mats[0]->ncols;
+    size_t const stride = mats[0]->stride;
+    // printf("stride: %lu\n", stride);
+    for(size_t m=1; m<nmodes+1; ++m) {
+        assert(mats[m]->ncols == ncols);
+        assert(mats[m]->nrows == nrows);
+        assert(mats[m]->stride == stride);
+    }
+
+    sptScalar * ovals = mats[nmodes]->values;
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            ovals[i * stride + j] = 1;
+        }
+    }
+
+    for(size_t m=1; m < nmodes; ++m) {
+        size_t const pm = (mode + m) % nmodes;
+        // printf("pm: %lu\n", pm);
+        sptScalar const * vals = mats[pm]->values;
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                ovals[i * stride + j] *= vals[i * stride + j];
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
+{
+    size_t const nrows = A->nrows;
+    size_t const ncols = A->ncols;
+    size_t const stride = A->stride;
+    sptScalar * const vals = A->values;
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            lambda[j] += vals[i*stride + j] * vals[i*stride + j];
+        }
+    }
+    for(size_t j=0; j < ncols; ++j) {
+        lambda[j] = sqrt(lambda[j]);
+    }
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            vals[i*stride + j] /= lambda[j];
+        }
+    }
+
+    return 0;
 }

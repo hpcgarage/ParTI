@@ -35,11 +35,12 @@ int sptDumpMatrix(sptMatrix *mtx, FILE *fp) {
     int iores;
     size_t nrows = mtx->nrows;
     size_t ncols = mtx->ncols;
+    size_t stride = mtx->stride;
     iores = fprintf(fp, "%zu x %zu matrix\n", nrows, ncols);
     spt_CheckOSError(iores < 0, "SpMtx Dump");
     for(size_t i=0; i < nrows; ++i) {
       for(size_t j=0; j < ncols; ++j) {
-          iores = fprintf(fp, "%.2lf\t", mtx->values[i * ncols + j]);
+          iores = fprintf(fp, "%.2lf\t", mtx->values[i * stride + j]);
           spt_CheckOSError(iores < 0, "SpMtx Dump");
       }
       iores = fprintf(fp, "\n");

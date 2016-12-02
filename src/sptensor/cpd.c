@@ -18,7 +18,6 @@
 
 #include <SpTOL.h>
 #include "sptensor.h"
-#include <cblas.h>
 
 
 double CpdAlsStep(
@@ -37,14 +36,16 @@ double CpdAlsStep(
     ata[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
   for(size_t m=0; m < nmodes; ++m) {
+    sptScalar * mats_values = mats[m]->values;
     sptNewMatrix(ata[m], rank, rank);
     // sptMatrixTransposeMultiply(mats[m], ata[m]);  /* The same storage order with mats. */
-    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, mats[m]->nrows, rank, 1.0, 
-      mats[m]->values, rank, mats[m]->values, mats[m]->nrows, 0.0, ata[m]->values, rank);
+    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, 
+      mats_values, mats[m]->stride, mats_values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
   }
   sptNewMatrix(ata[nmodes], rank, rank);
-  for(size_t m=0; m < nmodes+1; ++m)
-    sptDumpMatrix(ata[m], stdout);
+  // printf("Initial ata:\n");
+  // for(size_t m=0; m < nmodes+1; ++m)
+  //   sptDumpMatrix(ata[m], stdout);
 
   double oldfit = 0;
   double fit = 0;
@@ -77,23 +78,52 @@ double CpdAlsStep(
         }
       }
       assert (j == nmats);
-      sptDumpSizeVector(&mats_order, stdout);
+      // sptDumpSizeVector(&mats_order, stdout);
 
       assert (sptMTTKRP(spten, mats, &mats_order, m, &scratch) == 0);
-      sptDumpMatrix(mats[nmodes], stdout);
+      // printf("sptMTTKRP:\n");
+      // sptDumpMatrix(mats[nmodes], stdout);
 
-      // InverseHadamardGramMatrices(m, ata, nmodes);
-      // PrintDenseMatrixArray(ata, nmodes+1, "ata after InverseHadamardGramMatrices", stdout);
+      sptMatrixDotMulSeq(m, nmodes, ata);
+      // printf("sptMatrixDotMulSeq:\n");
+      // sptDumpMatrix(ata[nmodes], stdout);
 
-      // memset(mats[m]->vals, 0, mats[m]->nrows * rank * sizeof(ValueType));
-      // sptMatrixMultiply(tmp_mat, ata[nmodes], mats[m]);
-      // PrintDenseMatrix(mats[m], "mats[m] after DenseMatrixMultiply", "debug.txt");
+      /* mat_syminv(ata[nmodes]); */
+      int * ipiv = (int*)malloc(rank * sizeof(int));
+      sptMatrix * unitMat = (sptMatrix*)malloc(sizeof(sptMatrix));
+      sptUnitMatrix(unitMat, rank, rank);
+      LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
+      free(ipiv);
+      sptFreeMatrix(unitMat);
+      free(unitMat);
+      // printf("Inverse ata[nmodes]:\n");
+      // sptDumpMatrix(ata[nmodes], stdout);
 
-      // sptMatrix2Norm(mats[m], lambda);
-      // PrintDenseMatrix(mats[m], "mats[m] after DenseMatrix2Norm", "debug.txt");
+      memset(mats[m]->values, 0, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
+      /* sptMatrixMultiply(tmp_mat, ata[nmodes], mats[m]); */
+      cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
+        tmp_mat->nrows, rank, mats[m]->ncols, 
+        1.0, tmp_mat->values, tmp_mat->stride, 
+        ata[nmodes]->values, ata[nmodes]->stride, 
+        0.0, mats[m]->values, mats[m]->stride);
+      // printf("Update mats[m]:\n");
+      // sptDumpMatrix(mats[m], stdout);
 
-      // sptMatrixTransposeMultiply(mats[m], ata[m]);
-      // PrintDenseMatrix(ata[m], "ata[m] after DenseMatrixTransposeMultiply", "debug.txt");
+      /* sptMatrix2Norm(mats[m], lambda); */
+      sptMatrix2Norm(mats[m], lambda);
+      // printf("Normalize mats[m]:\n");
+      // sptDumpMatrix(mats[m], stdout);
+      // printf("lambda:\n");
+      // for(size_t i=0; i<rank; ++i)
+      //   printf("%lf  ", lambda[i]);
+      // printf("\n\n");
+
+      /* sptMatrixTransposeMultiply(mats[m], ata[m]); */
+      cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, 
+      mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
+      // printf("Update ata[m]:\n");
+      // sptDumpMatrix(ata[m], stdout);
+
       // timer_stop(&modetime[m]);
     }
 
@@ -143,12 +173,15 @@ int sptCpdAls(
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
   for(size_t m=0; m < nmodes; ++m) {
-    sptRandomizeMatrix(mats[m], spten->ndims[m], rank);
+    // assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
+    // assert(sptConstantMatrix(mats[m], 1) == 0);
+    assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
   }
   sptNewMatrix(mats[nmodes], max_dim, rank);
 
-  for(size_t m=0; m < nmodes+1; ++m)
-    sptDumpMatrix(mats[m], stdout);
+  // printf("Initial mats:\n");
+  // for(size_t m=0; m < nmodes+1; ++m)
+  //   sptDumpMatrix(mats[m], stdout);
 
   sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
 

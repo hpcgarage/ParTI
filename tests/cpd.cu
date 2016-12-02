@@ -25,7 +25,7 @@
 int main(int argc, char const *argv[]) {
     FILE *fX, *fo;
     sptSparseTensor X;
-    size_t R = 16;
+    size_t R = 10;
     int niters = 1;
     double tol = 1e-4;
     sptKruskalTensor ktensor;
@@ -41,7 +41,7 @@ int main(int argc, char const *argv[]) {
     assert(fX != NULL);
     assert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
-    sptDumpSparseTensor(&X, 0, stdout);
+    // sptDumpSparseTensor(&X, 0, stdout);
 
     if(argc >= 3) {
         sscanf(argv[2], "%d", &cuda_dev_id);

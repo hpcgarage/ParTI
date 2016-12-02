@@ -31,6 +31,7 @@ extern "C" {
 #endif
   
 #include <cblas.h>
+#include <lapacke.h>
 
 
 /**
@@ -179,6 +180,7 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp);
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptUnitMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
@@ -186,6 +188,9 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
+int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
+int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
+int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
