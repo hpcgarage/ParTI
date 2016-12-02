@@ -77,14 +77,14 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 
 
 /**
- * Build a unit dense matrix
+ * Build an identity dense matrix
  *
  * @param mtx   a pointer to an uninitialized matrix
  * @param nrows fill the specified number of rows
  * @param ncols fill the specified number of columns
  *
  */
-int sptUnitMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
+int sptIdentityMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
   assert(nrows == ncols);
   int result = sptNewMatrix(mtx, nrows, ncols);
   spt_CheckError(result, "Mtx Unit", NULL);

@@ -91,7 +91,7 @@ double CpdAlsStep(
       /* mat_syminv(ata[nmodes]); */
       int * ipiv = (int*)malloc(rank * sizeof(int));
       sptMatrix * unitMat = (sptMatrix*)malloc(sizeof(sptMatrix));
-      sptUnitMatrix(unitMat, rank, rank);
+      sptIdentityMatrix(unitMat, rank, rank);
       LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
       free(ipiv);
       sptFreeMatrix(unitMat);

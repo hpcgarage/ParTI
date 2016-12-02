@@ -180,7 +180,7 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp);
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
-int sptUnitMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptIdentityMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
