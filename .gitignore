@@ -3,4 +3,5 @@
 .DS_Store
 .tags*
 build
+build.config
 sftp-config.json
