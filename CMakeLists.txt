@@ -7,20 +7,20 @@ option(USE_OpenBLAS "Use OpenBLAS library" ON)
 
 if(USE_CUDA)
     find_package(CUDA REQUIRED)
-    add_definitions(-DPARTI_ENABLE_CUDA)
+    add_definitions(-DPARTI_USE_CUDA)
 endif()
 
 # A bug in FindCUDA module forces us to put "link_libraries" before "cuda_add_library".
 # So we cannot use "target_link_libraries" for target-wise library tracking.
 if(USE_MKL)
     find_package(MKL REQUIRED)
-    add_definitions(-DPARTI_ENABLE_MKL)
+    add_definitions(-DPARTI_USE_MKL)
     include_directories(${MKL_INCLUDE_DIRS})
     link_libraries(${MKL_LIBRARIES})
 endif()
 if(USE_OpenBLAS)
     find_package(OpenBLAS REQUIRED)
-    add_definitions(-DPARTI_ENABLE_OpenBLAS)
+    add_definitions(-DPARTI_USE_OpenBLAS)
     include_directories(${OpenBLAS_INCLUDE_DIRS})
     link_libraries(${OpenBLAS_LIBRARIES})
 endif()
