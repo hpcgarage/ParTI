@@ -1,6 +1,7 @@
 var NAVTREE =
 [
-  [ "SpTOL", "index.html", [
+  [ "ParTI", "index.html", [
+    [ "ParTI!", "index.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -27,7 +28,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_sp_t_o_l_8h.html",
-"structspt_matrix.html"
+"ssptensor_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
