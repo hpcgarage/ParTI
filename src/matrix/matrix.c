@@ -22,6 +22,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <omp.h>
 #include "../error/error.h"
 
 /**
@@ -266,6 +267,45 @@ int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats
 }
 
 
+
+int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats)
+{
+    size_t const nrows = mats[0]->nrows;
+    size_t const ncols = mats[0]->ncols;
+    size_t const stride = mats[0]->stride;
+    // printf("stride: %lu\n", stride);
+    for(size_t m=1; m<nmodes+1; ++m) {
+        assert(mats[m]->ncols == ncols);
+        assert(mats[m]->nrows == nrows);
+        assert(mats[m]->stride == stride);
+    }
+
+    sptScalar * ovals = mats[nmodes]->values;
+    #pragma omp parallel for
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            ovals[i * stride + j] = 1;
+        }
+    }
+
+    for(size_t m=1; m < nmodes; ++m) {
+        size_t const pm = (mode + m) % nmodes;
+        // printf("pm: %lu\n", pm);
+        sptScalar const * vals = mats[pm]->values;
+        #pragma omp parallel for
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                ovals[i * stride + j] *= vals[i * stride + j];
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+
+
 int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
 {
     size_t const nrows = A->nrows;
@@ -287,6 +327,55 @@ int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
             vals[i*stride + j] /= lambda[j];
         }
     }
+
+    return 0;
+}
+
+
+
+int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
+{
+    size_t const nrows = A->nrows;
+    size_t const ncols = A->ncols;
+    size_t const stride = A->stride;
+    sptScalar * const vals = A->values;
+
+    #pragma omp parallel
+    {
+        int const tid = omp_get_thread_num();
+        int const nthreads = omp_get_num_threads();
+        sptScalar * loc_lambda = (sptScalar *)malloc(ncols * nthreads * sizeof(sptScalar));
+        for(size_t j=0; j < ncols * nthreads; ++j)
+            loc_lambda[j] = 0;
+        for(size_t j=0; j < ncols; ++j)
+            lambda[j] = 0;
+
+        #pragma omp for
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                loc_lambda[tid * ncols + j] += vals[i*stride + j] * vals[i*stride + j];
+            }
+        }
+
+        for(int i=0; i<nthreads; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                lambda[j] += loc_lambda[i*ncols + j];
+            }
+        }
+
+        #pragma omp for
+        for(size_t j=0; j < ncols; ++j) {
+            lambda[j] = sqrt(lambda[j]);
+        }
+
+        #pragma omp for
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                vals[i*stride + j] /= lambda[j];
+            }
+        }
+
+    }   /* end parallel pragma */
 
     return 0;
 }

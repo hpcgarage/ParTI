@@ -22,9 +22,10 @@
 #include <cblas.h>
 #include <lapacke.h>
 #include "sptensor.h"
+#include <omp.h>
 
 
-double CpdAlsStep(
+double OmpCpdAlsStep(
   sptSparseTensor const * const spten,
   size_t const rank,
   size_t const niters,
@@ -33,16 +34,29 @@ double CpdAlsStep(
   sptScalar * const lambda)
 {
   size_t const nmodes = spten->nmodes;
+  size_t const nnz = spten->nnz;
+  size_t const stride = mats[0]->stride;
+  int nthreads, tid;
+
+  #pragma omp parallel 
+  {
+    nthreads = omp_get_num_threads();
+    tid = omp_get_thread_num();
+    // printf("T%d of %d threads\n", tid, nthreads);
+  }
 
   sptMatrix * tmp_mat = mats[nmodes];
   sptMatrix ** ata = (sptMatrix **)malloc((nmodes+1) * sizeof(*ata));
   for(size_t m=0; m < nmodes+1; ++m) {
     ata[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
+
+  #pragma omp parallel for
   for(size_t m=0; m < nmodes; ++m) {
     sptScalar * mats_values = mats[m]->values;
     sptNewMatrix(ata[m], rank, rank);
-    // sptMatrixTransposeMultiply(mats[m], ata[m]);  /* The same storage order with mats. */
+     /* The same storage order with mats. */
+    /* sptMatrixTransposeMultiply(mats[m], ata[m]); */
     cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, 
       mats_values, mats[m]->stride, mats_values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
   }
@@ -60,7 +74,7 @@ double CpdAlsStep(
   
   /* For MttkrpHyperTensor with size rank. */
   sptVector scratch;
-  sptNewVector (&scratch, rank, rank);
+  sptNewVector (&scratch, nnz * stride, nnz * stride);
   size_t nmats = nmodes - 1;
   sptSizeVector mats_order;
   sptNewSizeVector(&mats_order, nmats, nmats);
@@ -84,11 +98,11 @@ double CpdAlsStep(
       assert (j == nmats);
       // sptDumpSizeVector(&mats_order, stdout);
 
-      assert (sptMTTKRP(spten, mats, &mats_order, m, &scratch) == 0);
+      assert (sptOmpMTTKRP(spten, mats, &mats_order, m, &scratch) == 0);
       // printf("sptMTTKRP:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
-      sptMatrixDotMulSeq(m, nmodes, ata);
+      sptOmpMatrixDotMulSeq(m, nmodes, ata);
       // printf("sptMatrixDotMulSeq:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
@@ -114,7 +128,7 @@ double CpdAlsStep(
       // sptDumpMatrix(mats[m], stdout);
 
       /* sptMatrix2Norm(mats[m], lambda); */
-      sptMatrix2Norm(mats[m], lambda);
+      sptOmpMatrix2Norm(mats[m], lambda);
       // printf("Normalize mats[m]:\n");
       // sptDumpMatrix(mats[m], stdout);
       // printf("lambda:\n");
@@ -161,7 +175,7 @@ double CpdAlsStep(
 }
 
 
-int sptCpdAls(
+int sptOmpCpdAls(
   sptSparseTensor const * const spten,
   size_t const rank,
   size_t const niters,
@@ -177,9 +191,9 @@ int sptCpdAls(
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
   for(size_t m=0; m < nmodes; ++m) {
-    // assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
-    // assert(sptConstantMatrix(mats[m], 1) == 0);
-    assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
+    assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
+    assert(sptConstantMatrix(mats[m], 1) == 0);
+    // assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
   }
   sptNewMatrix(mats[nmodes], max_dim, rank);
 
@@ -193,7 +207,7 @@ int sptCpdAls(
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = CpdAlsStep(spten, rank, niters, tol, mats, lambda);
+  ktensor->fit = OmpCpdAlsStep(spten, rank, niters, tol, mats, lambda);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  SpTns CPD-ALS");

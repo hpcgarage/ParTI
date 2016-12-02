@@ -24,7 +24,7 @@
 #include "sptensor.h"
 
 
-double CpdAlsStep(
+double CudaCpdAlsStep(
   sptSparseTensor const * const spten,
   size_t const rank,
   size_t const niters,
@@ -161,7 +161,7 @@ double CpdAlsStep(
 }
 
 
-int sptCpdAls(
+int sptCudaCpdAls(
   sptSparseTensor const * const spten,
   size_t const rank,
   size_t const niters,
@@ -193,7 +193,7 @@ int sptCpdAls(
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = CpdAlsStep(spten, rank, niters, tol, mats, lambda);
+  ktensor->fit = CudaCpdAlsStep(spten, rank, niters, tol, mats, lambda);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  SpTns CPD-ALS");

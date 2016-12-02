@@ -182,7 +182,9 @@ int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
 int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
+int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
+int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -278,6 +280,18 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
  * CP-ALS
  */
 int sptCpdAls(
+  sptSparseTensor const * const spten,
+  size_t const rank,
+  size_t const niters,
+  double const tol,
+  sptKruskalTensor * ktensor);
+int sptOmpCpdAls(
+  sptSparseTensor const * const spten,
+  size_t const rank,
+  size_t const niters,
+  double const tol,
+  sptKruskalTensor * ktensor);
+int sptCudaCpdAls(
   sptSparseTensor const * const spten,
   size_t const rank,
   size_t const niters,

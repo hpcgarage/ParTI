@@ -26,9 +26,10 @@ int main(int argc, char const *argv[]) {
     FILE *fX, *fo;
     sptSparseTensor X;
     size_t R = 16;
-    int niters = 1;
+    int niters = 5;
     double tol = 1e-4;
     sptKruskalTensor ktensor;
+    int nloops = 5;
     int cuda_dev_id = -2;
     int nthreads;
 
@@ -56,8 +57,34 @@ int main(int argc, char const *argv[]) {
     if(cuda_dev_id == -2) {
         nthreads = 1;
         assert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } 
+    } else if(cuda_dev_id == -1) {
+        #pragma omp parallel
+        {
+            nthreads = omp_get_num_threads();
+        }
+        printf("nthreads: %d\n", nthreads);
+        assert(sptOmpCpdAls(&X, R, niters, tol, &ktensor) == 0);
+    } else {
+         sptCudaSetDevice(cuda_dev_id);
+         // assert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
+    }
 
+    // for(int it=0; it<nloops; ++it) {
+    //     if(cuda_dev_id == -2) {
+    //         nthreads = 1;
+    //         assert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
+    //     } else if(cuda_dev_id == -1) {
+    //         #pragma omp parallel
+    //         {
+    //             nthreads = omp_get_num_threads();
+    //         }
+    //         printf("nthreads: %d\n", nthreads);
+    //         assert(sptOmpCpdAls(&X, R, niters, tol, &ktensor) == 0);
+    //     } else {
+    //          sptCudaSetDevice(cuda_dev_id);
+    //          // assert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
+    //     }
+    // }
 
     sptFreeSparseTensor(&X);
     // sptFreeKruskalTensor(&ktensor);
