@@ -269,3 +269,57 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
 
   return 0;
 }
+
+
+
+
+
+int sptCudaMTTKRPDevice(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t rank,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    sptScalar * dev_scratch) 
+{
+  int result;
+
+  result = cudaMemset(dev_scratch, 0, nnz * rank * sizeof (sptScalar));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  size_t nthreads = 128;
+  size_t nblocks = (nnz + nthreads -1) / nthreads;
+
+  sptTimer timer;
+  sptNewTimer(&timer, 0);
+  sptStartTimer(timer);
+
+  spt_MTTKRPKernel<<<nblocks, nthreads>>>(
+      mode,
+      nmodes,
+      nnz,
+      rank,
+      stride,
+      Xndims,
+      Xinds,
+      Xvals,
+      dev_mats_order,
+      dev_mats,
+      dev_scratch
+      );
+  result = cudaThreadSynchronize();
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  sptStopTimer(timer);
+  sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
+  sptFreeTimer(timer);
+
+
+
+  return 0;
+}

@@ -28,10 +28,6 @@ sz = [200000 8719 662];
 % sz = [1000 1000 1000];
 % file = '/mnt/BIGDATA/jli/BIGTENSORS/nell2_init.tns';
 % sz = [12092 9184 28818];
-%file = '/home/BIGDATA/Collection/SPLATT/nell1.tns';
-%sz = [2902330 2143368 25495389];
-%file = '/home/BIGDATA/Collection/SPLATT/delicious.tns';
-%sz = [532924 17262471 2480308];
 
 fprintf('%s\n', file);
 
@@ -47,15 +43,10 @@ subs = A(:, 1:nmodes);
 vals = A(:, nmodes+1);
 spA = sptensor(subs, vals, sz);
 
-U = cell(nmodes);
-for i = 1:nmodes
-  U{i} = rand(sz(i), R);
-end
-
 
 ts = tic;
 for niter = 1:5
-  res = mttkrp(spA, U, mode);
+  res = cp_als(spA, mode);
 end
 time = toc(ts);
 fprintf('time: %f sec\n', time/5);

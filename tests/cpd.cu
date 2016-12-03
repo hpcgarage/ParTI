@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
         assert(sptOmpCpdAls(&X, R, niters, tol, &ktensor) == 0);
     } else {
          sptCudaSetDevice(cuda_dev_id);
-         // assert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
+         assert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
     }
 
     // for(int it=0; it<nloops; ++it) {

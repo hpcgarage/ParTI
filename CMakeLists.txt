@@ -8,6 +8,8 @@ option(USE_OpenBLAS "Use OpenBLAS library" ON)
 if(USE_CUDA)
     find_package(CUDA REQUIRED)
     add_definitions(-DPARTI_USE_CUDA)
+    include_directories(${CUBLAS_INCLUDE_DIRS})
+    link_libraries(${CUBLAS_LIBRARIES})
 endif()
 
 # A bug in FindCUDA module forces us to put "link_libraries" before "cuda_add_library".

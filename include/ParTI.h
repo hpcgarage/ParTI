@@ -185,6 +185,12 @@ int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats
 int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
 int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
+int sptCudaMatrixDotMulSeq(
+    size_t const mode,
+    size_t const nmodes, 
+    const size_t rank, 
+    const size_t stride, 
+    sptScalar ** dev_ata);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -274,6 +280,18 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
     sptSizeVector const * const mats_order, // Correspond to the mode order of X.
     size_t const mode,
     sptVector * scratch);
+int sptCudaMTTKRPDevice(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t rank,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    sptScalar * dev_scratch);
 
 
 /**
