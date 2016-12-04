@@ -25,8 +25,8 @@
 int main(int argc, char const *argv[]) {
     FILE *fX, *fo;
     sptSparseTensor X;
-    size_t R = 4;
-    int niters = 1;
+    size_t R = 16;
+    int niters = 5;
     double tol = 1e-4;
     sptKruskalTensor ktensor;
     int nloops = 5;

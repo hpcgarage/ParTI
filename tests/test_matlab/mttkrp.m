@@ -1,16 +1,17 @@
 % ifile = '/home/jli/Work/ParTI-dev/tensors/3d_3_6.tns'
- ifile = '/nethome/jli458/ParTI-dev/tensors/3D_12031.tns'
+% ifile = '/nethome/jli458/ParTI-dev/tensors/3D_12031.tns';
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/brainq.tns'
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell2.tns'
-%ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell1.tns'
-% ifile = '/mnt/BIGDATA/jli/BIGTENSORS/delicious.tns'
-m = 3
-R = 16
+ifile = '/nethome/jli458/BIGTENSORS/choa100k.tns'
+% ifile = '/nethome/jli458/BIGTENSORS/choa200k.tns'
+m = 3;
+R = 16;
 
 
 tns = sptLoadSparseTensor(1, ifile);
-nmodes= tns.nmodes
-ndims = tns.ndims
+nmodes= tns.nmodes;
+nnz = tns.nnz;
+ndims = tns.ndims;
 max_ndims = max(ndims);
 
 % U = cell(1,nmodes+1);
@@ -20,6 +21,7 @@ for i = 1:nmodes
 end
 U(nmodes+1) = sptNewMatrix(max_ndims, R);
 sptConstantMatrix(U(nmodes+1), 0);
+stride = U(i).stride;
 
 mats_order = sptNewSizeVector(nmodes-1, nmodes-1);
 mats_order_data = [];
@@ -41,7 +43,10 @@ sptMTTKRP(tns, U, mats_order, m, scratch);
 end
 time = toc(ts);
 fprintf('seq MTTKRP time: %f sec\n', time/5);
+clear scratch;
 
+scratch = sptNewVector(nnz * stride, nnz * stride);
+sptConstantVector(scratch, 0);
 
 ts = tic;
 for niter = 1:5
@@ -49,8 +54,10 @@ sptOmpMTTKRP(tns, U, mats_order, m, scratch);
 end
 time = toc(ts);
 fprintf('omp MTTKRP time: %f sec\n', time/5);
+clear scratch;
 
 
+scratch = sptNewVector(0, 0);
 ts = tic;
 for niter = 1:5
 sptCudaMTTKRP(tns, U, mats_order, m, scratch);

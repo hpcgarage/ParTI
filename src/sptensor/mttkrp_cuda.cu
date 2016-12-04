@@ -215,9 +215,9 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   size_t nthreads = 128;
   size_t nblocks = (nnz + nthreads -1) / nthreads;
 
-  sptTimer timer;
-  sptNewTimer(&timer, 0);
-  sptStartTimer(timer);
+  // sptTimer timer;
+  // sptNewTimer(&timer, 0);
+  // sptStartTimer(timer);
 
   spt_MTTKRPKernel<<<nblocks, nthreads>>>(
       mode,
@@ -236,9 +236,9 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
 
-  sptStopTimer(timer);
-  sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-  sptFreeTimer(timer);
+  // sptStopTimer(timer);
+  // sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
+  // sptFreeTimer(timer);
 
 
   result = cudaMemcpy(mats[nmodes]->values, tmp_mats[nmodes], mats[nmodes]->nrows * mats[nmodes]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
@@ -295,9 +295,9 @@ int sptCudaMTTKRPDevice(
   size_t nthreads = 128;
   size_t nblocks = (nnz + nthreads -1) / nthreads;
 
-  sptTimer timer;
-  sptNewTimer(&timer, 0);
-  sptStartTimer(timer);
+  // sptTimer timer;
+  // sptNewTimer(&timer, 0);
+  // sptStartTimer(timer);
 
   spt_MTTKRPKernel<<<nblocks, nthreads>>>(
       mode,
@@ -315,9 +315,9 @@ int sptCudaMTTKRPDevice(
   result = cudaThreadSynchronize();
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
-  sptStopTimer(timer);
-  sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-  sptFreeTimer(timer);
+  // sptStopTimer(timer);
+  // sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
+  // sptFreeTimer(timer);
 
 
 

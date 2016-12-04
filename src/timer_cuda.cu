@@ -87,7 +87,7 @@ double sptElapsedTime(const sptTimer timer) {
 
 double sptPrintElapsedTime(const sptTimer timer, const char *name) {
     double elapsed_time = sptElapsedTime(timer);
-    fprintf(stderr, "[%s] operation took %.9lf s\n", name, elapsed_time);
+    fprintf(stderr, "[%s]: %.9lf s\n", name, elapsed_time);
     return elapsed_time;
 }
 

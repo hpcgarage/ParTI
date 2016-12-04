@@ -73,9 +73,9 @@ int sptMTTKRP(sptSparseTensor const * const X,
     sptScalar * const mvals = M->values;
     memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
 
-    sptTimer timer;
-    sptNewTimer(&timer, 0);
-    sptStartTimer(timer);
+    // sptTimer timer;
+    // sptNewTimer(&timer, 0);
+    // sptStartTimer(timer);
 
     for(size_t x=0; x<nnz; ++x) {
 
@@ -105,9 +105,9 @@ int sptMTTKRP(sptSparseTensor const * const X,
         }
     }
 
-    sptStopTimer(timer);
-    sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
-    sptFreeTimer(timer);
+    // sptStopTimer(timer);
+    // sptPrintElapsedTime(timer, "CPU  SpTns MTTKRP");
+    // sptFreeTimer(timer);
 
     return 0;
 }

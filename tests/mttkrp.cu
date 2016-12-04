@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]) {
     int cuda_dev_id = -2;
     int niters = 5;
     int nthreads;
-    int ncudas = 2;
+    int ncudas = 1;
 
     if(argc < 3) {
         printf("Usage: %s X mode [cuda_dev_id, R, Y]\n\n", argv[0]);

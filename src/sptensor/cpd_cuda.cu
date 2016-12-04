@@ -68,7 +68,11 @@ double CudaCpdAlsStep(
   // Timer itertime;
   // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
   for(size_t it=0; it < niters; ++it) {
-    // timer_fstart(&itertime);
+    printf("  its = %3lu\n", it+1);
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
+    
     for(size_t m=0; m < nmodes; ++m) {
       // printf("\nmode %lu \n", m);
 
@@ -107,10 +111,12 @@ double CudaCpdAlsStep(
     }
 
     // fit = KruskalTensorFit(spten, lambda, mats, tmp_mat, ata);
-    // timer_stop(&itertime);
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "Iteration");
+    sptFreeTimer(timer);
 
-    printf("  its = %3lu  fit = %0.5f  delta = %+0.4e\n",
-        it+1, fit, fit - oldfit);
+    // printf("  its = %3lu  fit = %0.5f  delta = %+0.4e\n",
+    //     it+1, fit, fit - oldfit);
     // for(IndexType m=0; m < nmodes; ++m) {
     //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
     //       modetime[m].seconds);
@@ -263,7 +269,7 @@ int sptCudaCpdAls(
     dev_lambda);
 
   sptStopTimer(timer);
-  sptPrintElapsedTime(timer, "CUDA  SpTns CPD-ALS");
+  // sptPrintElapsedTime(timer, "CUDA  SpTns CPD-ALS");
   sptFreeTimer(timer);
   magma_finalize();
 
