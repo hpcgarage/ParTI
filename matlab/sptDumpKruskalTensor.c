@@ -24,17 +24,16 @@
 #include "sptmx.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptDumpKruskalTensor", 0, "No", 3, "Three");
+    spt_mxCheckArgs("sptDumpKruskalTensor", 0, "No", 2, "Two");
 
     sptKruskalTensor *ktsr = spt_mxGetPointer(prhs[0], 0);
-    size_t start_idx = mxGetScalar(prhs[1]);
-    char *fn = mxArrayToString(prhs[2]);
+    char *fn = mxArrayToString(prhs[1]);
     FILE *fp = fopen(fn, "w");
     mxFree(fn);
     if(!fp) {
         mexErrMsgIdAndTxt("ParTI:sptDumpKruskalTensor", "Cannot open file.");
     }
 
-    int result = sptDumpKruskalTensor(ktsr, start_idx, fp);
+    sptDumpKruskalTensor(ktsr, fp);
     fclose(fp);
 }
