@@ -20,8 +20,8 @@
 #include <assert.h>
 #include <math.h>
 #include <cublas_v2.h>
-#include "magma.h"
-#include "magma_lapack.h"
+// #include "magma.h"
+// #include "magma_lapack.h"
 #include "sptensor.h"
 
 
@@ -54,9 +54,8 @@ double CudaCpdAlsStep(
   float beta = 0.0;
 
   for(size_t m=0; m < nmodes; ++m) {
-    cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, ndims[m], &alpha, tmp_mats[m], stride, tmp_mats[m], stride, &beta, tmp_ata[m], stride);
+    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, rank, rank, ndims[m], &alpha, tmp_mats[m], stride, tmp_mats[m], stride, &beta, tmp_ata[m], stride);
   }
-  printf("OK\n"); fflush(stdout);
   
 
   double oldfit = 0;
@@ -98,11 +97,11 @@ double CudaCpdAlsStep(
 
       result = cudaMemset(tmp_mats[m], 0, ndims[m] * stride * sizeof (sptScalar));
       spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
-      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, ndims[m], rank, rank, &alpha, tmp_mats[nmodes], stride, dev_unit, stride, &beta, tmp_mats[m], stride);
+      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, rank, ndims[m], rank, &alpha, dev_unit, stride, tmp_mats[nmodes], stride, &beta, tmp_mats[m], stride);
 
       sptCudaMatrix2Norm(ndims[m], rank, stride, tmp_mats[m], dev_lambda);
 
-      cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, ndims[m], &alpha, tmp_mats[m], stride, tmp_mats[m], stride, &beta, tmp_ata[m], stride);
+      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, rank, rank, ndims[m], &alpha, tmp_mats[m], stride, tmp_mats[m], stride, &beta, tmp_ata[m], stride);
 
       // timer_stop(&modetime[m]);
     }
