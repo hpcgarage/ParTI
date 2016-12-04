@@ -40,7 +40,6 @@ endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_35,code=sm_35")
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.
