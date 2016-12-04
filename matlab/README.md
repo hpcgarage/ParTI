@@ -11,7 +11,7 @@ will need to set `LD_LIBRARY_PATH` to the directory containing `libParTI.so`
 before starting MATLAB.
 
 ```bash
-export LD_LIBRARY_PATH=../build
+export LD_LIBRARY_PATH=../build:$LD_LIBRARY_PATH
 matlab
 ```
 
