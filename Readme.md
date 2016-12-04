@@ -35,6 +35,21 @@ A Parallel Tensor Infrastructure (ParTI!), formerly known as SpTOL, is to suppor
 
 3. Check `build/examples` for example programs
 
+## Build MATLAB interface:
+
+1. `cd matlab`
+
+2. export LD_LIBRARY_PATH=../build:$LD_LIBRARY_PATH
+
+3. Type `make` to build all functions into MEX library.
+
+4. matlab
+
+    1. In matlab environment, type `addpath(pwd)`
+   
+    2. Play with ParTI MATLAB inferface.
+    
+
 ## Build docs:
 
 1. Install Doxygen
