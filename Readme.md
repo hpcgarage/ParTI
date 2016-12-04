@@ -29,11 +29,13 @@ A Parallel Tensor Infrastructure (ParTI!), formerly known as SpTOL, is to suppor
 
 ## Build:
 
-1. Type `./build.sh`
+1. Create a file by `touch build.config' to define OpenBLAS_DIR and MAGMA_DIR
 
-2. Check `build` for resulting library
+2. Type `./build.sh`
 
-3. Check `build/examples` for example programs
+3. Check `build` for resulting library
+
+4. Check `build/examples` for example programs
 
 ## Build MATLAB interface:
 
