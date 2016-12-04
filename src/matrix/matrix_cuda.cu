@@ -37,6 +37,9 @@ __global__ static void spt_MatrixDotMulSeqKernel(
     const size_t tidy = threadIdx.y;
 
     sptScalar * ovals = dev_ata[nmodes];
+    ovals[tidx * stride + tidy] = 1;
+    __syncthreads();
+
     for(size_t m=1; m < nmodes; ++m) {
         size_t const pm = (mode + m) % nmodes;
         sptScalar const * vals = dev_ata[pm];
@@ -53,13 +56,6 @@ int sptCudaMatrixDotMulSeq(
     const size_t stride, 
     sptScalar ** dev_ata)
 {
-    sptScalar * ovals = dev_ata[nmodes];
-    for(size_t i=0; i < rank; ++i) {
-        for(size_t j=0; j < rank; ++j) {
-            ovals[i * stride + j] = 1;
-        }
-    }
-
     dim3 nthreads(rank, rank);  // rank <=  16
     dim3 nblocks(1, 1);
 

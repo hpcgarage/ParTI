@@ -32,11 +32,14 @@ double CudaCpdAlsStep(
     const size_t stride,
     size_t const niters,
     double const tol,
+    const size_t * ndims,
     const size_t * Xndims,
     size_t ** const Xinds,
     const sptScalar * Xvals,
     size_t * dev_mats_order,
+    sptScalar ** tmp_mats,
     sptScalar ** dev_mats,
+    sptScalar ** tmp_ata,
     sptScalar ** dev_ata,
     sptScalar * dev_scratch,
     sptScalar * dev_unit,
@@ -51,10 +54,10 @@ double CudaCpdAlsStep(
   float beta = 0.0;
 
   for(size_t m=0; m < nmodes; ++m) {
-    cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, Xndims[m], &alpha, dev_mats[m], stride, dev_mats[m], stride, &beta, dev_ata[m], stride);
+    cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, ndims[m], &alpha, tmp_mats[m], stride, tmp_mats[m], stride, &beta, tmp_ata[m], stride);
   }
-
-  cublasDestroy(handle);
+  printf("OK\n"); fflush(stdout);
+  
 
   double oldfit = 0;
   double fit = 0;
@@ -84,23 +87,22 @@ double CudaCpdAlsStep(
 
       assert (sptCudaMTTKRPDevice(m, nmodes, nnz, rank, stride, Xndims, Xinds, Xvals, dev_mats_order, dev_mats, dev_scratch) == 0);
 
-
       sptCudaMatrixDotMulSeq(m, nmodes, rank, stride, dev_ata);
 
       /* mat_syminv(ata[nmodes]); */
       int info;
       int * ipiv = (int*)malloc(rank * sizeof(int));
-      // magma_sgesv_gpu(rank, rank, dev_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
+      // magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
       free(ipiv);
 
 
-      result = cudaMemset(dev_mats[m], 0, Xndims[m] * stride * sizeof (sptScalar));
+      result = cudaMemset(tmp_mats[m], 0, ndims[m] * stride * sizeof (sptScalar));
       spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
-      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, Xndims[m], rank, rank, &alpha, dev_mats[nmodes], stride, dev_unit, stride, &beta, dev_mats[m], stride);
+      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, ndims[m], rank, rank, &alpha, tmp_mats[nmodes], stride, dev_unit, stride, &beta, tmp_mats[m], stride);
 
-      sptCudaMatrix2Norm(Xndims[m], rank, stride, dev_mats[m], dev_lambda);
+      sptCudaMatrix2Norm(ndims[m], rank, stride, tmp_mats[m], dev_lambda);
 
-      cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, Xndims[m], &alpha, dev_mats[m], stride, dev_mats[m], stride, &beta, dev_ata[m], stride);
+      cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, ndims[m], &alpha, tmp_mats[m], stride, tmp_mats[m], stride, &beta, tmp_ata[m], stride);
 
       // timer_stop(&modetime[m]);
     }
@@ -122,7 +124,7 @@ double CudaCpdAlsStep(
 
   // GetFinalLambda(rank, nmodes, mats, lambda);
 
-
+  cublasDestroy(handle);
   sptFreeSizeVector(&mats_order);
   // free(modetime);
 
@@ -186,7 +188,7 @@ int sptCudaCpdAls(
   result = cudaMalloc((void ***) &Xinds, nmodes * sizeof(size_t*));
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   result = cudaMemcpy(Xinds, tmp_Xinds, nmodes * sizeof (size_t*), cudaMemcpyHostToDevice);
-  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");  
 
   sptScalar ** tmp_mats = NULL;
   tmp_mats = (sptScalar **)malloc((nmodes+1) * sizeof(sptScalar*));
@@ -235,8 +237,6 @@ int sptCudaCpdAls(
   sptFreeMatrix(unitMat);
   free(unitMat);
 
-
-
   sptScalar ** tmp_ata = NULL;
   tmp_ata = (sptScalar **)malloc((nmodes+1) * sizeof(sptScalar*));
   for(size_t i=0; i<nmodes+1; ++i) {
@@ -252,14 +252,14 @@ int sptCudaCpdAls(
   result = cudaMemcpy(dev_ata, tmp_ata, (nmodes+1) * sizeof (sptScalar*), cudaMemcpyHostToDevice);
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
 
-
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
   ktensor->fit = CudaCpdAlsStep(nmodes, nnz, rank, stride, niters, tol,
-    Xndims, Xinds, Xvals, dev_mats_order, dev_mats,
-    dev_ata, dev_scratch, dev_unit,
+    ndims, Xndims, Xinds, Xvals, dev_mats_order, 
+    tmp_mats, dev_mats, tmp_ata, dev_ata, 
+    dev_scratch, dev_unit,
     dev_lambda);
 
   sptStopTimer(timer);

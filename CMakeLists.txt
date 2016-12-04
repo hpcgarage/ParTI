@@ -26,7 +26,13 @@ if(USE_OpenBLAS)
     link_libraries(${OpenBLAS_LIBRARIES})
 endif()
 if(USE_MAGMA)
-    find_package(MAGMA REQUIRED)
+    find_library(
+        MAGMA_LIBRARIES
+        NAMES magma
+        PATHS ${MAGMA_DIR}
+        NO_DEFAULT_PATH
+    )
+    #find_package(MAGMA REQUIRED)
     add_definitions(-DPARTI_USE_MAGMA)
     include_directories(${MAGMA_INCLUDE_DIRS})
     link_libraries(${MAGMA_LIBRARIES})
