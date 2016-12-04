@@ -64,52 +64,6 @@ __global__ static void spt_TTMKernel(
     __syncthreads();
 }
 
-#if 0
-__global__ static void spt_TTMKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
-    size_t block_offset
-) {
-    extern __shared__ sptScalar mem_pool[];
-
-    const size_t tidx = threadIdx.x;
-    const size_t tidy = threadIdx.y;
-    const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
-    const size_t off = blockIdx.x * blockDim.x + tidx;
-    const size_t inz_begin = fiberidx_val[i];
-    const size_t inz_end = fiberidx_val[i+1];
-
-    sptScalar *const Y_shr = (sptScalar *) &mem_pool[tidx*Y_stride]; // size U_ncols
-
-    if(i < Y_nnz) {
-        for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-            Y_shr[off*Y_stride + k] = 0;
-        }
-    }
-
-    __syncthreads();
-
-    if(i < Y_nnz) {
-        for(size_t j = inz_begin; j < inz_end; ++j) {
-            const size_t r = X_inds_m[j];
-            for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-                Y_shr[off*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
-            }
-        }
-    }
-
-    __syncthreads();
-
-    if(i < Y_nnz) {
-        for(size_t k = tidy; k < U_ncols; k += blockDim.x) {
-            Y_val[i*Y_stride + k] = Y_shr[off*Y_stride + k];
-        }
-    }
-}
-#endif
-
 
 __global__ static void spt_TTMNaiveKernel(
     sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
@@ -130,26 +84,6 @@ __global__ static void spt_TTMNaiveKernel(
     for(size_t j = inz_begin; j < inz_end; ++j) {
         const size_t r = X_inds_m[j];
         Y_val[i*Y_stride + tidy] += X_val[j] * U_val[r*U_stride + tidy];
-    }
-}
-
-
-__global__ static void spt_TTMNaiveKernelBasic(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
-    size_t block_offset
-) {
-    const size_t tidx = threadIdx.x;
-    const size_t i = (blockIdx.x + block_offset) * blockDim.x + tidx;
-    const size_t inz_begin = fiberidx_val[i];
-    const size_t inz_end = fiberidx_val[i+1];
-    for(size_t j = inz_begin; j < inz_end; ++j) {
-        for(size_t k = 0; k < U_ncols; ++k) {
-            size_t r = X_inds_m[j];
-            Y_val[i*Y_stride + k] += X_val[j] * U_val[r*U_stride + k];
-        }
     }
 }
 
