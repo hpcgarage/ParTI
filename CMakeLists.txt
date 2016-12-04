@@ -26,16 +26,20 @@ if(USE_OpenBLAS)
     link_libraries(${OpenBLAS_LIBRARIES})
 endif()
 if(USE_MAGMA)
-    #find_package(MAGMA REQUIRED)
+    find_library(
+        MAGMA_LIBRARIES
+        NAMES magma
+        PATHS ${MAGMA_DIR}
+        NO_DEFAULT_PATH
+    )
     add_definitions(-DPARTI_USE_MAGMA)
-    include_directories(/nethome/jli458/Software/include)
-    #link_libraries(${MAGMA_LIBRARIES})
-    link_libraries(/nethome/jli458/Software/lib)
+    get_filename_component(MAGMA_LIBDIR "${MAGMA_LIBRARIES}" DIRECTORY)
+    include_directories("${MAGMA_LIBDIR}/../include")
+    link_libraries(${MAGMA_LIBRARIES})
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_35,code=sm_35")
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.

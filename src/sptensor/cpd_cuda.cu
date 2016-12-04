@@ -92,7 +92,7 @@ double CudaCpdAlsStep(
       /* mat_syminv(ata[nmodes]); */
       int info;
       int * ipiv = (int*)malloc(rank * sizeof(int));
-      magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
+      // magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
       free(ipiv);
 
 
