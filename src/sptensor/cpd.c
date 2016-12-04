@@ -47,9 +47,9 @@ double CpdAlsStep(
       mats_values, mats[m]->stride, mats_values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
   }
   sptNewMatrix(ata[nmodes], rank, rank);
-  printf("Initial ata:\n");
-  for(size_t m=0; m < nmodes+1; ++m)
-    sptDumpMatrix(ata[m], stdout);
+  // printf("Initial ata:\n");
+  // for(size_t m=0; m < nmodes+1; ++m)
+  //   sptDumpMatrix(ata[m], stdout);
 
   double oldfit = 0;
   double fit = 0;

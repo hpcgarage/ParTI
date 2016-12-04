@@ -30,9 +30,9 @@ void mexFunction1(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptKruskalTensor *ktsr = spt_mxGetPointer(prhs[0], 0);
 
     mxDestroyArray(plhs[0]);
-    plhs[0] = mxCreateNumericMatrix(1, ktsr->len, mxDOUBLE_CLASS, mxREAL);
+    plhs[0] = mxCreateNumericMatrix(1, ktsr->rank, mxDOUBLE_CLASS, mxREAL);
     size_t i;
-    for(i = 0; i < ktsr->len; ++i) {
+    for(i = 0; i < ktsr->rank; ++i) {
         spt_mxSetScalar(plhs[0], i, ktsr->lambda[i]);
     }
 }

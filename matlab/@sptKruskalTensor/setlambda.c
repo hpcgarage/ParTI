@@ -32,7 +32,7 @@ void mexFunction2(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     size_t n = mxGetNumberOfElements(prhs[1]);
 
     size_t i;
-    for(i = 0; i < ktsr->len && i < n; ++i) {
+    for(i = 0; i < ktsr->rank&& i < n; ++i) {
         ktsr->lambda[i] = values[i];
     }
 

@@ -233,7 +233,7 @@ int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fibe
 /* Kruskal tensor */
 int sptNewKruskalTensor(sptKruskalTensor *ktsr, size_t nmodes, const size_t ndims[]);
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
-void sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp);
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, size_t start_index, FILE *fp);
 
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);

@@ -20,8 +20,8 @@
 #include <assert.h>
 #include <math.h>
 #include <cublas_v2.h>
-// #include "magma.h"
-// #include "magma_lapack.h"
+#include "magma.h"
+#include "magma_lapack.h"
 #include "sptensor.h"
 
 
@@ -91,7 +91,7 @@ double CudaCpdAlsStep(
       /* mat_syminv(ata[nmodes]); */
       int info;
       int * ipiv = (int*)malloc(rank * sizeof(int));
-      // magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
+      magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info);
       free(ipiv);
 
 
@@ -251,6 +251,7 @@ int sptCudaCpdAls(
   result = cudaMemcpy(dev_ata, tmp_ata, (nmodes+1) * sizeof (sptScalar*), cudaMemcpyHostToDevice);
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
 
+  magma_init();
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
@@ -264,6 +265,7 @@ int sptCudaCpdAls(
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CUDA  SpTns CPD-ALS");
   sptFreeTimer(timer);
+  magma_finalize();
 
   for(size_t i=0; i<nmodes; ++i) {
     result = cudaMemcpy(mats[i]->values, tmp_mats[i], mats[i]->nrows * mats[i]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);

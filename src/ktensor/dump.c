@@ -21,7 +21,7 @@
 #include <string.h>
 #include "../error/error.h"
 
-void sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp)
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, size_t start_index, FILE *fp)
 {
     // TODO
 }
