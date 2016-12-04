@@ -1,8 +1,8 @@
 % ifile = '/home/jli/Work/ParTI-dev/tensors/3d_3_6.tns'
-% ifile = '/home/jli/Work/ParTI-dev/tensors/3D_12031.tns'
+ ifile = '/nethome/jli458/ParTI-dev/tensors/3D_12031.tns'
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/brainq.tns'
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell2.tns'
-ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell1.tns'
+%ifile = '/mnt/BIGDATA/jli/BIGTENSORS/nell1.tns'
 % ifile = '/mnt/BIGDATA/jli/BIGTENSORS/delicious.tns'
 m = 3
 R = 16

@@ -16,7 +16,7 @@
     If not, see <http://www.gnu.org/licenses/>.
 %}
 
-classdef sptSparseMatrix
+classdef sptKruskalTensor
     properties
         ptr = uint64(0);
     end
