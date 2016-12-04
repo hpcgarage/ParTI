@@ -4,7 +4,7 @@ project(ParTI)
 option(USE_CUDA "Use NVIDIA CUDA library" ON)
 option(USE_MKL "Use Intel MKL library" OFF)
 option(USE_OpenBLAS "Use OpenBLAS library" ON)
-option(USE_MAGMA "Use MAGMA library" OFF)
+option(USE_MAGMA "Use MAGMA library" ON)
 
 if(USE_CUDA)
     find_package(CUDA REQUIRED)
@@ -26,16 +26,11 @@ if(USE_OpenBLAS)
     link_libraries(${OpenBLAS_LIBRARIES})
 endif()
 if(USE_MAGMA)
-    find_library(
-        MAGMA_LIBRARIES
-        NAMES magma
-        PATHS ${MAGMA_DIR}
-        NO_DEFAULT_PATH
-    )
     #find_package(MAGMA REQUIRED)
     add_definitions(-DPARTI_USE_MAGMA)
-    include_directories(${MAGMA_INCLUDE_DIRS})
-    link_libraries(${MAGMA_LIBRARIES})
+    include_directories(/nethome/jli458/Software/include)
+    #link_libraries(${MAGMA_LIBRARIES})
+    link_libraries(/nethome/jli458/Software/lib)
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp")

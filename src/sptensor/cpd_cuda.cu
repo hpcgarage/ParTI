@@ -20,8 +20,8 @@
 #include <assert.h>
 #include <math.h>
 #include <cublas_v2.h>
-// #include "magma.h"
-// #include "magma_lapack.h"
+#include "magma.h"
+#include "magma_lapack.h"
 #include "sptensor.h"
 
 
@@ -92,7 +92,7 @@ double CudaCpdAlsStep(
       /* mat_syminv(ata[nmodes]); */
       int info;
       int * ipiv = (int*)malloc(rank * sizeof(int));
-      // magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
+      magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
       free(ipiv);
 
 
@@ -152,9 +152,9 @@ int sptCudaCpdAls(
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
   for(size_t m=0; m < nmodes; ++m) {
-    // assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
-    // assert(sptConstantMatrix(mats[m], 1) == 0);
-    assert(sptRandomizeMatrix(mats[m], X->ndims[m], rank) == 0);
+    assert(sptNewMatrix(mats[m], X->ndims[m], rank) == 0);
+    assert(sptConstantMatrix(mats[m], 1) == 0);
+    // assert(sptRandomizeMatrix(mats[m], X->ndims[m], rank) == 0);
   }
   sptNewMatrix(mats[nmodes], max_dim, rank);
   size_t const stride = mats[0]->stride;
