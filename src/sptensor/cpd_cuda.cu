@@ -20,6 +20,8 @@
 #include <assert.h>
 #include <math.h>
 #include <cublas_v2.h>
+// #include "magma.h"
+// #include "magma_lapack.h"
 #include "sptensor.h"
 
 
@@ -37,6 +39,7 @@ double CudaCpdAlsStep(
     sptScalar ** dev_mats,
     sptScalar ** dev_ata,
     sptScalar * dev_scratch,
+    sptScalar * dev_unit,
     sptScalar * dev_lambda)
 {
   size_t nmats = nmodes - 1;
@@ -85,27 +88,23 @@ double CudaCpdAlsStep(
       sptCudaMatrixDotMulSeq(m, nmodes, rank, stride, dev_ata);
 
       /* mat_syminv(ata[nmodes]); */
-      // int * ipiv = (int*)malloc(rank * sizeof(int));
-      // sptMatrix * unitMat = (sptMatrix*)malloc(sizeof(sptMatrix));
-      // sptIdentityMatrix(unitMat, rank, rank);
-      // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
-      // free(ipiv);
-      // sptFreeMatrix(unitMat);
-      // free(unitMat);
+      int info;
+      int * ipiv = (int*)malloc(rank * sizeof(int));
+      // magma_sgesv_gpu(rank, rank, dev_ata[nmodes], stride, ipiv, dev_unit, stride, &info)
+      free(ipiv);
 
 
       result = cudaMemset(dev_mats[m], 0, Xndims[m] * stride * sizeof (sptScalar));
       spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
-      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, Xndims[m], rank, rank, &alpha, dev_mats[nmodes], stride, dev_ata[nmodes], stride, &beta, dev_mats[m], stride);
+      cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, Xndims[m], rank, rank, &alpha, dev_mats[nmodes], stride, dev_unit, stride, &beta, dev_mats[m], stride);
 
-      // sptMatrix2Norm(mats[m], lambda);
+      sptCudaMatrix2Norm(Xndims[m], rank, stride, dev_mats[m], dev_lambda);
 
       cublasSgemm(handle, CUBLAS_OP_T, CUBLAS_OP_N, rank, rank, Xndims[m], &alpha, dev_mats[m], stride, dev_mats[m], stride, &beta, dev_ata[m], stride);
 
       // timer_stop(&modetime[m]);
     }
 
-    // PrintDenseValueVector(lambda, rank, "lambda", "debug.txt");
     // fit = KruskalTensorFit(spten, lambda, mats, tmp_mat, ata);
     // timer_stop(&itertime);
 
@@ -225,6 +224,19 @@ int sptCudaCpdAls(
   result = cudaMemset(dev_scratch, 0, nnz * rank * sizeof (sptScalar));
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
 
+  sptMatrix * unitMat = (sptMatrix*)malloc(sizeof(sptMatrix));
+  sptNewMatrix(unitMat, rank, rank);
+  sptIdentityMatrix(unitMat);
+  sptScalar * dev_unit = NULL;
+  result = cudaMalloc((void **) &dev_unit, rank * unitMat->stride * sizeof (sptScalar));
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
+  result = cudaMemcpy(dev_unit, unitMat->values, rank * unitMat->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
+  sptFreeMatrix(unitMat);
+  free(unitMat);
+
+
+
   sptScalar ** tmp_ata = NULL;
   tmp_ata = (sptScalar **)malloc((nmodes+1) * sizeof(sptScalar*));
   for(size_t i=0; i<nmodes+1; ++i) {
@@ -247,7 +259,7 @@ int sptCudaCpdAls(
 
   ktensor->fit = CudaCpdAlsStep(nmodes, nnz, rank, stride, niters, tol,
     Xndims, Xinds, Xvals, dev_mats_order, dev_mats,
-    dev_ata, dev_scratch,
+    dev_ata, dev_scratch, dev_unit,
     dev_lambda);
 
   sptStopTimer(timer);
@@ -270,37 +282,40 @@ int sptCudaCpdAls(
 
 
   result = cudaFree(Xndims);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   result = cudaFree(Xvals);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   result = cudaFree(dev_mats_order);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   result = cudaFree(dev_lambda);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   result = cudaFree(dev_scratch);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   for(size_t i=0; i<nmodes; ++i) {
     result = cudaFree(tmp_Xinds[i]);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   }
   result = cudaFree(Xinds);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   for(size_t i=0; i<nmodes+1; ++i) {
     result = cudaFree(tmp_mats[i]);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   }
   result = cudaFree(dev_mats);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   for(size_t i=0; i<nmodes+1; ++i) {
     result = cudaFree(tmp_ata[i]);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   }
   result = cudaFree(dev_ata);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
+  result = cudaFree(dev_unit);
+  spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
   free(tmp_Xinds);
   free(tmp_mats);
   free(tmp_ata);
   free(lambda);
+
 
   sptFreeMatrix(mats[nmodes]);
   

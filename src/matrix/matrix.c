@@ -79,21 +79,21 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 
 
 /**
- * Build an identity dense matrix
+ * Fill an identity dense matrix
  *
  * @param mtx   a pointer to an uninitialized matrix
  * @param nrows fill the specified number of rows
  * @param ncols fill the specified number of columns
  *
  */
-int sptIdentityMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
+int sptIdentityMatrix(sptMatrix *mtx) {
+  size_t const nrows = mtx->nrows;
+  size_t const ncols = mtx->ncols;
   assert(nrows == ncols);
-  int result = sptNewMatrix(mtx, nrows, ncols);
-  spt_CheckError(result, "Mtx Unit", NULL);
-  for(size_t i=0; i<mtx->nrows; ++i)
-    for(size_t j=0; j<mtx->ncols; ++j)
+  for(size_t i=0; i<nrows; ++i)
+    for(size_t j=0; j<ncols; ++j)
       mtx->values[i * mtx->stride + j] = 0;
-  for(size_t i=0; i<mtx->nrows; ++i)
+  for(size_t i=0; i<nrows; ++i)
     mtx->values[i * mtx->stride + i] = 1;
 
   return 0;

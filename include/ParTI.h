@@ -172,7 +172,7 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp);
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
-int sptIdentityMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptIdentityMatrix(sptMatrix *mtx);
 int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
@@ -183,14 +183,20 @@ int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
 int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
-int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
-int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
 int sptCudaMatrixDotMulSeq(
     size_t const mode,
     size_t const nmodes, 
     const size_t rank, 
     const size_t stride, 
     sptScalar ** dev_ata);
+int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
+int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
+int sptCudaMatrix2Norm(
+    size_t const nrows,
+    size_t const ncols,
+    size_t const stride,
+    sptScalar * const dev_vals,
+    sptScalar * const dev_lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);

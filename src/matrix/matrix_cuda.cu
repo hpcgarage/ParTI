@@ -41,8 +41,8 @@ __global__ static void spt_MatrixDotMulSeqKernel(
         size_t const pm = (mode + m) % nmodes;
         sptScalar const * vals = dev_ata[pm];
         ovals[tidx * stride + tidy] *= vals[tidx * stride + tidy];
-        __syncthreads();
     }
+    __syncthreads();
 }
 
 
@@ -65,5 +65,82 @@ int sptCudaMatrixDotMulSeq(
 
     spt_MatrixDotMulSeqKernel<<<nblocks, nthreads>>> (mode, nmodes, rank, stride, dev_ata);
     
+    int result = cudaThreadSynchronize();
+    spt_CheckCudaError(result != 0, "CUDA Matrix sptCudaMatrixDotMulSeq");
+
+    return 0;
+}
+
+
+
+__global__ static void spt_Matrix2NormKernel(
+    size_t const nrows,
+    size_t const ncols,
+    size_t const stride,
+    sptScalar * const dev_vals,
+    sptScalar * const dev_lambda)
+{
+    const size_t tidx = threadIdx.x;
+    const size_t tidy = threadIdx.y;
+    const size_t bidx = blockIdx.x;
+    const size_t i = bidx * blockDim.x + tidx;
+
+    if(i < nrows)
+        atomicAdd(&(dev_lambda[tidy]), dev_vals[i*stride + tidy] * dev_vals[i*stride + tidy]);
+    __syncthreads();
+
+    dev_lambda[tidy] = sqrt(dev_lambda[tidy]);
+    __syncthreads();
+
+    if(i < nrows)
+        dev_vals[i*stride + tidy] /= dev_lambda[tidy];
+    __syncthreads();
+
+}
+
+
+
+int sptCudaMatrix2Norm(
+    size_t const nrows,
+    size_t const ncols,
+    size_t const stride,
+    sptScalar * const dev_vals,
+    sptScalar * const dev_lambda)
+{
+    dim3 nthreads(16, ncols);  // ncols <=  16
+    dim3 nblocks((nrows + 16 -1) / 16);
+
+    spt_Matrix2NormKernel<<<nblocks, nthreads>>>(nrows, ncols, stride, dev_vals, dev_lambda);
+    int result = cudaThreadSynchronize();
+    spt_CheckCudaError(result != 0, "CUDA Matrix sptCudaMatrix2Norm");
+
+    return 0;
+}
+
+__global__ static void spt_IdentityMatrixKernel(
+    size_t const nrows,
+    size_t const ncols,
+    size_t const stride,
+    sptScalar * const dev_vals)
+{
+    const size_t tidx = threadIdx.x;
+    const size_t tidy = threadIdx.y;
+
+    dev_vals[tidx * stride + tidy] = 0;
+    __syncthreads();
+    if (tidx == tidy)
+        dev_vals[tidx * stride + tidy] = 1;
+    __syncthreads();
+}
+
+
+
+int sptCudaIdentityMatrix(size_t const nrows, size_t const ncols, size_t const stride, sptScalar * const dev_vals)
+{
+    assert(nrows <= 16 && ncols <= 16);
+    spt_IdentityMatrixKernel<<<nrows, ncols>>>(nrows, ncols, stride, dev_vals);
+    int result = cudaThreadSynchronize();
+    spt_CheckCudaError(result != 0, "CUDA Matrix sptCudaIdentityMatrix");
+
     return 0;
 }

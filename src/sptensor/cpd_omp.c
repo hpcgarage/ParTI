@@ -78,6 +78,9 @@ double OmpCpdAlsStep(
   size_t nmats = nmodes - 1;
   sptSizeVector mats_order;
   sptNewSizeVector(&mats_order, nmats, nmats);
+  sptMatrix * unitMat = (sptMatrix*)malloc(sizeof(sptMatrix));
+  sptNewMatrix(unitMat, rank, rank);
+  int * ipiv = (int*)malloc(rank * sizeof(int));
 
   for(size_t it=0; it < niters; ++it) {
     // timer_fstart(&itertime);
@@ -107,13 +110,8 @@ double OmpCpdAlsStep(
       // sptDumpMatrix(ata[nmodes], stdout);
 
       /* mat_syminv(ata[nmodes]); */
-      int * ipiv = (int*)malloc(rank * sizeof(int));
-      sptMatrix * unitMat = (sptMatrix*)malloc(sizeof(sptMatrix));
-      sptIdentityMatrix(unitMat, rank, rank);
+      sptIdentityMatrix(unitMat);
       LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
-      free(ipiv);
-      sptFreeMatrix(unitMat);
-      free(unitMat);
       // printf("Inverse ata[nmodes]:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
@@ -122,7 +120,7 @@ double OmpCpdAlsStep(
       cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
         tmp_mat->nrows, rank, mats[m]->ncols, 
         1.0, tmp_mat->values, tmp_mat->stride, 
-        ata[nmodes]->values, ata[nmodes]->stride, 
+        unitMat->values, unitMat->stride, 
         0.0, mats[m]->values, mats[m]->stride);
       // printf("Update mats[m]:\n");
       // sptDumpMatrix(mats[m], stdout);
@@ -169,6 +167,9 @@ double OmpCpdAlsStep(
   free(ata);
   sptFreeVector(&scratch);
   sptFreeSizeVector(&mats_order);
+  sptFreeMatrix(unitMat);
+  free(unitMat);
+  free(ipiv);
   // free(modetime);
 
   return fit;
