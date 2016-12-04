@@ -32,9 +32,9 @@ if(USE_MAGMA)
         PATHS ${MAGMA_DIR}
         NO_DEFAULT_PATH
     )
-    #find_package(MAGMA REQUIRED)
     add_definitions(-DPARTI_USE_MAGMA)
-    include_directories(${MAGMA_INCLUDE_DIRS})
+    get_filename_component(MAGMA_LIBDIR "${MAGMA_LIBRARIES}" DIRECTORY)
+    include_directories("${MAGMA_LIBDIR}/../include")
     link_libraries(${MAGMA_LIBRARIES})
 endif()
 
