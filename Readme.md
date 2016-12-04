@@ -22,6 +22,10 @@ A Parallel Tensor Infrastructure (ParTI!), formerly known as SpTOL, is to suppor
 
 - [CMake](https://cmake.org)
 
+- [OpenBLAS](http://www.openblas.net)
+
+- [MAGMA](http://icl.cs.utk.edu/magma/)
+
 
 ## Build:
 
