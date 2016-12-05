@@ -13,7 +13,7 @@ A Parallel Tensor Infrastructure (ParTI!), formerly known as SpTOL, is to suppor
 * Sparse tensor-times-dense matrix (SpTTM)
 * Sparse matricized tensor times Khatri-Rao product (SpMTTKRP)
 * Sparse tensor matricization
-* CANDECOMP/PARAFAC decomposition
+* Sparse CANDECOMP/PARAFAC decomposition
 
 ## Build requirements:
 
