@@ -33,6 +33,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     plhs[0] = mxCreateNumericMatrix(1, ktsr->nmodes, mxUINT64_CLASS, mxREAL);
     size_t i;
     for(i = 0; i < ktsr->nmodes; ++i) {
-        spt_mxSetSize(plhs[0], i, ktsr->dims[i]);
+        spt_mxSetSize(plhs[0], i, ktsr->ndims[i]);
     }
 }
