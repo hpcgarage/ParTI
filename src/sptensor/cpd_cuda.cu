@@ -72,7 +72,7 @@ double CudaCpdAlsStep(
     sptTimer timer;
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
-    
+
     for(size_t m=0; m < nmodes; ++m) {
       // printf("\nmode %lu \n", m);
 
@@ -95,7 +95,7 @@ double CudaCpdAlsStep(
       /* mat_syminv(ata[nmodes]); */
       int info;
       int * ipiv = (int*)malloc(rank * sizeof(int));
-      magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info);
+      // magma_sgesv_gpu(rank, rank, tmp_ata[nmodes], stride, ipiv, dev_unit, stride, &info);
       free(ipiv);
 
 
@@ -258,9 +258,9 @@ int sptCudaCpdAls(
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
 
   magma_init();
-  sptTimer timer;
-  sptNewTimer(&timer, 0);
-  sptStartTimer(timer);
+  // sptTimer timer;
+  // sptNewTimer(&timer, 0);
+  // sptStartTimer(timer);
 
   ktensor->fit = CudaCpdAlsStep(nmodes, nnz, rank, stride, niters, tol,
     ndims, Xndims, Xinds, Xvals, dev_mats_order, 
@@ -268,23 +268,23 @@ int sptCudaCpdAls(
     dev_scratch, dev_unit,
     dev_lambda);
 
-  sptStopTimer(timer);
+  // sptStopTimer(timer);
   // sptPrintElapsedTime(timer, "CUDA  SpTns CPD-ALS");
-  sptFreeTimer(timer);
+  // sptFreeTimer(timer);
   magma_finalize();
 
   for(size_t i=0; i<nmodes; ++i) {
     result = cudaMemcpy(mats[i]->values, tmp_mats[i], mats[i]->nrows * mats[i]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
     spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP copy back");
   }
-  sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
-  result = cudaMemcpy(lambda, dev_lambda, rank * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+  // sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
+  result = cudaMemcpy(ktensor->lambda, dev_lambda, rank * sizeof (sptScalar), cudaMemcpyDeviceToHost);
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
 
 
-  ktensor->rank = rank;
-  ktensor->nmodes = nmodes;
-  ktensor->lambda = lambda;
+  // ktensor->rank = rank;
+  // ktensor->nmodes = nmodes;
+  // ktensor->lambda = lambda;
   ktensor->factors = mats;
 
 
@@ -321,7 +321,6 @@ int sptCudaCpdAls(
   free(tmp_Xinds);
   free(tmp_mats);
   free(tmp_ata);
-  free(lambda);
 
 
   sptFreeMatrix(mats[nmodes]);

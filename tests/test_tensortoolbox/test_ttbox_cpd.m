@@ -18,8 +18,8 @@
 
 %A = load('/home/jli/Work/ParTI/tensors/3D_12031.tns');
 %sz = [100 80 60];
-file = '/nethome/jli458/choa_20M_init.tns'
-sz = [200000 8719 662];
+file = '/nethome/jli458/BIGTENSORS/choa100k_init.tns'
+sz = [99960 7170 598]
 %file = '/mnt/BIGDATA/jli/BIGTENSORS/brainq_init.tns';
 %sz = [60 70365 9];
 % file = '/home/BIGDATA/Collection/SPLATT/brainq.fixed.tns';
@@ -29,12 +29,7 @@ sz = [200000 8719 662];
 % file = '/mnt/BIGDATA/jli/BIGTENSORS/nell2_init.tns';
 % sz = [12092 9184 28818];
 
-fprintf('%s\n', file);
-
-
-mode = 3;
 R = 16;
-fprintf('R: %d, mode: %d\n', R, mode);
 
 nmodes = length(sz);
 
@@ -45,8 +40,6 @@ spA = sptensor(subs, vals, sz);
 
 
 ts = tic;
-for niter = 1:5
-  res = cp_als(spA, mode);
-end
+res = cp_als_changed(spA, R);
 time = toc(ts);
-fprintf('time: %f sec\n', time/5);
+fprintf('time: %f sec\n', time);

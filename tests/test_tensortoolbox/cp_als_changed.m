@@ -1,4 +1,4 @@
-function [P,Uinit,output] = cp_als(X,R,varargin)
+function [P,Uinit,output] = cp_als_changed(X,R,varargin)
 %CP_ALS Compute a CP decomposition of any type of tensor.
 %
 %   P = CP_ALS(X,R) computes an estimate of the best rank-R
@@ -58,7 +58,7 @@ normX = norm(X);
 %% Set algorithm parameters from input or by using defaults
 params = inputParser;
 params.addParamValue('tol',1e-4,@isscalar);
-params.addParamValue('maxiters',50,@(x) isscalar(x) & x > 0);
+params.addParamValue('maxiters',5,@(x) isscalar(x) & x > 0);
 params.addParamValue('dimorder',1:N,@(x) isequal(sort(x),1:N));
 params.addParamValue('init', 'random', @(x) (iscell(x) || ismember(x,{'random','nvecs'})));
 params.addParamValue('printitn',1,@isscalar);
@@ -129,6 +129,7 @@ else
     end
     
     for iter = 1:maxiters
+        ts = tic;
         
         fitold = fit;
         
@@ -140,7 +141,7 @@ else
             
             % Compute the matrix of coefficients for linear system
             Y = prod(UtU(:,:,[1:n-1 n+1:N]),3);
-            Unew = Unew / Y;
+            % Unew = Unew / Y;
             if issparse(Unew)
                 Unew = full(Unew);   % for the case R=1
             end
@@ -159,30 +160,35 @@ else
         end
         
         P = ktensor(lambda,U);
-        if normX == 0
-            fit = norm(P)^2 - 2 * innerprod(X,P);
-        else
-            normresidual = sqrt( normX^2 + norm(P)^2 - 2 * innerprod(X,P) );
-            fit = 1 - (normresidual / normX); %fraction explained by model
-        end
-        fitchange = abs(fitold - fit);
+        % if normX == 0
+        %     fit = norm(P)^2 - 2 * innerprod(X,P);
+        % else
+        %     normresidual = sqrt( normX^2 + norm(P)^2 - 2 * innerprod(X,P) );
+        %     fit = 1 - (normresidual / normX); %fraction explained by model
+        % end
+        % fitchange = abs(fitold - fit);
+        fitchange = 0;
         
         % Check for convergence
-        if (iter > 1) && (fitchange < fitchangetol)
-            flag = 0;
-        else
-            flag = 1;
-        end
+        % if (iter > 1) && (fitchange < fitchangetol)
+        %     flag = 0;
+        % else
+        %     flag = 1;
+        % end
+        flag = 1;
         
+        time = toc(ts);
+        fprintf('[Iteration] time: %f sec\n', time);
+
         if (mod(iter,printitn)==0) || ((printitn>0) && (flag==0))
-            fprintf(' Iter %2d: f = %e f-delta = %7.1e\n', iter, fit, fitchange);
+            % fprintf(' Iter %2d: f = %e f-delta = %7.1e\n', iter, fit, fitchange);
         end
         
         % Check for convergence
         if (flag == 0)
             break;
         end        
-    end   
+    end
 end
 
 

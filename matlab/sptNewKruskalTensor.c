@@ -25,17 +25,17 @@
 spt_DefineCastArray(spt_mxArrayToSize, size_t)
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptNewKruskalTensor", 1, "One", 2, "Two");
+    spt_mxCheckArgs("sptNewKruskalTensor", 1, "One", 3, "Three");
 
     size_t nmodes = mxGetScalar(prhs[0]);
     if(mxGetNumberOfElements(prhs[1]) != nmodes) {
         mexErrMsgIdAndTxt("ParTI:sptNewKruskalTensor", "length of ndims should be nmodes");
     }
     size_t *ndims = spt_mxArrayToSize(prhs[1]);
+    size_t rank = mxGetScalar(prhs[2]);
 
     sptKruskalTensor *ktsr = malloc(sizeof *ktsr);
-    int result = sptNewKruskalTensor(ktsr, nmodes, ndims);
-    free(ndims);
+    int result = sptNewKruskalTensor(ktsr, nmodes, ndims, rank);
     if(result) {
         free(ktsr);
         ktsr = NULL;

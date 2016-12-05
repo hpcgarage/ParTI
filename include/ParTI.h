@@ -107,9 +107,9 @@ typedef struct {
 typedef struct {
   size_t nmodes;
   size_t rank;
+  size_t * ndims;
   sptScalar * lambda;
   double fit;
-  size_t * dims;
   sptMatrix ** factors;
 } sptKruskalTensor;
 
@@ -231,7 +231,7 @@ int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fibe
 
 
 /* Kruskal tensor */
-int sptNewKruskalTensor(sptKruskalTensor *ktsr, size_t nmodes, const size_t ndims[]);
+int sptNewKruskalTensor(sptKruskalTensor *ktsr, size_t nmodes, const size_t ndims[], size_t rank);
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
 int sptDumpKruskalTensor(sptKruskalTensor *ktsr, size_t start_index, FILE *fp);
 

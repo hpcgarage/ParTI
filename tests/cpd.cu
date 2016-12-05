@@ -53,6 +53,8 @@ int main(int argc, char const *argv[]) {
 
     size_t nmodes = X.nmodes;
 
+    sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
+
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
@@ -87,7 +89,7 @@ int main(int argc, char const *argv[]) {
     // }
 
     sptFreeSparseTensor(&X);
-    // sptFreeKruskalTensor(&ktensor);
+    sptFreeKruskalTensor(&ktensor);
 
     if(argc >= 5) {
         // Dump ktensor to files

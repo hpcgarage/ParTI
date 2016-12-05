@@ -320,6 +320,5 @@ int sptCudaMTTKRPDevice(
   // sptFreeTimer(timer);
 
 
-
   return 0;
 }

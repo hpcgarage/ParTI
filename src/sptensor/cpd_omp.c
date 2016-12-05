@@ -115,7 +115,7 @@ double OmpCpdAlsStep(
 
       /* mat_syminv(ata[nmodes]); */
       sptIdentityMatrix(unitMat);
-      LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
+      // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
       // printf("Inverse ata[nmodes]:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
@@ -208,21 +208,21 @@ int sptOmpCpdAls(
   // for(size_t m=0; m < nmodes+1; ++m)
   //   sptDumpMatrix(mats[m], stdout);
 
-  sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
+  // sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
 
-  sptTimer timer;
-  sptNewTimer(&timer, 0);
-  sptStartTimer(timer);
+  // sptTimer timer;
+  // sptNewTimer(&timer, 0);
+  // sptStartTimer(timer);
 
-  ktensor->fit = OmpCpdAlsStep(spten, rank, niters, tol, mats, lambda);
+  ktensor->fit = OmpCpdAlsStep(spten, rank, niters, tol, mats, ktensor->lambda);
 
-  sptStopTimer(timer);
+  // sptStopTimer(timer);
   // sptPrintElapsedTime(timer, "OMP  SpTns CPD-ALS");
-  sptFreeTimer(timer);
+  // sptFreeTimer(timer);
 
-  ktensor->rank = rank;
-  ktensor->nmodes = nmodes;
-  ktensor->lambda = lambda;
+  // ktensor->rank = rank;
+  // ktensor->nmodes = nmodes;
+  // ktensor->lambda = lambda;
   ktensor->factors = mats;
 
   sptFreeMatrix(mats[nmodes]);

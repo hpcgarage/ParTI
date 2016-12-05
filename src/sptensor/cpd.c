@@ -95,15 +95,20 @@ double CpdAlsStep(
       // printf("sptMTTKRP:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
+
       sptMatrixDotMulSeq(m, nmodes, ata);
       // printf("sptMatrixDotMulSeq:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
+
       /* mat_syminv(ata[nmodes]); */
       sptIdentityMatrix(unitMat);
-      LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
-      // printf("Inverse ata[nmodes]:\n");
+      // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
+      // printf("Inverse ata[nmodes] LU:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
+      // printf("Inverse ata[nmodes]:\n");
+      // sptDumpMatrix(unitMat, stdout);
+      // printf("OK 3\n"); fflush(stdout);
 
       memset(mats[m]->values, 0, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
       /* sptMatrixMultiply(tmp_mat, ata[nmodes], mats[m]); */
@@ -131,6 +136,7 @@ double CpdAlsStep(
       // sptDumpMatrix(ata[m], stdout);
 
       // timer_stop(&modetime[m]);
+      // printf("OK\n"); fflush(stdout);
     }
 
     // PrintDenseValueVector(lambda, rank, "lambda", "debug.txt");
@@ -153,15 +159,15 @@ double CpdAlsStep(
 
   // GetFinalLambda(rank, nmodes, mats, lambda);
 
-  for(size_t m=0; m < nmodes+1; ++m) {
-    sptFreeMatrix(ata[m]);
-  }
-  free(ata);
-  sptFreeVector(&scratch);
-  sptFreeSizeVector(&mats_order);
-  sptFreeMatrix(unitMat);
-  free(unitMat);
-  free(ipiv);
+  // for(size_t m=0; m < nmodes+1; ++m) {
+  //   sptFreeMatrix(ata[m]);
+  // }
+  // free(ata);
+  // sptFreeVector(&scratch);
+  // sptFreeSizeVector(&mats_order);
+  // sptFreeMatrix(unitMat);
+  // free(unitMat);
+  // free(ipiv);
   // free(modetime);
 
   return fit;
@@ -189,26 +195,25 @@ int sptCpdAls(
     assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
   }
   sptNewMatrix(mats[nmodes], max_dim, rank);
-
   // printf("Initial mats:\n");
   // for(size_t m=0; m < nmodes+1; ++m)
   //   sptDumpMatrix(mats[m], stdout);
 
-  sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
+  // sptScalar * lambda = (sptScalar *) malloc(rank * sizeof(sptScalar));
 
-  sptTimer timer;
-  sptNewTimer(&timer, 0);
-  sptStartTimer(timer);
+  // sptTimer timer;
+  // sptNewTimer(&timer, 0);
+  // sptStartTimer(timer);
 
-  ktensor->fit = CpdAlsStep(spten, rank, niters, tol, mats, lambda);
+  ktensor->fit = CpdAlsStep(spten, rank, niters, tol, mats, ktensor->lambda);
 
-  sptStopTimer(timer);
+  // sptStopTimer(timer);
   // sptPrintElapsedTime(timer, "CPU  SpTns CPD-ALS");
-  sptFreeTimer(timer);
+  // sptFreeTimer(timer);
 
-  ktensor->rank = rank;
-  ktensor->nmodes = nmodes;
-  ktensor->lambda = lambda;
+  // ktensor->rank = rank;
+  // ktensor->nmodes = nmodes;
+  // ktensor->lambda = lambda;
   ktensor->factors = mats;
 
   sptFreeMatrix(mats[nmodes]);
