@@ -21,7 +21,7 @@ A Parallel Tensor Infrastructure (ParTI!), formerly known as SpTOL, is to suppor
 
 - [CUDA SDK](https://developer.nvidia.com/cuda-downloads)
 
-- [CMake](https://cmake.org)
+- [CMake](https://cmake.org) (>v3.0)
 
 - [OpenBLAS](http://www.openblas.net)
 
