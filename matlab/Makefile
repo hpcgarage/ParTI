@@ -15,10 +15,10 @@ all.mexw64:
 	find -name '*.c' | sed 's/\.c$$/.mexw64/' | xargs $(MAKE)
 
 %.mexa64: %.c
-	mex $(MEXFLAGS) CFLAGS='$$CFLAGS -std=gnu99 -Wall -Wl,-rpath=../build' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lParTI
+	mex $(MEXFLAGS) CFLAGS='$$CFLAGS -std=gnu99 -Wall' LDFLAGS='$$LDFLAGS -Wl,-rpath=../build' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lParTI
 
 %.mexmaci64: %.c
-	mex $(MEXFLAGS) CFLAGS='$$CFLAGS -std=gnu99 -Wall -Wl,-rpath=../build' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lParTI
+	mex $(MEXFLAGS) CFLAGS='$$CFLAGS -std=gnu99 -Wall' LDFLAGS='$$LDFLAGS -Wl,-rpath=../build' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lParTI
 
 %.mexw64: %.c
-	mex $(MEXFLAGS) CFLAGS='$$CFLAGS -std=gnu99 -Wall -Wl,-rpath=../build' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lParTI
+	mex $(MEXFLAGS) CFLAGS='$$CFLAGS -std=gnu99 -Wall' LDFLAGS='$$LDFLAGS -Wl,-rpath=../build' -I../include -L../build -outdir "$$(dirname "$<")" "$<" -lParTI
