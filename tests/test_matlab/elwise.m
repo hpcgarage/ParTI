@@ -7,12 +7,12 @@ tns = sptLoadSparseTensor(1, ifile);
 disp 'Print sparse tensor';
 sptDumpSparseTensor(tns, 1, ofile);
 
-disp 'Add sparse tensor by itself (double)';
+disp 'Add by itself (double)';
 tns2 = tns + tns;
 sptDumpSparseTensor(tns2, 1, ofile);
 sptFreeSparseTensor(tns2);
 
-disp 'Minus sparse tensor by itself (zero)';
+disp 'Minus by itself (zero)';
 tns0 = tns - tns;
 sptDumpSparseTensor(tns0, 1, ofile);
 sptFreeSparseTensor(tns0);
