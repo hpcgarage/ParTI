@@ -22,7 +22,7 @@ function Z = ldivide(X, Y)
     Xistensor = strcmp(classX, 'sptSparseTensor');
     Yistensor = strcmp(classY, 'sptSparseTensor');
     if Xistensor & Yistensor
-        error('ParTI:sptSpatseTensor:ldivide', 'Cannot divide two tensors.');
+        Z = sptSparseTensorDotDiv(Y, X);
     elseif Xistensor & ~Yistensor
         error('ParTI:sptSpatseTensor:ldivide', 'Cannot divide by a tensor.');
     elseif ~Xistensor & Yistensor
