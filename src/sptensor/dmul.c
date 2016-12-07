@@ -59,13 +59,12 @@ int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sp
             ++i;
         } else {
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns DotMul", NULL);
             }
-            result = sptAppendVector(&Z->values, Y->values.data[j]);
+            result = sptAppendVector(&Z->values, X->values.data[i] * Y->values.data[j]);
             spt_CheckError(result, "SpTns DotMul", NULL);
 
-            Y->values.data[Z->nnz] *= X->values.data[i];
             ++Z->nnz;
             ++i;
             ++j;
