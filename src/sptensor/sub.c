@@ -51,7 +51,7 @@ int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
                 result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
                 spt_CheckError(result, "SpTns Sub", NULL);
             }
-            result = sptAppendVector(&Z->values, Y->values.data[j]);
+            result = sptAppendVector(&Z->values, -Y->values.data[j]);
             spt_CheckError(result, "SpTns Sub", NULL);
 
             ++Z->nnz;
@@ -61,35 +61,45 @@ int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
                 result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns Sub", NULL);
             }
-            result = sptAppendVector(&Z->values, -X->values.data[i]);
+            result = sptAppendVector(&Z->values, X->values.data[i]);
             spt_CheckError(result, "SpTns Sub", NULL);
 
             ++Z->nnz;
             ++i;
         } else {
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns Sub", NULL);
             }
-            result = sptAppendVector(&Z->values, Y->values.data[j]);
+            result = sptAppendVector(&Z->values, X->values.data[i] - Y->values.data[j]);
             spt_CheckError(result, "SpTns Sub", NULL);
 
-            Z->values.data[Z->nnz] -= X->values.data[i];
             ++Z->nnz;
             ++i;
             ++j;
         }
     }
-    /* Append remaining elements of X to Y */
+    /* Append remaining elements of X to Z */
     while(i < X->nnz) {
         for(size_t mode = 0; mode < X->nmodes; ++mode) {
             result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
             spt_CheckError(result, "SpTns Sub", NULL);
         }
-        result = sptAppendVector(&Z->values, -X->values.data[i]);
+        result = sptAppendVector(&Z->values, X->values.data[i]);
         spt_CheckError(result, "SpTns Sub", NULL);
         ++Z->nnz;
         ++i;
+    }
+    /* Append remaining elements of Y to Z */
+    while(i < X->nnz) {
+        for(size_t mode = 0; mode < Y->nmodes; ++mode) {
+            result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+            spt_CheckError(result, "SpTns Sub", NULL);
+        }
+        result = sptAppendVector(&Z->values, -Y->values.data[j]);
+        spt_CheckError(result, "SpTns Sub", NULL);
+        ++Z->nnz;
+        ++j;
     }
     /* Check whether elements become zero after adding.
        If so, fill the gap with the [nnz-1]'th element.
