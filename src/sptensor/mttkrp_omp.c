@@ -75,7 +75,6 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
         sptScalar const entry = vals[x];
-        size_t const mode_i = mode_ind[x];
         for(size_t r=0; r<R; ++r) {
             scratch->data[x * stride + r] = entry * times_mat->values[tmp_i * stride + r];
         }

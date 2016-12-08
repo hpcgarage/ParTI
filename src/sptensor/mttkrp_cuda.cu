@@ -124,8 +124,7 @@ __global__ static void spt_MTTKRPKernel(
 int sptCudaMTTKRP(sptSparseTensor const * const X,
     sptMatrix ** const mats,     // mats[nmodes] as temporary space.
     sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch) {
+    size_t const mode) {
 
     size_t const nmodes = X->nmodes;
     size_t const nnz = X->nnz;

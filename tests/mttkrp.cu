@@ -76,7 +76,7 @@ int main(int argc, char const *argv[]) {
     sptNewSizeVector(&mats_order, nmodes-1, nmodes-1);
     size_t j = 0;
     for(int m=nmodes-1; m>=0; --m) {
-        if(m != mode) {
+        if(m != (int)mode) {
             mats_order.data[j] = m;
             ++ j;
         }
@@ -109,13 +109,13 @@ int main(int argc, char const *argv[]) {
        switch(ncudas) {
        case 1:
          sptCudaSetDevice(cuda_dev_id);
-         assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+         assert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
          break;
        case 2:
          sptCudaSetDevice(cuda_dev_id);
          sptCudaSetDevice(cuda_dev_id+1);
-         assert(sptCudaMTTKRP(csX, U, &mats_order, mode, &scratch) == 0);
-         assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, &scratch) == 0);
+         assert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
+         assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
          break;
        }
     }
@@ -143,14 +143,14 @@ int main(int argc, char const *argv[]) {
            switch(ncudas) {
            case 1:
              sptCudaSetDevice(cuda_dev_id);
-             assert(sptCudaMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+             assert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
              break;
            case 2:
              sptCudaSetDevice(cuda_dev_id);
              sptCudaSetDevice(cuda_dev_id+1);
              printf("====\n");
-             assert(sptCudaMTTKRP(csX, U, &mats_order, mode, &scratch) == 0);
-             assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, &scratch) == 0);
+             assert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
+             assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
              break;
            }
         }

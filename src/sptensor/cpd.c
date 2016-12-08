@@ -104,6 +104,7 @@ double CpdAlsStep(
       /* mat_syminv(ata[nmodes]); */
       sptIdentityMatrix(unitMat);
       // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, unitMat->values, unitMat->stride);
+      
       // printf("Inverse ata[nmodes] LU:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
       // printf("Inverse ata[nmodes]:\n");
@@ -137,7 +138,7 @@ double CpdAlsStep(
 
       // timer_stop(&modetime[m]);
       // printf("OK\n"); fflush(stdout);
-    }
+    } // Loop nmodes
 
     // PrintDenseValueVector(lambda, rank, "lambda", "debug.txt");
     // fit = KruskalTensorFit(spten, lambda, mats, tmp_mat, ata);
@@ -155,7 +156,7 @@ double CpdAlsStep(
     //   break;
     // }
     // oldfit = fit;
-  }
+  } // Loop niters
 
   // GetFinalLambda(rank, nmodes, mats, lambda);
 

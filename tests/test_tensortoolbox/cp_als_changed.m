@@ -129,6 +129,7 @@ else
     end
     
     for iter = 1:maxiters
+        fprintf('  its =\t%d\n', iter);
         ts = tic;
         
         fitold = fit;
@@ -205,7 +206,7 @@ if printitn>0
         normresidual = sqrt( normX^2 + norm(P)^2 - 2 * innerprod(X,P) );
         fit = 1 - (normresidual / normX); %fraction explained by model
     end
-  fprintf(' Final f = %e \n', fit);
+  % fprintf(' Final f = %e \n', fit);
 end
 
 output = struct;

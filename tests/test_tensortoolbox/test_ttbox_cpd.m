@@ -17,29 +17,41 @@
 %}
 
 %A = load('/home/jli/Work/ParTI/tensors/3D_12031.tns');
-%sz = [100 80 60];
-file = '/nethome/jli458/BIGTENSORS/choa100k_init.tns'
-sz = [99960 7170 598]
+%ndims = [100 80 60];
+% file = '/nethome/jli458/BIGTENSORS/choa100k_init.tns';
+% ndims = [99960 7170 598]
+file = '/nethome/jli458/BIGTENSORS/choa200k_init.tns';
+ndims = [199880 8086 656];
+% file = '/nethome/jli458/BIGTENSORS/choa700k_init.tns'
+% ndims = [712329 9827 767]
 %file = '/mnt/BIGDATA/jli/BIGTENSORS/brainq_init.tns';
-%sz = [60 70365 9];
+%ndims = [60 70365 9];
 % file = '/home/BIGDATA/Collection/SPLATT/brainq.fixed.tns';
-% sz = [60 22870 9];
+% ndims = [60 22870 9];
 % file = 'rand_1000_0.0001.tns';
-% sz = [1000 1000 1000];
+% ndims = [1000 1000 1000];
 % file = '/mnt/BIGDATA/jli/BIGTENSORS/nell2_init.tns';
-% sz = [12092 9184 28818];
+% ndims = [12092 9184 28818];
 
 R = 16;
 
-nmodes = length(sz);
+
+nmodes = length(ndims);
 
 A = load(file);
 subs = A(:, 1:nmodes);
 vals = A(:, nmodes+1);
-spA = sptensor(subs, vals, sz);
+spA = sptensor(subs, vals, ndims);
+nnz = length(spA.vals);
+
+
+fprintf('file: %s\n', file);
+fprintf('ndims: [%d, %d, %d]\n', ndims(1), ndims(2), ndims(3));
+fprintf('nnz: %d\n', nnz);
+fprintf('R: %d\n', R);
 
 
 ts = tic;
 res = cp_als_changed(spA, R);
 time = toc(ts);
-fprintf('time: %f sec\n', time);
+% fprintf('time: %f sec\n', time);

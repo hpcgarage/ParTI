@@ -27,8 +27,7 @@
  * @param[in]  Y the input Y
  */
 int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
-    size_t i, j;
-    int result;
+    size_t i;
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns DotMul", "shape mismatch");
