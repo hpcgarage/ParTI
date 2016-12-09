@@ -36,7 +36,9 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 3. Check `build` for resulting library
 
-4. Check `build/examples` for example programs
+4. Check `build/tests` for testing programs
+
+5. Check `build/examples` for example programs
 
 ## Build MATLAB interface:
 
