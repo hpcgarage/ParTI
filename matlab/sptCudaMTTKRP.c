@@ -25,7 +25,7 @@
 spt_DefineCastArray(spt_mxArrayToSize, size_t)
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    spt_mxCheckArgs("sptCudaMTTKRP", 0, "No", 5, "Five");
+    spt_mxCheckArgs("sptCudaMTTKRP", 0, "No", 4, "Four");
 
     sptSparseTensor *X = spt_mxGetPointer(prhs[0], 0);
     size_t nmodes = X->nmodes;
@@ -36,12 +36,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
     sptSizeVector *mats_order = spt_mxGetPointer(prhs[2], 0);
     size_t mode = mxGetScalar(prhs[3])-1;
-    sptVector *scratch = spt_mxGetPointer(prhs[4], 0);
 
     for(m = 0; m < mats_order->len; ++m) {
         --mats_order->data[m];
     }
-    sptCudaMTTKRP(X, mats, mats_order, mode, scratch);
+    sptCudaMTTKRP(X, mats, mats_order, mode);
     for(m = 0; m < mats_order->len; ++m) {
         ++mats_order->data[m];
     }
