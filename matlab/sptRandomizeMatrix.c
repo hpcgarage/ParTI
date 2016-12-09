@@ -29,5 +29,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     size_t nrows = mxGetScalar(prhs[1]);
     size_t ncols = mxGetScalar(prhs[2]);
 
-    int result = sptRandomizeMatrix(mtx, nrows, ncols);
+    sptRandomizeMatrix(mtx, nrows, ncols);
 }

@@ -30,7 +30,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptMatrix *mtx = spt_mxGetPointer(prhs[0], 0);
     sptScalar *values = spt_mxArrayToScalar(prhs[2]);
 
-    int result = sptAppendMatrix(mtx, values);
+    sptAppendMatrix(mtx, values);
 
     free(values);
 }

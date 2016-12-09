@@ -139,9 +139,9 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
         if(mats[i]->ncols != mats[nmodes]->ncols) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
-        // if(mats[i]->nrows != ndims[i]) {
-        //     spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
-        // }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
     }
 
 
@@ -171,14 +171,6 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
   result = cudaMemcpy(Xinds, tmp_Xinds, nmodes * sizeof (size_t*), cudaMemcpyHostToDevice);
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-  // size_t * Xinds = NULL;
-  // result = cudaMallocPitch((void **) &Xinds, &pitch, nnz * sizeof (sptScalar), nmodes);
-  // spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  // result = cudaMemcpy2D(Xinds, pitch, X->inds, nnz * sizeof(sptScalar), nnz * sizeof(sptScalar), nmodes, cudaMemcpyHostToDevice);
-  // spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-
 
   size_t * dev_mats_order = NULL;
   result = cudaMalloc((void **) &dev_mats_order, nmats * sizeof (size_t));
@@ -214,9 +206,9 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   size_t nthreads = 128;
   size_t nblocks = (nnz + nthreads -1) / nthreads;
 
-  // sptTimer timer;
-  // sptNewTimer(&timer, 0);
-  // sptStartTimer(timer);
+  sptTimer timer;
+  sptNewTimer(&timer, 0);
+  sptStartTimer(timer);
 
   spt_MTTKRPKernel<<<nblocks, nthreads>>>(
       mode,
@@ -235,9 +227,9 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
 
-  // sptStopTimer(timer);
-  // sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-  // sptFreeTimer(timer);
+  sptStopTimer(timer);
+  sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
+  sptFreeTimer(timer);
 
 
   result = cudaMemcpy(mats[nmodes]->values, tmp_mats[nmodes], mats[nmodes]->nrows * mats[nmodes]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
@@ -272,52 +264,3 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
 
 
 
-
-int sptCudaMTTKRPDevice(
-    const size_t mode,
-    const size_t nmodes,
-    const size_t nnz,
-    const size_t rank,
-    const size_t stride,
-    const size_t * Xndims,
-    size_t ** const Xinds,
-    const sptScalar * Xvals,
-    const size_t * dev_mats_order,
-    sptScalar ** dev_mats,
-    sptScalar * dev_scratch) 
-{
-  int result;
-
-  result = cudaMemset(dev_scratch, 0, nnz * rank * sizeof (sptScalar));
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-  size_t nthreads = 128;
-  size_t nblocks = (nnz + nthreads -1) / nthreads;
-
-  // sptTimer timer;
-  // sptNewTimer(&timer, 0);
-  // sptStartTimer(timer);
-
-  spt_MTTKRPKernel<<<nblocks, nthreads>>>(
-      mode,
-      nmodes,
-      nnz,
-      rank,
-      stride,
-      Xndims,
-      Xinds,
-      Xvals,
-      dev_mats_order,
-      dev_mats,
-      dev_scratch
-      );
-  result = cudaThreadSynchronize();
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-  // sptStopTimer(timer);
-  // sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-  // sptFreeTimer(timer);
-
-
-  return 0;
-}

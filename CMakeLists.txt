@@ -62,3 +62,4 @@ set_target_properties(ParTI PROPERTIES C_STANDARD 99)
 set_target_properties(ParTI_s PROPERTIES C_STANDARD 99)
 
 add_subdirectory("examples")
+add_subdirectory("tests")

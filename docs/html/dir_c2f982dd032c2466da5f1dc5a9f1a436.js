@@ -1,7 +1,6 @@
 var dir_c2f982dd032c2466da5f1dc5a9f1a436 =
 [
     [ "add.c", "add_8c.html", "add_8c" ],
-    [ "add_omp.c", "add__omp_8c.html", "add__omp_8c" ],
     [ "collect.c", "collect_8c.html", "collect_8c" ],
     [ "compare.c", "sptensor_2compare_8c.html", "sptensor_2compare_8c" ],
     [ "ddiv.c", "ddiv_8c.html", "ddiv_8c" ],
@@ -19,11 +18,14 @@ var dir_c2f982dd032c2466da5f1dc5a9f1a436 =
     [ "mmul_cuda.cu", "mmul__cuda_8cu.html", "mmul__cuda_8cu" ],
     [ "mmul_omp.c", "mmul__omp_8c.html", "mmul__omp_8c" ],
     [ "msort.c", "msort_8c.html", "msort_8c" ],
+    [ "mttkrp.c", "mttkrp_8c.html", "mttkrp_8c" ],
+    [ "mttkrp_cuda.cu", "mttkrp__cuda_8cu.html", "mttkrp__cuda_8cu" ],
+    [ "mttkrp_omp.c", "mttkrp__omp_8c.html", "mttkrp__omp_8c" ],
     [ "sdiv.c", "sdiv_8c.html", "sdiv_8c" ],
+    [ "slice.c", "slice_8c.html", "slice_8c" ],
     [ "smul.c", "smul_8c.html", "smul_8c" ],
     [ "sort.c", "sptensor_2sort_8c.html", "sptensor_2sort_8c" ],
     [ "sptensor.c", "sptensor_8c.html", "sptensor_8c" ],
     [ "sptensor.h", "sptensor_8h.html", "sptensor_8h" ],
-    [ "sub.c", "sub_8c.html", "sub_8c" ],
-    [ "sub_omp.c", "sub__omp_8c.html", "sub__omp_8c" ]
+    [ "sub.c", "sub_8c.html", "sub_8c" ]
 ];
