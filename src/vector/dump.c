@@ -37,7 +37,7 @@ int sptDumpVector(sptVector *vec, FILE *fp) {
     for(size_t i=0; i < len; ++i) {
         iores = fprintf(fp, "%.2lf\t", vec->data[i]);
         spt_CheckOSError(iores < 0, "Vec Dump");
-	}
+    }
     iores = fprintf(fp, "\n");
 
     return 0;
@@ -59,7 +59,7 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp) {
     for(size_t i=0; i < len; ++i) {
         iores = fprintf(fp, "%zu\t", vec->data[i]);
         spt_CheckOSError(iores < 0, "SzVec Dump");
-	}
+    }
     iores = fprintf(fp, "\n");
 
     return 0;

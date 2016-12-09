@@ -1,7 +1,8 @@
-*.ptx
-*.swp
-.DS_Store
+sftp-config.json
+*.DS_Store
 .tags*
 build
 build.config
-sftp-config.json
+*.ptx
+*.mex*
+docs/latex

@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* jli: (TODO) Keep this function, but add another Khatri-Rao product for two dense matrices. */
+/* jli: (Future TODO) Add Khatri-Rao product for two sparse matrices. */
+
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B) {
     size_t nmodes;
     size_t mode;

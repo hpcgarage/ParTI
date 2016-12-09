@@ -46,9 +46,7 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
     j = 0;
     while(i < X->nnz && j < Y->nnz) {
         int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
-        printf("i: %zu, j: %zu, compare: %d\n", i,j,compare);
-
-        if(compare > 0) {    // X(i) > Y(j)
+        if(compare > 0) {  // X[i] > Y[j]
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
                 spt_CheckError(result, "SpTns Add", NULL);
@@ -58,7 +56,7 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
 
             ++Z->nnz;
             ++j;
-        } else if(compare < 0) {    // X(i) < Y(j)
+        } else if(compare < 0) {  // X[i] < Y[j]
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
                 result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns Add", NULL);
@@ -68,21 +66,20 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
 
             ++Z->nnz;
             ++i;
-        } else {    // X(i) = Y(j)
+        } else {  // X[i] == Y[j]
             for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns Add", NULL);
             }
-            result = sptAppendVector(&Z->values, Y->values.data[j]);
+            result = sptAppendVector(&Z->values, X->values.data[i] + Y->values.data[j]);
             spt_CheckError(result, "SpTns Add", NULL);
 
-            Z->values.data[Z->nnz] += X->values.data[i];
             ++Z->nnz;
             ++i;
             ++j;
         }
     }
-    /* Append remaining elements of X to Y */
+    /* Append remaining elements of X to Z */
     while(i < X->nnz) {
         for(size_t mode = 0; mode < X->nmodes; ++mode) {
             result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
@@ -92,6 +89,17 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
         spt_CheckError(result, "SpTns Add", NULL);
         ++Z->nnz;
         ++i;
+    }
+    /* Append remaining elements of Y to Z */
+    while(j < Y->nnz) {
+        for(size_t mode = 0; mode < Y->nmodes; ++mode) {
+            result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+            spt_CheckError(result, "SpTns Add", NULL);
+        }
+        result = sptAppendVector(&Z->values, Y->values.data[j]);
+        spt_CheckError(result, "SpTns Add", NULL);
+        ++Z->nnz;
+        ++j;
     }
     /* Check whether elements become zero after adding.
        If so, fill the gap with the [nnz-1]'th element.

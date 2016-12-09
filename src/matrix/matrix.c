@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
+#include <omp.h>
 #include "../error/error.h"
 
 /**
@@ -55,9 +57,9 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
 }
 
 /**
- * Fill a matrix with random number
+ * Build a matrix with random number
  *
- * @param mtx   a pointer to a valid matrix
+ * @param mtx   a pointer to an uninitialized matrix
  * @param nrows fill the specified number of rows
  * @param ncols fill the specified number of columns
  *
@@ -74,6 +76,29 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
     }
   return 0;
 }
+
+
+/**
+ * Fill an identity dense matrix
+ *
+ * @param mtx   a pointer to an uninitialized matrix
+ * @param nrows fill the specified number of rows
+ * @param ncols fill the specified number of columns
+ *
+ */
+int sptIdentityMatrix(sptMatrix *mtx) {
+  size_t const nrows = mtx->nrows;
+  size_t const ncols = mtx->ncols;
+  assert(nrows == ncols);
+  for(size_t i=0; i<nrows; ++i)
+    for(size_t j=0; j<ncols; ++j)
+      mtx->values[i * mtx->stride + j] = 0;
+  for(size_t i=0; i<nrows; ++i)
+    mtx->values[i * mtx->stride + i] = 1;
+
+  return 0;
+}
+
 
 /**
  * Fill an existed dense matrix with a specified constant
@@ -184,4 +209,173 @@ int sptResizeMatrix(sptMatrix *mtx, size_t newsize) {
  */
 void sptFreeMatrix(sptMatrix *mtx) {
     free(mtx->values);
+}
+
+
+
+
+int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C)
+{
+    size_t nrows = A->nrows;
+    size_t ncols = A->ncols;
+    size_t stride = A->stride;
+    assert(nrows == B->nrows && nrows == C->nrows);
+    assert(ncols == B->ncols && ncols == C->ncols);
+    assert(stride == B->stride && stride == C->stride);
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            C->values[i*stride+j] = A->values[i*stride+j] * B->values[i*stride+j];
+        }
+    }
+
+    return 0;
+}
+
+
+int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats)
+{
+    size_t const nrows = mats[0]->nrows;
+    size_t const ncols = mats[0]->ncols;
+    size_t const stride = mats[0]->stride;
+    // printf("stride: %lu\n", stride);
+    for(size_t m=1; m<nmodes+1; ++m) {
+        assert(mats[m]->ncols == ncols);
+        assert(mats[m]->nrows == nrows);
+        assert(mats[m]->stride == stride);
+    }
+
+    sptScalar * ovals = mats[nmodes]->values;
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            ovals[i * stride + j] = 1;
+        }
+    }
+
+    for(size_t m=1; m < nmodes; ++m) {
+        size_t const pm = (mode + m) % nmodes;
+        // printf("pm: %lu\n", pm);
+        sptScalar const * vals = mats[pm]->values;
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                ovals[i * stride + j] *= vals[i * stride + j];
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+
+int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats)
+{
+    size_t const nrows = mats[0]->nrows;
+    size_t const ncols = mats[0]->ncols;
+    size_t const stride = mats[0]->stride;
+    // printf("stride: %lu\n", stride);
+    for(size_t m=1; m<nmodes+1; ++m) {
+        assert(mats[m]->ncols == ncols);
+        assert(mats[m]->nrows == nrows);
+        assert(mats[m]->stride == stride);
+    }
+
+    sptScalar * ovals = mats[nmodes]->values;
+    #pragma omp parallel for
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            ovals[i * stride + j] = 1;
+        }
+    }
+
+    for(size_t m=1; m < nmodes; ++m) {
+        size_t const pm = (mode + m) % nmodes;
+        // printf("pm: %lu\n", pm);
+        sptScalar const * vals = mats[pm]->values;
+        #pragma omp parallel for
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                ovals[i * stride + j] *= vals[i * stride + j];
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
+
+
+int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
+{
+    size_t const nrows = A->nrows;
+    size_t const ncols = A->ncols;
+    size_t const stride = A->stride;
+    sptScalar * const vals = A->values;
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            lambda[j] += vals[i*stride + j] * vals[i*stride + j];
+        }
+    }
+    for(size_t j=0; j < ncols; ++j) {
+        lambda[j] = sqrt(lambda[j]);
+    }
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            vals[i*stride + j] /= lambda[j];
+        }
+    }
+
+    return 0;
+}
+
+
+
+int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
+{
+    size_t const nrows = A->nrows;
+    size_t const ncols = A->ncols;
+    size_t const stride = A->stride;
+    sptScalar * const vals = A->values;
+
+    #pragma omp parallel
+    {
+        int const tid = omp_get_thread_num();
+        int const nthreads = omp_get_num_threads();
+        sptScalar * loc_lambda = (sptScalar *)malloc(ncols * nthreads * sizeof(sptScalar));
+        for(size_t j=0; j < ncols * nthreads; ++j)
+            loc_lambda[j] = 0;
+        for(size_t j=0; j < ncols; ++j)
+            lambda[j] = 0;
+
+        #pragma omp for
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                loc_lambda[tid * ncols + j] += vals[i*stride + j] * vals[i*stride + j];
+            }
+        }
+
+        for(int i=0; i<nthreads; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                lambda[j] += loc_lambda[i*ncols + j];
+            }
+        }
+
+        #pragma omp for
+        for(size_t j=0; j < ncols; ++j) {
+            lambda[j] = sqrt(lambda[j]);
+        }
+
+        #pragma omp for
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                vals[i*stride + j] /= lambda[j];
+            }
+        }
+
+    }   /* end parallel pragma */
+
+    return 0;
 }

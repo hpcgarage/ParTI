@@ -16,6 +16,10 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
+// This file will be compiled only if CUDA is not enabled,
+// or cuda_timer.cu will be compiled instead.
+#ifndef PARTI_USE_CUDA
+
 #include <ParTI.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,19 +31,13 @@ struct sptTagTimer {
     int use_cuda;
     struct timespec start_timespec;
     struct timespec stop_timespec;
-    cudaEvent_t start_event;
-    cudaEvent_t stop_event;
 };
 
 int sptNewTimer(sptTimer *timer, int use_cuda) {
     *timer = (sptTimer) malloc(sizeof **timer);
     (*timer)->use_cuda = use_cuda;
     if(use_cuda) {
-        int result;
-        result = cudaEventCreate(&(*timer)->start_event);
-        spt_CheckCudaError(result, "Timer New");
-        result = cudaEventCreate(&(*timer)->stop_event);
-        spt_CheckCudaError(result, "Timer New");
+        spt_CheckError(3 + SPTERR_CUDA_ERROR, "Timer New", "CUDA support is disabled in this build");
     }
     return 0;
 }
@@ -47,10 +45,7 @@ int sptNewTimer(sptTimer *timer, int use_cuda) {
 int sptStartTimer(sptTimer timer) {
     int result;
     if(timer->use_cuda) {
-        result = cudaEventRecord(timer->start_event);
-        spt_CheckCudaError(result, "Timer New");
-        result = cudaEventSynchronize(timer->start_event);
-        spt_CheckCudaError(result, "Timer New");
+        spt_CheckError(3 + SPTERR_CUDA_ERROR, "Timer New", "CUDA support is disabled in this build");
     } else {
         result = clock_gettime(CLOCK_MONOTONIC, &timer->start_timespec);
         spt_CheckOSError(result, "Timer New");
@@ -61,10 +56,7 @@ int sptStartTimer(sptTimer timer) {
 int sptStopTimer(sptTimer timer) {
     int result;
     if(timer->use_cuda) {
-        result = cudaEventRecord(timer->stop_event);
-        spt_CheckCudaError(result, "Timer New");
-        result = cudaEventSynchronize(timer->stop_event);
-        spt_CheckCudaError(result, "Timer New");
+        spt_CheckError(3 + SPTERR_CUDA_ERROR, "Timer New", "CUDA support is disabled in this build");
     } else {
         result = clock_gettime(CLOCK_MONOTONIC, &timer->stop_timespec);
         spt_CheckOSError(result, "Timer New");
@@ -74,11 +66,7 @@ int sptStopTimer(sptTimer timer) {
 
 double sptElapsedTime(const sptTimer timer) {
     if(timer->use_cuda) {
-        float elapsed;
-        if(cudaEventElapsedTime(&elapsed, timer->start_event, timer->stop_event) != 0) {
-            return NAN;
-        }
-        return elapsed * 1e-3;
+        return NAN;
     } else {
         return timer->stop_timespec.tv_sec - timer->start_timespec.tv_sec
             + (timer->stop_timespec.tv_nsec - timer->start_timespec.tv_nsec) * 1e-9;
@@ -87,18 +75,16 @@ double sptElapsedTime(const sptTimer timer) {
 
 double sptPrintElapsedTime(const sptTimer timer, const char *name) {
     double elapsed_time = sptElapsedTime(timer);
-    fprintf(stderr, "[%s] operation took %.9lf s\n", name, elapsed_time);
+    fprintf(stderr, "[%s]: %.9lf s\n", name, elapsed_time);
     return elapsed_time;
 }
 
 int sptFreeTimer(sptTimer timer) {
     if(timer->use_cuda) {
-        int result;
-        result = cudaEventDestroy(timer->start_event);
-        spt_CheckCudaError(result, "Timer New");
-        result = cudaEventDestroy(timer->stop_event);
-        spt_CheckCudaError(result, "Timer New");
+        spt_CheckError(3 + SPTERR_CUDA_ERROR, "Timer New", "CUDA support is disabled in this build");
     }
     free(timer);
     return 0;
 }
+
+#endif

@@ -21,8 +21,6 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <math.h>
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,6 +103,7 @@ typedef struct {
     sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
 } sptSemiSparseTensor;
 
+
 /**
  * An opaque data type to store a specific time point, using either CPU or GPU clock.
  */
@@ -116,6 +115,7 @@ typedef enum {
     SPTERR_SHAPE_MISMATCH = 2,
     SPTERR_VALUE_ERROR    = 3,
     SPTERR_ZERO_DIVISION  = 4,
+    SPTERR_NO_MORE        = 99,
     SPTERR_OS_ERROR       = 0x10000,
     SPTERR_CUDA_ERROR     = 0x20000,
 } SptError;
@@ -134,6 +134,7 @@ int sptStopTimer(sptTimer timer);
 double sptElapsedTime(const sptTimer timer);
 double sptPrintElapsedTime(const sptTimer timer, const char *name);
 int sptFreeTimer(sptTimer timer);
+
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -158,6 +159,7 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp);
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
+int sptIdentityMatrix(sptMatrix *mtx);
 int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
@@ -165,6 +167,23 @@ int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
+int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
+int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
+int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
+int sptCudaMatrixDotMulSeq(
+    size_t const mode,
+    size_t const nmodes,
+    const size_t rank,
+    const size_t stride,
+    sptScalar ** dev_ata);
+int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
+int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
+int sptCudaMatrix2Norm(
+    size_t const nrows,
+    size_t const ncols,
+    size_t const stride,
+    sptScalar * const dev_vals,
+    sptScalar * const dev_lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -179,6 +198,7 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
+
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
  */
@@ -195,6 +215,7 @@ int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
  */
 int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fiberidx, sptSparseTensor *ref);
 
+
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
 int sptSparseTensorDivScalar(sptSparseTensor *X, sptScalar a);
@@ -207,11 +228,6 @@ int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, con
 int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 
-/**
- * Sparse tensor times a dense matrix (TTM)
- * Input: sparse tensor X[I][J][K], dense matrix U[I][R}, mode n={0, 1, 2}
- * Output: sparse tensor Y[I][J][R] (e.g. n=2)
- */
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptCudaSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
@@ -226,9 +242,37 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  */
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B);
 
-/* OMP functions */
-int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
-int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
+/**
+ * Matricized tensor times Khatri-Rao product.
+ */
+int sptMTTKRP(sptSparseTensor const * const X,
+	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
+  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
+	size_t const mode,
+  sptVector * scratch);
+int sptOmpMTTKRP(sptSparseTensor const * const X,
+	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
+  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
+	size_t const mode,
+  sptVector * scratch);
+int sptCudaMTTKRP(sptSparseTensor const * const X,
+    sptMatrix ** const mats,    // mats[nmodes] as temporary space.
+    sptSizeVector const * const mats_order, // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch);
+int sptCudaMTTKRPDevice(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t rank,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    sptScalar * dev_scratch);
+
 
 #ifdef __cplusplus
 }

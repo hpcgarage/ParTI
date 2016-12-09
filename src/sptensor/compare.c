@@ -42,3 +42,4 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, con
     }
     return 0;
 }
+

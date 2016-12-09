@@ -30,16 +30,6 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, con
 
 void spt_SparseTensorCollectZeros(sptSparseTensor *tsr);
 
-int spt_DistSparseTensor(sptSparseTensor * tsr,
-    int const nthreads,
-    size_t * const dist_nnzs,
-    size_t * dist_nrows);
-
-int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
-    int const nthreads,
-    size_t * const dist_nnzs,
-    size_t * dist_nrows);
-
 #ifdef __cplusplus
 }
 #endif
