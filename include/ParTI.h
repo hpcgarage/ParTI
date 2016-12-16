@@ -25,7 +25,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 /**
  * Define sptScalar as 32-bit float
  *
@@ -132,6 +132,13 @@ typedef enum {
 
 int sptGetLastError(const char **module, const char **file, unsigned *line, const char **reason);
 void sptClearLastError(void);
+void spt_Panic(const char *file, unsigned line, const char *expr);
+/**
+ * The assert function that always execute even when `NDEBUG` is set
+ *
+ * Quick & dirty error checking. Useful when writing small programs.
+ */
+#define sptAssert(expr) ((expr) ? (void) 0 : spt_Panic(__FILE__, __LINE__, #expr))
 
 /* Helper function for pure C module */
 int sptCudaSetDevice(int device);
@@ -147,7 +154,6 @@ int sptFreeTimer(sptTimer timer);
 
 /* Base functions */
 size_t sptMaxSizeArray(size_t const * const indices, size_t const size);
-
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -185,9 +191,9 @@ int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats
 int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptCudaMatrixDotMulSeq(
     size_t const mode,
-    size_t const nmodes, 
-    const size_t rank, 
-    const size_t stride, 
+    size_t const nmodes,
+    const size_t rank,
+    const size_t stride,
     sptScalar ** dev_ata);
 int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
 int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);

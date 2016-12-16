@@ -39,8 +39,13 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     int const nthreads,
     size_t * const dist_nnzs,
     size_t * dist_nrows);
-    
+
 int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]);
+
+typedef struct spt_TagSplitStatus *spt_SplitStatus;
+int spt_StartSplitSparseTensor(spt_SplitStatus *status, const sptSparseTensor *tsr, const size_t cuts_by_mode[]);
+int spt_SplitSparseTensor(sptSparseTensor *dest, spt_SplitStatus status);
+void spt_FinishSplitSparseTensor(spt_SplitStatus status);
 
 #ifdef __cplusplus
 }

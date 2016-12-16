@@ -20,7 +20,7 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
-struct spt_SplitStatus {
+struct spt_TagSplitStatus {
     const sptSparseTensor *tsr;
     sptSizeVector cuts_by_mode;
     sptSizeVector partial_low;
@@ -28,7 +28,7 @@ struct spt_SplitStatus {
     sptSizeVector index_step;
 };
 
-int spt_StartSplitSparseTensor(struct spt_SplitStatus *status, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
+int spt_StartSplitSparseTensor(spt_SplitStatus *status, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
     int result = 0;
 
     if(tsr->nnz == 0) {
@@ -39,25 +39,26 @@ int spt_StartSplitSparseTensor(struct spt_SplitStatus *status, const sptSparseTe
         spt_CheckError(SPTERR_VALUE_ERROR, "SpTns Start Split", "sortkey != nmodes-1");
     }
 
-    status->tsr = tsr;
-    result = sptNewSizeVector(&status->cuts_by_mode, tsr->nmodes, tsr->nmodes);
+    status = malloc(sizeof *status);
+    (*status)->tsr = tsr;
+    result = sptNewSizeVector(&(*status)->cuts_by_mode, tsr->nmodes, tsr->nmodes);
     spt_CheckError(result, "SpTns Start Split", NULL);
-    memcpy(&status->cuts_by_mode.data, cuts_by_mode, tsr->nmodes * sizeof (size_t));
+    memcpy(&(*status)->cuts_by_mode.data, cuts_by_mode, tsr->nmodes * sizeof (size_t));
 
-    result = sptNewSizeVector(&status->partial_low, 1, tsr->nmodes+1);
+    result = sptNewSizeVector(&(*status)->partial_low, 1, tsr->nmodes+1);
     spt_CheckError(result, "SpTns Start Split", NULL);
-    result = sptNewSizeVector(&status->partial_high, 1, tsr->nmodes+1);
+    result = sptNewSizeVector(&(*status)->partial_high, 1, tsr->nmodes+1);
     spt_CheckError(result, "SpTns Start Split", NULL);
-    result = sptNewSizeVector(&status->index_step, 0, tsr->nmodes);
+    result = sptNewSizeVector(&(*status)->index_step, 0, tsr->nmodes);
     spt_CheckError(result, "SpTns Start Split", NULL);
 
-    status->partial_low.data[0] = 0;
-    status->partial_high.data[0] = tsr->nnz;
+    (*status)->partial_low.data[0] = 0;
+    (*status)->partial_high.data[0] = tsr->nnz;
 
     return result;
 }
 
-int spt_SplitSparseTensor(sptSparseTensor *dest, struct spt_SplitStatus *status) {
+int spt_SplitSparseTensor(sptSparseTensor *dest, spt_SplitStatus status) {
     int result = 0;
 
     size_t mode = status->partial_low.len;
@@ -155,13 +156,14 @@ int spt_SplitSparseTensor(sptSparseTensor *dest, struct spt_SplitStatus *status)
     }
 
     // Mode should be 0 now, which means unable to find the next chunk
-    spt_CheckError(SPTERR_NO_MORE, "SpTns Star Split", "no more splits");
+    return SPTERR_NO_MORE;
 }
 
-void spt_FinishSplitSparseTensor(struct spt_SplitStatus *status) {
+void spt_FinishSplitSparseTensor(spt_SplitStatus status) {
     status->tsr = NULL;
     sptFreeSizeVector(&status->cuts_by_mode);
     sptFreeSizeVector(&status->partial_low);
     sptFreeSizeVector(&status->partial_high);
     sptFreeSizeVector(&status->index_step);
+    free(status);
 }
