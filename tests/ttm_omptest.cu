@@ -16,7 +16,6 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ParTI.h>
@@ -38,8 +37,8 @@ int main(int argc, char const *argv[]) {
     }
 
     fX = fopen(argv[1], "r");
-    assert(fX != NULL);
-    assert(sptLoadSparseTensor(&X, 1, fX) == 0);
+    sptAssert(fX != NULL);
+    sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
 
     sscanf(argv[2], "%zu", &mode);
@@ -53,7 +52,7 @@ int main(int argc, char const *argv[]) {
 
     printf("Tensor: %s, TTM mode %zu\n", argv[1], mode);
 
-    assert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
+    sptAssert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
 
     static const size_t tmp_ndims[2] = {0, 0};
     sptNewSemiSparseTensor(&Y, 2, 1, tmp_ndims);
@@ -64,12 +63,12 @@ int main(int argc, char const *argv[]) {
         fprintf(stderr, "OMP nthreads=%d\n", nth);
         for(int it=0; it<niters+1; ++it) {
             sptFreeSemiSparseTensor(&Y);
-            assert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+            sptAssert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
         }
     }
     fprintf(stderr, "X.nnz = %zu, X.ndims = [%zu, %zu, %zu], Y.nnz = %zu, Y.ndims = [%zu, %zu, %zu]\n", X.nnz, X.ndims[0], X.ndims[1], X.ndims[2], Y.nnz, Y.ndims[0], Y.ndims[1], Y.ndims[2]);
 
-    assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
+    sptAssert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
 
     sptFreeSemiSparseTensor(&Y);
     sptFreeMatrix(&U);
@@ -77,8 +76,8 @@ int main(int argc, char const *argv[]) {
 
     if(argc >= 6) {
         fY = fopen(argv[5], "w");
-        assert(fY != NULL);
-        assert(sptDumpSparseTensor(&spY, 1, fY) == 0);
+        sptAssert(fY != NULL);
+        sptAssert(sptDumpSparseTensor(&spY, 1, fY) == 0);
         fclose(fY);
     }
 

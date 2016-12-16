@@ -16,7 +16,6 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ParTI.h>
@@ -35,13 +34,13 @@ int main(int argc, char const *argv[]) {
     }
 
     fX = fopen(argv[1], "r");
-    assert(fX != NULL);
-    assert(sptLoadSparseTensor(&spX, 1, fX) == 0);
+    sptAssert(fX != NULL);
+    sptAssert(sptLoadSparseTensor(&spX, 1, fX) == 0);
     fclose(fX);
 
     fU = fopen(argv[2], "r");
-    assert(fU != NULL);
-    assert(sptLoadSparseTensor(&spU, 1, fU) == 0);
+    sptAssert(fU != NULL);
+    sptAssert(sptLoadSparseTensor(&spU, 1, fU) == 0);
     fclose(fU);
 
     sscanf(argv[4], "%zu", &mode);
@@ -49,27 +48,27 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[5], "%d", &cuda_dev_id);
     }
 
-    assert(sptSparseTensorToSemiSparseTensor(&X, &spX, mode) == 0);
+    sptAssert(sptSparseTensorToSemiSparseTensor(&X, &spX, mode) == 0);
     sptFreeSparseTensor(&spX);
-    assert(sptSparseTensorToMatrix(&U, &spU) == 0);
+    sptAssert(sptSparseTensorToMatrix(&U, &spU) == 0);
     sptFreeSparseTensor(&spU);
 
     if(cuda_dev_id == -1) {
-        assert(sptSemiSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        sptAssert(sptSemiSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        assert(sptCudaSemiSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
+        sptAssert(sptCudaSemiSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
     }
 
-    assert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
+    sptAssert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
 
     sptFreeSemiSparseTensor(&Y);
     sptFreeMatrix(&U);
     sptFreeSemiSparseTensor(&X);
 
     fY = fopen(argv[3], "w");
-    assert(fY != NULL);
-    assert(sptDumpSparseTensor(&spY, 1, fY) == 0);
+    sptAssert(fY != NULL);
+    sptAssert(sptDumpSparseTensor(&spY, 1, fY) == 0);
     fclose(fY);
 
     sptFreeSparseTensor(&spY);

@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
 
-    sptAssert(tsr.nmodes + 2 == argc);
+    sptAssert((int) tsr.nmodes + 2 == argc);
 
     size_t *cuts = malloc(tsr.nmodes * sizeof (size_t));
     size_t i;

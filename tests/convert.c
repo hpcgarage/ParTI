@@ -16,7 +16,6 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ParTI.h>
@@ -36,17 +35,17 @@ int main(int argc, char const *argv[]) {
     sscanf(argv[3], "%zu", &mode);
 
     fi = fopen(argv[1], "r");
-    assert(fi);
-    assert(sptLoadSparseTensor(&a, 1, fi) == 0);
+    sptAssert(fi);
+    sptAssert(sptLoadSparseTensor(&a, 1, fi) == 0);
     fclose(fi);
 
-    assert(sptSparseTensorToSemiSparseTensor(&b, &a, mode) == 0);
+    sptAssert(sptSparseTensorToSemiSparseTensor(&b, &a, mode) == 0);
     sptFreeSparseTensor(&a);
-    assert(sptSemiSparseTensorToSparseTensor(&c, &b, 1e-6) == 0);
+    sptAssert(sptSemiSparseTensorToSparseTensor(&c, &b, 1e-6) == 0);
     sptFreeSemiSparseTensor(&b);
 
     fo = fopen(argv[2], "w");
-    assert(sptDumpSparseTensor(&c, 1, fo) == 0);
+    sptAssert(sptDumpSparseTensor(&c, 1, fo) == 0);
     fclose(fo);
 
     sptFreeSparseTensor(&c);

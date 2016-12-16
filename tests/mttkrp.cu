@@ -16,7 +16,6 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
@@ -41,10 +40,10 @@ int main(int argc, char const *argv[]) {
     }
 
     fX = fopen(argv[1], "r");
-    assert(fX != NULL);
+    sptAssert(fX != NULL);
     printf("input file: %s\n", argv[1]); fflush(stdout);
     sptLoadSparseTensor(&X, 1, fX);
-    // assert(sptLoadSparseTensor(&X, 1, fX) == 0);
+    // sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
 
     sscanf(argv[2], "%zu", &mode);
@@ -62,14 +61,14 @@ int main(int argc, char const *argv[]) {
     }
     size_t max_ndims = 0;
     for(size_t m=0; m<nmodes; ++m) {
-      // assert(sptRandomizeMatrix(U[m], X.ndims[m], R) == 0);
-      assert(sptNewMatrix(U[m], X.ndims[m], R) == 0);
-      assert(sptConstantMatrix(U[m], 1) == 0);
+      // sptAssert(sptRandomizeMatrix(U[m], X.ndims[m], R) == 0);
+      sptAssert(sptNewMatrix(U[m], X.ndims[m], R) == 0);
+      sptAssert(sptConstantMatrix(U[m], 1) == 0);
       if(X.ndims[m] > max_ndims)
         max_ndims = X.ndims[m];
     }
-    assert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
-    assert(sptConstantMatrix(U[nmodes], 0) == 0);
+    sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
+    sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     size_t stride = U[0]->stride;
 
 
@@ -93,7 +92,7 @@ int main(int argc, char const *argv[]) {
         nthreads = 1;
         sptNewVector(&scratch, R, R);
         sptConstantVector(&scratch, 0);
-        assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        sptAssert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
         sptFreeVector(&scratch);
     } else if(cuda_dev_id == -1) {
         #pragma omp parallel
@@ -103,19 +102,19 @@ int main(int argc, char const *argv[]) {
         printf("nthreads: %d\n", nthreads);
         sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
         sptConstantVector(&scratch, 0);
-        assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        sptAssert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
         sptFreeVector(&scratch);
     } else {
        switch(ncudas) {
        case 1:
          sptCudaSetDevice(cuda_dev_id);
-         assert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
          break;
        case 2:
          sptCudaSetDevice(cuda_dev_id);
          sptCudaSetDevice(cuda_dev_id+1);
-         assert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-         assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
          break;
        }
     }
@@ -127,7 +126,7 @@ int main(int argc, char const *argv[]) {
             nthreads = 1;
             sptNewVector(&scratch, R, R);
             sptConstantVector(&scratch, 0);
-            assert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+            sptAssert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
             sptFreeVector(&scratch);
         } else if(cuda_dev_id == -1) {
             #pragma omp parallel
@@ -137,20 +136,20 @@ int main(int argc, char const *argv[]) {
             printf("nthreads: %d\n", nthreads);
             sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
             sptConstantVector(&scratch, 0);
-            assert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+            sptAssert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
             sptFreeVector(&scratch);
         } else {
            switch(ncudas) {
            case 1:
              sptCudaSetDevice(cuda_dev_id);
-             assert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+             sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
              break;
            case 2:
              sptCudaSetDevice(cuda_dev_id);
              sptCudaSetDevice(cuda_dev_id+1);
              printf("====\n");
-             assert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-             assert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
+             sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
+             sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
              break;
            }
         }
@@ -165,8 +164,8 @@ int main(int argc, char const *argv[]) {
 
     if(argc >= 6) {
         fo = fopen(argv[5], "w");
-        assert(fo != NULL);
-        assert(sptDumpMatrix(U[nmodes], fo) == 0);
+        sptAssert(fo != NULL);
+        sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
     }
 

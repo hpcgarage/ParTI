@@ -16,7 +16,6 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <ParTI.h>
 
@@ -30,20 +29,20 @@ int main(int argc, char *argv[]) {
     }
 
     fa = fopen(argv[1], "r");
-    assert(fa != NULL);
-    assert(sptLoadSparseTensor(&a, 1, fa) == 0);
+    sptAssert(fa != NULL);
+    sptAssert(sptLoadSparseTensor(&a, 1, fa) == 0);
     fclose(fa);
 
     fb = fopen(argv[2], "r");
-    assert(fb != NULL);
-    assert(sptLoadSparseTensor(&b, 1, fb) == 0);
+    sptAssert(fb != NULL);
+    sptAssert(sptLoadSparseTensor(&b, 1, fb) == 0);
     fclose(fb);
 
-    assert(sptSparseTensorKhatriRaoMul(&out, &a, &b) == 0);
+    sptAssert(sptSparseTensorKhatriRaoMul(&out, &a, &b) == 0);
 
     fo = fopen(argv[3], "w");
-    assert(fo != NULL);
-    assert(sptDumpSparseTensor(&out, 1, fo) == 0);
+    sptAssert(fo != NULL);
+    sptAssert(sptDumpSparseTensor(&out, 1, fo) == 0);
     fclose(fo);
 
     return 0;
