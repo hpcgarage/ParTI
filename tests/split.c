@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
         if(result == SPTERR_NO_MORE) {
             break;
         }
-        sptAssert(result != 0);
+        sptAssert(result == 0);
         printf("Printing split #%zu:\n", i);
         sptDumpSparseTensor(&subtsr, 1, stdout);
         fflush(stdout);

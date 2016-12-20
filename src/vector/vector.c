@@ -134,11 +134,12 @@ int sptAppendVectorWithVector(sptVector *vec, const sptVector *append_vec) {
  * current size, values at the end will be truncated.
  */
 int sptResizeVector(sptVector *vec, size_t size) {
-    if(size != vec->cap) {
-        sptScalar *newdata = realloc(vec->data, size * sizeof *vec->data);
+    size_t newcap = size < 2 ? 2 : size;
+    if(newcap != vec->cap) {
+        sptScalar *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         spt_CheckOSError(!newdata, "Vec Resize");
         vec->len = size;
-        vec->cap = size;
+        vec->cap = newcap;
         vec->data = newdata;
     } else {
         vec->len = size;
@@ -274,11 +275,12 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *appen
  * current size, values at the end will be truncated.
  */
 int sptResizeSizeVector(sptSizeVector *vec, size_t size) {
-    if(size != vec->cap) {
-        size_t *newdata = realloc(vec->data, size * sizeof *vec->data);
+    size_t newcap = size < 2 ? 2 : size;
+    if(newcap != vec->cap) {
+        size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         spt_CheckOSError(!newdata, "SzVec Resize");
         vec->len = size;
-        vec->cap = size;
+        vec->cap = newcap;
         vec->data = newdata;
     } else {
         vec->len = size;
