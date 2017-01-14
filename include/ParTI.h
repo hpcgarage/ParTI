@@ -303,6 +303,14 @@ int sptCudaMTTKRPDevice(
     const size_t * dev_mats_order,
     sptScalar ** dev_mats,
     sptScalar * dev_scratch);
+int sptSplittedMTTKRP(
+    sptSparseTensor const *const X,
+    sptMatrix **const mats,
+    sptSizeVector const *const mats_order,
+    size_t const mode,
+    sptVector *scratch,
+    size_t const split_count[]
+);
 
 
 /**
