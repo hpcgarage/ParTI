@@ -33,8 +33,8 @@
  * products of dense factor matrices, the output is the updated dense matrix for the "mode".
  */
 int sptMTTKRP(sptSparseTensor const * const X,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
     size_t const mode,
     sptVector * scratch) {
 
@@ -79,7 +79,7 @@ int sptMTTKRP(sptSparseTensor const * const X,
 
     for(size_t x=0; x<nnz; ++x) {
 
-        size_t times_mat_index = mats_order->data[0];
+        size_t times_mat_index = mats_order[0];
         sptMatrix * times_mat = mats[times_mat_index];
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
@@ -88,7 +88,7 @@ int sptMTTKRP(sptSparseTensor const * const X,
         }
 
         for(size_t i=1; i<nmats; ++i) {
-            times_mat_index = mats_order->data[i];
+            times_mat_index = mats_order[i];
             times_mat = mats[times_mat_index];
             times_inds = X->inds[times_mat_index].data;
             tmp_i = times_inds[x];

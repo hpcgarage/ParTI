@@ -122,8 +122,8 @@ __global__ static void spt_MTTKRPKernel(
  * scratch is used to maximize parallelism. (To be optimized)
  */
 int sptCudaMTTKRP(sptSparseTensor const * const X,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
     size_t const mode) {
 
     size_t const nmodes = X->nmodes;
@@ -183,7 +183,7 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
   size_t * dev_mats_order = NULL;
   result = cudaMalloc((void **) &dev_mats_order, nmats * sizeof (size_t));
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  result = cudaMemcpy(dev_mats_order, mats_order->data, nmats * sizeof (size_t), cudaMemcpyHostToDevice);
+  result = cudaMemcpy(dev_mats_order, mats_order, nmats * sizeof (size_t), cudaMemcpyHostToDevice);
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
   sptScalar ** tmp_mats = NULL;
@@ -284,7 +284,7 @@ int sptCudaMTTKRPDevice(
     const sptScalar * Xvals,
     const size_t * dev_mats_order,
     sptScalar ** dev_mats,
-    sptScalar * dev_scratch) 
+    sptScalar * dev_scratch)
 {
   int result;
 

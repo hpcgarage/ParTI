@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]) {
         nthreads = 1;
         sptNewVector(&scratch, R, R);
         sptConstantVector(&scratch, 0);
-        sptAssert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        sptAssert(sptMTTKRP(&X, U, mats_order.data, mode, &scratch) == 0);
         sptFreeVector(&scratch);
     } else if(cuda_dev_id == -1) {
         #pragma omp parallel
@@ -102,19 +102,19 @@ int main(int argc, char const *argv[]) {
         printf("nthreads: %d\n", nthreads);
         sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
         sptConstantVector(&scratch, 0);
-        sptAssert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+        sptAssert(sptOmpMTTKRP(&X, U, mats_order.data, mode, &scratch) == 0);
         sptFreeVector(&scratch);
     } else {
        switch(ncudas) {
        case 1:
          sptCudaSetDevice(cuda_dev_id);
-         sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(&X, U, mats_order.data, mode) == 0);
          break;
        case 2:
          sptCudaSetDevice(cuda_dev_id);
          sptCudaSetDevice(cuda_dev_id+1);
-         sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-         sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(csX, U, mats_order.data, mode) == 0);
+         sptAssert(sptCudaMTTKRP(csX+1, U, mats_order.data, mode) == 0);
          break;
        }
     }
@@ -126,7 +126,7 @@ int main(int argc, char const *argv[]) {
             nthreads = 1;
             sptNewVector(&scratch, R, R);
             sptConstantVector(&scratch, 0);
-            sptAssert(sptMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+            sptAssert(sptMTTKRP(&X, U, mats_order.data, mode, &scratch) == 0);
             sptFreeVector(&scratch);
         } else if(cuda_dev_id == -1) {
             #pragma omp parallel
@@ -136,20 +136,20 @@ int main(int argc, char const *argv[]) {
             printf("nthreads: %d\n", nthreads);
             sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
             sptConstantVector(&scratch, 0);
-            sptAssert(sptOmpMTTKRP(&X, U, &mats_order, mode, &scratch) == 0);
+            sptAssert(sptOmpMTTKRP(&X, U, mats_order.data, mode, &scratch) == 0);
             sptFreeVector(&scratch);
         } else {
            switch(ncudas) {
            case 1:
              sptCudaSetDevice(cuda_dev_id);
-             sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+             sptAssert(sptCudaMTTKRP(&X, U, mats_order.data, mode) == 0);
              break;
            case 2:
              sptCudaSetDevice(cuda_dev_id);
              sptCudaSetDevice(cuda_dev_id+1);
              printf("====\n");
-             sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-             sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
+             sptAssert(sptCudaMTTKRP(csX, U, mats_order.data, mode) == 0);
+             sptAssert(sptCudaMTTKRP(csX+1, U, mats_order.data, mode) == 0);
              break;
            }
         }

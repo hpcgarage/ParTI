@@ -277,19 +277,22 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
 /**
  * Matricized tensor times Khatri-Rao product.
  */
-int sptMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch);
-int sptOmpMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch);
-int sptCudaMTTKRP(sptSparseTensor const * const X,
-    sptMatrix ** const mats,    // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order, // Correspond to the mode order of X.
+int sptMTTKRP(
+    sptSparseTensor const * const X,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch);
+int sptOmpMTTKRP(
+    sptSparseTensor const * const X,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch);
+int sptCudaMTTKRP(
+    sptSparseTensor const * const X,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
     size_t const mode);
 int sptCudaMTTKRPDevice(
     const size_t mode,
@@ -305,8 +308,8 @@ int sptCudaMTTKRPDevice(
     sptScalar * dev_scratch);
 int sptSplittedMTTKRP(
     sptSparseTensor const *const X,
-    sptMatrix **const mats,
-    sptSizeVector const *const mats_order,
+    sptMatrix *mats[],
+    size_t const mats_order[],
     size_t const mode,
     sptVector *scratch,
     size_t const split_count[]

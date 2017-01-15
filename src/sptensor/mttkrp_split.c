@@ -23,8 +23,8 @@
 
 int sptSplittedMTTKRP(
     sptSparseTensor const *const X,
-    sptMatrix **const mats,
-    sptSizeVector const *const mats_order,
+    sptMatrix *mats[],
+    size_t const mats_order[],
     size_t const mode,
     sptVector *scratch,
     size_t const split_count[]
