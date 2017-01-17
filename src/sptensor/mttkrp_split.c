@@ -35,13 +35,13 @@ int sptSplittedMTTKRP(
     spt_CheckError(result, "CPU  SpTns SpltMTTKRP", NULL);
     memset(product.values, 0, product.nrows * product.stride * sizeof (sptScalar));
 
-    spt_SplitStatus status;
-    result = spt_StartSplitSparseTensor(&status, X, split_count);
+    spt_SplitHandle split_handle;
+    result = spt_StartSplitSparseTensor(&split_handle, X, split_count);
     spt_CheckError(result, "CPU  SpTns SpltMTTKRP", NULL);
 
     for(;;) {
         sptSparseTensor subX;
-        result = spt_SplitSparseTensor(&subX, status);
+        result = spt_SplitSparseTensor(&subX, split_handle);
         if(result == SPTERR_NO_MORE) {
             break;
         }
@@ -58,7 +58,7 @@ int sptSplittedMTTKRP(
         }
     }
 
-    spt_FinishSplitSparseTensor(status);
+    spt_FinishSplitSparseTensor(split_handle);
 
     return 0;
 }

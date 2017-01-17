@@ -43,13 +43,13 @@ int main(int argc, char *argv[]) {
         cuts[i] = atoi(argv[i+2]);
     }
 
-    spt_SplitStatus split_status;
-    sptAssert(spt_StartSplitSparseTensor(&split_status, &tsr, cuts) == 0);
+    spt_SplitHandle split_handle;
+    sptAssert(spt_StartSplitSparseTensor(&split_handle, &tsr, cuts) == 0);
 
     sptSparseTensor subtsr;
 
     for(i = 1; ; ++i) {
-        int result = spt_SplitSparseTensor(&subtsr, split_status);
+        int result = spt_SplitSparseTensor(&subtsr, split_handle);
         if(result == SPTERR_NO_MORE) {
             break;
         }
