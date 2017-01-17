@@ -62,3 +62,32 @@ int sptSplittedMTTKRP(
 
     return 0;
 }
+
+int sptPresplittedMTTKRP(
+    sptSparseTensor const splits[],
+    size_t const nsplits,
+    sptMatrix *mats[],
+    size_t const mats_order[],
+    size_t const mode,
+    sptVector *scratch
+) {
+    int result;
+    sptMatrix product;
+    result = sptNewMatrix(&product, mats[mode]->nrows, mats[mode]->ncols);
+    spt_CheckError(result, "CPU  SpTns SpltMTTKRP", NULL);
+    memset(product.values, 0, product.nrows * product.stride * sizeof (sptScalar));
+
+    size_t split_id;
+
+    for(split_id = 0; split_id < nsplits; ++split_id) {
+        result = sptMTTKRP(&splits[split_id], mats, mats_order, mode, scratch);
+        spt_CheckError(result, "CPU  SpTns SpltMTTKRP", NULL);
+
+        size_t i;
+        for(i = 0; i < product.nrows * product.stride; ++i) {
+            product.values[i] += mats[splits[split_id].nmodes]->values[i];
+        }
+    }
+
+    return 0;
+}

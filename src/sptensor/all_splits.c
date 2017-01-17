@@ -38,7 +38,7 @@ static size_t spt_CalcMaxSplitCount(const sptSparseTensor *tsr, const size_t cut
  * @param[in]  tsr           The tensor to split
  * @param[in]  cuts_by_mode  The number of cuts at each mode, length `tsr->nmodes`
  */
-int spt_SparseTensorGetAllSplits(sptSparseTensor (*splits)[], size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
+int spt_SparseTensorGetAllSplits(sptSparseTensor **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
     int result = 0;
     size_t nsplits_bak = 0;
     spt_SplitHandle split_handle;
