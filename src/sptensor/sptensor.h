@@ -47,6 +47,9 @@ int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *t
 int spt_SplitSparseTensor(sptSparseTensor *dest, spt_SplitHandle handle);
 void spt_FinishSplitSparseTensor(spt_SplitHandle handle);
 
+int spt_SparseTensorGetAllSplits(sptSparseTensor (*splits)[], size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]);
+void spt_SparseTensorFreeAllSplits(sptSparseTensor splits[], size_t nsplits);
+
 #ifdef __cplusplus
 }
 #endif
