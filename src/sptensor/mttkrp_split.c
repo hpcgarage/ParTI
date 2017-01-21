@@ -60,6 +60,9 @@ int sptSplittedMTTKRP(
 
     spt_FinishSplitSparseTensor(split_handle);
 
+    memcpy(mats[X->nmodes]->values, product.values, product.nrows * product.stride);
+    sptFreeMatrix(&product);
+
     return 0;
 }
 
@@ -88,6 +91,9 @@ int sptPresplittedMTTKRP(
             product.values[i] += mats[splits[split_id].nmodes]->values[i];
         }
     }
+
+    memcpy(mats[splits[0].nmodes]->values, product.values, product.nrows * product.stride);
+    sptFreeMatrix(&product);
 
     return 0;
 }
