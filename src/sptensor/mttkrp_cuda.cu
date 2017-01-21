@@ -48,11 +48,11 @@ __global__ static void spt_MTTKRPKernel(
     const sptScalar * Xvals,
     const size_t * dev_mats_order,
     sptScalar ** dev_mats,
-    sptScalar * dev_scratch
+    sptScalar * dev_scratch,
+    size_t block_offset
 ) {
     const size_t tidx = threadIdx.x;
-    const size_t x = blockIdx.x * blockDim.x + tidx;
-    // __shared__ int mutex = 0;
+    const size_t x = (blockIdx.x + block_offset) * blockDim.x + tidx;
 
     size_t const nmats = nmodes - 1;
     // size_t const I = Xndims[mode];
@@ -88,18 +88,15 @@ __global__ static void spt_MTTKRPKernel(
       }
 
     }
-    __syncthreads();
+  //  __syncthreads();
 
     if(x < nnz) {
       size_t const mode_i = mode_ind[x];
-      // lock(&mutex);
       for(size_t r=0; r<R; ++r) {
-        // mvals[mode_i * stride + r] += dev_scratch[x * stride + r];
         atomicAdd(&(mvals[mode_i * stride + r]), dev_scratch[x * stride + r]);
       }
-      // unlock(&mutex);
     }
-    __syncthreads();
+//    __syncthreads();
 
 }
 
@@ -203,28 +200,37 @@ int sptCudaMTTKRP(sptSparseTensor const * const X,
 
 
 
-  size_t nthreads = 128;
-  size_t nblocks = (nnz + nthreads -1) / nthreads;
+  const size_t nthreads = 128;
+  const size_t max_nblocks = 32768;
+  size_t all_nblocks = (nnz + nthreads -1) / nthreads;
+  printf("all_nblocks: %lu, nthreads: %lu\n", all_nblocks, nthreads);
 
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  spt_MTTKRPKernel<<<nblocks, nthreads>>>(
-      mode,
-      nmodes,
-      nnz,
-      R,
-      stride,
-      Xndims,
-      Xinds,
-      Xvals,
-      dev_mats_order,
-      dev_mats,
-      dev_scratch
-      );
-  result = cudaThreadSynchronize();
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  for(size_t block_offset = 0; block_offset < all_nblocks; block_offset += max_nblocks) {
+    size_t nblocks = all_nblocks - block_offset;
+    if(nblocks > max_nblocks) {
+        nblocks = max_nblocks;
+    }
+    spt_MTTKRPKernel<<<nblocks, nthreads>>>(
+        mode,
+        nmodes,
+        nnz,
+        R,
+        stride,
+        Xndims,
+        Xinds,
+        Xvals,
+        dev_mats_order,
+        dev_mats,
+        dev_scratch,
+        block_offset
+        );
+    result = cudaThreadSynchronize();
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  }
 
 
   sptStopTimer(timer);
