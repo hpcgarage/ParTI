@@ -3,7 +3,7 @@ project(ParTI)
 
 option(USE_CUDA "Use NVIDIA CUDA library" ON)
 option(USE_OpenBLAS "Use OpenBLAS library" ON)
-option(USE_MAGMA "Use MAGMA library" ON)
+option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
 
 if(USE_CUDA)
