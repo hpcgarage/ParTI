@@ -38,7 +38,7 @@ static size_t spt_CalcMaxSplitCount(const sptSparseTensor *tsr, const size_t cut
  * @param[in]  tsr           The tensor to split
  * @param[in]  cuts_by_mode  The number of cuts at each mode, length `tsr->nmodes`
  */
-int spt_SparseTensorGetAllSplits(sptSparseTensor **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
+int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
     int result = 0;
     size_t nsplits_bak = 0;
     spt_SplitHandle split_handle;
@@ -49,7 +49,7 @@ int spt_SparseTensorGetAllSplits(sptSparseTensor **splits, size_t *nsplits, cons
     result = spt_StartSplitSparseTensor(&split_handle, tsr, cuts_by_mode);
     spt_CheckError(result, "SpTns AllSplt", NULL);
     for(;;) {
-        result = spt_SplitSparseTensor(&(*splits)[*nsplits], split_handle);
+        result = spt_SplitSparseTensor(&(*splits)[*nsplits].tensor, &(*splits)[*nsplits].idx_low, &(*splits)[*nsplits].idx_high, split_handle);
         if(result == SPTERR_NO_MORE) {
             break;
         }
@@ -63,10 +63,10 @@ int spt_SparseTensorGetAllSplits(sptSparseTensor **splits, size_t *nsplits, cons
 /**
  * Free all sub-tensors created by `spt_SparseTensorGetAllSplits`
  */
-void spt_SparseTensorFreeAllSplits(sptSparseTensor splits[], size_t nsplits) {
+void spt_SparseTensorFreeAllSplits(spt_SplitResult splits[], size_t nsplits) {
     size_t i;
     for(i = 0; i < nsplits; ++i) {
-        sptFreeSparseTensor(&splits[i]);
+        sptFreeSparseTensor(&splits[i].tensor);
     }
     free(splits);
 }

@@ -84,7 +84,7 @@ int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *t
  * @param      handle  The handle to this split operation
  * @return             Zero on success, `SPTERR_NO_MORE` when there is no more splits, or any other values to indicate an error
  */
-int spt_SplitSparseTensor(sptSparseTensor *dest, spt_SplitHandle handle) {
+int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *idx_low, size_t *idx_high, spt_SplitHandle handle) {
     int result = 0;
 
     size_t mode = handle->partial_low.len-1;
@@ -150,6 +150,9 @@ int spt_SplitSparseTensor(sptSparseTensor *dest, spt_SplitHandle handle) {
     // Now we have gone through the initial cutting for all modes
     size_t cut_low = handle->partial_low.data[handle->tsr->nmodes];
     size_t cut_high = handle->partial_high.data[handle->tsr->nmodes];
+
+    if(idx_low) { *idx_low = cut_low; }
+    if(idx_high) { *idx_high = cut_high; }
 
     //fprintf(stderr,  "Stage 2, cut_low=%zu, cut_high=%zu\n", cut_low, cut_high);
 

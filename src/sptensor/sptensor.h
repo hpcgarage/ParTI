@@ -44,11 +44,16 @@ int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, con
 
 typedef struct spt_TagSplitHandle *spt_SplitHandle;
 int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *tsr, const size_t cuts_by_mode[]);
-int spt_SplitSparseTensor(sptSparseTensor *dest, spt_SplitHandle handle);
+int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *idx_low, size_t *idx_high, spt_SplitHandle handle);
 void spt_FinishSplitSparseTensor(spt_SplitHandle handle);
 
-int spt_SparseTensorGetAllSplits(sptSparseTensor **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]);
-void spt_SparseTensorFreeAllSplits(sptSparseTensor splits[], size_t nsplits);
+typedef struct spt_TagSplitResult {
+    sptSparseTensor tensor;
+    size_t idx_low;
+    size_t idx_high;
+} spt_SplitResult;
+int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[]);
+void spt_SparseTensorFreeAllSplits(spt_SplitResult splits[], size_t nsplits);
 
 #ifdef __cplusplus
 }

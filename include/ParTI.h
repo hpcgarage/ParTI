@@ -314,8 +314,18 @@ int sptSplittedMTTKRP(
     sptVector *scratch,
     size_t const split_count[]
 );
+
+/*
+   TODO: I'm not sure where to put this forward declaration.
+   The "split" operation should not expose its interface to the application,
+   while "MTTKRP" is a public function.
+   Consider privatize the function or publicize the data type,
+   or we need some sort of encapsulation?
+*/
+struct spt_TagSplitResult;
+
 int sptPresplittedMTTKRP(
-    sptSparseTensor const splits[],
+    struct spt_TagSplitResult const *splits,
     size_t const nsplits,
     sptMatrix *mats[],
     size_t const mats_order[],

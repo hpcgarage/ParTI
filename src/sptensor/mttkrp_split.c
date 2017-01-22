@@ -41,7 +41,7 @@ int sptSplittedMTTKRP(
 
     for(;;) {
         sptSparseTensor subX;
-        result = spt_SplitSparseTensor(&subX, split_handle);
+        result = spt_SplitSparseTensor(&subX, NULL, NULL, split_handle);
         if(result == SPTERR_NO_MORE) {
             break;
         }
@@ -67,7 +67,7 @@ int sptSplittedMTTKRP(
 }
 
 int sptPresplittedMTTKRP(
-    sptSparseTensor const splits[],
+    spt_SplitResult const *splits,
     size_t const nsplits,
     sptMatrix *mats[],
     size_t const mats_order[],
@@ -83,16 +83,16 @@ int sptPresplittedMTTKRP(
     size_t split_id;
 
     for(split_id = 0; split_id < nsplits; ++split_id) {
-        result = sptMTTKRP(&splits[split_id], mats, mats_order, mode, scratch);
+        result = sptMTTKRP(&splits[split_id].tensor, mats, mats_order, mode, scratch);
         spt_CheckError(result, "CPU  SpTns SpltMTTKRP", NULL);
 
         size_t i;
         for(i = 0; i < product.nrows * product.stride; ++i) {
-            product.values[i] += mats[splits[split_id].nmodes]->values[i];
+            product.values[i] += mats[splits[split_id].tensor.nmodes]->values[i];
         }
     }
 
-    memcpy(mats[splits[0].nmodes]->values, product.values, product.nrows * product.stride);
+    memcpy(mats[splits[0].tensor.nmodes]->values, product.values, product.nrows * product.stride);
     sptFreeMatrix(&product);
 
     return 0;
