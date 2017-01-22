@@ -292,7 +292,7 @@ int sptOmpMTTKRP(
 int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
-    size_t const mats_order[],    // Correspond to the mode order of X.
+    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
     size_t const mode);
 int sptCudaMTTKRPDevice(
     const size_t mode,

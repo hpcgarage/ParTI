@@ -38,7 +38,7 @@ double OmpCpdAlsStep(
   size_t const stride = mats[0]->stride;
   int nthreads, tid;
 
-  #pragma omp parallel 
+  #pragma omp parallel
   {
     nthreads = omp_get_num_threads();
     tid = omp_get_thread_num();
@@ -57,7 +57,7 @@ double OmpCpdAlsStep(
     sptNewMatrix(ata[m], rank, rank);
      /* The same storage order with mats. */
     /* sptMatrixTransposeMultiply(mats[m], ata[m]); */
-    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, 
+    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0,
       mats_values, mats[m]->stride, mats_values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
   }
   sptNewMatrix(ata[nmodes], rank, rank);
@@ -71,7 +71,7 @@ double OmpCpdAlsStep(
   // timer_reset(&g_timers[TIMER_ATA]);
   // Timer itertime;
   // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
-  
+
   /* For MttkrpHyperTensor with size rank. */
   sptVector scratch;
   sptNewVector (&scratch, nnz * stride, nnz * stride);
@@ -105,7 +105,7 @@ double OmpCpdAlsStep(
       assert (j == nmats);
       // sptDumpSizeVector(&mats_order, stdout);
 
-      assert (sptOmpMTTKRP(spten, mats, &mats_order, m, &scratch) == 0);
+      assert (sptOmpMTTKRP(spten, mats, mats_order.data, m, &scratch) == 0);
       // printf("sptMTTKRP:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
@@ -121,10 +121,10 @@ double OmpCpdAlsStep(
 
       memset(mats[m]->values, 0, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
       /* sptMatrixMultiply(tmp_mat, ata[nmodes], mats[m]); */
-      cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
-        tmp_mat->nrows, rank, mats[m]->ncols, 
-        1.0, tmp_mat->values, tmp_mat->stride, 
-        unitMat->values, unitMat->stride, 
+      cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+        tmp_mat->nrows, rank, mats[m]->ncols,
+        1.0, tmp_mat->values, tmp_mat->stride,
+        unitMat->values, unitMat->stride,
         0.0, mats[m]->values, mats[m]->stride);
       // printf("Update mats[m]:\n");
       // sptDumpMatrix(mats[m], stdout);
@@ -139,7 +139,7 @@ double OmpCpdAlsStep(
       // printf("\n\n");
 
       /* sptMatrixTransposeMultiply(mats[m], ata[m]); */
-      cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, 
+      cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0,
       mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
       // printf("Update ata[m]:\n");
       // sptDumpMatrix(ata[m], stdout);
@@ -226,8 +226,6 @@ int sptOmpCpdAls(
   ktensor->factors = mats;
 
   sptFreeMatrix(mats[nmodes]);
-  
+
   return 0;
 }
-
-

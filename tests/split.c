@@ -49,12 +49,13 @@ int main(int argc, char *argv[]) {
     sptSparseTensor subtsr;
 
     for(i = 1; ; ++i) {
-        int result = spt_SplitSparseTensor(&subtsr, split_handle);
+        size_t idx_low, idx_high;
+        int result = spt_SplitSparseTensor(&subtsr, &idx_low, &idx_high, split_handle);
         if(result == SPTERR_NO_MORE) {
             break;
         }
         sptAssert(result == 0);
-        printf("Printing split #%zu:\n", i);
+        printf("Printing split #%zu [%zu..%zu]:\n", i, idx_low, idx_high);
         sptDumpSparseTensor(&subtsr, 1, stdout);
         fflush(stdout);
         sptFreeSparseTensor(&subtsr);
