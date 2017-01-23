@@ -107,8 +107,6 @@ int sptPresplittedMTTKRP(
     const size_t *ndims = splits[0].ndims;
     size_t R = mats[mode]->ncols;
     size_t stride = mats[mode]->stride;
-    size_t nmats = nmodes - 1;
-    // TODO: chek nmats
     int result;
 
     /* Check the mats. */
@@ -118,38 +116,60 @@ int sptPresplittedMTTKRP(
         }
     }
 
+    /* Initialize product matrix */
     sptMatrix product;
     result = sptNewMatrix(&product, mats[mode]->nrows, mats[mode]->ncols);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     memset(product.values, 0, product.nrows * product.stride * sizeof (sptScalar));
 
+    /* dev_Xndims[m] <= ndims[m] */
     size_t *dev_Xndims;
     result = sptCudaDuplicateMemory(&dev_Xndims, ndims, nmodes * sizeof *dev_Xndims, cudaMemcpyHostToDevice);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
+    /* dev_mats_order[m] <= mats_order[m] */
     size_t *dev_mats_order;
     result = sptCudaDuplicateMemory(&dev_mats_order, mats_order, nmodes * sizeof *dev_mats_order, cudaMemcpyHostToDevice);
+    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
-    sptScalar ***dev_mats = new sptScalar **[batch_size];
+    /* med_mats[i, m] <= mats[m] */
+    sptScalar **med_mats = new sptScalar *[batch_size*(nmodes+1)];
     for(size_t i = 0; i < batch_size; ++i) {
-        // TODO: dev_mats, be aware of the last one
+        for(size_t m = 0; m < nmodes; ++m) {
+            result = sptCudaDuplicateMemory(&med_mats[i*(nmodes+1) + m], mats[m]->values, mats[m]->nrows * mats[m]->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
+            spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+        }
     }
+    /* dev_mats[i, m] <= med_mats[i, m] */
+    sptScalar **dev_mats;
+    result = sptCudaDuplicateMemory(&dev_mats, med_mats, batch_size * (nmodes+1) * sizeof (sptScalar *), cudaMemcpyHostToDevice);
+    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
-    size_t batch_count = (nsplits-1)/batch_size + 1;
-    size_t ***dev_Xinds = new size_t **[batch_size];
+    size_t **med_Xinds = new size_t *[batch_size*nmodes];
+    size_t **dev_Xinds;
     sptScalar **dev_Xvals = new sptScalar *[batch_size];
     sptScalar **dev_scratch = new sptScalar *[batch_size];
 
+    size_t batch_count = (nsplits-1)/batch_size + 1;
     for(size_t batch_idx = 0; batch_idx < batch_count; ++batch_idx) {
         size_t kernel_count = batch_idx == batch_count-1 ? nsplits - batch_idx*batch_size : batch_size;
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             size_t split_idx = batch_idx*batch_size + kernel_count;
 
-            // TODO: dev_Xinds
+            /* med_Xinds[kid, m] <= splits[sid].inds[m] */
+            for(size_t m = 0; m < nmodes; ++m) {
+                result = sptCudaDuplicateMemory(&med_Xinds[kernel_idx*nmodes + m], splits[split_idx].inds[m].data, splits[split_idx].nnz * sizeof (size_t), cudaMemcpyHostToDevice);
+                spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+            }
+            /* dev_Xinds[kid, m] <= med_Xinds[kid, m] */
+            result = sptCudaDuplicateMemory(&dev_Xinds, med_Xinds, nmodes * sizeof (size_t *), cudaMemcpyHostToDevice);
+            spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
+            /* dev_Xvals[kid] <= splits[sid].values */
             result = sptCudaDuplicateMemory(&dev_Xvals[kernel_idx], splits[split_idx].values.data, splits[split_idx].nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
+            /* dev_scratch <= zeros(splits[sid].nnz, stride) */
             result = cudaMalloc((void **) &dev_scratch[kernel_idx], splits[split_idx].nnz * stride * sizeof (sptScalar));
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
         }
@@ -168,10 +188,10 @@ int sptPresplittedMTTKRP(
                 R,
                 stride,
                 dev_Xndims,
-                dev_Xinds[kernel_idx],
+                &dev_Xinds[kernel_idx*nmodes],
                 dev_Xvals[kernel_idx],
                 dev_mats_order,
-                dev_mats[kernel_idx],
+                &dev_mats[kernel_idx*(nmodes+1)],
                 dev_scratch[kernel_idx]
             );
         }
@@ -180,9 +200,11 @@ int sptPresplittedMTTKRP(
         spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
+            /* dev_mats[nmodes] => mats[nmodes] */
+            result = cudaMemcpy(mats[nmodes]->values, dev_mats[kernel_idx*(nmodes-1) + nmodes], mats[nmodes]->nrows * mats[nmodes]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-            // TODO: copy dev_mats[nmodes] back
-
+            /* product += mats[nmodes] */
             for(size_t i = 0; i < product.nrows * product.stride; ++i) {
                 product.values[i] += mats[nmodes]->values[i];
             }
@@ -190,24 +212,43 @@ int sptPresplittedMTTKRP(
 
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             result = cudaFree(dev_scratch[kernel_idx]);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_Xvals[kernel_idx]);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-            // TODO: dev_Xinds
+            /* Free dev_Xinds */
+            result = cudaFree(dev_Xinds);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+            /* Free mat_Xinds[kid, m] */
+            for(size_t m = 0; m < nmodes; ++m) {
+                result = cudaFree(med_Xinds[kernel_idx*nmodes + m]);
+                spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+            }
         }
     }
 
     delete[] dev_scratch;
     delete[] dev_Xvals;
-    delete[] dev_Xinds;
+    delete[] med_Xinds;
 
-    // TODO: dev_mats
+    /* Free dev_mats */
+    result = cudaFree(dev_mats);
+    spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+    /* Free mat_mats[i, m] */
+    for(size_t i = 0; i < batch_size; ++i) {
+        for(size_t m = 0; m < nmodes; ++m) {
+            result = cudaFree(med_mats[i*(nmodes+1) + m]);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+        }
+    }
+    delete[] med_mats;
 
-    delete[] dev_mats;
     result = cudaFree(dev_mats_order);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     result = cudaFree(dev_Xndims);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
+    /* Copy the product matrix to the real output place */
     memcpy(mats[splits[0].nmodes]->values, product.values, product.nrows * product.stride);
     sptFreeMatrix(&product);
 
