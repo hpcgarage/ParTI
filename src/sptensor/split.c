@@ -102,43 +102,22 @@ again:;
 
         //fprintf(stderr, "Stage 1, mode=%zu, low=%zu, high=%zu\n", mode, low, high);
 
-        // Count distinct index values on this mode
-        size_t last_index = handle->tsr->inds[mode].data[low];
-        size_t index_counts = 1;
-        //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu\n", mode, low, last_index+1);
-        size_t i;
-        for(i = low; i < high; ++i) {
-            if(handle->tsr->inds[mode].data[i] != last_index) {
-                //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu != %zu\n", mode, i, handle->tsr->inds[mode].data[i]+1, last_index+1);
-                ++index_counts;
-                last_index = handle->tsr->inds[mode].data[i];
-            }
-        }
-
-        //fprintf(stderr, "Stage 1, index_counts[%zu] = %zu\n", mode, index_counts);
-
-        // Calculate index step for this mode
-        size_t index_step = 1;
-        if(index_counts != 0) {
-            index_step = (index_counts-1) / handle->cuts_by_mode.data[mode] + 1;
-        }
+        // Calculate split step
+        size_t index_step = (high-low-1) / handle->cuts_by_mode.data[mode] + 1;
         result = sptAppendSizeVector(&handle->index_step, index_step);
         spt_CheckError(result, "SpTns Split", NULL);
 
         //fprintf(stderr, "Stage 1, index_step[%zu] = %zu\n", mode, index_step);
 
         // Set initial cut for this mode
-        last_index = handle->tsr->inds[mode].data[low];
-        index_counts = 1;
         //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu\n", mode, low, last_index+1);
-        for(i = low; i < high; ++i) {
-            if(handle->tsr->inds[mode].data[i] != last_index) {
+        size_t i;
+        for(i = low+1; i < high; ++i) {
+            if(handle->tsr->inds[mode].data[i] != handle->tsr->inds[mode].data[i-1]) {
                 //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu != %zu\n", mode, i, handle->tsr->inds[mode].data[i]+1, last_index+1);
-                last_index = handle->tsr->inds[mode].data[i];
-                if(index_counts == handle->index_step.data[mode]) {
+                if(i-low >= handle->index_step.data[mode]) {
                     break;
                 }
-                ++index_counts;
             }
         }
         result = sptAppendSizeVector(&handle->partial_low, low);
@@ -188,18 +167,14 @@ again:;
             continue;
         }
 
-        size_t last_index = handle->tsr->inds[mode].data[low];
-        size_t index_counts = 1;
         //fprintf(stderr, "Stage 3, inds[%zu][%zu] = %zu\n", mode, low, last_index+1);
         size_t i;
-        for(i = low; i < high; ++i) {
-            if(handle->tsr->inds[mode].data[i] != last_index) {
-                //fprintf(stderr, "Stage 3, inds[%zu][%zu] = %zu != %zu\n", mode, i, handle->tsr->inds[mode].data[i]+1, last_index+1);
-                last_index = handle->tsr->inds[mode].data[i];
-                if(index_counts == handle->index_step.data[mode]) {
+        for(i = low+1; i < high; ++i) {
+            if(handle->tsr->inds[mode].data[i] != handle->tsr->inds[mode].data[i-1]) {
+                //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu != %zu\n", mode, i, handle->tsr->inds[mode].data[i]+1, last_index+1);
+                if(i-low >= handle->index_step.data[mode]) {
                     break;
                 }
-                ++index_counts;
             }
         }
         handle->partial_low.data[mode+1] = low;
