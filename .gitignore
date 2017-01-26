@@ -1,7 +1,7 @@
 sftp-config.json
 *.DS_Store
 .tags*
-build
+build/
 build.config
 *.ptx
 *.mex*
