@@ -91,7 +91,7 @@ __global__ static void spt_MTTKRPKernel(
  * In this version, atomic function to lock the global reduction and a large
  * scratch is used to maximize parallelism. (To be optimized)
  */
-int sptPresplittedMTTKRP(
+int sptCudaDistributedMTTKRP(
     sptSparseTensor const splits[],
     size_t const nsplits,
     size_t const batch_size,
@@ -122,15 +122,19 @@ int sptPresplittedMTTKRP(
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     memset(product.values, 0, product.nrows * product.stride * sizeof (sptScalar));
 
-    /* dev_Xndims[m] <= ndims[m] */
-    size_t *dev_Xndims;
-    result = sptCudaDuplicateMemory(&dev_Xndims, ndims, nmodes * sizeof *dev_Xndims, cudaMemcpyHostToDevice);
-    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    /* dev_Xndims[i, m] <= ndims[i, m] */
+    size_t **dev_Xndims = new size_t *[batch_size];
+    for(size_t i = 0; i < batch_size; ++i) {
+        result = sptCudaDuplicateMemory(&dev_Xndims[i], ndims, nmodes * sizeof *dev_Xndims, cudaMemcpyHostToDevice);
+        spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    }
 
-    /* dev_mats_order[m] <= mats_order[m] */
-    size_t *dev_mats_order;
-    result = sptCudaDuplicateMemory(&dev_mats_order, mats_order, nmodes * sizeof *dev_mats_order, cudaMemcpyHostToDevice);
-    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    /* dev_mats_order[i, m] <= mats_order[i, m] */
+    size_t **dev_mats_order = new size_t *[batch_size];
+    for(size_t i = 0; i < batch_size; ++i) {
+        result = sptCudaDuplicateMemory(&dev_mats_order[i], mats_order, nmodes * sizeof *dev_mats_order, cudaMemcpyHostToDevice);
+        spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    }
 
     /* med_mats[i, m] <= mats[m] */
     sptScalar **med_mats = new sptScalar *[batch_size*(nmodes+1)];
@@ -187,10 +191,10 @@ int sptPresplittedMTTKRP(
                 nnz,
                 R,
                 stride,
-                dev_Xndims,
+                dev_Xndims[kernel_idx],
                 &dev_Xinds[kernel_idx*nmodes],
                 dev_Xvals[kernel_idx],
-                dev_mats_order,
+                dev_mats_order[kernel_idx],
                 &dev_mats[kernel_idx*(nmodes+1)],
                 dev_scratch[kernel_idx]
             );
@@ -243,10 +247,16 @@ int sptPresplittedMTTKRP(
     }
     delete[] med_mats;
 
-    result = cudaFree(dev_mats_order);
-    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
-    result = cudaFree(dev_Xndims);
-    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    for(size_t i = 0; i < batch_size; ++i) {
+        result = cudaFree(dev_mats_order[i]);
+        spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    }
+    delete[] dev_mats_order;
+    for(size_t i = 0; i < batch_size; ++i) {
+        result = cudaFree(dev_Xndims[i]);
+        spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    }
+    delete[] dev_Xndims;
 
     /* Copy the product matrix to the real output place */
     memcpy(mats[splits[0].nmodes]->values, product.values, product.nrows * product.stride);
