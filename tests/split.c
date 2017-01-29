@@ -43,25 +43,17 @@ int main(int argc, char *argv[]) {
         cuts[i] = atoi(argv[i+2]);
     }
 
-    spt_SplitHandle split_handle;
-    sptAssert(spt_StartSplitSparseTensor(&split_handle, &tsr, cuts) == 0);
+    spt_SplitResult *splits;
+    size_t nsplits;
+    sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, cuts, 0) == 0);
 
-    sptSparseTensor subtsr;
-
-    for(i = 1; ; ++i) {
-        size_t idx_low, idx_high;
-        int result = spt_SplitSparseTensor(&subtsr, &idx_low, &idx_high, split_handle);
-        if(result == SPTERR_NO_MORE) {
-            break;
-        }
-        sptAssert(result == 0);
-        printf("Printing split #%zu [%zu..%zu]:\n", i, idx_low, idx_high);
-        sptDumpSparseTensor(&subtsr, 1, stdout);
+    for(i = 0; i < nsplits; ++i) {
+        printf("Printing split #%zu:\n", i);
+        sptDumpSparseTensor(splits[i].tensor, 1, stdout);
         fflush(stdout);
-        sptFreeSparseTensor(&subtsr);
     }
 
-    sptFreeSparseTensor(&tsr);
+    spt_SparseTensorFreeAllSplits(splits, nsplits);
 
     return 0;
 
