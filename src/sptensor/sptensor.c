@@ -31,6 +31,7 @@ int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]
     size_t i;
     int result;
     tsr->nmodes = nmodes;
+    tsr->sortkey = tsr->nmodes != 0 ? tsr->nmodes - 1 : 0;
     tsr->ndims = malloc(nmodes * sizeof *tsr->ndims);
     spt_CheckOSError(!tsr->ndims, "SpTns New");
     memcpy(tsr->ndims, ndims, nmodes * sizeof *tsr->ndims);
@@ -55,6 +56,7 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
     size_t i;
     int result;
     dest->nmodes = src->nmodes;
+    dest->sortkey = src->sortkey;
     dest->ndims = malloc(dest->nmodes * sizeof *dest->ndims);
     spt_CheckOSError(!dest->ndims, "SpTns Copy");
     memcpy(dest->ndims, src->ndims, src->nmodes * sizeof *src->ndims);
