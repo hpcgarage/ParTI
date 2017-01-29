@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
     sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, cuts, 0) == 0);
 
     for(i = 0; i < nsplits; ++i) {
-        printf("Printing split #%zu:\n", i);
-        sptDumpSparseTensor(splits[i].tensor, 1, stdout);
+        printf("Printing split #%zu:\n", i+1);
+        sptDumpSparseTensor(&splits[i].tensor, 1, stdout);
         fflush(stdout);
     }
 

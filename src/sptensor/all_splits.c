@@ -59,7 +59,7 @@ static void spt_RotateMode(sptSparseTensor *tsr) {
 static int spt_SparseTensorPartialSplit(spt_SplitResult *splits, size_t *nsplits, sptSparseTensor *tsr, const size_t cuts_by_mode[], int emit_map, size_t level) {
     int result;
     if(level >= tsr->nmodes) {
-        splits[*nsplits].tensor = tsr;
+        splits[*nsplits].tensor = *tsr;
         ++*nsplits;
         return 0;
     }
@@ -79,32 +79,29 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult *splits, size_t *nsplits
             continue;
         }
 
-        sptSparseTensor *subtsr = malloc(sizeof *subtsr);
-        spt_CheckOSError(subtsr == NULL, "SpTns PartSplt");
-        result = sptNewSparseTensor(subtsr, tsr->nmodes, tsr->ndims);
+        sptSparseTensor subtsr;
+        result = sptNewSparseTensor(&subtsr, tsr->nmodes, tsr->ndims);
         spt_CheckError(result, "SpTns PartSplt", NULL);
         size_t m;
-        for(m = 0; m < subtsr->nmodes; ++m) {
-            result = sptNewSizeVector(&subtsr->inds[m], cut_high - cut_low, cut_high - cut_low);
+        for(m = 0; m < subtsr.nmodes; ++m) {
+            result = sptNewSizeVector(&subtsr.inds[m], cut_high - cut_low, cut_high - cut_low);
             spt_CheckError(result, "SpTns PartSplt", NULL);
-            memcpy(subtsr->inds[m].data, &tsr->inds[m].data[cut_low], (cut_high-cut_low) * sizeof (size_t));
+            memcpy(subtsr.inds[m].data, &tsr->inds[m].data[cut_low], (cut_high-cut_low) * sizeof (size_t));
         }
-        result = sptNewVector(&subtsr->values, cut_high - cut_low, cut_high - cut_low);
+        result = sptNewVector(&subtsr.values, cut_high - cut_low, cut_high - cut_low);
         spt_CheckError(result, "SpTns PartSplt", NULL);
-        memcpy(subtsr->values.data, &tsr->values.data[cut_low], (cut_high-cut_low) * sizeof (sptScalar));
-        subtsr->sortkey = level;
-        subtsr->nnz = cut_high - cut_low;
+        memcpy(subtsr.values.data, &tsr->values.data[cut_low], (cut_high-cut_low) * sizeof (sptScalar));
+        subtsr.nnz = cut_high - cut_low;
 
-        spt_RotateMode(subtsr);
-        sptSparseTensorSortIndex(subtsr);
-        result = spt_SparseTensorPartialSplit(splits, nsplits, subtsr, cuts_by_mode, emit_map, level+1);
+        spt_RotateMode(&subtsr);
+        sptSparseTensorSortIndex(&subtsr);
+        result = spt_SparseTensorPartialSplit(splits, nsplits, &subtsr, cuts_by_mode, emit_map, level+1);
         spt_CheckError(result, "SpTns PartSplt", NULL);
 
         cut_low = cut_high;
     }
-    sptFreeSparseTensor(tsr);
-    free(tsr);
 
+    sptFreeSparseTensor(tsr);
     return 0;
 }
 
@@ -126,13 +123,13 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
     *splits = calloc(spt_CalcMaxSplitCount(tsr, cuts_by_mode), sizeof (*splits)[0]);
     spt_CheckOSError(*splits == NULL, "SpTns AllSplts");
 
-    sptSparseTensor *tsr_copy = malloc(sizeof *tsr_copy);
-    spt_CheckOSError(tsr_copy == NULL, "SpTns AllSplts");
-    result = sptCopySparseTensor(tsr_copy, tsr);
+    sptSparseTensor tsr_copy;
+    result = sptCopySparseTensor(&tsr_copy, tsr);
     spt_CheckError(result, "SpTns AllSplts", NULL);
 
-    result = spt_SparseTensorPartialSplit(*splits, nsplits, tsr_copy, cuts_by_mode, emit_map, 0);
+    result = spt_SparseTensorPartialSplit(*splits, nsplits, &tsr_copy, cuts_by_mode, emit_map, 0);
     spt_CheckError(result, "SpTns AllSplts", NULL);
+
     return 0;
 }
 
@@ -141,10 +138,8 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
  */
 void spt_SparseTensorFreeAllSplits(spt_SplitResult splits[], size_t nsplits) {
     size_t i;
-    assert(splits[nsplits].tensor == NULL);
     for(i = 0; i < nsplits; ++i) {
-        sptFreeSparseTensor(splits[i].tensor);
-        free(splits[i].tensor);
+        sptFreeSparseTensor(&splits[i].tensor);
     }
     free(splits);
 }
