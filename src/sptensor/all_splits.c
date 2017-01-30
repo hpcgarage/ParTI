@@ -80,11 +80,11 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
         spt_CheckError(result, "SpTns PartSplt", NULL);
         size_t m;
         for(m = 0; m < subtsr.nmodes; ++m) {
-            result = sptNewSizeVector(&subtsr.inds[m], cut_high - cut_low, cut_high - cut_low);
+            result = sptResizeSizeVector(&subtsr.inds[m], cut_high - cut_low);
             spt_CheckError(result, "SpTns PartSplt", NULL);
             memcpy(subtsr.inds[m].data, &tsr->inds[m].data[cut_low], (cut_high-cut_low) * sizeof (size_t));
         }
-        result = sptNewVector(&subtsr.values, cut_high - cut_low, cut_high - cut_low);
+        result = sptResizeVector(&subtsr.values, cut_high - cut_low);
         spt_CheckError(result, "SpTns PartSplt", NULL);
         memcpy(subtsr.values.data, &tsr->values.data[cut_low], (cut_high-cut_low) * sizeof (sptScalar));
         subtsr.nnz = cut_high - cut_low;
