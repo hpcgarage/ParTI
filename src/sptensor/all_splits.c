@@ -167,14 +167,22 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
     result = sptCopySparseTensor(&tsr_copy, tsr);
     spt_CheckError(result, "SpTns AllSplts", NULL);
 
-    size_t *cut_low = malloc(2 * tsr->nmodes * sizeof (size_t));
-    spt_CheckOSError(cut_low == NULL, "SpTns AllSplts");
-    size_t *cut_high = cut_low + tsr->nmodes;
+    size_t *cut_low, *cut_high;
+    if(emit_map) {
+        cut_low = malloc(2 * tsr->nmodes * sizeof (size_t));
+        spt_CheckOSError(cut_low == NULL, "SpTns AllSplts");
+        cut_high = cut_low + tsr->nmodes;
+    } else {
+        cut_low = NULL;
+        cut_high = NULL;
+    }
 
     result = spt_SparseTensorPartialSplit(&splits_end, nsplits, &tsr_copy, max_size_by_mode, emit_map, cut_low, cut_high, 0);
     spt_CheckError(result, "SpTns AllSplts", NULL);
 
-    free(cut_low);
+    if(emit_map) {
+        free(cut_low);
+    }
 
     return 0;
 }
