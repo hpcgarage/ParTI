@@ -22,18 +22,18 @@
 #include "sptensor.h"
 #include "../error/error.h"
 
-static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t mode, size_t cut_point, int direction) {
+static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t cut_point, int direction) {
     if(direction) {
         if(cut_point == 0) {
             ++cut_point;
         }
         while(cut_point < tsr->nnz &&
-            tsr->inds[mode].data[cut_point-1] == tsr->inds[mode].data[cut_point]) {
+            tsr->inds[0].data[cut_point-1] == tsr->inds[0].data[cut_point]) {
                 ++cut_point;
         }
     } else {
         while(cut_point != 0 &&
-            tsr->inds[mode].data[cut_point-1] == tsr->inds[mode].data[cut_point]) {
+            tsr->inds[0].data[cut_point-1] == tsr->inds[0].data[cut_point]) {
                 --cut_point;
         }
     }
@@ -101,10 +101,10 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
         size_t cut_high;
         if(cut_high_est < tsr->nnz) {
             /* Find a previous step on the index */
-            cut_high = spt_FindSplitStep(tsr, level, cut_high_est, 0);
+            cut_high = spt_FindSplitStep(tsr, cut_high_est, 0);
             if(cut_high <= cut_low) {
                 /* Find a next step instead */
-                cut_high = spt_FindSplitStep(tsr, level, cut_high_est, 1);
+                cut_high = spt_FindSplitStep(tsr, cut_high_est, 1);
                 fprintf(stderr, "[SpTns PartSplt] cut #%zu size may exceed limit (%zu > %zu)\n", *nsplits+1, cut_high-cut_low, max_size_by_mode[level]);
             }
         } else {
