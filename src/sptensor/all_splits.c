@@ -25,11 +25,7 @@
 static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t mode, size_t cut_point, int direction) {
     if(direction) {
         if(cut_point == 0) {
-            if(tsr->nnz == 0) {
-                return 0;
-            } else {
-                ++cut_point;
-            }
+            ++cut_point;
         }
         while(cut_point < tsr->nnz &&
             tsr->inds[mode].data[cut_point-1] == tsr->inds[mode].data[cut_point]) {
@@ -57,17 +53,21 @@ static void spt_RotateMode(sptSparseTensor *tsr) {
 static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *nsplits, sptSparseTensor *tsr, const size_t max_size_by_mode[], int emit_map, size_t inds_low[], size_t inds_high[], size_t level) {
     int result;
 
+    /* Do nothing with an empty tensor */
     if(tsr->nnz == 0) {
         sptFreeSparseTensor(tsr);
         return 0;
     }
 
+    /* All modes cut, finish the recursion */
     if(level >= tsr->nmodes) {
         **splits_end = malloc(sizeof ***splits_end);
         spt_CheckOSError(**splits_end == NULL, "SpTns PartSplt");
         (**splits_end)->next = NULL;
+        /* Do not free tsr, move it to the destination instead */
         (**splits_end)->tensor = *tsr;
         if(emit_map) {
+            /* Keep a snapshot of current inds_low & inds_high */
             (**splits_end)->inds_low = malloc(2 * tsr->nmodes * sizeof (size_t));
             spt_CheckOSError((**splits_end)->inds_low == NULL, "SpTns PartSplt");
             (**splits_end)->inds_high = (**splits_end)->inds_low + tsr->nmodes;
@@ -82,9 +82,13 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
         return 0;
     }
 
+    /* No cuts required at this mode */
     if(max_size_by_mode[level] == 0) {
-        inds_low[level] = tsr->inds[0].data[0];
-        inds_high[level] = tsr->inds[0].data[tsr->nnz - 1] + 1;
+        if(emit_map) {
+            inds_low[level] = tsr->inds[0].data[0];
+            inds_high[level] = tsr->inds[0].data[tsr->nnz - 1] + 1;
+        }
+
         spt_RotateMode(tsr);
         sptSparseTensorSortIndex(tsr);
         return spt_SparseTensorPartialSplit(splits_end, nsplits, tsr, max_size_by_mode, emit_map, inds_low, inds_high, level+1);
@@ -96,17 +100,19 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
         size_t cut_high_est = cut_low + max_size_by_mode[level];
         size_t cut_high;
         if(cut_high_est < tsr->nnz) {
+            /* Find a previous step on the index */
             cut_high = spt_FindSplitStep(tsr, level, cut_high_est, 0);
             if(cut_high <= cut_low) {
+                /* Find a next step instead */
                 cut_high = spt_FindSplitStep(tsr, level, cut_high_est, 1);
                 fprintf(stderr, "[SpTns PartSplt] cut #%zu size may exceed limit (%zu > %zu)\n", *nsplits+1, cut_high-cut_low, max_size_by_mode[level]);
             }
         } else {
             cut_high = tsr->nnz;
         }
-
         assert(cut_high > cut_low);
 
+        /* Extract this cut into a new subtensor */
         sptSparseTensor subtsr;
         result = sptNewSparseTensor(&subtsr, tsr->nmodes, tsr->ndims);
         spt_CheckError(result, "SpTns PartSplt", NULL);
@@ -121,8 +127,10 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
         memcpy(subtsr.values.data, &tsr->values.data[cut_low], (cut_high-cut_low) * sizeof (sptScalar));
         subtsr.nnz = cut_high - cut_low;
 
-        inds_low[level] = subtsr.inds[0].data[0];
-        inds_high[level] = subtsr.inds[0].data[subtsr.nnz - 1] + 1;
+        if(emit_map) {
+            inds_low[level] = subtsr.inds[0].data[0];
+            inds_high[level] = subtsr.inds[0].data[subtsr.nnz - 1] + 1;
+        }
 
         spt_RotateMode(&subtsr);
         sptSparseTensorSortIndex(&subtsr);
@@ -133,6 +141,7 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
         cut_low = cut_high;
     }
 
+    /* Freed by the callee */
     sptFreeSparseTensor(tsr);
     return 0;
 }
