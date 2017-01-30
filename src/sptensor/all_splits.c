@@ -68,7 +68,7 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
     size_t cut_idx;
     size_t cut_low = 0;
     for(cut_idx = 0; cut_idx < cuts_by_mode[level]; ++cut_idx) {
-        size_t cut_high = (tsr->nnz * (cut_idx+1) * 2 + 1) / (cuts_by_mode[level] * 2);
+        size_t cut_high = tsr->nnz * (cut_idx+1) / cuts_by_mode[level];
         assert(cut_high <= tsr->nnz);
         cut_high = spt_FindSplitStep(tsr, level, cut_high);
         if(cut_high <= cut_low) {
