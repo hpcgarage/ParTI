@@ -22,15 +22,6 @@
 #include "sptensor.h"
 #include "../error/error.h"
 
-static size_t spt_CalcMaxSplitCount(const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
-    size_t prod = 1;
-    size_t m;
-    for(m = 0; m < tsr->nmodes; ++m) {
-        prod *= cuts_by_mode[m];
-    }
-    return prod+1;
-}
-
 static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t mode, size_t cut_point) {
     if(cut_point == 0) {
         if(tsr->nnz == 0) {
@@ -56,17 +47,22 @@ static void spt_RotateMode(sptSparseTensor *tsr) {
     tsr->inds[tsr->nmodes-1] = inds0;
 }
 
-static int spt_SparseTensorPartialSplit(spt_SplitResult *splits, size_t *nsplits, sptSparseTensor *tsr, const size_t cuts_by_mode[], int emit_map, size_t level) {
+static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *nsplits, sptSparseTensor *tsr, const size_t cuts_by_mode[], int emit_map, size_t level) {
     int result;
     if(level >= tsr->nmodes) {
-        splits[*nsplits].tensor = *tsr;
-        ++*nsplits;
+        **splits_end = malloc(sizeof ***splits_end);
+        (**splits_end)->next = NULL;
+        (**splits_end)->tensor = *tsr;
+        *splits_end = &(**splits_end)->next;
+        if(nsplits) {
+            ++*nsplits;
+        }
         return 0;
     }
     if(cuts_by_mode[level] == 1) {
         spt_RotateMode(tsr);
         sptSparseTensorSortIndex(tsr);
-        return spt_SparseTensorPartialSplit(splits, nsplits, tsr, cuts_by_mode, emit_map, level+1);
+        return spt_SparseTensorPartialSplit(splits_end, nsplits, tsr, cuts_by_mode, emit_map, level+1);
     }
 
     size_t cut_idx;
@@ -95,7 +91,7 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult *splits, size_t *nsplits
 
         spt_RotateMode(&subtsr);
         sptSparseTensorSortIndex(&subtsr);
-        result = spt_SparseTensorPartialSplit(splits, nsplits, &subtsr, cuts_by_mode, emit_map, level+1);
+        result = spt_SparseTensorPartialSplit(splits_end, nsplits, &subtsr, cuts_by_mode, emit_map, level+1);
         spt_CheckError(result, "SpTns PartSplt", NULL);
 
         cut_low = cut_high;
@@ -115,19 +111,18 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult *splits, size_t *nsplits
  */
 int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t cuts_by_mode[], int emit_map) {
     int result;
-    size_t nsplits_bak;
-    if(nsplits == NULL) {
-        nsplits = &nsplits_bak;
+
+    spt_SplitResult **splits_end = splits;
+
+    if(nsplits) {
+        *nsplits = 0;
     }
-    *nsplits = 0;
-    *splits = calloc(spt_CalcMaxSplitCount(tsr, cuts_by_mode), sizeof (*splits)[0]);
-    spt_CheckOSError(*splits == NULL, "SpTns AllSplts");
 
     sptSparseTensor tsr_copy;
     result = sptCopySparseTensor(&tsr_copy, tsr);
     spt_CheckError(result, "SpTns AllSplts", NULL);
 
-    result = spt_SparseTensorPartialSplit(*splits, nsplits, &tsr_copy, cuts_by_mode, emit_map, 0);
+    result = spt_SparseTensorPartialSplit(&splits_end, nsplits, &tsr_copy, cuts_by_mode, emit_map, 0);
     spt_CheckError(result, "SpTns AllSplts", NULL);
 
     return 0;
@@ -136,10 +131,11 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
 /**
  * Free all sub-tensors created by `spt_SparseTensorGetAllSplits`
  */
-void spt_SparseTensorFreeAllSplits(spt_SplitResult splits[], size_t nsplits) {
-    size_t i;
-    for(i = 0; i < nsplits; ++i) {
-        sptFreeSparseTensor(&splits[i].tensor);
+void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits) {
+    while(splits) {
+        spt_SplitResult *temp = splits;
+        sptFreeSparseTensor(&splits->tensor);
+        splits = splits->next;
+        free(temp);
     }
-    free(splits);
 }

@@ -47,13 +47,17 @@ int main(int argc, char *argv[]) {
     size_t nsplits;
     sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, cuts, 0) == 0);
 
+    spt_SplitResult *split_i = splits;
     for(i = 0; i < nsplits; ++i) {
-        printf("Printing split #%zu:\n", i+1);
-        sptDumpSparseTensor(&splits[i].tensor, 1, stdout);
+        printf("Printing split #%zu of %zu:\n", i + 1, nsplits);
+        sptDumpSparseTensor(&splits->tensor, 1, stdout);
         fflush(stdout);
+        split_i = split_i->next;
     }
 
-    spt_SparseTensorFreeAllSplits(splits, nsplits);
+    spt_SparseTensorFreeAllSplits(splits);
+    free(cuts);
+    sptFreeSparseTensor(&tsr);
 
     return 0;
 
