@@ -54,34 +54,25 @@ int main(int argc, char *argv[]) {
         sizes[i] = atoi(argv[i+2]);
     }
 
-    size_t *inds_low = malloc(tsr.nmodes * sizeof (size_t));
-    size_t *inds_high = malloc(tsr.nmodes * sizeof (size_t));
+    spt_SplitResult *splits;
+    size_t nsplits;
+    sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, sizes, 1) == 0);
 
-    spt_SplitHandle split_handle;
-    sptAssert(spt_StartSplitSparseTensor(&split_handle, &tsr, sizes) == 0);
-
-    for(i = 1; ; ++i) {
-        sptSparseTensor subtsr;
-        int result = spt_SplitSparseTensor(&subtsr, inds_low, inds_high, split_handle);
-        if(result == SPTERR_NO_MORE) { break; }
-        sptAssert(result == 0);
-
-        printf("Printing split #%zu:\n", i);
+    spt_SplitResult *split_i = splits;
+    for(i = 0; i < nsplits; ++i) {
+        printf("Printing split #%zu of %zu:\n", i + 1, nsplits);
         printf("Index: [");
-        print_inds(inds_low, subtsr.nmodes, 1);
+        print_inds(split_i->inds_low, split_i->tensor.nmodes, 1);
         printf("] .. [");
-        print_inds(inds_high, subtsr.nmodes, 1);
+        print_inds(split_i->inds_high, split_i->tensor.nmodes, 1);
         printf("].\n");
-        sptDumpSparseTensor(&subtsr, 1, stdout);
+        sptDumpSparseTensor(&split_i->tensor, 1, stdout);
         printf("\n");
         fflush(stdout);
-
-        sptFreeSparseTensor(&subtsr);
+        split_i = split_i->next;
     }
 
-    spt_FinishSplitSparseTensor(split_handle);
-    free(inds_high);
-    free(inds_low);
+    spt_SparseTensorFreeAllSplits(splits);
     free(sizes);
     sptFreeSparseTensor(&tsr);
 

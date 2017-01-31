@@ -22,13 +22,44 @@
 #include "sptensor.h"
 
 struct spt_TagSplitHandle {
-    const sptSparseTensor *tsr;
-    sptSizeVector cuts_by_mode;
-    sptSizeVector partial_low;
-    sptSizeVector partial_high;
-    sptSizeVector index_step;
-    int no_more;
+    size_t nsplits;
+    sptSparseTensor *tsr;
+    size_t *max_size_by_mode;
+    size_t *inds_low;
+    size_t *inds_high;
+    size_t level;
+    int *resume_branch;
+    size_t *cut_idx;
+    size_t *cut_low;
 };
+
+static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t cut_point, int direction) {
+    if(direction) {
+        if(cut_point == 0) {
+            ++cut_point;
+        }
+        while(cut_point < tsr->nnz &&
+            tsr->inds[0].data[cut_point-1] == tsr->inds[0].data[cut_point]) {
+                ++cut_point;
+        }
+    } else {
+        while(cut_point != 0 &&
+            tsr->inds[0].data[cut_point-1] == tsr->inds[0].data[cut_point]) {
+                --cut_point;
+        }
+    }
+    return cut_point;
+}
+
+static void spt_RotateMode(sptSparseTensor *tsr) {
+    if(tsr->nmodes == 0) {
+        return;
+    }
+
+    sptSizeVector inds0 = tsr->inds[0];
+    memmove(&tsr->inds[0], &tsr->inds[1], (tsr->nmodes-1) * sizeof (sptSizeVector));
+    tsr->inds[tsr->nmodes-1] = inds0;
+}
 
 /**
  * Split a sparse tensor into several sub-tensors.
@@ -39,38 +70,33 @@ struct spt_TagSplitHandle {
  *
  * @param[out] handle        The handle of this split operation
  * @param[in]  tsr           The sparse tensor to split from
- * @param[in]  cuts_by_mode  The number of cuts at each mode, length `tsr->nmodes`
+ * @param[in]  max_size_by_mode  The number of cuts at each mode, length `tsr->nmodes`
  */
-int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *tsr, const size_t cuts_by_mode[]) {
+int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *tsr, const size_t max_size_by_mode[]) {
     int result = 0;
 
-    if(tsr->nnz == 0) {
-        spt_CheckError(SPTERR_NO_MORE, "SpTns Start Split", "no splits");
-    }
-
-    if(tsr->sortkey != tsr->nmodes-1) {
-        spt_CheckError(SPTERR_VALUE_ERROR, "SpTns Start Split", "sortkey != nmodes-1");
-    }
-
     *handle = malloc(sizeof **handle);
-    (*handle)->tsr = tsr;
-    result = sptNewSizeVector(&(*handle)->cuts_by_mode, tsr->nmodes, tsr->nmodes);
-    spt_CheckError(result, "SpTns Start Split", NULL);
-    memcpy((*handle)->cuts_by_mode.data, cuts_by_mode, tsr->nmodes * sizeof (size_t));
+    (*handle)->nsplits = 0;
+    (*handle)->tsr = malloc((tsr->nmodes + 1) * sizeof (sptSparseTensor));
+    spt_CheckOSError((*handle)->tsr == NULL, "SpTns Splt");
+    (*handle)->max_size_by_mode = malloc(5 * tsr->nmodes * sizeof (size_t));
+    spt_CheckOSError((*handle)->max_size_by_mode == NULL, "SpTns Splt");
+    (*handle)->inds_low = (*handle)->max_size_by_mode + tsr->nmodes;
+    (*handle)->inds_high = (*handle)->max_size_by_mode + 2 * tsr->nmodes;
+    (*handle)->level = 0;
+    (*handle)->resume_branch = malloc((tsr->nmodes + 1) * sizeof (int));
+    spt_CheckOSError((*handle)->resume_branch == NULL, "SpTns Splt");
+    (*handle)->cut_idx = (*handle)->max_size_by_mode + 3 * tsr->nmodes;
+    (*handle)->cut_low = (*handle)->max_size_by_mode + 4 * tsr->nmodes;
 
-    result = sptNewSizeVector(&(*handle)->partial_low, 1, tsr->nmodes+1);
-    spt_CheckError(result, "SpTns Start Split", NULL);
-    result = sptNewSizeVector(&(*handle)->partial_high, 1, tsr->nmodes+1);
-    spt_CheckError(result, "SpTns Start Split", NULL);
-    result = sptNewSizeVector(&(*handle)->index_step, 0, tsr->nmodes);
-    spt_CheckError(result, "SpTns Start Split", NULL);
+    result = sptCopySparseTensor(&(*handle)->tsr[0], tsr);
+    spt_CheckError(result, "SpTns Splt", NULL);
 
-    (*handle)->partial_low.data[0] = 0;
-    (*handle)->partial_high.data[0] = tsr->nnz;
+    memcpy((*handle)->max_size_by_mode, max_size_by_mode, tsr->nmodes * sizeof (size_t));
 
-    (*handle)->no_more = 0;
+    (*handle)->resume_branch[0] = 0;
 
-    return result;
+    return 0;
 }
 
 /**
@@ -84,111 +110,122 @@ int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *t
  * @param      handle  The handle to this split operation
  * @return             Zero on success, `SPTERR_NO_MORE` when there is no more splits, or any other values to indicate an error
  */
-int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *idx_low, size_t *idx_high, spt_SplitHandle handle) {
-    int result = 0;
+int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *inds_low, size_t *inds_high, spt_SplitHandle handle) {
+    int result;
+    sptSparseTensor *curtsr;
 
-again:;
+again:
 
-    size_t mode = handle->partial_low.len-1;
+    curtsr = &handle->tsr[handle->level];
 
-    if(handle->no_more) {
-        return SPTERR_NO_MORE;
-    }
-
-    while(mode < handle->tsr->nmodes) {
-        size_t low = handle->partial_low.data[mode];
-        size_t high = handle->partial_high.data[mode];
-        assert(low < high);
-
-        //fprintf(stderr, "Stage 1, mode=%zu, low=%zu, high=%zu\n", mode, low, high);
-
-        // Calculate split step
-        size_t index_step = (high-low-1) / handle->cuts_by_mode.data[mode] + 1;
-        result = sptAppendSizeVector(&handle->index_step, index_step);
-        spt_CheckError(result, "SpTns Split", NULL);
-
-        //fprintf(stderr, "Stage 1, index_step[%zu] = %zu\n", mode, index_step);
-
-        // Set initial cut for this mode
-        //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu\n", mode, low, last_index+1);
-        size_t i;
-        for(i = low+1; i < high; ++i) {
-            if(handle->tsr->inds[mode].data[i] != handle->tsr->inds[mode].data[i-1]) {
-                //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu != %zu\n", mode, i, handle->tsr->inds[mode].data[i]+1, last_index+1);
-                if(i-low >= handle->index_step.data[mode]) {
-                    break;
+    if(handle->resume_branch[handle->level] == 1) {
+        if(handle->cut_low[handle->level] < curtsr->nnz) {
+            size_t cut_high_est = handle->cut_low[handle->level] + handle->max_size_by_mode[handle->level];
+            size_t cut_high;
+            if(cut_high_est < curtsr->nnz) {
+                /* Find a previous step on the index */
+                cut_high = spt_FindSplitStep(curtsr, cut_high_est, 0);
+                if(cut_high <= handle->cut_low[handle->level]) {
+                    /* Find a next step instead */
+                    cut_high = spt_FindSplitStep(curtsr, cut_high_est, 1);
+                    fprintf(stderr, "[SpTns Splt] cut #%zu size may exceed limit (%zu > %zu)\n", handle->nsplits + 1, cut_high - handle->cut_low[handle->level], handle->max_size_by_mode[handle->level]);
                 }
+            } else {
+                cut_high = curtsr->nnz;
             }
-        }
-        result = sptAppendSizeVector(&handle->partial_low, low);
-        spt_CheckError(result, "SpTns Split", NULL);
-        result = sptAppendSizeVector(&handle->partial_high, i);
-        spt_CheckError(result, "SpTns Split", NULL);
+            assert(cut_high > handle->cut_low[handle->level]);
 
-        ++mode;
+            /* Extract this cut into a new subtensor */
+            sptSparseTensor *subtsr = &handle->tsr[handle->level + 1];
+            result = sptNewSparseTensor(subtsr, curtsr->nmodes, curtsr->ndims);
+            size_t m;
+            for(m = 0; m < subtsr->nmodes; ++m) {
+                result = sptResizeSizeVector(&subtsr->inds[m], cut_high - handle->cut_low[handle->level]);
+                spt_CheckError(result, "SpTns PartSplt", NULL);
+                memcpy(subtsr->inds[m].data, &curtsr->inds[m].data[handle->cut_low[handle->level]], (cut_high - handle->cut_low[handle->level]) * sizeof (size_t));
+            }
+            result = sptResizeVector(&subtsr->values, cut_high - handle->cut_low[handle->level]);
+            spt_CheckError(result, "SpTns PartSplt", NULL);
+            memcpy(subtsr->values.data, &curtsr->values.data[handle->cut_low[handle->level]], (cut_high - handle->cut_low[handle->level]) * sizeof (sptScalar));
+            subtsr->nnz = cut_high - handle->cut_low[handle->level];
+
+            handle->inds_low[handle->level] = subtsr->inds[0].data[0];
+            handle->inds_high[handle->level] = subtsr->inds[0].data[subtsr->nnz - 1] + 1;
+
+            handle->cut_low[handle->level] = cut_high;
+
+            spt_RotateMode(subtsr);
+            sptSparseTensorSortIndex(subtsr);
+
+            ++handle->level;
+            handle->resume_branch[handle->level] = 0;
+            goto again;
+        } else {
+            sptFreeSparseTensor(curtsr);
+            if(handle->level == 0) {
+                return SPTERR_NO_MORE;
+            }
+            --handle->level;
+            goto again;
+        }
+    } else if(handle->resume_branch[handle->level] == 2) {
+        if(handle->level == 0) {
+            return SPTERR_NO_MORE;
+        }
+        --handle->level;
+        goto again;
+    } else {
+        assert(handle->resume_branch[handle->level] == 0);
     }
 
-    // Now we have gone through the initial cutting for all modes
-    size_t cut_low = handle->partial_low.data[handle->tsr->nmodes];
-    size_t cut_high = handle->partial_high.data[handle->tsr->nmodes];
+    /* Do nothing with an empty tensor */
+    if(curtsr->nnz == 0) {
+        sptFreeSparseTensor(curtsr);
 
-    if(idx_low) { *idx_low = cut_low; }
-    if(idx_high) { *idx_high = cut_high; }
-
-    //fprintf(stderr,  "Stage 2, cut_low=%zu, cut_high=%zu\n", cut_low, cut_high);
-
-    // Copy values[cut_low] through values[cut_high] into the new tensor
-    if(cut_low != cut_high) {
-        result = sptNewSparseTensor(dest, handle->tsr->nmodes, handle->tsr->ndims);
-        spt_CheckError(result, "SpTns Split", NULL);
-        for(mode = 0; mode < handle->tsr->nmodes; ++mode) {
-            result = sptResizeSizeVector(&dest->inds[mode], cut_high-cut_low);
-            spt_CheckError(result, "SpTns Split", NULL);
-            memcpy(dest->inds[mode].data, &handle->tsr->inds[mode].data[cut_low], (cut_high - cut_low) * sizeof (size_t));
+        if(handle->level == 0) {
+            return SPTERR_NO_MORE;
         }
-        result = sptResizeVector(&dest->values, cut_high-cut_low);
-        spt_CheckError(result, "SpTns Split", NULL);
-        memcpy(dest->values.data, &handle->tsr->values.data[cut_low], (cut_high - cut_low) * sizeof (sptScalar));
-        dest->nnz = cut_high - cut_low;
+        --handle->level;
+        goto again;
     }
 
-    // Find the next chunk and return current function
-    mode = handle->tsr->nmodes;
-    while(mode-- > 0) {
-        // Starting from the rest of this mode, to the end of previous mode
-        size_t low = handle->partial_high.data[mode+1];
-        size_t high = handle->partial_high.data[mode];
-        //fprintf(stderr, "Stage 3, mode=%zu, last=%zu, limit=%zu\n", mode, low, high);
-        if(low >= high) {
-            //fprintf(stderr, "Stage 3, backtracking\n");
-            --handle->partial_low.len;
-            --handle->partial_high.len;
-            --handle->index_step.len;
-            continue;
+    /* All modes cut, finish the recursion */
+    if(handle->level >= curtsr->nmodes) {
+        if(dest) {
+            *dest = *curtsr;
         }
-
-        //fprintf(stderr, "Stage 3, inds[%zu][%zu] = %zu\n", mode, low, last_index+1);
-        size_t i;
-        for(i = low+1; i < high; ++i) {
-            if(handle->tsr->inds[mode].data[i] != handle->tsr->inds[mode].data[i-1]) {
-                //fprintf(stderr, "Stage 1, inds[%zu][%zu] = %zu != %zu\n", mode, i, handle->tsr->inds[mode].data[i]+1, last_index+1);
-                if(i-low >= handle->index_step.data[mode]) {
-                    break;
-                }
-            }
+        if(inds_low) {
+            memcpy(inds_low, handle->inds_low, curtsr->nmodes * sizeof (size_t));
         }
-        handle->partial_low.data[mode+1] = low;
-        handle->partial_high.data[mode+1] = i;
-        //fprintf(stderr, "Stage 3, new_low=%zu, new_high=%zu\n", low, i);
+        if(inds_high) {
+            memcpy(inds_high, handle->inds_high, curtsr->nmodes * sizeof (size_t));
+        }
+        ++handle->nsplits;
 
-        if(cut_low == cut_high) { goto again; }
+        --handle->level;
         return 0;
     }
 
-    // Mode should be 0 now, which means unable to find the next chunk
-    handle->no_more = 1;
+    /* No cuts required at this mode */
+    if(handle->max_size_by_mode[handle->level] == 0) {
+        handle->inds_low[handle->level] = curtsr->inds[0].data[0];
+        handle->inds_high[handle->level] = curtsr->inds[0].data[curtsr->nnz - 1] + 1;
 
-    if(cut_low == cut_high) { goto again; }
+        spt_RotateMode(curtsr);
+        sptSparseTensorSortIndex(curtsr);
+        handle->tsr[handle->level + 1] = *curtsr;
+
+        handle->resume_branch[handle->level] = 2;
+        ++handle->level;
+        handle->resume_branch[handle->level] = 0;
+        goto again;
+    }
+
+    handle->cut_idx[handle->level] = 0;
+    handle->cut_low[handle->level] = 0;
+    handle->resume_branch[handle->level] = 1;
+    goto again;
+
     return 0;
 }
 
@@ -202,10 +239,8 @@ again:;
  * @param handle  The handle to this split operation
  */
 void spt_FinishSplitSparseTensor(spt_SplitHandle handle) {
-    handle->tsr = NULL;
-    sptFreeSizeVector(&handle->cuts_by_mode);
-    sptFreeSizeVector(&handle->partial_low);
-    sptFreeSizeVector(&handle->partial_high);
-    sptFreeSizeVector(&handle->index_step);
+    free(handle->resume_branch);
+    free(handle->max_size_by_mode);
+    free(handle->tsr);
     free(handle);
 }
