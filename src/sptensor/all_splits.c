@@ -153,6 +153,7 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
  * @param[out] nsplits           Place to store the number of actual splits
  * @param[in]  tsr               The tensor to split
  * @param[in]  max_size_by_mode  The size of cuts at each mode, length `tsr->nmodes`
+ * @param[in]  emit_map          Whether to emit the index limit of each subtensor
  */
 int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t max_size_by_mode[], int emit_map) {
     int result;
