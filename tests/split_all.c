@@ -54,6 +54,10 @@ int main(int argc, char *argv[]) {
         sizes[i] = atoi(argv[i+2]);
     }
 
+    printf("Splitting using API 'GetAllSplits', max size [");
+    print_inds(sizes, tsr.nmodes, 0);
+    printf("].\n\n");
+
     spt_SplitResult *splits;
     size_t nsplits;
     sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, sizes, 1) == 0);

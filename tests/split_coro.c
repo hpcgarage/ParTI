@@ -57,6 +57,10 @@ int main(int argc, char *argv[]) {
     size_t *inds_low = malloc(tsr.nmodes * sizeof (size_t));
     size_t *inds_high = malloc(tsr.nmodes * sizeof (size_t));
 
+    printf("Splitting using API 'Split Coroutine', max size [");
+    print_inds(sizes, tsr.nmodes, 0);
+    printf("].\n\n");
+
     spt_SplitHandle split_handle;
     sptAssert(spt_StartSplitSparseTensor(&split_handle, &tsr, sizes) == 0);
 
