@@ -31,6 +31,7 @@ const short data_6[1] = { -0x3334 };
 const short *const header[7] = { data_0, data_1, data_2, data_3, data_4, data_5, data_6 };
 const size_t length[7] = { 6, 5, 4, 3, 2, 1, 0 };
 
+/* You may as well write this as a C++11 closure */
 static inline size_t get_length(size_t idx) {
     return length[idx];
 }
