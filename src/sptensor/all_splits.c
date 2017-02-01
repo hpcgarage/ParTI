@@ -175,13 +175,10 @@ static int spt_SparseTensorIndexSplit(spt_SplitResult ***splits_end, size_t *nsp
         return 0;
     }
 
-    inds_low[level] = 0;
-
-    while(inds_low[level] < tsr->ndims[level]) {
+    for(inds_low[level] = 0; inds_low[level] < tsr->ndims[level]; inds_low[level] += index_limit_by_mode[level]) {
         inds_high[level] = inds_low[level] + index_limit_by_mode[level];
         result = spt_SparseTensorIndexSplit(splits_end, nsplits, tsr, index_limit_by_mode, emit_map, inds_low, inds_high, level + 1);
         spt_CheckError(result, "SpTns IdxSplt", NULL);
-        inds_low[level] += index_limit_by_mode[level];
     }
 
     return 0;
@@ -239,6 +236,7 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
 
     sptSparseTensor tsr_copy;
     if(nnz_limit_by_mode != NULL) {
+        assert(index_limit_by_mode == NULL); // FIXME: not implemented yet, either set nnz to NULL, or set index to NULL
         result = sptCopySparseTensor(&tsr_copy, tsr);
         spt_CheckError(result, "SpTns AllSplts", NULL);
 
