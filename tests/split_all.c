@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
     spt_SplitResult *splits;
     size_t nsplits;
-    sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, sizes, 1) == 0);
+    sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, sizes, NULL, 1) == 0);
 
     spt_SplitResult *split_i = splits;
     for(i = 0; i < nsplits; ++i) {
