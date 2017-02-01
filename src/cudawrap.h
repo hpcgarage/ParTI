@@ -21,6 +21,8 @@
 
 #ifdef PARTI_USE_CUDA
 
+#include <assert.h>
+#include <stdlib.h>
 #include <cuda_runtime.h>
 #include "error/error.h"
 
@@ -36,103 +38,134 @@ static inline int sptCudaDuplicateMemory(T **dest, const T *src, size_t size, in
 template <class T>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T **src, size_t nmemb, size_t size, int direction) {
     int result;
-    T **host_src;
+
+    size_t head_size = nmemb * sizeof (T *);
+    size_t total_size = head_size + nmemb * size * sizeof (T);
+
+    T **head;
+    T *body;
+    T **tmp_head;
 
     switch(direction) {
     case cudaMemcpyHostToDevice:
-        host_src = const_cast<T **>(src);
+        result = cudaMalloc(&head, total_size);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) (head + nmemb);
+
+        tmp_head = new T*[nmemb];
+
+        for(size_t i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, src[i], size, cudaMemcpyHostToDevice);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            tmp_head[i] = body;
+            body += size;
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        result = cudaMemcpy(head, tmp_head, nmemb * sizeof (T *), cudaMemcpyHostToDevice);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        delete[] tmp_head;
+
         break;
+
     case cudaMemcpyDeviceToHost:
-    case cudaMemcpyDeviceToDevice:
-        result = sptCudaDuplicateMemory(&host_src, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
-        spt_CheckError(result, "sptCudaDuplicateMemoryIndirect", NULL);
+        head = malloc(total_size);
+        spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) (head + nmemb);
+
+        tmp_head = new T*[nmemb];
+        result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        for(size_t i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, tmp_head[i], size, cudaMemcpyDeviceToHost);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            head[i] = body;
+            body += size;
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        delete[] tmp_head;
+
         break;
+
     default:
-        spt_CheckError(SPTERR_UNKNOWN, "spt_CudaDuplicateMemory", "Unknown memory copy kind");
+        spt_CheckError(SPTERR_UNKNOWN, "sptCudaDuplicateMemoryIndirect", "Unknown memory copy kind");
     }
 
-    T **host_dest = new T *[nmemb];
-    for(size_t i = 0; i < nmemb; ++i) {
-        result = sptCudaDuplicateMemory(&host_dest[i], host_src[i], size, direction);
-        spt_CheckError(result, "sptCudaDuplicateMemoryIndirect", NULL);
-    }
-
-    switch(direction) {
-    case cudaMemcpyHostToDevice:
-    case cudaMemcpyDeviceToDevice:
-        result = sptCudaDuplicateMemory(dest, host_dest, nmemb * sizeof (void *), cudaMemcpyHostToDevice);
-        spt_CheckError(result, "sptCudaDuplicateMemoryIndirect", NULL);
-        delete[] host_dest;
-        break;
-    case cudaMemcpyDeviceToHost:
-        *dest = host_dest;
-        break;
-    default:
-        spt_CheckError(SPTERR_UNKNOWN, "spt_CudaDuplicateMemory", "Unknown memory copy kind");
-    }
-
-    switch(direction) {
-    case cudaMemcpyHostToDevice:
-        break;
-    case cudaMemcpyDeviceToHost:
-    case cudaMemcpyDeviceToDevice:
-        free(host_src);
-        break;
-    default:
-        spt_CheckError(SPTERR_UNKNOWN, "spt_CudaDuplicateMemory", "Unknown memory copy kind")
-    }
+    *dest = head;
 
     return 0;
 }
 
-template <class T, class F>
-inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T **src, size_t nmemb, F size, int direction) {
+template <class T, class Fn>
+inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T **src, size_t nmemb, Fn size, int direction) {
     int result;
-    T **host_src;
 
-    switch(direction) {
-    case cudaMemcpyHostToDevice:
-        host_src = const_cast<T **>(src);
-        break;
-    case cudaMemcpyDeviceToHost:
-    case cudaMemcpyDeviceToDevice:
-        result = sptCudaDuplicateMemory(&host_src, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
-        spt_CheckError(result, "sptCudaDuplicateMemoryIndirect", NULL);
-        break;
-    default:
-        spt_CheckError(SPTERR_UNKNOWN, "spt_CudaDuplicateMemory", "Unknown memory copy kind");
-    }
-
-    T **host_dest = new T *[nmemb];
+    size_t head_size = nmemb * sizeof (T *);
+    size_t total_size = head_size;
     for(size_t i = 0; i < nmemb; ++i) {
-        result = sptCudaDuplicateMemory(&host_dest[i], host_src[i], size(i), direction);
-        spt_CheckError(result, "sptCudaDuplicateMemoryIndirect", NULL);
+        total_size += size(i) * sizeof (T);
     }
+
+    T **head;
+    T *body;
+    T **tmp_head;
 
     switch(direction) {
     case cudaMemcpyHostToDevice:
-    case cudaMemcpyDeviceToDevice:
-        result = sptCudaDuplicateMemory(dest, host_dest, nmemb * sizeof (void *), cudaMemcpyHostToDevice);
-        spt_CheckError(result, "sptCudaDuplicateMemoryIndirect", NULL);
-        delete[] host_dest;
+        result = cudaMalloc(&head, total_size);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) (head + nmemb);
+
+        tmp_head = new T*[nmemb];
+
+        for(size_t i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, src[i], size, cudaMemcpyHostToDevice);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            tmp_head[i] = body;
+            body += size(i);
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        result = cudaMemcpy(head, tmp_head, nmemb * sizeof (T *), cudaMemcpyHostToDevice);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        delete[] tmp_head;
+
         break;
+
     case cudaMemcpyDeviceToHost:
-        *dest = host_dest;
+        head = malloc(total_size);
+        spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) (head + nmemb);
+
+        tmp_head = new T*[nmemb];
+        result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        for(size_t i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, tmp_head[i], size, cudaMemcpyDeviceToHost);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            head[i] = body;
+            body += size(i);
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        delete[] tmp_head;
+
         break;
+
     default:
-        spt_CheckError(SPTERR_UNKNOWN, "spt_CudaDuplicateMemory", "Unknown memory copy kind");
+        spt_CheckError(SPTERR_UNKNOWN, "sptCudaDuplicateMemoryIndirect", "Unknown memory copy kind");
     }
 
-    switch(direction) {
-    case cudaMemcpyHostToDevice:
-        break;
-    case cudaMemcpyDeviceToHost:
-    case cudaMemcpyDeviceToDevice:
-        free(host_src);
-        break;
-    default:
-        spt_CheckError(SPTERR_UNKNOWN, "spt_CudaDuplicateMemory", "Unknown memory copy kind");
-    }
+    *dest = head;
 
     return 0;
 }
