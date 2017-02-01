@@ -146,6 +146,43 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
     return 0;
 }
 
+static int spt_SparseTensorIndexSplit(spt_SplitResult ***splits_end, size_t *nsplits, const sptSparseTensor *tsr, const size_t index_limit_by_mode[], int emit_map, size_t inds_low[], size_t inds_high[], size_t level) {
+    int result;
+
+    if(level >= tsr->nmodes) {
+        **splits_end = malloc(sizeof ***splits_end);
+        spt_CheckOSError(**splits_end == NULL, "SpTns IdxSplt");
+        (**splits_end)->next = NULL;
+        /* Do not free tsr, move it to the destination instead */
+        spt_SliceSparseTensor(&(**splits_end)->tensor, tsr, inds_low, inds_high);
+        if(emit_map) {
+            /* Keep a snapshot of current inds_low & inds_high */
+            (**splits_end)->inds_low = malloc(2 * tsr->nmodes * sizeof (size_t));
+            spt_CheckOSError((**splits_end)->inds_low == NULL, "SpTns IdxSplt");
+            (**splits_end)->inds_high = (**splits_end)->inds_low + tsr->nmodes;
+            memcpy((**splits_end)->inds_low, inds_low, tsr->nmodes * sizeof (size_t));
+            memcpy((**splits_end)->inds_high, inds_high, tsr->nmodes * sizeof (size_t));
+        } else {
+            (**splits_end)->inds_low = NULL;
+            (**splits_end)->inds_low = NULL;
+        }
+        *splits_end = &(**splits_end)->next;
+        ++*nsplits;
+        return 0;
+    }
+
+    inds_low[level] = 0;
+
+    while(inds_low[level] < tsr->ndims[level]) {
+        inds_high[level] = inds_low[level] + index_limit_by_mode[level];
+        result = spt_SparseTensorIndexSplit(splits_end, nsplits, tsr, index_limit_by_mode, emit_map, inds_low, inds_high, level + 1);
+        spt_CheckError(result, "SpTns IdxSplt", NULL);
+        inds_low[level] += index_limit_by_mode[level];
+    }
+
+    return 0;
+}
+
 /**
  * A convenient function to get all splits by repeatively calling `spt_SplitSparseTensor`
  *
@@ -156,6 +193,7 @@ static int spt_SparseTensorPartialSplit(spt_SplitResult ***splits_end, size_t *n
  * @param[in]  emit_map          Whether to emit the index limit of each subtensor
  */
 int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t nnz_limit_by_mode[], const size_t index_limit_by_mode[], int emit_map) {
+    /* FIXME: index_limit_by_mode is not used yet */
     int result;
 
     spt_SplitResult **splits_end = splits;
@@ -164,16 +202,17 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
     if(nsplits == NULL) { nsplits = &internal_nsplits; }
     *nsplits = 0;
 
-    size_t *internal_nnz_limit_by_mode = malloc(tsr->nmodes * sizeof (size_t));
-    spt_CheckOSError(internal_nnz_limit_by_mode == NULL, "SpTns AllSplts");
+    size_t *internal_nnz_limit_by_mode;
     if(nnz_limit_by_mode != NULL) {
+        internal_nnz_limit_by_mode = malloc(tsr->nmodes * sizeof (size_t));
+        spt_CheckOSError(internal_nnz_limit_by_mode == NULL, "SpTns AllSplts");
         memcpy(internal_nnz_limit_by_mode, nnz_limit_by_mode, tsr->nmodes * sizeof (size_t));
         size_t i;
         for(i = 1; i < tsr->nmodes; ++i) {
             internal_nnz_limit_by_mode[tsr->nmodes - i - 1] *= internal_nnz_limit_by_mode[tsr->nmodes - i];
         }
     } else {
-        memset(internal_nnz_limit_by_mode, 0, tsr->nmodes * sizeof (size_t));
+        internal_nnz_limit_by_mode = NULL;
     }
 
     const size_t *internal_index_limit_by_mode;
@@ -195,11 +234,18 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
     }
 
     sptSparseTensor tsr_copy;
-    result = sptCopySparseTensor(&tsr_copy, tsr);
-    spt_CheckError(result, "SpTns AllSplts", NULL);
+    if(nnz_limit_by_mode != NULL) {
+        result = sptCopySparseTensor(&tsr_copy, tsr);
+        spt_CheckError(result, "SpTns AllSplts", NULL);
 
-    result = spt_SparseTensorPartialSplit(&splits_end, nsplits, &tsr_copy, internal_nnz_limit_by_mode, internal_index_limit_by_mode, emit_map, cut_low, cut_high, 0);
-    spt_CheckError(result, "SpTns AllSplts", NULL);
+        result = spt_SparseTensorPartialSplit(&splits_end, nsplits, &tsr_copy, internal_nnz_limit_by_mode, internal_index_limit_by_mode, emit_map, cut_low, cut_high, 0);
+        spt_CheckError(result, "SpTns AllSplts", NULL);
+    } else {
+        tsr_copy = *tsr;
+
+        result = spt_SparseTensorIndexSplit(&splits_end, nsplits, &tsr_copy, internal_index_limit_by_mode, emit_map, cut_low, cut_high, 0);
+        spt_CheckError(result, "SpTns AllSplts", NULL);
+    }
 
     if(emit_map) {
         free(cut_low);
@@ -207,7 +253,9 @@ int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, cons
     if(index_limit_by_mode == NULL) {
         free((size_t *) internal_index_limit_by_mode);
     }
-    free(internal_nnz_limit_by_mode);
+    if(nnz_limit_by_mode != NULL) {
+        free(internal_nnz_limit_by_mode);
+    }
 
     return 0;
 }
