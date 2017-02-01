@@ -53,13 +53,16 @@ int main() {
     short **dev_data;
     sptAssert(sptCudaDuplicateMemoryIndirect(&dev_data, header, 7, get_length, cudaMemcpyHostToDevice) == 0);
 
+    printf("Device data at %p.\n\n", dev_data);
+
     short **copyback_data;
     sptAssert(sptCudaDuplicateMemoryIndirect(&copyback_data, dev_data, 7, length, cudaMemcpyDeviceToHost) == 0);
+
+    cudaFree(dev_data);
 
     print_data("Copyback data", copyback_data);
 
     free(copyback_data);
-    cudaFree(dev_data);
 
     return 0;
 }
