@@ -51,6 +51,7 @@ int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, con
             }
             sptAppendVector(&dest->values, tsr->values.data[i]);
             spt_CheckError(result, "SpTns Split", NULL);
+            ++dest->nnz;
         }
     }
 

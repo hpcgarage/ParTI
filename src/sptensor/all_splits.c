@@ -153,10 +153,14 @@ static int spt_SparseTensorIndexSplit(spt_SplitResult ***splits_end, size_t *nsp
         **splits_end = malloc(sizeof ***splits_end);
         spt_CheckOSError(**splits_end == NULL, "SpTns IdxSplt");
         (**splits_end)->next = NULL;
-        /* Do not free tsr, move it to the destination instead */
         spt_SliceSparseTensor(&(**splits_end)->tensor, tsr, inds_low, inds_high);
+        if((**splits_end)->tensor.nnz == 0) {
+            sptFreeSparseTensor(&(**splits_end)->tensor);
+            free(**splits_end);
+            **splits_end = NULL;
+            return 0;
+        }
         if(emit_map) {
-            /* Keep a snapshot of current inds_low & inds_high */
             (**splits_end)->inds_low = malloc(2 * tsr->nmodes * sizeof (size_t));
             spt_CheckOSError((**splits_end)->inds_low == NULL, "SpTns IdxSplt");
             (**splits_end)->inds_high = (**splits_end)->inds_low + tsr->nmodes;
