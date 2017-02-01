@@ -21,11 +21,11 @@
 #include "../src/cudawrap.h"
 
 const short data_0[6] = { 3, 1, 4, 1, 5, 9 };
-const short data_1[5] = { 6, 5, 3, 5, 3 };
-const short data_2[4] = { 2, 3, 8, 4 };
-const short data_3[3] = { 6, 2, 6 };
-const short data_4[2] = { 4, 3 };
-const short data_5[1] = { 3 };
+const short data_1[5] = { 2, 6, 5, 3, 5 };
+const short data_2[4] = { 8, 9, 7, 9 };
+const short data_3[3] = { 3, 2, 3 };
+const short data_4[2] = { 8, 4 };
+const short data_5[1] = { 6 };
 const short data_6[1] = { -0x3334 };
 
 const short *const header[7] = { data_0, data_1, data_2, data_3, data_4, data_5, data_6 };
