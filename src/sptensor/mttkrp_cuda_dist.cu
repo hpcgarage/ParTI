@@ -97,7 +97,8 @@ int sptCudaDistributedMTTKRP(
     size_t const batch_size,
     sptMatrix *mats[],
     size_t const mats_order[],
-    size_t const mode
+    size_t const mode,
+    int const gpu_map[]
 ) {
     if(nsplits == 0) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns SpltMTTKRP", "nsplits == 0");
@@ -125,6 +126,7 @@ int sptCudaDistributedMTTKRP(
     /* dev_Xndims[i, m] <= ndims[i, m] */
     size_t **dev_Xndims = new size_t *[batch_size];
     for(size_t i = 0; i < batch_size; ++i) {
+        cudaSetDevice(gpu_map[i]);
         result = sptCudaDuplicateMemory(&dev_Xndims[i], ndims, nmodes * sizeof *dev_Xndims, cudaMemcpyHostToDevice);
         spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     }
@@ -132,6 +134,7 @@ int sptCudaDistributedMTTKRP(
     /* dev_mats_order[i, m] <= mats_order[i, m] */
     size_t **dev_mats_order = new size_t *[batch_size];
     for(size_t i = 0; i < batch_size; ++i) {
+        cudaSetDevice(gpu_map[i]);
         result = sptCudaDuplicateMemory(&dev_mats_order[i], mats_order, nmodes * sizeof *dev_mats_order, cudaMemcpyHostToDevice);
         spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     }
@@ -139,6 +142,7 @@ int sptCudaDistributedMTTKRP(
     /* med_mats[i, m] <= mats[m] */
     sptScalar **med_mats = new sptScalar *[batch_size*(nmodes+1)];
     for(size_t i = 0; i < batch_size; ++i) {
+        cudaSetDevice(gpu_map[i]);
         for(size_t m = 0; m < nmodes; ++m) {
             result = sptCudaDuplicateMemory(&med_mats[i*(nmodes+1) + m], mats[m]->values, mats[m]->nrows * mats[m]->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
@@ -148,6 +152,7 @@ int sptCudaDistributedMTTKRP(
     sptScalar **dev_mats;
     result = sptCudaDuplicateMemory(&dev_mats, med_mats, batch_size * (nmodes+1) * sizeof (sptScalar *), cudaMemcpyHostToDevice);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+    // FIXME: Here goes the problem
 
     size_t **med_Xinds = new size_t *[batch_size*nmodes];
     size_t **dev_Xinds;
@@ -159,6 +164,8 @@ int sptCudaDistributedMTTKRP(
         size_t kernel_count = batch_idx == batch_count-1 ? nsplits - batch_idx*batch_size : batch_size;
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             size_t split_idx = batch_idx*batch_size + kernel_count;
+
+            cudaSetDevice(gpu_map[kernel_idx]);
 
             /* med_Xinds[kid, m] <= splits[sid].inds[m] */
             for(size_t m = 0; m < nmodes; ++m) {
@@ -185,6 +192,8 @@ int sptCudaDistributedMTTKRP(
             size_t nthreads = 128;
             size_t nblocks = (nnz + nthreads -1) / nthreads;
 
+            cudaSetDevice(gpu_map[kernel_idx]);
+
             spt_MTTKRPKernel<<<nblocks, nthreads>>>(
                 mode,
                 nmodes,
@@ -200,10 +209,15 @@ int sptCudaDistributedMTTKRP(
             );
         }
 
-        result = cudaDeviceSynchronize();
-        spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+        for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
+            cudaSetDevice(gpu_map[kernel_idx]);
+            result = cudaDeviceSynchronize();
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+        }
 
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
+            cudaSetDevice(gpu_map[kernel_idx]);
+
             /* dev_mats[nmodes] => mats[nmodes] */
             result = cudaMemcpy(mats[nmodes]->values, dev_mats[kernel_idx*(nmodes-1) + nmodes], mats[nmodes]->nrows * mats[nmodes]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
@@ -215,6 +229,8 @@ int sptCudaDistributedMTTKRP(
         }
 
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
+            cudaSetDevice(gpu_map[kernel_idx]);
+
             result = cudaFree(dev_scratch[kernel_idx]);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_Xvals[kernel_idx]);
