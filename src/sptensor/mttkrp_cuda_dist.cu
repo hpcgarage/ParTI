@@ -117,11 +117,13 @@ int sptCudaDistributedMTTKRP(
         }
     }
 
-    /* Initialize product matrix */
-    sptMatrix product;
-    result = sptNewMatrix(&product, mats[mode]->nrows, mats[mode]->ncols);
+    /* Initialize result matrix */
+    sptConstantMatrix(mats[nmodes], 0);
+
+    /* Initialize part_prod matrix */
+    sptMatrix part_prod;
+    result = sptNewMatrix(&part_prod, mats[mode]->nrows, mats[mode]->ncols);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
-    memset(product.values, 0, product.nrows * product.stride * sizeof (sptScalar));
 
     /* dev_Xndims[i, m] <= ndims[i, m] */
     size_t **dev_Xndims = new size_t *[batch_size];
@@ -139,23 +141,22 @@ int sptCudaDistributedMTTKRP(
         spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     }
 
-    /* med_mats[i, m] <= mats[m] */
-    sptScalar **med_mats = new sptScalar *[batch_size*(nmodes+1)];
+    /* dev_mats[i, m] <= _mats[i, m] */
+    sptScalar **mats_header = new sptScalar *[nmodes+1];
+    for(size_t m = 0; m < nmodes+1; ++m) {
+        mats_header[m] = mats[m]->values;
+    }
+    sptScalar ***dev_mats = new sptScalar **[batch_size];
     for(size_t i = 0; i < batch_size; ++i) {
         cudaSetDevice(gpu_map[i]);
-        for(size_t m = 0; m < nmodes; ++m) {
-            result = sptCudaDuplicateMemory(&med_mats[i*(nmodes+1) + m], mats[m]->values, mats[m]->nrows * mats[m]->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
-            spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
-        }
+        result = sptCudaDuplicateMemoryIndirect(&dev_mats[i], mats_header, nmodes+1, sptGetMatrixLength(mats[0]), cudaMemcpyHostToDevice);
+        spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     }
-    /* dev_mats[i, m] <= med_mats[i, m] */
-    sptScalar **dev_mats;
-    result = sptCudaDuplicateMemory(&dev_mats, med_mats, batch_size * (nmodes+1) * sizeof (sptScalar *), cudaMemcpyHostToDevice);
-    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
-    // FIXME: Here goes the problem
+    delete[] mats_header;
 
-    size_t **med_Xinds = new size_t *[batch_size*nmodes];
-    size_t **dev_Xinds;
+    size_t **Xinds_header = new size_t *[nmodes];
+    size_t ***dev_Xinds = new size_t **[batch_size];
+
     sptScalar **dev_Xvals = new sptScalar *[batch_size];
     sptScalar **dev_scratch = new sptScalar *[batch_size];
 
@@ -167,13 +168,11 @@ int sptCudaDistributedMTTKRP(
 
             cudaSetDevice(gpu_map[kernel_idx]);
 
-            /* med_Xinds[kid, m] <= splits[sid].inds[m] */
+            /* dev_Xinds[kid, m] <= splits[sid].inds[m] */
             for(size_t m = 0; m < nmodes; ++m) {
-                result = sptCudaDuplicateMemory(&med_Xinds[kernel_idx*nmodes + m], splits[split_idx].inds[m].data, splits[split_idx].nnz * sizeof (size_t), cudaMemcpyHostToDevice);
-                spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+                Xinds_header[m] = splits[split_idx].inds[m].data;
             }
-            /* dev_Xinds[kid, m] <= med_Xinds[kid, m] */
-            result = sptCudaDuplicateMemory(&dev_Xinds, med_Xinds, nmodes * sizeof (size_t *), cudaMemcpyHostToDevice);
+            result = sptCudaDuplicateMemoryIndirect(&dev_Xinds[kernel_idx], Xinds_header, nmodes, splits[split_idx].nnz, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* dev_Xvals[kid] <= splits[sid].values */
@@ -201,10 +200,10 @@ int sptCudaDistributedMTTKRP(
                 R,
                 stride,
                 dev_Xndims[kernel_idx],
-                &dev_Xinds[kernel_idx*nmodes],
+                dev_Xinds[kernel_idx],
                 dev_Xvals[kernel_idx],
                 dev_mats_order[kernel_idx],
-                &dev_mats[kernel_idx*(nmodes+1)],
+                dev_mats[kernel_idx],
                 dev_scratch[kernel_idx]
             );
         }
@@ -218,13 +217,17 @@ int sptCudaDistributedMTTKRP(
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             cudaSetDevice(gpu_map[kernel_idx]);
 
-            /* dev_mats[nmodes] => mats[nmodes] */
-            result = cudaMemcpy(mats[nmodes]->values, dev_mats[kernel_idx*(nmodes-1) + nmodes], mats[nmodes]->nrows * mats[nmodes]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+            /* Copy back the pointer to the result */
+            sptScalar *dev_part_prod;
+            cudaMemcpy(&dev_part_prod, dev_mats[kernel_idx] + nmodes, sizeof dev_part_prod, cudaMemcpyDeviceToHost);
+
+            /* dev_part_prod => part_prod */
+            result = cudaMemcpy(part_prod.values, dev_part_prod, sptGetMatrixLength(&part_prod) * sizeof (sptScalar), cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-            /* product += mats[nmodes] */
-            for(size_t i = 0; i < product.nrows * product.stride; ++i) {
-                product.values[i] += mats[nmodes]->values[i];
+            /* mats[nmodes] += part_prod */
+            for(size_t i = 0; i < sptGetMatrixLength(&part_prod); ++i) {
+                mats[nmodes]->values[i] += part_prod.values[i];
             }
         }
 
@@ -235,48 +238,38 @@ int sptCudaDistributedMTTKRP(
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_Xvals[kernel_idx]);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
-
-            /* Free dev_Xinds */
-            result = cudaFree(dev_Xinds);
+            result = cudaFree(dev_Xinds[kernel_idx]);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
-            /* Free mat_Xinds[kid, m] */
-            for(size_t m = 0; m < nmodes; ++m) {
-                result = cudaFree(med_Xinds[kernel_idx*nmodes + m]);
-                spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
-            }
         }
     }
 
     delete[] dev_scratch;
     delete[] dev_Xvals;
-    delete[] med_Xinds;
+    delete[] dev_Xinds;
+    delete[] Xinds_header;
 
-    /* Free dev_mats */
-    result = cudaFree(dev_mats);
-    spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
-    /* Free mat_mats[i, m] */
     for(size_t i = 0; i < batch_size; ++i) {
-        for(size_t m = 0; m < nmodes; ++m) {
-            result = cudaFree(med_mats[i*(nmodes+1) + m]);
-            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
-        }
+        cudaSetDevice(gpu_map[i]);
+        result = cudaFree(dev_mats[i]);
+        spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
     }
-    delete[] med_mats;
+    delete[] dev_mats;
 
     for(size_t i = 0; i < batch_size; ++i) {
+        cudaSetDevice(gpu_map[i]);
         result = cudaFree(dev_mats_order[i]);
         spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     }
     delete[] dev_mats_order;
+
     for(size_t i = 0; i < batch_size; ++i) {
+        cudaSetDevice(gpu_map[i]);
         result = cudaFree(dev_Xndims[i]);
         spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
     }
     delete[] dev_Xndims;
 
-    /* Copy the product matrix to the real output place */
-    memcpy(mats[splits[0].nmodes]->values, product.values, product.nrows * product.stride);
-    sptFreeMatrix(&product);
+    sptFreeMatrix(&part_prod);
 
     return 0;
 }

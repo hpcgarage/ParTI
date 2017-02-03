@@ -184,6 +184,9 @@ int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
+static inline size_t sptGetMatrixLength(const sptMatrix *mtx) {
+    return mtx->nrows * mtx->stride;
+}
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
