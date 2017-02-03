@@ -92,7 +92,15 @@ int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *t
     result = sptCopySparseTensor(&(*handle)->tsr[0], tsr);
     spt_CheckError(result, "SpTns Splt", NULL);
 
-    memcpy((*handle)->max_size_by_mode, max_size_by_mode, tsr->nmodes * sizeof (size_t));
+    if(max_size_by_mode != NULL) {
+        memcpy((*handle)->max_size_by_mode, max_size_by_mode, tsr->nmodes * sizeof (size_t));
+        size_t m;
+        for(m = 1; m < tsr->nmodes; ++m) {
+            (*handle)->max_size_by_mode[tsr->nmodes - m - 1] *= max_size_by_mode[tsr->nmodes - m];
+        }
+    } else {
+        memset((*handle)->max_size_by_mode, 0, tsr->nmodes * sizeof (size_t));
+    }
 
     (*handle)->resume_branch[0] = 0;
 
