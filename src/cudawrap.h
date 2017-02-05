@@ -35,12 +35,21 @@ static inline int sptCudaDuplicateMemory(T **dest, const T *src, size_t size, in
     return spt_CudaDuplicateMemoryGenerics((void **) dest, src, size, direction);
 }
 
+static size_t spt_cudaGetAlignedSize(size_t size) {
+    if(size != 0) {
+        return ((size - 1) / 256 + 1) * 256;
+    } else {
+        return 0;
+    }
+}
+
 /* `length` as a constant */
 template <class T>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, size_t length, int direction) {
     int result;
 
-    size_t total_size = nmemb * sizeof (T *) + nmemb * length * sizeof (T);
+    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *));
+    size_t total_size = head_size + nmemb * spt_cudaGetAlignedSize(length * sizeof (T));
 
     T **head;
     T *body;
@@ -50,7 +59,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     case cudaMemcpyHostToDevice:
         result = cudaMalloc((void **) &head, total_size);
         spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
-        body = (T *) (head + nmemb);
+        body = (T *) ((char *) head + head_size);
 
         tmp_head = new T*[nmemb];
 
@@ -59,7 +68,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             tmp_head[i] = body;
-            body += length;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T)));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -73,7 +82,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     case cudaMemcpyDeviceToHost:
         head = (T **) malloc(total_size);
         spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
-        body = (T *) (head + nmemb);
+        body = (T *) ((char *) head + head_size);
 
         tmp_head = new T*[nmemb];
         result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
@@ -84,7 +93,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             head[i] = body;
-            body += length;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T)));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -106,9 +115,10 @@ template <class T>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, const size_t length[], int direction) {
     int result;
 
-    size_t total_size = nmemb * sizeof (T *);
+    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *));
+    size_t total_size = head_size;
     for(size_t i = 0; i < nmemb; ++i) {
-        total_size += length[i] * sizeof (T);
+        total_size += spt_cudaGetAlignedSize(length[i] * sizeof (T));
     }
 
     T **head;
@@ -119,7 +129,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     case cudaMemcpyHostToDevice:
         result = cudaMalloc(&head, total_size);
         spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
-        body = (T *) (head + nmemb);
+        body = (T *) ((char *) head + head_size);
 
         tmp_head = new T*[nmemb];
 
@@ -128,7 +138,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             tmp_head[i] = body;
-            body += length[i];
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T)));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -142,7 +152,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     case cudaMemcpyDeviceToHost:
         head = (T **) malloc(total_size);
         spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
-        body = (T *) (head + nmemb);
+        body = (T *) ((char *) head + head_size);
 
         tmp_head = new T*[nmemb];
         result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
@@ -153,7 +163,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             head[i] = body;
-            body += length[i];
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T)));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -175,9 +185,10 @@ template <class T, class Fn>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, Fn length, int direction) {
     int result;
 
-    size_t total_size = nmemb * sizeof (T *);
+    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *));
+    size_t total_size = head_size;
     for(size_t i = 0; i < nmemb; ++i) {
-        total_size += length(i) * sizeof (T);
+        total_size += spt_cudaGetAlignedSize(length(i) * sizeof (T));
     }
 
     T **head;
@@ -188,7 +199,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     case cudaMemcpyHostToDevice:
         result = cudaMalloc(&head, total_size);
         spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
-        body = (T *) (head + nmemb);
+        body = (T *) ((char *) head + head_size);
 
         tmp_head = new T*[nmemb];
 
@@ -198,7 +209,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             tmp_head[i] = body;
-            body += this_size;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(this_size * sizeof (T)));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -212,7 +223,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     case cudaMemcpyDeviceToHost:
         head = (T **) malloc(total_size);
         spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
-        body = (T *) (head + nmemb);
+        body = (T *) ((char *) head + head_size);
 
         tmp_head = new T*[nmemb];
         result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
@@ -224,7 +235,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             head[i] = body;
-            body += this_size;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(this_size * sizeof (T)));
         }
         assert((char *) head + total_size == (char *) body);
 
