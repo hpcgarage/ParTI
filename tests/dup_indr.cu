@@ -48,13 +48,25 @@ static void print_data(const char *title, const short *const *data) {
     printf("\n");
 }
 
+static void print_dev_data(const char *title, const short *const *dev_data) {
+    printf("%s at %p:\n", title, dev_data);
+    const short **data = new const short *[7];
+    cudaMemcpy(data, dev_data, 7 * sizeof *dev_data, cudaMemcpyDeviceToHost);
+    for(size_t i = 0; i < 7; ++i) {
+        printf("data_%zu at %p: <pointer to GPU memory>", i, data[i]);
+        printf("\n");
+    }
+    delete[] data;
+    printf("\n");
+}
+
 int main() {
     print_data("Original data", header);
 
     short **dev_data;
     sptAssert(sptCudaDuplicateMemoryIndirect(&dev_data, header, 7, get_length, cudaMemcpyHostToDevice) == 0);
 
-    printf("Device data at %p.\n\n", dev_data);
+    print_dev_data("Device data", dev_data);
 
     short **copyback_data;
     sptAssert(sptCudaDuplicateMemoryIndirect(&copyback_data, dev_data, 7, length, cudaMemcpyDeviceToHost) == 0);
