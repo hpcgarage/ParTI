@@ -35,9 +35,13 @@ static inline int sptCudaDuplicateMemory(T **dest, const T *src, size_t size, in
     return spt_CudaDuplicateMemoryGenerics((void **) dest, src, size, direction);
 }
 
-static size_t spt_cudaGetAlignedSize(size_t size) {
+static size_t spt_cudaGetAlignedSize(size_t size, bool on_gpu) {
     if(size != 0) {
-        return ((size - 1) / 256 + 1) * 256;
+        if(on_gpu) {
+            return ((size - 1) / 256 + 1) * 256;
+        } else {
+            return ((size - 1) / 16 + 1) * 16;
+        }
     } else {
         return 0;
     }
@@ -48,8 +52,9 @@ template <class T>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, size_t length, int direction) {
     int result;
 
-    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *));
-    size_t total_size = head_size + nmemb * spt_cudaGetAlignedSize(length * sizeof (T));
+    bool gpu_align = direction == cudaMemcpyHostToDevice;
+    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *), gpu_align);
+    size_t total_size = head_size + nmemb * spt_cudaGetAlignedSize(length * sizeof (T), gpu_align);
 
     T **head;
     T *body;
@@ -68,7 +73,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             tmp_head[i] = body;
-            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T)));
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T), gpu_align));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -93,7 +98,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             head[i] = body;
-            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T)));
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T), gpu_align));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -115,10 +120,11 @@ template <class T>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, const size_t length[], int direction) {
     int result;
 
-    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *));
+    bool gpu_align = direction == cudaMemcpyHostToDevice;
+    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *), gpu_align);
     size_t total_size = head_size;
     for(size_t i = 0; i < nmemb; ++i) {
-        total_size += spt_cudaGetAlignedSize(length[i] * sizeof (T));
+        total_size += spt_cudaGetAlignedSize(length[i] * sizeof (T), gpu_align);
     }
 
     T **head;
@@ -138,7 +144,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             tmp_head[i] = body;
-            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T)));
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T), gpu_align));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -163,7 +169,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             head[i] = body;
-            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T)));
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T), gpu_align));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -185,10 +191,11 @@ template <class T, class Fn>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, Fn length, int direction) {
     int result;
 
-    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *));
+    bool gpu_align = direction == cudaMemcpyHostToDevice;
+    size_t head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *), gpu_align);
     size_t total_size = head_size;
     for(size_t i = 0; i < nmemb; ++i) {
-        total_size += spt_cudaGetAlignedSize(length(i) * sizeof (T));
+        total_size += spt_cudaGetAlignedSize(length(i) * sizeof (T), gpu_align);
     }
 
     T **head;
@@ -209,7 +216,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             tmp_head[i] = body;
-            body = (T *) ((char *) body + spt_cudaGetAlignedSize(this_size * sizeof (T)));
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(this_size * sizeof (T), gpu_align));
         }
         assert((char *) head + total_size == (char *) body);
 
@@ -235,7 +242,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
             spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
 
             head[i] = body;
-            body = (T *) ((char *) body + spt_cudaGetAlignedSize(this_size * sizeof (T)));
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(this_size * sizeof (T), gpu_align));
         }
         assert((char *) head + total_size == (char *) body);
 
