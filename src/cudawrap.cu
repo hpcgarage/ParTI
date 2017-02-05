@@ -19,6 +19,7 @@
 #include <ParTI.h>
 #include <stdlib.h>
 #include "error/error.h"
+#include "cudawrap.h"
 
 int sptCudaSetDevice(int device) {
     return (int) cudaSetDevice(device);

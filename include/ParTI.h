@@ -317,7 +317,6 @@ int sptSplittedMTTKRP(
     sptVector *scratch,
     size_t const split_count[]
 );
-
 /*
    TODO: I'm not sure where to put this forward declaration.
    The "split" operation should not expose its interface to the application,
@@ -335,6 +334,16 @@ int sptPresplittedMTTKRP(
     size_t const mode,
     sptVector *scratch
 );
+int sptCudaDistributedMTTKRP(
+    struct spt_TagSplitResult const *splits,
+    size_t const nsplits,
+    size_t const batch_size,
+    sptMatrix *mats[],
+    size_t const mats_order[],
+    size_t const mode,
+    int const gpu_map[]
+);
+
 
 
 /**
