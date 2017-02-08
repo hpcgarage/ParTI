@@ -21,17 +21,6 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-static void print_inds(const size_t array[], size_t length, size_t start_index) {
-    if(length == 0) {
-        return;
-    }
-    printf("%zu", array[0] + start_index);
-    size_t i;
-    for(i = 1; i < length; ++i) {
-        printf(", %zu", array[i] + start_index);
-    }
-}
-
 int main(int argc, char *argv[]) {
     FILE *fi;
     sptSparseTensor tsr;
@@ -55,26 +44,13 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Splitting using API 'IndexSplit', max index step [");
-    print_inds(steps, tsr.nmodes, 0);
+    print_inds(steps, tsr.nmodes, 0, stdout);
     printf("].\n\n");
 
     spt_SplitResult *splits;
     size_t nsplits;
     sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, NULL, steps, 1) == 0);
-
-    spt_SplitResult *split_i = splits;
-    for(i = 0; i < nsplits; ++i) {
-        printf("Printing split #%zu of %zu:\n", i + 1, nsplits);
-        printf("Index: [");
-        print_inds(split_i->inds_low, split_i->tensor.nmodes, 1);
-        printf("] .. [");
-        print_inds(split_i->inds_high, split_i->tensor.nmodes, 1);
-        printf("].\n");
-        sptDumpSparseTensor(&split_i->tensor, 1, stdout);
-        printf("\n");
-        fflush(stdout);
-        split_i = split_i->next;
-    }
+    spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
     spt_SparseTensorFreeAllSplits(splits);
     free(steps);

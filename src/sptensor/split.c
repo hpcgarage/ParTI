@@ -33,6 +33,7 @@ struct spt_TagSplitHandle {
     size_t *cut_low;
 };
 
+
 static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t cut_point, int direction) {
     if(direction) {
         if(cut_point == 0) {
@@ -252,3 +253,4 @@ void spt_FinishSplitSparseTensor(spt_SplitHandle handle) {
     free(handle->tsr);
     free(handle);
 }
+

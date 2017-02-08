@@ -156,3 +156,32 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
 
     return 0;
 }
+
+
+int spt_SparseTensorDumpAllSplits(spt_SplitResult * splits, size_t const nsplits, FILE *fp) {
+    spt_SplitResult *split_i = splits;
+    for(size_t i = 0; i < nsplits; ++i) {
+        printf("Printing split #%zu of %zu:\n", i + 1, nsplits);
+        printf("Index: [");
+        print_inds(split_i->inds_low, split_i->tensor.nmodes, 1, stdout);
+        printf("] .. [");
+        print_inds(split_i->inds_high, split_i->tensor.nmodes, 1, stdout);
+        printf("].\n");
+        sptDumpSparseTensor(&split_i->tensor, 1, stdout);
+        printf("\n");
+        fflush(stdout);
+        split_i = split_i->next;
+    }
+}
+
+
+void print_inds(const size_t array[], size_t length, size_t start_index, FILE *fp) {
+    if(length == 0) {
+        return;
+    }
+    fprintf(fp, "%zu", array[0] + start_index);
+    size_t i;
+    for(i = 1; i < length; ++i) {
+        fprintf(fp, ", %zu", array[i] + start_index);
+    }
+}

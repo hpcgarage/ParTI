@@ -56,6 +56,8 @@ typedef struct spt_TagSplitResult {
 /* FIXME: index_limit_by_mode is not used yet */
 int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t nnz_limit_by_mode[], const size_t index_limit_by_mode[], int emit_map);
 void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits);
+int spt_SparseTensorDumpAllSplits(spt_SplitResult * const splits, size_t const nsplits, FILE *fp);
+void print_inds(const size_t array[], size_t length, size_t start_index, FILE *fp);
 
 #ifdef __cplusplus
 }

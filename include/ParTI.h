@@ -298,6 +298,10 @@ int sptCudaMTTKRP(
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
     size_t const mode);
+int sptCudaMTTKRPSM(sptSparseTensor const * const X,
+  sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+  sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+  size_t const mode);
 int sptCudaMTTKRPDevice(
     const size_t mode,
     const size_t nmodes,
@@ -375,6 +379,7 @@ int sptCudaCpdAls(
  */
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
 int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
+
 
 #ifdef __cplusplus
 }

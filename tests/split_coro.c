@@ -21,16 +21,6 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-static void print_inds(const size_t array[], size_t length, size_t start_index) {
-    if(length == 0) {
-        return;
-    }
-    printf("%zu", array[0] + start_index);
-    size_t i;
-    for(i = 1; i < length; ++i) {
-        printf(", %zu", array[i] + start_index);
-    }
-}
 
 int main(int argc, char *argv[]) {
     FILE *fi;
@@ -58,7 +48,7 @@ int main(int argc, char *argv[]) {
     size_t *inds_high = malloc(tsr.nmodes * sizeof (size_t));
 
     printf("Splitting using API 'Split Coroutine', max size [");
-    print_inds(sizes, tsr.nmodes, 0);
+    print_inds(sizes, tsr.nmodes, 0, stdout);
     printf("].\n\n");
 
     spt_SplitHandle split_handle;
@@ -72,9 +62,9 @@ int main(int argc, char *argv[]) {
 
         printf("Printing split #%zu:\n", i);
         printf("Index: [");
-        print_inds(inds_low, subtsr.nmodes, 1);
+        print_inds(inds_low, subtsr.nmodes, 1, stdout);
         printf("] .. [");
-        print_inds(inds_high, subtsr.nmodes, 1);
+        print_inds(inds_high, subtsr.nmodes, 1, stdout);
         printf("].\n");
         sptDumpSparseTensor(&subtsr, 1, stdout);
         printf("\n");
