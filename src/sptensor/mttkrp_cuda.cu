@@ -60,13 +60,6 @@ __global__ static void spt_MTTKRPKernel(
     /* The 64-bit floating-point version of atomicAdd() is only supported by devices of compute capability 6.x and higher. */
     sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
 
-    /* nnz > I */
-    // if(x < I) {
-    //   for(size_t r=0; r<R; ++r)
-    //     mvals[x * stride + r] = 0;
-    // }
-
-
     if(x < nnz) {
       size_t times_mat_index = dev_mats_order[0];
       sptScalar * times_mat = dev_mats[times_mat_index];
@@ -88,7 +81,7 @@ __global__ static void spt_MTTKRPKernel(
       }
 
     }
-  //  __syncthreads();
+   __syncthreads();
 
     if(x < nnz) {
       size_t const mode_i = mode_ind[x];
@@ -96,7 +89,7 @@ __global__ static void spt_MTTKRPKernel(
         atomicAdd(&(mvals[mode_i * stride + r]), dev_scratch[x * stride + r]);
       }
     }
-//    __syncthreads();
+   __syncthreads();
 
 }
 

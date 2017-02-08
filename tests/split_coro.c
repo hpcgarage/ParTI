@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     size_t *inds_high = malloc(tsr.nmodes * sizeof (size_t));
 
     printf("Splitting using API 'Split Coroutine', max size [");
-    print_inds(sizes, tsr.nmodes, 0, stdout);
+    spt_DumpArray(sizes, tsr.nmodes, 0, stdout);
     printf("].\n\n");
 
     spt_SplitHandle split_handle;
@@ -62,9 +62,9 @@ int main(int argc, char *argv[]) {
 
         printf("Printing split #%zu:\n", i);
         printf("Index: [");
-        print_inds(inds_low, subtsr.nmodes, 1, stdout);
+        spt_DumpArray(inds_low, subtsr.nmodes, 1, stdout);
         printf("] .. [");
-        print_inds(inds_high, subtsr.nmodes, 1, stdout);
+        spt_DumpArray(inds_high, subtsr.nmodes, 1, stdout);
         printf("].\n");
         sptDumpSparseTensor(&subtsr, 1, stdout);
         printf("\n");

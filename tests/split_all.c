@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Splitting using API 'GetAllSplits', max size [");
-    print_inds(sizes, tsr.nmodes, 0, stdout);
+    spt_DumpArray(sizes, tsr.nmodes, 0, stdout);
     printf("].\n\n");
 
     spt_SplitResult *splits;

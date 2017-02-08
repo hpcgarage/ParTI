@@ -124,6 +124,8 @@ int main(int argc, char const *argv[]) {
         NULL,
         1
     ) == 0);
+    spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
+    
     sptAssert(sptCudaDistributedMTTKRP(
         splits,
         nsplits,

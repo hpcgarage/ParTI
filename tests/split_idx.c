@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Splitting using API 'IndexSplit', max index step [");
-    print_inds(steps, tsr.nmodes, 0, stdout);
+    spt_DumpArray(steps, tsr.nmodes, 0, stdout);
     printf("].\n\n");
 
     spt_SplitResult *splits;

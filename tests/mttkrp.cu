@@ -119,7 +119,7 @@ int main(int argc, char const *argv[]) {
          break;
        }
     }
-    sptDumpMatrix(U[nmodes], stdout);
+    // sptDumpMatrix(U[nmodes], stdout);
 
 
     // for(int it=0; it<niters; ++it) {

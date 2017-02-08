@@ -189,8 +189,17 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
     steps[i] = memory_step;
   spt_SplitResult *splits;
   size_t nsplits;
+
+  sptTimer split_timer;
+  sptNewTimer(&split_timer, 0);
+  sptStartTimer(split_timer);
+
   sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, X, steps, NULL, 1) == 0);
-  spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
+
+  sptStopTimer(split_timer);
+  sptPrintElapsedTime(split_timer, "Split SpTns");
+  sptFreeTimer(split_timer);
+  // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
 
   /* Transfer tensor and matrices */
@@ -216,66 +225,6 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
 
-  size_t ** tmp_Xndims = NULL;
-  tmp_Xndims = (size_t **)malloc(nsplits * sizeof(size_t*));
-  for(size_t i=0; i<nsplits; ++i) {
-    result = sptCudaDuplicateMemory(&(tmp_Xndims[i]), splits[i].inds_low, 
-      2 * nmodes * sizeof(size_t), cudaMemcpyHostToDevice);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  }
-  size_t ** split_Xndims = NULL;   // array of pointer to device memory
-  result = cudaMalloc((void***)&split_Xndims, nsplits * sizeof(size_t*));
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  result = cudaMemcpy(split_Xndims, tmp_Xndims, nsplits * sizeof (size_t*), cudaMemcpyHostToDevice);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-
-  size_t * tmp_nnz = (size_t *)malloc(nsplits * sizeof(size_t));
-  for(size_t i=0; i<nsplits; ++i) {
-    tmp_nnz[i] = splits[i].tensor.nnz;
-  }
-  size_t * split_nnz = NULL;
-  result = sptCudaDuplicateMemory(&split_nnz, tmp_nnz, nsplits * sizeof(size_t), cudaMemcpyHostToDevice);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  free(tmp_nnz);
-
-
-  size_t *** tmp1_split_Xinds = (size_t ***)malloc(nsplits * sizeof(size_t**));
-  for(size_t i=0; i<nsplits; ++i) {
-    tmp1_split_Xinds[i] = (size_t **)malloc(nmodes * sizeof(size_t*));
-    for(size_t m=0; m<nmodes; ++m) {
-      result = sptCudaDuplicateMemory(&(tmp1_split_Xinds[i][m]), splits[i].tensor.inds[m].data, 
-        splits[i].tensor.nnz * sizeof(size_t), cudaMemcpyHostToDevice);
-      spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-    }  
-  }
-  size_t *** tmp2_split_Xinds = (size_t ***)malloc(nsplits * sizeof(size_t**));
-  for(size_t i=0; i<nsplits; ++i) {
-    result = cudaMalloc((void***)&(tmp2_split_Xinds[i]), nmodes * sizeof(size_t*));
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-    result = cudaMemcpy(tmp2_split_Xinds[i], tmp1_split_Xinds[i], nmodes * sizeof(size_t*), cudaMemcpyHostToDevice);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  }
-  size_t *** split_Xinds = NULL;   // array of pointer to device memory
-  result = cudaMalloc((void ****) &split_Xinds, nsplits * sizeof(size_t**));
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  result = cudaMemcpy(split_Xinds, tmp2_split_Xinds, nsplits * sizeof (size_t**), cudaMemcpyHostToDevice);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-
-  sptScalar ** split_Xvals = NULL;
-  sptScalar ** tmp_split_Xvals = (sptScalar **)malloc(nsplits * sizeof(sptScalar*));
-  for(size_t i=0; i<nsplits; ++i) {
-    result = sptCudaDuplicateMemory(&(tmp_split_Xvals[i]), splits[i].tensor.values.data, 
-      splits[i].tensor.nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  }
-  result = cudaMalloc((void ***) &split_Xvals, nsplits * sizeof(sptScalar*));
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  result = cudaMemcpy(split_Xvals, tmp_split_Xvals, nsplits * sizeof (sptScalar*), cudaMemcpyHostToDevice);
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-
   const size_t nthreads = 128;
   const size_t max_nblocks = 32768;
   printf("nsplits: %lu, nthreads: %lu\n", nsplits, nthreads);
@@ -290,6 +239,77 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
   sptAssert (allocate_sm_size < memory_size);
 
 
+  spt_SplitResult * tmp_splits = splits;
+
+  size_t ** tmp_Xndims = NULL;
+  tmp_Xndims = (size_t **)malloc(nsplits * sizeof(size_t*));
+  size_t ** split_Xndims = NULL;   // array of pointer to device memory
+  result = cudaMalloc((void***)&split_Xndims, nsplits * sizeof(size_t*));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  size_t * tmp_nnz = (size_t *)malloc(nsplits * sizeof(size_t));
+  size_t * split_nnz = NULL;
+  result = cudaMalloc((void***)&split_nnz, nsplits * sizeof(size_t));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  size_t *** tmp1_split_Xinds = (size_t ***)malloc(nsplits * sizeof(size_t**));
+  size_t *** tmp2_split_Xinds = (size_t ***)malloc(nsplits * sizeof(size_t**));
+  size_t *** split_Xinds = NULL;   // array of pointer to device memory
+  result = cudaMalloc((void ****) &split_Xinds, nsplits * sizeof(size_t**));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  sptScalar ** split_Xvals = NULL;
+  sptScalar ** tmp_split_Xvals = (sptScalar **)malloc(nsplits * sizeof(sptScalar*));
+  result = cudaMalloc((void ***) &split_Xvals, nsplits * sizeof(sptScalar*));
+  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+  for(size_t block_offset = 0; block_offset < nsplits; block_offset += max_nblocks) {
+    size_t nblocks = nsplits - block_offset;
+    if(nblocks > max_nblocks) {
+        nblocks = max_nblocks;
+    }
+
+    for(size_t i=block_offset; i<block_offset+nblocks; ++i) {
+      result = sptCudaDuplicateMemory(&(tmp_Xndims[i]), tmp_splits->inds_low, 
+        2 * nmodes * sizeof(size_t), cudaMemcpyHostToDevice);
+      spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+      tmp_nnz[i] = tmp_splits->tensor.nnz;
+
+      tmp1_split_Xinds[i] = (size_t **)malloc(nmodes * sizeof(size_t*));
+      for(size_t m=0; m<nmodes; ++m) {
+        result = sptCudaDuplicateMemory(&(tmp1_split_Xinds[i][m]), tmp_splits->tensor.inds[m].data, tmp_splits->tensor.nnz * sizeof(size_t), cudaMemcpyHostToDevice);
+        spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+      }
+      result = cudaMalloc((void***)&(tmp2_split_Xinds[i]), nmodes * sizeof(size_t*));
+      spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+      result = cudaMemcpy(tmp2_split_Xinds[i], tmp1_split_Xinds[i], nmodes * sizeof(size_t*), cudaMemcpyHostToDevice);
+      spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+      result = sptCudaDuplicateMemory(&(tmp_split_Xvals[i]), tmp_splits->tensor.values.data, 
+        tmp_splits->tensor.nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
+      spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    }
+
+
+    result = cudaMemcpy(split_Xndims + block_offset, tmp_Xndims, nblocks * sizeof (size_t*), cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+  
+    result = cudaMemcpy(split_nnz + block_offset, tmp_nnz, nblocks * sizeof(size_t), cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+    result = cudaMemcpy(split_Xinds + block_offset, tmp2_split_Xinds, nblocks * sizeof (size_t**), cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+    result = cudaMemcpy(split_Xvals + block_offset, tmp_split_Xvals, nblocks * sizeof (sptScalar*), cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+
+
+    tmp_splits = tmp_splits->next;
+  }
+  free(tmp_nnz);
+
+
+
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
@@ -299,6 +319,7 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
     if(nblocks > max_nblocks) {
         nblocks = max_nblocks;
     }
+
     spt_MTTKRPKernelSM<<<nblocks, nthreads, memory_size>>>(
         mode,
         nmodes,
