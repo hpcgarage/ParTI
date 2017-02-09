@@ -108,8 +108,8 @@ int main(int argc, char const *argv[]) {
        switch(ncudas) {
        case 1:
          sptCudaSetDevice(cuda_dev_id);
-         // sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
-         sptAssert(sptCudaMTTKRPSM(&X, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+         // sptAssert(sptCudaMTTKRPSM(&X, U, &mats_order, mode) == 0);
          break;
        case 2:
          sptCudaSetDevice(cuda_dev_id);

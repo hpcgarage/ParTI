@@ -163,6 +163,9 @@ int sptCudaDistributedMTTKRP(
     sptScalar **dev_scratch = new sptScalar *[batch_size];
 
     size_t batch_count = (nsplits-1)/batch_size + 1;
+    double elapsed_time = 0;
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
     for(size_t batch_idx = 0; batch_idx < batch_count; ++batch_idx) {
         size_t kernel_count = batch_idx == batch_count-1 ? nsplits - batch_idx*batch_size : batch_size;
 
@@ -188,6 +191,9 @@ int sptCudaDistributedMTTKRP(
 
             splits = splits->next;
         }
+
+
+        sptStartTimer(timer);
 
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             size_t nnz = dev_nnz[kernel_idx];
@@ -218,6 +224,9 @@ int sptCudaDistributedMTTKRP(
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
         }
 
+        sptStopTimer(timer);
+        elapsed_time += sptElapsedTime(timer);
+
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             cudaSetDevice(gpu_map[kernel_idx]);
 
@@ -246,6 +255,9 @@ int sptCudaDistributedMTTKRP(
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
         }
     }
+    
+    printf("[CUDA SpTns Dist MTTKRP]: %lf s\n", elapsed_time);
+    sptFreeTimer(timer);
 
     delete[] dev_scratch;
     delete[] dev_Xvals;
