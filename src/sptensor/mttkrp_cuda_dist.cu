@@ -252,6 +252,11 @@ int sptCudaDistributedMTTKRP(
             for(size_t i = 0; i < sptGetMatrixLength(&part_prod); ++i) {
                 mats[nmodes]->values[i] += part_prod.values[i];
             }
+
+            /* dev_part_prod = 0 */
+            /* Why mix inputs & outputs together inside these deep device pointers?! */
+            result = cudaMemset(dev_part_prod, 0, sptGetMatrixLength(&part_prod) * sizeof (sptScalar));
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
         }
 
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
