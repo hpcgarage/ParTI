@@ -18,9 +18,9 @@
 
 #include <ParTI.h>
 #include "sptensor.h"
+#include "sort.h"
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
-static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
 /**
  * Reorder the elements in a sparse tensor lexicographically
@@ -62,7 +62,7 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
     spt_QuickSortIndex(tsr, i, r);
 }
 
-static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
+void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
     size_t i;
     sptScalar val1, val2;
     for(i = 0; i < tsr->nmodes; ++i) {

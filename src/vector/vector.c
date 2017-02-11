@@ -249,7 +249,8 @@ int sptAppendSizeVector(sptSizeVector *vec, size_t value) {
  * The values from `append_vec` will be appended to `vec`.
  */
 int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *append_vec) {
-    if(vec->cap <= vec->len) {
+    size_t newlen = vec->len + append_vec->len;
+    if(vec->cap <= newlen) {
         size_t newcap = vec->cap + append_vec->cap;
         size_t *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         spt_CheckOSError(!newdata, "SzVec Append SzVec");
@@ -258,8 +259,8 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *appen
     }
     for(size_t i=0; i<append_vec->len; ++i) {
         vec->data[vec->len + i] = append_vec->data[i];
-        ++vec->len;
     }
+    vec->len = newlen;
 
     return 0;
 }

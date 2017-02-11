@@ -59,6 +59,13 @@ void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits);
 int spt_SparseTensorDumpAllSplits(spt_SplitResult * const splits, size_t const nsplits, FILE *fp);
 void spt_DumpArray(const size_t array[], size_t length, size_t start_index, FILE *fp);
 
+int spt_SparseTensorBalancedSplit(
+    spt_SplitResult **splits, 
+    size_t *nsplits, 
+    sptSparseTensor *tsr, 
+    const size_t nnz_limit,
+    const size_t index_limit_by_mode[]);
+
 #ifdef __cplusplus
 }
 #endif

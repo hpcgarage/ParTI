@@ -20,7 +20,7 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
-int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr) {
+int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cs_splits) {
     int result = 0;
     assert(num > 1);
 
@@ -85,22 +85,22 @@ int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTen
     }
 
     for(int n=0; n<num; ++n) {
-      sptNewSparseTensor(cstsr+n, nmodes, csndims[n]);
-      cstsr[n].nnz = csnnz[n];
+      sptNewSparseTensor(cs_splits+n, nmodes, csndims[n]);
+      cs_splits[n].nnz = csnnz[n];
       for(size_t m=0; m<nmodes; ++m) {
-        cstsr[n].inds[m].len = csnnz[n];
-        cstsr[n].inds[m].cap = csnnz[n];
-        cstsr[n].inds[m].data = inds[m].data + nnz_loc[n];
+        cs_splits[n].inds[m].len = csnnz[n];
+        cs_splits[n].inds[m].cap = csnnz[n];
+        cs_splits[n].inds[m].data = inds[m].data + nnz_loc[n];
       }
-      cstsr[n].values.len = csnnz[n];
-      cstsr[n].values.cap = csnnz[n];
-      cstsr[n].values.data = values.data + nnz_loc[n];
+      cs_splits[n].values.len = csnnz[n];
+      cs_splits[n].values.cap = csnnz[n];
+      cs_splits[n].values.data = values.data + nnz_loc[n];
     }
 
     // sptDumpSparseTensor(tsr, 0, stdout);
     // printf("\n");
     // for(int n=0; n<num; ++n) {
-    //     sptDumpSparseTensor(cstsr+n, 0, stdout);
+    //     sptDumpSparseTensor(cs_splits+n, 0, stdout);
     //     printf("\n");
     // }
 
