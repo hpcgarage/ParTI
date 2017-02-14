@@ -86,6 +86,7 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[nmodes+batch_size+4], "%zu", &R);
     }
     printf("R = %zu\n", R);
+    printf("Tensor NNZ: %zu\n", X.nnz);
 
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
     for(size_t m=0; m<nmodes+1; ++m) {

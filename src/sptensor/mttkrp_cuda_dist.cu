@@ -172,10 +172,10 @@ int sptCudaDistributedMTTKRP(
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             cudaSetDevice(gpu_map[kernel_idx]);
 
-            fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", kernel_idx, gpu_map[kernel_idx]);
-            fprintf(stderr, "Input tensor:\n");
-            sptDumpSparseTensor(&splits->tensor, 1, stderr);
-            fprintf(stderr, "\n");
+            // fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", kernel_idx, gpu_map[kernel_idx]);
+            // fprintf(stderr, "Input tensor:\n");
+            // sptDumpSparseTensor(&splits->tensor, 1, stderr);
+            // fprintf(stderr, "\n");
 
             dev_nnz[kernel_idx] = splits->tensor.nnz;
 
@@ -243,10 +243,10 @@ int sptCudaDistributedMTTKRP(
             result = cudaMemcpy(part_prod.values, dev_part_prod, sptGetMatrixLength(&part_prod) * sizeof (sptScalar), cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-            fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", kernel_idx, gpu_map[kernel_idx]);
-            fprintf(stderr, "Output matrix:\n");
-            sptDumpMatrix(&part_prod, stderr);
-            fprintf(stderr, "\n");
+            // fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", kernel_idx, gpu_map[kernel_idx]);
+            // fprintf(stderr, "Output matrix:\n");
+            // sptDumpMatrix(&part_prod, stderr);
+            // fprintf(stderr, "\n");
 
             /* mats[nmodes] += part_prod */
             for(size_t i = 0; i < sptGetMatrixLength(&part_prod); ++i) {
@@ -302,9 +302,9 @@ int sptCudaDistributedMTTKRP(
 
     sptFreeMatrix(&part_prod);
 
-    fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Result matrix\n");
-    sptDumpMatrix(mats[nmodes], stderr);
-    fprintf(stderr, "\n");
+    // fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Result matrix\n");
+    // sptDumpMatrix(mats[nmodes], stderr);
+    // fprintf(stderr, "\n");
 
     return 0;
 }

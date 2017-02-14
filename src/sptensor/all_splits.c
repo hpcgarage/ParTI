@@ -546,7 +546,6 @@ int spt_SparseTensorGetAllSplits(
     // TODO: split a tensor under a specified number of splits.
     size_t internal_nsplits;
     if(nsplits == NULL) { nsplits = &internal_nsplits; }
-    else { printf("nsplits has been specified as %lu, which has been supported yet.\n", *nsplits); }
     *nsplits = 0;
 
     /* Split by specified nnz limitation, while index_limit_by_mode should be NULL. */
