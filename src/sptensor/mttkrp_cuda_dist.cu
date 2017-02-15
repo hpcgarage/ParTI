@@ -248,6 +248,7 @@ int sptCudaDistributedMTTKRP(
             // sptDumpMatrix(&part_prod, stderr);
             // fprintf(stderr, "\n");
 
+
             /* mats[nmodes] += part_prod */
             for(size_t i = 0; i < sptGetMatrixLength(&part_prod); ++i) {
                 mats[nmodes]->values[i] += part_prod.values[i];
@@ -270,7 +271,7 @@ int sptCudaDistributedMTTKRP(
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
         }
     }
-    
+
     printf("[CUDA SpTns Dist MTTKRP]: %lf s\n", elapsed_time);
     sptFreeTimer(timer);
 
@@ -302,9 +303,11 @@ int sptCudaDistributedMTTKRP(
 
     sptFreeMatrix(&part_prod);
 
+
     // fprintf(stderr, "[CUDA SpTns SpltMTTKRP] Result matrix\n");
     // sptDumpMatrix(mats[nmodes], stderr);
     // fprintf(stderr, "\n");
+
 
     return 0;
 }
