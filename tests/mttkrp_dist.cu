@@ -125,7 +125,7 @@ int main(int argc, char const *argv[]) {
         NULL,
         1
     ) == 0);
-    // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
+    spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
     printf("nsplits: %lu\n", nsplits);
     
     sptAssert(sptCudaDistributedMTTKRP(

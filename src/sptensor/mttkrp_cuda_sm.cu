@@ -22,8 +22,103 @@
 #include "../cudawrap.h"
 
 
+__global__ static void spt_MTTKRPKernelSM_3D(
+  const size_t mode,
+  const size_t nmodes,
+  const size_t nnz,
+  const size_t R,
+  const size_t stride,
+  const size_t * Xndims,
+  const size_t nsplits,
+  size_t ** const split_Xndims,
+  size_t * const split_nnz,
+  size_t *** const split_Xinds,
+  sptScalar ** const split_Xvals,
+  const size_t * dev_mats_order,
+  sptScalar ** dev_mats,
+  size_t block_offset) 
+{
+  assert(nmodes == 3);
+  const size_t tidx = threadIdx.x;
+  const size_t bidx = blockIdx.x + block_offset;
+
+#if 1
+  extern __shared__ sptScalar sm_pool[];
+  size_t const nmats = nmodes - 1;
+  size_t * split_low = split_Xndims[bidx];
+  size_t const block_nnz = split_nnz[bidx];
+
+  /* data in shared memory */
+  size_t * sm_dev_mats_order = (size_t *)sm_pool; // dev_mats_order
+  size_t * sm_split_low = sm_dev_mats_order + nmats; // split_low
+  size_t * sm_split_high = sm_split_low + nmodes; // split_high
+
+  if(nmats + 2 * nmodes < blockDim.x) {
+    if(tidx < nmats) {
+      sm_dev_mats_order[tidx] = dev_mats_order[tidx];
+    } else if (tidx >= nmats && tidx < nmats + 2 * nmodes) {
+      sm_split_low[tidx - nmats] = split_low[tidx - nmats];
+    }
+  } else {
+    if(tidx < nmats) {
+      sm_dev_mats_order[tidx] = dev_mats_order[tidx];
+    }
+    if (tidx < 2 * nmodes) {
+      sm_split_low[tidx] = split_low[tidx];
+    }
+  }
+  __syncthreads();
+
+
+  // Allocate shared memory for all factor matrices
+  sptScalar * sm_mode_mat = (sptScalar *)(sm_split_high + nmodes);  // mode matrix
+  size_t mode_mat_nrows = sm_split_high[mode] - sm_split_low[mode];
+  sptScalar * sm_mat_1 = sm_mode_mat + mode_mat_nrows * R;  // timing matrix 1
+  size_t times_mat_mode_1 = sm_dev_mats_order[0];
+  size_t times_mat_nrows_1 = sm_split_high[times_mat_mode_1] - sm_split_low[times_mat_mode_1];
+  sptScalar * sm_mat_2 = sm_mat_1 + times_mat_nrows_1 * R;  // timing matrix 1
+  size_t times_mat_mode_2 = sm_dev_mats_order[1];
+  size_t times_mat_nrows_2 = sm_split_high[times_mat_mode_2] - sm_split_low[times_mat_mode_2];
+
+  sptScalar * mode_mat = dev_mats[mode];
+  if(tidx < mode_mat_nrows) {
+    for(size_t r=0; r<R; ++r)
+      sm_mode_mat[tidx * stride + r] = mode_mat[(tidx+sm_split_low[mode]) * stride + r];
+  }
+  sptScalar * times_mat = dev_mats[times_mat_mode_1];
+  if(tidx < times_mat_nrows_1) {
+    for(size_t r=0; r<R; ++r)
+      sm_mat_1[tidx * stride + r] = times_mat[(tidx+sm_split_low[times_mat_mode_1]) * stride + r];
+  }
+  times_mat = dev_mats[times_mat_mode_2];
+  if(tidx < times_mat_nrows_2) {
+    for(size_t r=0; r<R; ++r)
+      sm_mat_2[tidx * stride + r] = times_mat[(tidx+sm_split_low[times_mat_mode_2]) * stride + r];
+  }
+
+  // Compute column-by-column
+  if(tidx < block_nnz) {
+    for(size_t r=0; r<R; ++r) {
+      sptScalar entry = split_Xvals[bidx][tidx];
+      size_t * times_inds_1 = split_Xinds[bidx][times_mat_mode_1];
+      size_t index_1 = times_inds_1[tidx] - sm_split_low[times_mat_mode_1];
+      size_t * times_inds_2 = split_Xinds[bidx][times_mat_mode_2];
+      size_t index_2 = times_inds_2[tidx] - sm_split_low[times_mat_mode_2];
+      size_t const * const mode_inds = split_Xinds[bidx][mode];
+      size_t const mode_i = mode_inds[tidx] - sm_split_low[mode];
+      sptScalar tmp_result = entry * sm_mat_1[index_1 * stride + r] * sm_mat_2[index_2 * stride + r];
+      atomicAdd(&(sm_mode_mat[mode_i * stride + r]), tmp_result);
+    }
+  }
+
+#endif
+
+}
+
+
+
 /* A thread block compute a sub-tensor */
-__global__ static void spt_MTTKRPKernelSM(
+__global__ static void spt_MTTKRPKernelSM_RM(
   const size_t mode,
   const size_t nmodes,
   const size_t nnz,
@@ -199,7 +294,7 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
   sptStopTimer(split_timer);
   sptPrintElapsedTime(split_timer, "Split SpTns");
   sptFreeTimer(split_timer);
-  // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
+  spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
 
   /* Transfer tensor and matrices */
@@ -228,13 +323,17 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
   const size_t nthreads = 128;
   const size_t max_nblocks = 32768;
   printf("nsplits: %lu, nthreads: %lu\n", nsplits, nthreads);
-  size_t max_block_nnz = 0;
+  size_t max_sum_dims = 0, sum_dims = 0;
   for(size_t i=0; i<nsplits; ++i) {
-    if(max_block_nnz < splits[i].tensor.nnz)
-      max_block_nnz = splits[i].tensor.nnz;
+    sum_dims = 0;
+    for(size_t j=0; j<nmodes; ++j) {
+      sum_dims += splits[i].tensor.ndims[j];
+    }
+    if(max_sum_dims < sum_dims)
+      max_sum_dims = sum_dims;
   }
-  size_t allocate_sm_size = (nmats + 2 * nmodes) * sizeof(size_t) + 2 * max_block_nnz * R * sizeof(sptScalar);
-  printf("max_block_nnz: %lu\n", max_block_nnz);
+  size_t allocate_sm_size = (nmats + 2 * nmodes) * sizeof(size_t) + max_sum_dims * R * sizeof(sptScalar);
+  printf("max_sum_dims: %lu\n", max_sum_dims);
   printf("allocate_sm_size: %lu, given shared memory size: %lu\n", allocate_sm_size, memory_size);
   sptAssert (allocate_sm_size < memory_size);
 
@@ -320,7 +419,7 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
         nblocks = max_nblocks;
     }
 
-    spt_MTTKRPKernelSM<<<nblocks, nthreads, memory_size>>>(
+    spt_MTTKRPKernelSM_3D<<<nblocks, nthreads, memory_size>>>(
         mode,
         nmodes,
         nnz,
