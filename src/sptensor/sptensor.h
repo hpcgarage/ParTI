@@ -42,6 +42,17 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
 
 int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]);
 
+struct spt_TagSplitHandle {
+    size_t nsplits;
+    sptSparseTensor *tsr;
+    size_t *max_size_by_mode;
+    size_t *inds_low;
+    size_t *inds_high;
+    size_t level;
+    int *resume_branch;
+    size_t *cut_idx;
+    size_t *cut_low;
+};
 typedef struct spt_TagSplitHandle *spt_SplitHandle;
 int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *tsr, const size_t max_size_by_mode[]);
 int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *inds_low, size_t *inds_high, spt_SplitHandle handle);
@@ -65,6 +76,22 @@ int spt_SparseTensorBalancedSplit(
     sptSparseTensor *tsr, 
     const size_t nnz_limit,
     const size_t index_limit_by_mode[]);
+
+/* Coarse-grain split */
+int spt_CoarseSplitSparseTensorAll(
+    spt_SplitResult ** splits,
+    size_t * nsplits,
+    const size_t split_idx_len,
+    const size_t mode,
+    sptSparseTensor * tsr);
+
+int spt_CoarseSplitSparseTensorStep(
+    spt_SplitResult * splits,
+    size_t * nnz_ptr_next,
+    const size_t split_idx_len,
+    const size_t mode,
+    const sptSparseTensor * tsr,
+    const size_t nnz_ptr_begin);
 
 #ifdef __cplusplus
 }

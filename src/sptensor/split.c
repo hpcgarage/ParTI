@@ -21,18 +21,6 @@
 #include <stdio.h>
 #include "sptensor.h"
 
-struct spt_TagSplitHandle {
-    size_t nsplits;
-    sptSparseTensor *tsr;
-    size_t *max_size_by_mode;
-    size_t *inds_low;
-    size_t *inds_high;
-    size_t level;
-    int *resume_branch;
-    size_t *cut_idx;
-    size_t *cut_low;
-};
-
 
 static int spt_FindSplitStep(const sptSparseTensor *tsr, size_t cut_point, int direction) {
     if(direction) {
