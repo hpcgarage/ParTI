@@ -220,6 +220,7 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t sortkeys[]);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
 int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr);
 
