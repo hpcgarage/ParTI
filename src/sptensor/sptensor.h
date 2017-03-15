@@ -93,6 +93,19 @@ int spt_CoarseSplitSparseTensorStep(
     const sptSparseTensor * tsr,
     const size_t nnz_ptr_begin);
 
+/* Fine-grain split */
+int spt_FineSplitSparseTensorAll(
+    spt_SplitResult ** splits,
+    size_t * nsplits,
+    const size_t split_nnz_len,
+    sptSparseTensor * tsr);
+
+int spt_FineSplitSparseTensorStep(
+    spt_SplitResult * split,
+    const size_t split_nnz_len,
+    sptSparseTensor * tsr,
+    const size_t nnz_ptr_begin);
+
 #ifdef __cplusplus
 }
 #endif
