@@ -62,6 +62,6 @@ int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, con
     */
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
-    sptSparseTensorSortIndex(Z);
+    sptSparseTensorSortIndex(Z, 1);
     return 0;
 }

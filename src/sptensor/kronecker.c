@@ -69,6 +69,6 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
             ++Y->nnz;
         }
     }
-    sptSparseTensorSortIndex(Y);
+    sptSparseTensorSortIndex(Y, 1);
     return result;
 }

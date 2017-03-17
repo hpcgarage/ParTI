@@ -35,7 +35,7 @@ int spt_CoarseSplitSparseTensorAll(
     size_t * nsplits,
     const size_t split_idx_len,
     const size_t mode,
-    sptSparseTensor * tsr) 
+    sptSparseTensor * tsr)
 {
     sptAssert(mode < tsr->nmodes);
     sptAssert(split_idx_len > 0);
@@ -46,7 +46,7 @@ int spt_CoarseSplitSparseTensorAll(
     *nsplits = tmp_nsplits;
     *splits = (spt_SplitResult*) malloc((*nsplits) * sizeof(spt_SplitResult));
 
-    sptSparseTensorSortIndex(tsr);  // tsr sorted from mode-0, ..., N-1.
+    sptSparseTensorSortIndex(tsr, 1);  // tsr sorted from mode-0, ..., N-1.
 
     size_t nnz_ptr_next = 0, nnz_ptr_begin = 0;
     sptAssert(spt_CoarseSplitSparseTensorStep(&((*splits)[0]), &nnz_ptr_next, split_idx_len, mode, tsr, nnz_ptr_begin));
@@ -55,7 +55,7 @@ int spt_CoarseSplitSparseTensorAll(
         sptAssert(spt_CoarseSplitSparseTensorStep(&((*splits)[s]), &nnz_ptr_next, split_idx_len, mode, tsr, nnz_ptr_begin));
         (*splits)[s-1].next = &((*splits)[s]);
     }
-    
+
     return 0;
 }
 
@@ -76,7 +76,7 @@ int spt_CoarseSplitSparseTensorStep(
     const size_t split_idx_len,
     const size_t mode,
     const sptSparseTensor * tsr,
-    const size_t nnz_ptr_begin) 
+    const size_t nnz_ptr_begin)
 {
     size_t const nmodes = tsr->nmodes;
     size_t const nnz = tsr->nnz;
@@ -163,7 +163,7 @@ int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTen
     sptSizeVector * inds = tsr->inds;
     sptVector values = tsr->values;
 
-    sptSparseTensorSortIndex(tsr);
+    sptSparseTensorSortIndex(tsr, 1);
 
     size_t * csnnz = (size_t *)malloc(num * sizeof(size_t));
     memset(csnnz, 0, num * sizeof(size_t));

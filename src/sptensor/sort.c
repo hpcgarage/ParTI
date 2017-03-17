@@ -26,12 +26,19 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
  * Reorder the elements in a sparse tensor lexicographically
  * @param tsr  the sparse tensor to operate on
  */
-void sptSparseTensorSortIndex(sptSparseTensor *tsr) {
-    spt_QuickSortIndex(tsr, 0, tsr->nnz);
-    if(tsr->nmodes != 0) {
-        tsr->sortkey = tsr->nmodes - 1;
-    } else {
-        tsr->sortkey = 0;
+void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force) {
+    size_t m;
+    int needsort = 0;
+
+    for(m = 0; m < tsr->nmodes; ++m) {
+        if(tsr->sortorder[m] != m) {
+            tsr->sortorder[m] = m;
+            needsort = 1;
+        }
+    }
+
+    if(needsort || force) {
+        spt_QuickSortIndex(tsr, 0, tsr->nnz);
     }
 }
 

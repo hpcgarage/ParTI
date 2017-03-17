@@ -149,6 +149,6 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
     */
     spt_SparseTensorCollectZeros(Y);
     /* Sort the indices */
-    sptSparseTensorSortIndex(Y);
+    sptSparseTensorSortIndex(Y, 1);
     return 0;
 }
