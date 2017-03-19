@@ -23,17 +23,17 @@
 /**
  * compare two indices from two identical or distinct sparse tensors lexicographically
  * @param tsr1 the first sparse tensor
- * @param ind1 the order of the element in the first sparse tensor whose index is to be compared
+ * @param loc1 the order of the element in the first sparse tensor whose index is to be compared
  * @param tsr2 the second sparse tensor
- * @param ind2 the order of the element in the second sparse tensor whose index is to be compared
+ * @param loc2 the order of the element in the second sparse tensor whose index is to be compared
  * @return -1 for less, 0 for equal, 1 for greater
  */
-int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2) {
+int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t loc1, const sptSparseTensor *tsr2, size_t loc2) {
     size_t i;
     assert(tsr1->nmodes == tsr2->nmodes);
     for(i = 0; i < tsr1->nmodes; ++i) {
-        size_t eleind1 = tsr1->inds[i].data[ind1];
-        size_t eleind2 = tsr2->inds[i].data[ind2];
+        size_t eleind1 = tsr1->inds[i].data[loc1];
+        size_t eleind2 = tsr2->inds[i].data[loc2];
         if(eleind1 < eleind2) {
             return -1;
         } else if(eleind1 > eleind2) {
@@ -41,5 +41,23 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, con
         }
     }
     return 0;
+}
+
+/**
+ * Comapre two index arrays lexicographically
+ * @param inds1 the first indices to be compared
+ * @param inds2 the second indices to be compared
+ * @param len the length of both inds1 and inds2
+ * @return 1 for inds1 < inds2; -1 for the other cases.
+ */
+int spt_SparseTensorCompareIndicesLT(size_t * const inds1, size_t * const inds2, size_t len) {
+
+    size_t i;
+    for(i = 0; i < len; ++i) {
+        if(inds1[i] >= inds2[i]) {
+            return -1;
+        }
+    }
+    return 1;
 }
 

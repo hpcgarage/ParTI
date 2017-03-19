@@ -87,6 +87,21 @@ typedef struct {
 } sptSparseTensor;
 
 /**
+ * Block-sorted Sparse tensor type
+ */
+typedef struct {
+    size_t        nmodes;  /// # modes
+    size_t        *sortorder; /// the mode sorting order
+    size_t        *ndims;  /// size of each mode, length nmodes
+    size_t        nnz;     /// # non-zeros
+    size_t        blksize;  /// same block size for each mode
+    size_t        nblks;  /// number of blocks
+    size_t        *blkptrs; /// Pointers to the beginning of each block.
+    sptSizeVector *inds;   /// indices of each element, length [nmodes][nnz]
+    sptVector     values;  /// non-zero values, length nnz
+} sptBlockSparseTensor;
+
+/**
  * Semi-sparse tensor type
  * The chosen mode is dense, while other modes are sparse.
  * Can be considered as "sparse tensor of dense fiber".
@@ -220,7 +235,6 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
-void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t sortkeys[]);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
 int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr);
 
@@ -234,6 +248,7 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t keymodes[]);
 /**
  * Set indices of a semi-sparse according to a reference sparse
  * Call sptSparseTensorSortIndexAtMode on ref first

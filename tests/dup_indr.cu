@@ -64,7 +64,7 @@ int main() {
     print_data("Original data", header);
 
     short **dev_data;
-    sptAssert(sptCudaDuplicateMemoryIndirect(&dev_data, header, 7, get_length, cudaMemcpyHostToDevice) == 0);
+    sptAssert(sptCudaDuplicateMemoryIndirect(&dev_data, header, 7, length, cudaMemcpyHostToDevice) == 0);
 
     print_dev_data("Device data", dev_data);
 

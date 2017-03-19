@@ -485,7 +485,7 @@ int sptCudaMTTKRPSM(sptSparseTensor const * const X,
   result = cudaFree(dev_mats);
   spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
-  spt_SparseTensorFreeAllSplits(splits);
+  spt_SparseTensorFreeAllSplits(splits, nsplits);
 
 
   return 0;

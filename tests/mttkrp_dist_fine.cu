@@ -39,10 +39,8 @@ int main(int argc, char const *argv[]) {
     sptSparseTensor X;
     sptMatrix ** U;
     sptSizeVector mats_order;
-    sptVector scratch;
     size_t mode = 0;
     size_t R = 16;
-    int niters = 5;
 
     if(argc < 3) {
         printf("Usage: %s X mode split_size batch_size cuda_dev_ids... [R Y]\n\n", argv[0]);
@@ -58,32 +56,26 @@ int main(int argc, char const *argv[]) {
     size_t nmodes = X.nmodes;
 
     sscanf(argv[2], "%zu", &mode);
-
     printf("Mode = %zu\n", mode);
 
-    size_t *split_size = new size_t[nmodes];
-    for(size_t i = 0; i < nmodes; ++i) {
-        sscanf(argv[i+3], "%zu", &split_size[i]);
-    }
-
-    printf("Split_size = [");
-    print_array(split_size, nmodes, (size_t) 0);
-    printf("]\n");
+    size_t split_size;
+    sscanf(argv[3], "%zu", &split_size);
+    printf("split_size = %zu\n", split_size);
 
     size_t batch_size;
-    sscanf(argv[nmodes+3], "%zu", &batch_size);
+    sscanf(argv[4], "%zu", &batch_size);
     printf("Batch_size = %zu\n", batch_size);
 
     int *gpu_map = new int[batch_size];
     for(size_t i = 0; i < batch_size; ++i) {
-        sscanf(argv[nmodes+i+4], "%d", &gpu_map[i]);
+        sscanf(argv[i+5], "%d", &gpu_map[i]);
     }
     printf("Gpu_map = [");
     print_array(gpu_map, batch_size, 0);
     printf("]\n");
 
-    if((unsigned) argc > nmodes+batch_size+4) {
-        sscanf(argv[nmodes+batch_size+4], "%zu", &R);
+    if((unsigned) argc > batch_size+5) {
+        sscanf(argv[batch_size+5], "%zu", &R);
     }
     printf("R = %zu\n", R);
     printf("Tensor NNZ: %zu\n", X.nnz);
@@ -102,7 +94,6 @@ int main(int argc, char const *argv[]) {
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-    size_t stride = U[0]->stride;
 
 
     sptNewSizeVector(&mats_order, nmodes-1, nmodes-1);
@@ -117,26 +108,24 @@ int main(int argc, char const *argv[]) {
     spt_SplitResult *splits;
     size_t nsplits;
 
-    sptAssert(spt_SparseTensorGetAllSplits(
+    sptAssert(spt_FineSplitSparseTensorAll(
         &splits,
         &nsplits,
-        &X,
         split_size,
-        NULL,
-        1
+        &X
     ) == 0);
     // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
     printf("nsplits: %lu\n", nsplits);
     
-    sptAssert(sptCudaDistributedMTTKRP(
-        splits,
-        nsplits,
-        batch_size,
-        U,
-        mats_order.data,
-        mode,
-        gpu_map
-    ) == 0);
+    // sptAssert(sptCudaDistributedMTTKRP(
+    //     splits,
+    //     nsplits,
+    //     batch_size,
+    //     U,
+    //     mats_order.data,
+    //     mode,
+    //     gpu_map
+    // ) == 0);
 
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
@@ -144,9 +133,9 @@ int main(int argc, char const *argv[]) {
     sptFreeSparseTensor(&X);
     sptFreeSizeVector(&mats_order);
 
-    if((unsigned) argc > nmodes+batch_size+5) {
-        printf("Output = %s\n", argv[nmodes+batch_size+5]);
-        fo = fopen(argv[nmodes+batch_size+5], "w");
+    if((unsigned) argc > batch_size+6) {
+        printf("Output = %s\n", argv[batch_size+6]);
+        fo = fopen(argv[batch_size+6], "w");
         sptAssert(fo != NULL);
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
@@ -156,7 +145,6 @@ int main(int argc, char const *argv[]) {
     free(U);
 
     delete[] gpu_map;
-    delete[] split_size;
 
     return 0;
 }

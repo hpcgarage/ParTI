@@ -16,6 +16,10 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* TODO:
+    Also use block-sorted.
+*/
+
 #include <assert.h>
 #include <ParTI.h>
 #include "sptensor.h"
@@ -34,21 +38,22 @@ int spt_FineSplitSparseTensorAll(
     const size_t split_nnz_len,
     sptSparseTensor * tsr) 
 {
-    sptAssert(split_nnz_len > 0);
+    sptAssert(split_nnz_len > 0 && split_nnz_len <= tsr->nnz);
 
     size_t const nnz = tsr->nnz;
 
     size_t tmp_nsplits = nnz % split_nnz_len == 0 ? nnz / split_nnz_len : nnz / split_nnz_len + 1;
     *nsplits = tmp_nsplits;
+    printf("nsplits: %lu\n", *nsplits);
 
     *splits = (spt_SplitResult*) malloc((*nsplits) * sizeof(spt_SplitResult));
 
     size_t nnz_ptr_begin = 0;
-    sptAssert( spt_FineSplitSparseTensorStep(&((*splits)[0]), split_nnz_len, tsr, nnz_ptr_begin) );
+    sptAssert( spt_FineSplitSparseTensorStep(&((*splits)[0]), split_nnz_len, tsr, nnz_ptr_begin) == 0 );
     for(size_t s=1; s<*nsplits; ++s) {
         sptAssert( s * split_nnz_len < nnz );
         nnz_ptr_begin = s * split_nnz_len;
-        sptAssert( spt_FineSplitSparseTensorStep(&((*splits)[s]), split_nnz_len, tsr, nnz_ptr_begin) );
+        sptAssert( spt_FineSplitSparseTensorStep(&((*splits)[s]), split_nnz_len, tsr, nnz_ptr_begin) == 0 );
         (*splits)[s-1].next = &((*splits)[s]);
     }
 
@@ -58,7 +63,7 @@ int spt_FineSplitSparseTensorAll(
 /**
  * A fine-grain split to get a sub-tensor
  *
- * @param[out] splits            Place to store a split
+ * @param[out] split            Place to store a split
  * @param[in] split_nnz_len            Given the nonzero length of the split (the last split may has smaller number), scalar for fine-grain.
  * @param[in]  tsr               The tensor to split
  * @param[in] nnz_ptr_begin     The nonzero point to begin the split
@@ -82,7 +87,8 @@ int spt_FineSplitSparseTensorStep(
         subndims[i] = tsr->ndims[i];
     }
     /* substr.ndims range is larger than its actual range which indicates by inds_low and inds_high. */
-    sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) );
+    sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
+    free(subndims); // substr.ndims is hard copy.
 
     size_t * inds_low = (size_t *)malloc(2 * nmodes * sizeof(size_t));
     memset(inds_low, 0, 2 * nmodes * sizeof(size_t));
@@ -96,6 +102,7 @@ int spt_FineSplitSparseTensorStep(
         inds_low[m] = tmp_ind;
         inds_high[m] = tmp_ind;
     }
+    ++ subnnz;
     for(i=nnz_ptr_begin+1; i<nnz_ptr_end; ++i) {
         ++ subnnz;
         for(size_t m=0; m<nmodes; ++m) {

@@ -614,12 +614,21 @@ int spt_SparseTensorGetAllSplits(
 /**
  * Free all sub-tensors created by `spt_SparseTensorGetAllSplits`
  */
-void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits) {
-    while(splits) {
-        spt_SplitResult *temp = splits;
+// void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits) {
+//     while(splits) {
+//         spt_SplitResult *temp = splits;
+//         sptFreeSparseTensor(&splits->tensor);
+//         free(splits->inds_low);
+//         splits = splits->next;
+//         free(temp);
+//     }
+// }
+
+void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits, size_t const nsplits) {
+    for(size_t i=0; i<nsplits; ++i) {
+        spt_SplitResult *temp = splits + i;
         sptFreeSparseTensor(&splits->tensor);
         free(splits->inds_low);
-        splits = splits->next;
         free(temp);
     }
 }

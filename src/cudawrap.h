@@ -186,6 +186,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
     return 0;
 }
 
+#if 0
 /* `length` as a closure: (size_t) -> size_t */
 template <class T, class Fn>
 inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t nmemb, Fn length, int direction) {
@@ -258,6 +259,7 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
 
     return 0;
 }
+#endif
 
 #endif
 

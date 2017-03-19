@@ -21,13 +21,12 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-
 int main(int argc, char *argv[]) {
     FILE *fi;
     sptSparseTensor tsr;
 
     if(argc < 3) {
-        printf("Usage: %s input size1 [size2 ...]\n\n", argv[0]);
+        printf("Usage: %s input mode step \n\n", argv[0]);
         return 1;
     }
 
@@ -36,27 +35,34 @@ int main(int argc, char *argv[]) {
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
 
-    sptAssert((int) tsr.nmodes + 2 == argc);
+    sptAssert(4 == argc);
 
-    size_t *sizes = malloc(tsr.nmodes * sizeof (size_t));
-    size_t i;
-    for(i = 0; i < tsr.nmodes; ++i) {
-        sizes[i] = atoi(argv[i+2]);
-    }
+    size_t mode = atoi(argv[2]);
+    size_t step = atoi(argv[3]);
 
-    printf("Splitting using API 'GetAllSplits', max size [");
-    spt_DumpArray(sizes, tsr.nmodes, 0, stdout);
-    printf("].\n\n");
+    printf("step: %lu, mode: %lu\n", step, mode);
+
+    size_t const nmodes = tsr.nmodes;
+    size_t * mode_order = (size_t *)malloc(nmodes * sizeof(size_t));
+    mode_order[0] = mode;
+    for(size_t i=1; i<nmodes; ++i)
+        mode_order[i] = (mode+i) % nmodes;
+    printf("mode_order:\n");
+    spt_DumpArray(mode_order, nmodes, 0, stdout);
+
+    sptSparseTensorSortIndexCustomOrder(&tsr, mode_order);  // tsr sorted from mode-0, ..., N-1.
+    sptDumpSparseTensor(&tsr, 0, stdout);
+
 
     spt_SplitResult *splits;
     size_t nsplits;
-    sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, sizes, NULL, 1) == 0);
+    sptAssert(spt_CoarseSplitSparseTensorAll(&splits, &nsplits, step, mode, &tsr) == 0);
     spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
-
-    spt_SparseTensorFreeAllSplits(splits, nsplits);
-    free(sizes);
+    // spt_SparseTensorFreeAllSplits(splits, nsplits);
     sptFreeSparseTensor(&tsr);
+    free(splits);
+    free(mode_order);
 
     return 0;
 

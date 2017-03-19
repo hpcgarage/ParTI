@@ -21,13 +21,12 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-
 int main(int argc, char *argv[]) {
     FILE *fi;
     sptSparseTensor tsr;
 
     if(argc < 3) {
-        printf("Usage: %s input size1 [size2 ...]\n\n", argv[0]);
+        printf("Usage: %s input nnz_step \n\n", argv[0]);
         return 1;
     }
 
@@ -36,27 +35,21 @@ int main(int argc, char *argv[]) {
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
 
-    sptAssert((int) tsr.nmodes + 2 == argc);
+    sptAssert(3 == argc);
 
-    size_t *sizes = malloc(tsr.nmodes * sizeof (size_t));
-    size_t i;
-    for(i = 0; i < tsr.nmodes; ++i) {
-        sizes[i] = atoi(argv[i+2]);
-    }
+    size_t nnz_step = atoi(argv[2]);
 
-    printf("Splitting using API 'GetAllSplits', max size [");
-    spt_DumpArray(sizes, tsr.nmodes, 0, stdout);
-    printf("].\n\n");
+    printf("nnz_step: %lu\n", nnz_step);
+    sptDumpSparseTensor(&tsr, 0, stdout);
 
     spt_SplitResult *splits;
     size_t nsplits;
-    sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, sizes, NULL, 1) == 0);
+    sptAssert(spt_FineSplitSparseTensorAll(&splits, &nsplits, nnz_step, &tsr) == 0);
     spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
-
-    spt_SparseTensorFreeAllSplits(splits, nsplits);
-    free(sizes);
+    // spt_SparseTensorFreeAllSplits(splits, nsplits);
     sptFreeSparseTensor(&tsr);
+    free(splits);
 
     return 0;
 

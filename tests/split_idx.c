@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     sptAssert(spt_SparseTensorGetAllSplits(&splits, &nsplits, &tsr, NULL, steps, 1) == 0);
     spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
-    spt_SparseTensorFreeAllSplits(splits);
+    spt_SparseTensorFreeAllSplits(splits, nsplits);
     free(steps);
     sptFreeSparseTensor(&tsr);
 
