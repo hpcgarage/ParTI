@@ -33,6 +33,8 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     size_t mode;
     iores = fscanf(fp, "%zu", &tsr->nmodes);
     spt_CheckOSError(iores < 0, "SpTns Load");
+    tsr->sortorder = malloc(tsr->nmodes * sizeof tsr->sortorder[0]);
+    spt_CheckOSError(!tsr->sortorder, "SpTns Load");
     tsr->ndims = malloc(tsr->nmodes * sizeof *tsr->ndims);
     spt_CheckOSError(!tsr->ndims, "SpTns Load");
     for(mode = 0; mode < tsr->nmodes; ++mode) {
@@ -76,6 +78,6 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
         tsr->inds[mode].len = tsr->nnz;
     }
     spt_SparseTensorCollectZeros(tsr);
-    sptSparseTensorSortIndex(tsr);
+    sptSparseTensorSortIndex(tsr, 1);
     return 0;
 }

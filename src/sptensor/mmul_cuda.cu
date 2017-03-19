@@ -104,9 +104,7 @@ int sptCudaSparseTensorMulMatrix(
     if(X->ndims[mode] != U->nrows) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns * Mtx", "shape mismatch");
     }
-    if(X->sortkey != mode) {
-        sptSparseTensorSortIndexAtMode(X, mode);
-    }
+    sptSparseTensorSortIndexAtMode(X, mode, 0);
     ind_buf = new size_t[X->nmodes * sizeof *ind_buf];
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];

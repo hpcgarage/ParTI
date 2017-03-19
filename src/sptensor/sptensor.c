@@ -31,7 +31,10 @@ int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]
     size_t i;
     int result;
     tsr->nmodes = nmodes;
-    tsr->sortkey = tsr->nmodes != 0 ? tsr->nmodes - 1 : 0;
+    tsr->sortorder = malloc(nmodes * sizeof tsr->sortorder[0]);
+    for(i = 0; i < nmodes; ++i) {
+        tsr->sortorder[i] = i;
+    }
     tsr->ndims = malloc(nmodes * sizeof *tsr->ndims);
     spt_CheckOSError(!tsr->ndims, "SpTns New");
     memcpy(tsr->ndims, ndims, nmodes * sizeof *tsr->ndims);
@@ -56,7 +59,8 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
     size_t i;
     int result;
     dest->nmodes = src->nmodes;
-    dest->sortkey = src->sortkey;
+    dest->sortorder = malloc(src->nmodes * sizeof src->sortorder[0]);
+    memcpy(dest->sortorder, src->sortorder, src->nmodes * sizeof src->sortorder[0]);
     dest->ndims = malloc(dest->nmodes * sizeof *dest->ndims);
     spt_CheckOSError(!dest->ndims, "SpTns Copy");
     memcpy(dest->ndims, src->ndims, src->nmodes * sizeof *src->ndims);
@@ -81,6 +85,7 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
     for(i = 0; i < tsr->nmodes; ++i) {
         sptFreeSizeVector(&tsr->inds[i]);
     }
+    free(tsr->sortorder);
     free(tsr->ndims);
     free(tsr->inds);
     sptFreeVector(&tsr->values);
@@ -97,7 +102,7 @@ int spt_DistSparseTensor(sptSparseTensor * tsr,
     memset(dist_nnzs, 0, nthreads*sizeof(size_t));
     memset(dist_nrows, 0, nthreads*sizeof(size_t));
 
-    sptSparseTensorSortIndex(tsr);
+    sptSparseTensorSortIndex(tsr, 0);
     size_t * ind0 = tsr->inds[0].data;
 
     int ti = 0;
@@ -134,7 +139,7 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     size_t aver_nnz = global_nnz / nthreads;
     memset(dist_nnzs, 0, nthreads*sizeof(size_t));
 
-    sptSparseTensorSortIndex(tsr);
+    sptSparseTensorSortIndex(tsr, 0);
     size_t * ind0 = tsr->inds[0].data;
 
     int ti = 0;
@@ -173,6 +178,7 @@ int spt_SparseTensorDumpAllSplits(spt_SplitResult * splits, size_t const nsplits
         ++ i;
         split_i = split_i->next;
     }
+    return 0;
 }
 
 

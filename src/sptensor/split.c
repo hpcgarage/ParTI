@@ -152,7 +152,7 @@ int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *inds_low, size_t *inds_
                 handle->cut_low[handle->level] = cut_high;
 
                 spt_RotateMode(subtsr);
-                sptSparseTensorSortIndex(subtsr);
+                sptSparseTensorSortIndex(subtsr, 1);
 
                 ++handle->level;
                 handle->resume_branch[handle->level] = 0;
@@ -209,7 +209,7 @@ int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *inds_low, size_t *inds_
             handle->inds_high[handle->level] = curtsr->inds[0].data[curtsr->nnz - 1] + 1;
 
             spt_RotateMode(curtsr);
-            sptSparseTensorSortIndex(curtsr);
+            sptSparseTensorSortIndex(curtsr, 1);
             handle->tsr[handle->level + 1] = *curtsr;
 
             handle->resume_branch[handle->level] = 2;

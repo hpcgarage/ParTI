@@ -29,9 +29,30 @@ static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind
  * @param tsr  the sparse tensor to operate on
  * @param mode the mode to be considered the last
  */
-void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode) {
-    spt_QuickSortAtMode(tsr, 0, tsr->nnz, mode);
-    tsr->sortkey = mode;
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force) {
+    size_t m;
+    int needsort = 0;
+
+    for(m = 0; m < mode; ++m) {
+        if(tsr->sortorder[m] != m) {
+            tsr->sortorder[m] = m;
+            needsort = 1;
+        }
+    }
+    for(m = mode+1; m < tsr->nmodes; ++m) {
+        if(tsr->sortorder[m-1] != m) {
+            tsr->sortorder[m-1] = m;
+            needsort = 1;
+        }
+    }
+    if(tsr->sortorder[tsr->nmodes-1] != mode) {
+        tsr->sortorder[tsr->nmodes-1] = mode;
+        needsort = 1;
+    }
+
+    if(needsort || force) {
+        spt_QuickSortAtMode(tsr, 0, tsr->nnz, mode);
+    }
 }
 
 static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t mode) {
@@ -86,4 +107,3 @@ static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind
         return 0;
     }
 }
-

@@ -225,7 +225,8 @@ int spt_SparseTensorNnzSplit(
     size_t partial_stsr_nnz_begin[2];
     sptSparseTensor subtsr; // Just a puppet, don't free it.
     subtsr.nmodes = nmodes;
-    subtsr.sortkey = tsr->sortkey;
+    subtsr.sortorder = malloc(nmodes * sizeof subtsr.sortorder[0]);
+    memcpy(subtsr.sortorder, tsr->sortorder, nmodes * sizeof subtsr.sortorder[0]);
     subtsr.ndims = tsr->ndims;
     for(size_t s=0; s<nsplits_idxsplit; ++s) {
         size_t split_nnz = nnzs_per_split->data[s];
@@ -427,7 +428,7 @@ static int spt_SparseTensorPartialSplit(
         }
 
         spt_RotateMode(tsr);
-        sptSparseTensorSortIndex(tsr);
+        sptSparseTensorSortIndex(tsr, 1);
         return spt_SparseTensorPartialSplit(splits_end, nsplits, tsr, nnz_limit_by_mode, index_limit_by_mode, emit_map,
             inds_low, inds_high, level+1);
     }
@@ -471,7 +472,7 @@ static int spt_SparseTensorPartialSplit(
         }
 
         spt_RotateMode(&subtsr);
-        sptSparseTensorSortIndex(&subtsr);
+        sptSparseTensorSortIndex(&subtsr, 1);
         result = spt_SparseTensorPartialSplit(splits_end, nsplits, &subtsr, nnz_limit_by_mode, index_limit_by_mode, emit_map,
             inds_low, inds_high, level+1);
         spt_CheckError(result, "SpTns PartSplt", NULL);

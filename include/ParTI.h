@@ -78,12 +78,12 @@ typedef struct {
  * Sparse tensor type
  */
 typedef struct {
-    size_t        nmodes;  /// # modes
-    size_t        sortkey; /// the least significant mode during sort
-    size_t        *ndims;  /// size of each mode, length nmodes
-    size_t        nnz;     /// # non-zeros
-    sptSizeVector *inds;   /// indices of each element, length [nmodes][nnz]
-    sptVector     values;  /// non-zero values, length nnz
+    size_t        nmodes;      /// # modes
+    size_t        *sortorder;  /// the order in which the indices are sorted
+    size_t        *ndims;      /// size of each mode, length nmodes
+    size_t        nnz;         /// # non-zeros
+    sptSizeVector *inds;       /// indices of each element, length [nmodes][nnz]
+    sptVector     values;      /// non-zero values, length nnz
 } sptSparseTensor;
 
 /**
@@ -233,8 +233,9 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
-void sptSparseTensorSortIndex(sptSparseTensor *tsr);
-void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
+void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force);
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t sortkeys[], int force);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
 int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr);
 

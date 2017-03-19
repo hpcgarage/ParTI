@@ -21,6 +21,7 @@
 #include "sptensor.h"
 
 
+<<<<<<< HEAD
 /* TODO:
     Also use block-sorted.
 */
@@ -29,6 +30,23 @@ int spt_ComputeSliceSizes(
     size_t * slice_nnzs, 
     sptSparseTensor * const tsr,
     size_t const mode)
+=======
+/**
+ * A coarse-grain split to get all splits by repeatively calling `spt_CoarseSplitSparseTensorStep`
+ *
+ * @param[out] splits            Place to store all splits
+ * @param[out] nsplits            Place to store the number of total splits
+ * @param[in] split_idx_len            Given the index length of the split (the last split may has smaller number), scalar for coarse-grain.
+ * @param[in] mode            Specify the mode to split, special for coarse-grain.
+ * @param[in]  tsr               The tensor to split
+ */
+int spt_CoarseSplitSparseTensorAll(
+    spt_SplitResult ** splits,
+    size_t * nsplits,
+    const size_t split_idx_len,
+    const size_t mode,
+    sptSparseTensor * tsr)
+>>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31
 {
     size_t * const ndims = tsr->ndims;
     sptSizeVector * inds = tsr->inds;
@@ -42,6 +60,7 @@ int spt_ComputeSliceSizes(
 }
 
 
+<<<<<<< HEAD
 int spt_ComputeCoarseSplitParameters(
     size_t * split_idx_len,
     size_t const nsplits,
@@ -87,6 +106,9 @@ int spt_ComputeCoarseSplitParameters(
             split_num = 1;
         }
     }
+=======
+    sptSparseTensorSortIndex(tsr, 1);  // tsr sorted from mode-0, ..., N-1.
+>>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31
 
     // size_t pre_ind = inds[mode].data[nnz_split_begin], cur_ind;
     // for(size_t x=nnz_split_begin; x<nnz; ++x) {
@@ -160,8 +182,12 @@ int spt_CoarseSplitSparseTensorBatch(
             break;
         }
     }
+<<<<<<< HEAD
     *nnz_split_next = nnz_ptr_next;
     
+=======
+
+>>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31
     return 0;
 }
 
@@ -183,7 +209,7 @@ int spt_CoarseSplitSparseTensorStep(
     const size_t split_idx_len,
     const size_t mode,
     const sptSparseTensor * tsr,
-    const size_t nnz_ptr_begin) 
+    const size_t nnz_ptr_begin)
 {
     size_t const nmodes = tsr->nmodes;
     size_t const nnz = tsr->nnz;
@@ -326,7 +352,7 @@ int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTen
     sptSizeVector * inds = tsr->inds;
     sptVector values = tsr->values;
 
-    sptSparseTensorSortIndex(tsr);
+    sptSparseTensorSortIndex(tsr, 1);
 
     size_t * csnnz = (size_t *)malloc(num * sizeof(size_t));
     memset(csnnz, 0, num * sizeof(size_t));
@@ -410,5 +436,8 @@ int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTen
     return 0;
 }
 #endif
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31

@@ -105,6 +105,6 @@ int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, co
     */
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
-    sptSparseTensorSortIndex(Z);
+    sptSparseTensorSortIndex(Z, 1);
     return 0;
 }
