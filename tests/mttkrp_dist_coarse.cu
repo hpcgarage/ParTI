@@ -22,6 +22,8 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
+#define COARSEGRAIN
+
 template <typename T>
 static void print_array(const T array[], size_t length, T start_index) {
     if(length == 0) {
@@ -107,7 +109,7 @@ int main(int argc, char const *argv[]) {
     printf("mats_order:\n");
     spt_DumpArray(mats_order, nmodes, 0, stdout);
 
-    sptSparseTensorSortIndexCustomOrder(&tsr, mats_order);  // tsr sorted from mode-0, ..., N-1.
+    sptSparseTensorSortIndexCustomOrder(&tsr, mats_order, 1);  // tsr sorted from mode-0, ..., N-1.
     // sptDumpSparseTensor(&tsr, 0, stdout);
 
     size_t * slice_nnzs = (size_t *)malloc(ndims[mode] * sizeof(size_t));
@@ -122,6 +124,7 @@ int main(int argc, char const *argv[]) {
     size_t * split_idx_len = (size_t*)malloc(queue_size * sizeof(size_t));
     size_t nnz_split_begin = 0;
     size_t nnz_split_next = 0;
+    double queue_time = 0, total_time = 0;
 
     while (nnz_split_next < tsr.nnz) {
         printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
@@ -146,6 +149,7 @@ int main(int argc, char const *argv[]) {
         // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
     
         sptAssert(sptCudaDistributedMTTKRP(
+            &queue_time,
             splits,
             queue_size,
             batch_size,
@@ -154,9 +158,12 @@ int main(int argc, char const *argv[]) {
             mode,
             gpu_map
         ) == 0);
+        total_time += queue_time;
 
         free(splits);
-    }   // Split all tensor    
+    }   // Split the whole tensor  
+
+    printf("\n[CUDA SpTns Coarse-Dist MTTKRP]: %lf s\n\n", total_time);  
     
 
 

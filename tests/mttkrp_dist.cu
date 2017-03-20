@@ -117,26 +117,26 @@ int main(int argc, char const *argv[]) {
     spt_SplitResult *splits;
     size_t nsplits;
 
-    sptAssert(spt_SparseTensorGetAllSplits(
-        &splits,
-        &nsplits,
-        &X,
-        split_size,
-        NULL,
-        1
-    ) == 0);
-    // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
-    printf("nsplits: %lu\n", nsplits);
+    // sptAssert(spt_SparseTensorGetAllSplits(
+    //     &splits,
+    //     &nsplits,
+    //     &X,
+    //     split_size,
+    //     NULL,
+    //     1
+    // ) == 0);
+    // // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
+    // printf("nsplits: %lu\n", nsplits);
     
-    sptAssert(sptCudaDistributedMTTKRP(
-        splits,
-        nsplits,
-        batch_size,
-        U,
-        mats_order.data,
-        mode,
-        gpu_map
-    ) == 0);
+    // sptAssert(sptCudaDistributedMTTKRP(
+    //     splits,
+    //     nsplits,
+    //     batch_size,
+    //     U,
+    //     mats_order.data,
+    //     mode,
+    //     gpu_map
+    // ) == 0);
 
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);

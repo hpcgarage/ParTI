@@ -118,17 +118,28 @@ int spt_CoarseSplitSparseTensorStep(
 
 
 /* Fine-grain split */
-int spt_FineSplitSparseTensorAll(
-    spt_SplitResult ** splits,
-    size_t * nsplits,
+int spt_ComputeFineSplitParameters(
+    size_t * split_nnz_len,
+    size_t const nsplits,
+    sptSparseTensor * const tsr,
+    size_t const R,
+    size_t const memsize);
+    
+int spt_FineSplitSparseTensorBatch(
+    spt_SplitResult * splits,
+    size_t * nnz_split_next,
+    const size_t nsplits,
     const size_t split_nnz_len,
-    sptSparseTensor * tsr);
+    sptSparseTensor * tsr,
+    size_t const nnz_split_begin);
 
 int spt_FineSplitSparseTensorStep(
     spt_SplitResult * split,
+    size_t * nnz_ptr_next,
     const size_t split_nnz_len,
     sptSparseTensor * tsr,
     const size_t nnz_ptr_begin);
+
 
 /* Medium-grain split */
 int spt_MediumSplitSparseTensorAll(

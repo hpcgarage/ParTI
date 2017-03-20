@@ -24,6 +24,47 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
+
+int spt_ComputeFineSplitParameters(
+    size_t * split_nnz_len,
+    size_t const nsplits,
+    sptSparseTensor * const tsr,
+    size_t const R,
+    size_t const memsize) 
+{
+    size_t const nmodes = tsr->nmodes;
+    size_t const nnz = tsr->nnz;
+    size_t * const ndims = tsr->ndims;
+
+    memset(split_nnz_len, 0, nsplits * sizeof(size_t));
+
+    size_t wordsize = (sizeof(size_t) > sizeof(sptScalar)) ? sizeof(size_t) : sizeof(sptScalar);
+    size_t memwords = memsize / wordsize;
+    printf("memwords: %zu\n", memwords);
+    size_t factor_words = 0;
+    for(size_t i=0; i<nmodes; ++i) {
+        factor_words += ndims[i];
+    }
+    factor_words *= R;
+    printf("factor_words: %zu\n", factor_words);
+    if(memwords <= factor_words) {
+        printf("Error: set a larger memory size.\n");
+        return -1;
+    }
+
+    size_t tensor_words = 0;
+    size_t tmp_split_nnz_len = (memwords - factor_words) / (nmodes + 1);
+    if(tmp_split_nnz_len > nnz) {
+        *split_nnz_len = nnz;
+    } else {
+        *split_nnz_len = tmp_split_nnz_len;
+    }
+
+    return 0;
+}
+
+
+
 /**
  * A fine-grain split to get all splits by repeatively calling `spt_FineSplitSparseTensorStep`
  *
@@ -32,33 +73,33 @@
  * @param[in] split_nnz_len            Given the nonzero length of the split (the last split may has smaller number), scalar for fine-grain.
  * @param[in]  tsr               The tensor to split
  */
-int spt_FineSplitSparseTensorAll(
-    spt_SplitResult ** splits,
-    size_t * nsplits,
+int spt_FineSplitSparseTensorBatch(
+    spt_SplitResult * splits,
+    size_t * nnz_split_next,
+    const size_t nsplits,
     const size_t split_nnz_len,
-    sptSparseTensor * tsr) 
+    sptSparseTensor * tsr,
+    size_t const nnz_split_begin) 
 {
-    sptAssert(split_nnz_len > 0 && split_nnz_len <= tsr->nnz);
-
     size_t const nnz = tsr->nnz;
+    sptAssert(split_nnz_len <= nnz);  
 
-    size_t tmp_nsplits = nnz % split_nnz_len == 0 ? nnz / split_nnz_len : nnz / split_nnz_len + 1;
-    *nsplits = tmp_nsplits;
-    printf("nsplits: %lu\n", *nsplits);
-
-    *splits = (spt_SplitResult*) malloc((*nsplits) * sizeof(spt_SplitResult));
-
-    size_t nnz_ptr_begin = 0;
-    sptAssert( spt_FineSplitSparseTensorStep(&((*splits)[0]), split_nnz_len, tsr, nnz_ptr_begin) == 0 );
-    for(size_t s=1; s<*nsplits; ++s) {
-        sptAssert( s * split_nnz_len < nnz );
-        nnz_ptr_begin = s * split_nnz_len;
-        sptAssert( spt_FineSplitSparseTensorStep(&((*splits)[s]), split_nnz_len, tsr, nnz_ptr_begin) == 0 );
-        (*splits)[s-1].next = &((*splits)[s]);
+    size_t nnz_ptr_next = 0, nnz_ptr_begin = nnz_split_begin;
+    sptAssert( spt_FineSplitSparseTensorStep(&(splits[0]), &nnz_ptr_next, split_nnz_len, tsr, nnz_ptr_begin) == 0 );
+    for(size_t s=1; s<nsplits; ++s) {
+        nnz_ptr_begin = nnz_ptr_next;
+        if(nnz_ptr_begin < nnz) {
+            sptAssert( spt_FineSplitSparseTensorStep(&(splits[s]), &nnz_ptr_next, split_nnz_len, tsr, nnz_ptr_begin) == 0 );
+            splits[s-1].next = &(splits[s]);
+        } else {
+            break;
+        }
     }
+    *nnz_split_next = nnz_ptr_next;
 
     return 0;
 }
+
 
 /**
  * A fine-grain split to get a sub-tensor
@@ -70,6 +111,7 @@ int spt_FineSplitSparseTensorAll(
  */
 int spt_FineSplitSparseTensorStep(
     spt_SplitResult * split,
+    size_t * nnz_ptr_next,
     const size_t split_nnz_len,
     sptSparseTensor * tsr,
     const size_t nnz_ptr_begin) 
@@ -95,7 +137,7 @@ int spt_FineSplitSparseTensorStep(
     size_t * inds_high = inds_low + nmodes;
 
     size_t subnnz = 0;
-    size_t nnz_ptr_end = (nnz_ptr_begin + split_nnz_len < nnz) ? nnz_ptr_begin + split_nnz_len : nnz;
+    *nnz_ptr_next = (nnz_ptr_begin + split_nnz_len < nnz) ? nnz_ptr_begin + split_nnz_len : nnz;
     size_t tmp_ind;
     for(size_t m=0; m<nmodes; ++m) {
         tmp_ind = inds[m].data[nnz_ptr_begin];
@@ -103,7 +145,7 @@ int spt_FineSplitSparseTensorStep(
         inds_high[m] = tmp_ind;
     }
     ++ subnnz;
-    for(i=nnz_ptr_begin+1; i<nnz_ptr_end; ++i) {
+    for(i=nnz_ptr_begin+1; i<*nnz_ptr_next; ++i) {
         ++ subnnz;
         for(size_t m=0; m<nmodes; ++m) {
             tmp_ind = inds[m].data[i];

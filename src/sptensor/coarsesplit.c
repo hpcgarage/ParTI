@@ -21,7 +21,6 @@
 #include "sptensor.h"
 
 
-<<<<<<< HEAD
 /* TODO:
     Also use block-sorted.
 */
@@ -30,23 +29,6 @@ int spt_ComputeSliceSizes(
     size_t * slice_nnzs, 
     sptSparseTensor * const tsr,
     size_t const mode)
-=======
-/**
- * A coarse-grain split to get all splits by repeatively calling `spt_CoarseSplitSparseTensorStep`
- *
- * @param[out] splits            Place to store all splits
- * @param[out] nsplits            Place to store the number of total splits
- * @param[in] split_idx_len            Given the index length of the split (the last split may has smaller number), scalar for coarse-grain.
- * @param[in] mode            Specify the mode to split, special for coarse-grain.
- * @param[in]  tsr               The tensor to split
- */
-int spt_CoarseSplitSparseTensorAll(
-    spt_SplitResult ** splits,
-    size_t * nsplits,
-    const size_t split_idx_len,
-    const size_t mode,
-    sptSparseTensor * tsr)
->>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31
 {
     size_t * const ndims = tsr->ndims;
     sptSizeVector * inds = tsr->inds;
@@ -60,7 +42,6 @@ int spt_CoarseSplitSparseTensorAll(
 }
 
 
-<<<<<<< HEAD
 int spt_ComputeCoarseSplitParameters(
     size_t * split_idx_len,
     size_t const nsplits,
@@ -85,6 +66,10 @@ int spt_ComputeCoarseSplitParameters(
     }
     other_factor_words *= R;
     printf("other_factor_words: %zu\n", other_factor_words);
+    if(memwords <= other_factor_words) {
+        printf("Error: set a larger memory size.\n");
+        return -1;
+    }
 
     memset(split_idx_len, 0, nsplits * sizeof(size_t));
     size_t tensor_modefactor_words = 0;
@@ -106,9 +91,6 @@ int spt_ComputeCoarseSplitParameters(
             split_num = 1;
         }
     }
-=======
-    sptSparseTensorSortIndex(tsr, 1);  // tsr sorted from mode-0, ..., N-1.
->>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31
 
     // size_t pre_ind = inds[mode].data[nnz_split_begin], cur_ind;
     // for(size_t x=nnz_split_begin; x<nnz; ++x) {
@@ -168,7 +150,7 @@ int spt_CoarseSplitSparseTensorBatch(
 
     sptAssert(mode < nmodes);
     for(size_t i=0; i<nsplits; ++i)
-        sptAssert(split_idx_len[i] >= 0 && split_idx_len[i] <= ndims[mode]);  
+        sptAssert(split_idx_len[i] <= ndims[mode]);  
 
     size_t nnz_ptr_next = 0, nnz_ptr_begin = nnz_split_begin;
     sptAssert(spt_CoarseSplitSparseTensorStep(&(splits[0]), &nnz_ptr_next, split_idx_len[0], mode, tsr, nnz_ptr_begin) == 0 );
@@ -182,12 +164,8 @@ int spt_CoarseSplitSparseTensorBatch(
             break;
         }
     }
-<<<<<<< HEAD
     *nnz_split_next = nnz_ptr_next;
-    
-=======
 
->>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31
     return 0;
 }
 
@@ -436,8 +414,4 @@ int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTen
     return 0;
 }
 #endif
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 3c81f74330f68b1751e6449bb8d4ac122f27bb31

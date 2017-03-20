@@ -92,6 +92,7 @@ __global__ static void spt_MTTKRPKernel(
  * scratch is used to maximize parallelism. (To be optimized)
  */
 int sptCudaDistributedMTTKRP(
+    double *queue_time,
     spt_SplitResult const *splits,
     size_t const queue_size,
     size_t const batch_size,
@@ -244,6 +245,7 @@ int sptCudaDistributedMTTKRP(
         sptStopTimer(timer);
         elapsed_time += sptElapsedTime(timer);
 
+        // TODO!
         for(size_t kernel_idx = 0; kernel_idx < kernel_count; ++kernel_idx) {
             cudaSetDevice(gpu_map[kernel_idx]);
 
@@ -285,7 +287,8 @@ int sptCudaDistributedMTTKRP(
         }
     }   // End queue_size
 
-    printf("[CUDA SpTns Dist MTTKRP]: %lf s\n\n", elapsed_time);
+    printf("[CUDA SpTns Dist MTTKRP (per Queue)]: %lf s\n\n", elapsed_time);
+    *queue_time = elapsed_time;
     sptFreeTimer(timer);
 
     delete[] dev_scratch;

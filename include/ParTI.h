@@ -249,7 +249,7 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
-void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t keymodes[]);
+
 /**
  * Set indices of a semi-sparse according to a reference sparse
  * Call sptSparseTensorSortIndexAtMode on ref first
@@ -357,6 +357,7 @@ int sptPresplittedMTTKRP(
     sptVector *scratch
 );
 int sptCudaDistributedMTTKRP(
+    double *queue_time,
     struct spt_TagSplitResult const *splits,
     size_t const nsplits,
     size_t const batch_size,
