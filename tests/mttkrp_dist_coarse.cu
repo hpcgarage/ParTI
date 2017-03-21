@@ -167,6 +167,7 @@ int main(int argc, char const *argv[]) {
         free(splits);
     }   // Split the whole tensor  
 
+    printf("Total nsplits: %zu\n", nsplits);
     printf("\n[CUDA SpTns Coarse-Dist MTTKRP]: %lf s\n\n", total_time);  
     
 
