@@ -21,43 +21,19 @@
 #include "sptensor.h"
 
 
-/* TODO:
-    Also use block-sorted.
-*/
-
-int spt_ComputeSliceSizes(
-    size_t * slice_nnzs, 
-    sptSparseTensor * const tsr,
-    size_t const mode)
-{
-    size_t * const ndims = tsr->ndims;
-    sptSizeVector * inds = tsr->inds;
-    
-    memset(slice_nnzs, 0, ndims[mode] * sizeof(size_t));
-    for(size_t x=0; x<tsr->nnz; ++x) {
-        ++ slice_nnzs[inds[mode].data[x]];
-    }
-
-    return 0;
-}
-
-
 int spt_ComputeCoarseSplitParameters(
-    size_t * split_idx_len,
+    size_t * split_idx_len, // size: nsplits
     size_t const nsplits,
     sptSparseTensor * const tsr,
     size_t * const slice_nnzs,
     size_t const idx_begin,
     size_t const mode,
     size_t const R,
-    size_t const memsize) 
+    size_t const memwords) 
 {
     size_t const nmodes = tsr->nmodes;
     size_t * const ndims = tsr->ndims;
 
-    size_t wordsize = (sizeof(size_t) > sizeof(sptScalar)) ? sizeof(size_t) : sizeof(sptScalar);
-    size_t memwords = memsize / wordsize;
-    printf("memwords: %zu\n", memwords);
     size_t other_factor_words = 0;
     for(size_t i=0; i<nmodes; ++i) {
         if(i != mode) {

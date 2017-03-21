@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <omp.h>
 #include <ParTI.h>
+#include "../src/sptensor/sptensor.h"
 
 int main(int argc, char const *argv[]) {
     FILE *fX, *fo;

@@ -64,6 +64,10 @@ int main(int argc, char const *argv[]) {
     sscanf(argv[3], "%zu", &mem_size);
     printf("mem_size = %zu\n", mem_size);
 
+    size_t wordsize = (sizeof(size_t) > sizeof(sptScalar)) ? sizeof(size_t) : sizeof(sptScalar);
+    size_t memwords = mem_size / wordsize;
+    printf("memwords: %zu\n", memwords);
+
     size_t nbatchs;
     sscanf(argv[4], "%zu", &nbatchs);
     printf("nbatchs = %zu\n", nbatchs);
@@ -130,7 +134,7 @@ int main(int argc, char const *argv[]) {
         printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
         nnz_split_begin = nnz_split_next;
         size_t idx_begin = tsr.inds[mode].data[nnz_split_begin];
-        sptAssert(spt_ComputeCoarseSplitParameters(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, R, mem_size) == 0);
+        sptAssert(spt_ComputeCoarseSplitParameters(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, R, memwords) == 0);
         // printf("idx_begin: %zu\n", idx_begin);
         printf("Calculated split_idx_len: \n");
         spt_DumpArray(split_idx_len, queue_size, 0, stdout);

@@ -26,21 +26,15 @@
 
 
 int spt_ComputeFineSplitParameters(
-    size_t * split_nnz_len,
-    size_t const nsplits,
+    size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,
     size_t const R,
-    size_t const memsize) 
+    size_t const memwords) 
 {
     size_t const nmodes = tsr->nmodes;
     size_t const nnz = tsr->nnz;
     size_t * const ndims = tsr->ndims;
 
-    memset(split_nnz_len, 0, nsplits * sizeof(size_t));
-
-    size_t wordsize = (sizeof(size_t) > sizeof(sptScalar)) ? sizeof(size_t) : sizeof(sptScalar);
-    size_t memwords = memsize / wordsize;
-    printf("memwords: %zu\n", memwords);
     size_t factor_words = 0;
     for(size_t i=0; i<nmodes; ++i) {
         factor_words += ndims[i];

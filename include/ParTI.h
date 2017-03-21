@@ -237,7 +237,10 @@ void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force);
 void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t sortkeys[], int force);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
-int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr);
+int spt_ComputeSliceSizes(
+    size_t * slice_sizes, 
+    sptSparseTensor * const tsr,
+    size_t const mode);
 
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero

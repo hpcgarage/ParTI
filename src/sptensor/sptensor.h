@@ -27,7 +27,8 @@ extern "C" {
 #include "../error/error.h"
 
 int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2);
-int spt_SparseTensorCompareIndicesLT(size_t * const inds1, size_t * const inds2, size_t len);
+int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, size_t * const inds1, size_t * const inds2);
+void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
 void spt_SparseTensorCollectZeros(sptSparseTensor *tsr);
 
@@ -41,7 +42,7 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     size_t * const dist_nnzs,
     size_t * dist_nrows);
 
-int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]);
+int spt_GetSubSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]);
 
 struct spt_TagSplitHandle {
     size_t nsplits;
@@ -89,7 +90,7 @@ int spt_ComputeCoarseSplitParameters(
     size_t const idx_begin,
     size_t const mode,
     size_t const R,
-    size_t const memsize);
+    size_t const memwords);
     
 int spt_CoarseSplitSparseTensorBatch(
     spt_SplitResult * splits,
@@ -108,6 +109,9 @@ int spt_CoarseSplitSparseTensorAll(
     const size_t mode,
     sptSparseTensor * tsr);
 
+// abundant
+int sptCoarseSplitSparseTensor(sptSparseTensor *tsr, const int num, sptSparseTensor *cstsr);
+
 int spt_CoarseSplitSparseTensorStep(
     spt_SplitResult * splits,
     size_t * nnz_ptr_next,
@@ -119,11 +123,10 @@ int spt_CoarseSplitSparseTensorStep(
 
 /* Fine-grain split */
 int spt_ComputeFineSplitParameters(
-    size_t * split_nnz_len,
-    size_t const nsplits,
+    size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,
     size_t const R,
-    size_t const memsize);
+    size_t const memwords);
     
 int spt_FineSplitSparseTensorBatch(
     spt_SplitResult * splits,
@@ -142,28 +145,31 @@ int spt_FineSplitSparseTensorStep(
 
 
 /* Medium-grain split */
-int spt_MediumSplitSparseTensorAll(
-    spt_SplitResult ** splits,
-    size_t * nsplits,
-    size_t * const split_idx_lens,
-    sptSparseTensor * tsr,
-    int const blk_size);
-    
-int spt_MediumSplitSparseTensorStep(
-    spt_SplitResult * split,
-    size_t * const split_idx_lens,
-    sptSparseTensor * tsr,
-    size_t * rest_loc_begin,
-    size_t * rest_loc_end,
-    size_t const rest_loc_size,
-    size_t * inds_low);
-
-
-/* misc */
-int spt_ComputeSliceSizes(
-    size_t * slice_sizes, 
+int spt_ComputeMediumSplitParameters(
+    size_t * split_idx_len, // size: nmodes
     sptSparseTensor * const tsr,
-    size_t const mode);
+    size_t const R,
+    size_t const memwords);
+
+int spt_MediumSplitSparseTensorBatch(
+    spt_SplitResult * splits,
+    size_t * nnz_split_next,
+    size_t const nsplits,
+    size_t * const split_idx_lens,
+    sptSparseTensor * tsr,
+    size_t const nnz_split_begin,
+    size_t * est_inds_low,
+    size_t * est_inds_high);
+    
+int spt_MediumSplitSparseTensorStep(    // In-place
+    spt_SplitResult * split,
+    size_t * nnz_ptr_next,
+    size_t * subnnz,
+    size_t * const split_idx_lens,
+    sptSparseTensor * tsr,
+    const size_t nnz_ptr_begin,
+    size_t * const est_inds_low,
+    size_t * const est_inds_high);
 
 
 

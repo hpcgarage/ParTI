@@ -48,13 +48,14 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t loc1, con
  * @param inds1 the first indices to be compared
  * @param inds2 the second indices to be compared
  * @param len the length of both inds1 and inds2
- * @return 1 for inds1 < inds2; -1 for the other cases.
+ * @return 1 for in the range; otherwise return -1.
  */
-int spt_SparseTensorCompareIndicesLT(size_t * const inds1, size_t * const inds2, size_t len) {
+int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, size_t * const inds1, size_t * const inds2) {
 
     size_t i;
-    for(i = 0; i < len; ++i) {
-        if(inds1[i] >= inds2[i]) {
+    for(i = 0; i < tsr->nmodes; ++i) {
+        size_t eleind = tsr->inds[i].data[loc];
+        if(eleind < inds1[i] || eleind >= inds2[i]) {
             return -1;
         }
     }

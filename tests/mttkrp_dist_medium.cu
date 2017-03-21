@@ -22,7 +22,7 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-#define FINEGRAIN
+#define COARSEGRAIN
 
 template <typename T>
 static void print_array(const T array[], size_t length, T start_index) {
@@ -41,7 +41,7 @@ int main(int argc, char const *argv[]) {
     sptSparseTensor tsr;
     sptMatrix ** U;
     size_t mode = 0;
-    size_t R = 16;
+    size_t R = 4;
 
     if(argc < 3) {
         printf("Usage: %s tsr mode mem_size nbatchs batch_size cuda_dev_ids... [R Y]\n\n", argv[0]);
@@ -96,14 +96,15 @@ int main(int argc, char const *argv[]) {
     }
     size_t max_ndims = 0;
     for(size_t m=0; m<nmodes; ++m) {
-      // sptAssert(sptRandomizeMatrix(U[m], tsr.ndims[m], R) == 0);
-      sptAssert(sptNewMatrix(U[m], tsr.ndims[m], R) == 0);
+      // sptAssert(sptRandomizeMatrix(U[m], ndims[m], R) == 0);
+      sptAssert(sptNewMatrix(U[m], ndims[m], R) == 0);
       sptAssert(sptConstantMatrix(U[m], 1) == 0);
-      if(tsr.ndims[m] > max_ndims)
-        max_ndims = tsr.ndims[m];
+      if(ndims[m] > max_ndims)
+        max_ndims = ndims[m];
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
     mats_order[0] = mode;
@@ -112,54 +113,58 @@ int main(int argc, char const *argv[]) {
     printf("mats_order:\n");
     spt_DumpArray(mats_order, nmodes, 0, stdout);
 
+    sptSparseTensorSortIndex(&tsr, 1); 
+    // sptDumpSparseTensor(&tsr, 0, stdout);
+
     size_t queue_size = nbatchs * batch_size;
     printf("queue_size: %zu (%zu * %zu)\n", queue_size, nbatchs, batch_size);
-
+    
     size_t nsplits = 0;    // Total 
-    size_t split_nnz_len = 0;
+    size_t * split_idx_len = (size_t*)malloc(queue_size * sizeof(size_t));
     size_t nnz_split_begin = 0;
     size_t nnz_split_next = 0;
     double queue_time = 0, total_time = 0;
 
+    // while (nnz_split_next < tsr.nnz) {
+    //     printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
+    //     nnz_split_begin = nnz_split_next;
+    //     size_t idx_begin = tsr.inds[mode].data[nnz_split_begin];
+    //     sptAssert(spt_ComputeCoarseSplitParameters(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, R, mem_size) == 0);
+    //     // printf("idx_begin: %zu\n", idx_begin);
+    //     printf("Calculated split_idx_len: \n");
+    //     spt_DumpArray(split_idx_len, queue_size, 0, stdout);
 
-    sptAssert(spt_ComputeFineSplitParameters(&split_nnz_len, &tsr, R, memwords) == 0);
-    printf("Calculated split_nnz_len: %zu\n", split_nnz_len);
-
-    while (nnz_split_next < tsr.nnz) {
-        printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
-        nnz_split_begin = nnz_split_next;
-
-        spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
-        sptAssert(spt_FineSplitSparseTensorBatch(
-            splits,
-            &nnz_split_next,
-            queue_size,
-            split_nnz_len,
-            &tsr,
-            nnz_split_begin
-        ) == 0);
-        nsplits += queue_size;
-        // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
-
-        sptAssert(sptCudaDistributedMTTKRP(
-            &queue_time,
-            splits,
-            queue_size,
-            batch_size,
-            U,
-            mats_order + 1,
-            mode,
-            gpu_map
-        ) == 0);
-        total_time += queue_time;
-
-        free(splits);
-
-    }   // split the whole tensor
-
-    printf("\n[CUDA SpTns Fine-Dist MTTKRP]: %lf s\n\n", total_time);  
-
+    //     spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
+    //     sptAssert(spt_CoarseSplitSparseTensorBatch(
+    //         splits,
+    //         &nnz_split_next,
+    //         queue_size,
+    //         split_idx_len,
+    //         mode,
+    //         &tsr,
+    //         nnz_split_begin
+    //     ) == 0);
+    //     nsplits += queue_size;
+    //     // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
     
+    //     sptAssert(sptCudaDistributedMTTKRP(
+    //         &queue_time,
+    //         splits,
+    //         queue_size,
+    //         batch_size,
+    //         U,
+    //         mats_order + 1,
+    //         mode,
+    //         gpu_map
+    //     ) == 0);
+    //     total_time += queue_time;
+
+    //     free(splits);
+    // }   // Split the whole tensor  
+
+    printf("\n[CUDA SpTns Medium-Dist MTTKRP]: %lf s\n\n", total_time);  
+    
+
 
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
@@ -167,7 +172,7 @@ int main(int argc, char const *argv[]) {
     sptFreeSparseTensor(&tsr);
     free(mats_order);
 
-    if((unsigned) argc > batch_size+7) {
+    if((unsigned) argc > batch_size+6) {
         printf("Output = %s\n", argv[batch_size+7]);
         fo = fopen(argv[batch_size+7], "w");
         sptAssert(fo != NULL);
@@ -177,6 +182,8 @@ int main(int argc, char const *argv[]) {
 
     sptFreeMatrix(U[nmodes]);
     free(U);
+    free(split_idx_len);
+    
 
     delete[] gpu_map;
 

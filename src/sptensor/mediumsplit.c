@@ -21,62 +21,90 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
+
+/* Assume Ib = Jb = Kb */
+int spt_ComputeMediumSplitParameters(
+    size_t * split_idx_len, // size: nmodes
+    sptSparseTensor * const tsr,
+    size_t const R,
+    size_t const memwords) 
+{
+    size_t const nmodes = tsr->nmodes;
+
+    size_t tmp_split_idx_len = (size_t)((double)memwords / (nmodes * R));
+    tmp_split_idx_len = pow(2, (int)(log(tmp_split_idx_len) / log(2)));
+
+    for(size_t i=0; i<nmodes; ++i) {
+        split_idx_len[i] = tmp_split_idx_len;
+    }
+    printf("\nsplit_idx_len:\n");
+    spt_DumpArray(split_idx_len, nmodes, 0, stdout);
+
+    return 0;
+}
+
 /**
  * A medium-grain split to get all splits by repeatively calling `spt_MediumSplitSparseTensorStep`
  *
  * @param[out] splits            Place to store all splits
  * @param[out] nsplits            Place to store the number of total splits
- * @param[in] split_idx_lens            Given the index lengths for all modes of the split (the last split may has smaller number), an array for medium-grain. Each length should be multiple "b"s.
+ * @param[in] split_idx_len            Given the index lengths for all modes of the split (the last split may has smaller number), an array for medium-grain. Each length should be multiple "b"s.
  * @param[in]  tsr               The tensor to split
  * @param[in] blk_size          The block size for block sorting of tsr
  */
-int spt_MediumSplitSparseTensorAll(
-    spt_SplitResult ** splits,
-    size_t * nsplits,
-    size_t * const split_idx_lens,
+int spt_MediumSplitSparseTensorBatch(
+    spt_SplitResult * splits,
+    size_t * nnz_split_next,
+    size_t const nsplits,
+    size_t * const split_idx_len,
     sptSparseTensor * tsr,
-    int const blk_size) 
+    size_t const nnz_split_begin,
+    size_t * est_inds_low,
+    size_t * est_inds_high) 
 {
     size_t const nmodes = tsr->nmodes;
     size_t const * ndims = tsr->ndims;
     for(size_t i=0; i<nmodes; ++i)
-        sptAssert(split_idx_lens[i] > 0 && split_idx_lens[i] <= ndims[i]);
+        sptAssert(split_idx_len[i] > 0 && split_idx_len[i] <= ndims[i]);
 
-    size_t * mode_nsplits = (size_t*)malloc(nmodes * sizeof(size_t));
-    memset(mode_nsplits, 0, nmodes * sizeof(size_t));
-    size_t max_nsplits = 1;
-    for(size_t i=0; i<nmodes; ++i) {
-        mode_nsplits[i] = ndims[i] % split_idx_lens[i] == 0 ? ndims[i] / split_idx_lens[i] : ndims[i] / split_idx_lens[i] + 1;
-        max_nsplits *= mode_nsplits[i];
+    size_t nnz_ptr_next = 0, nnz_ptr_begin = nnz_split_begin;
+    size_t subnnz = 0;
+    while (subnnz == 0) {
+        sptAssert(spt_MediumSplitSparseTensorStep(&(splits[0]), &nnz_ptr_next, &subnnz, split_idx_len, tsr, nnz_ptr_begin, est_inds_low, est_inds_high) == 0 );
     }
-    spt_DumpArray(mode_nsplits, nmodes, 0, stdout);
-    printf("max_nsplits: %lu\n", max_nsplits);
+    for(size_t s=1; s<nsplits; ++s) {
+        nnz_ptr_begin = nnz_ptr_next;
+        subnnz = 0;
+        if(nnz_ptr_begin < tsr->nnz) {
+            while (subnnz == 0) {
+                sptAssert(spt_MediumSplitSparseTensorStep(&(splits[s]), &nnz_ptr_next, &subnnz, split_idx_len, tsr, nnz_ptr_begin, est_inds_low, est_inds_high) == 0 );
+            }
+            splits[s-1].next = &(splits[s]);
 
-    *splits = (spt_SplitResult*) malloc((max_nsplits) * sizeof(spt_SplitResult));
-
-    // sptBlockSparseTensor bstr;
-    // sptAssert( sptSparseTensorBlockSortIndex(&bstr, tsr, max_nsplits, blk_size) == 0 );  // tsr block-sorted for all modes
-    
-    size_t rest_loc_size = (size_t)pow(2, nmodes - 2) * blk_size;
-    size_t * rest_loc_begin = (size_t *)malloc(rest_loc_size * sizeof(size_t));
-    size_t * rest_loc_end = (size_t *)malloc(rest_loc_size * sizeof(size_t));
-    memset(rest_loc_begin, 0, rest_loc_size * sizeof(size_t));
-    memset(rest_loc_end, 0, rest_loc_size * sizeof(size_t));
-    rest_loc_begin[0] = 0;
-    rest_loc_end[0] = tsr->nnz;
-
-    size_t * inds_low = (size_t *)malloc(2 * nmodes * sizeof(size_t));
-    memset(inds_low, 0, 2 * nmodes * sizeof(size_t));
-
-    sptAssert( spt_MediumSplitSparseTensorStep(&((*splits)[0]), split_idx_lens, tsr, rest_loc_begin, rest_loc_end, rest_loc_size, inds_low) == 0 );
-    *nsplits = 1;
-    for(size_t s=1; s < max_nsplits; ++s) {
-        ++ *nsplits;
-        sptAssert( spt_MediumSplitSparseTensorStep(&((*splits)[s]), split_idx_lens, tsr, rest_loc_begin, rest_loc_end, rest_loc_size, inds_low) == 0 );
-        (*splits)[s-1].next = &((*splits)[s]);
+            /* Prepare est_inds_low and est_inds_high for the next call */
+            int i;
+            for(i=nmodes-1; i>=0; --i) {
+                if(est_inds_high[i] < ndims[i]) {
+                    est_inds_low[i] += split_idx_len[i];
+                    for(size_t j=i+1; j<nmodes; ++j) {
+                        est_inds_low[j] = 0;
+                    }
+                    for(size_t j=0; j<nmodes; ++j) {
+                        est_inds_high[j] = est_inds_low[j] + split_idx_len[j];
+                    }
+                    break;
+                }
+            }
+            if(i == -1) {
+                printf("From indices range -- No more splits.\n");
+                break;
+            }
+        } else {
+            printf("No more nnz to split.\n");
+            break;
+        }
     }
-
-    free(mode_nsplits);
+    *nnz_split_next = nnz_ptr_next;
 
     return 0;
 }
@@ -91,14 +119,15 @@ int spt_MediumSplitSparseTensorAll(
  * @param[in]  tsr               The tensor to split
  * @param[in] nnz_ptr_begin     The nonzero point to begin the split
  */
-int spt_MediumSplitSparseTensorStep(
+int spt_MediumSplitSparseTensorStep(    // In-place
     spt_SplitResult * split,
-    size_t * const split_idx_lens,
+    size_t * nnz_ptr_next,
+    size_t * subnnz,
+    size_t * const split_idx_len,
     sptSparseTensor * tsr,
-    size_t * rest_loc_begin,
-    size_t * rest_loc_end,
-    size_t const rest_loc_size,
-    size_t * inds_low) 
+    const size_t nnz_ptr_begin,
+    size_t * const est_inds_low,
+    size_t * const est_inds_high) 
 {
     size_t const nmodes = tsr->nmodes;
     size_t const nnz = tsr->nnz;
@@ -107,202 +136,86 @@ int spt_MediumSplitSparseTensorStep(
     sptVector const values = tsr->values;
     size_t m;
 
-    printf("\nsplit_idx_lens:\n");
-    spt_DumpArray(split_idx_lens, nmodes, 0, stdout);
+    /* Copy of subtsr */
+    size_t r_ptr;
+    size_t tmp_subnnz = 0;
 
-    sptSparseTensor substr;
-    size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));
-    for(m=0; m<nmodes; ++m) {
-        subndims[m] = split_idx_lens[m];
-    }
-    /* substr.ndims range may be larger than its actual range which indicates by inds_low and inds_high. */
-    sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
-    free(subndims); // substr.ndims is hard copy.
-
-    size_t * inds_high = inds_low + nmodes;
-    for(m=0; m<nmodes; ++m) {
-        inds_high[m] = (inds_low[m] + split_idx_lens[m] <= ndims[m]) ? inds_low[m] + split_idx_lens[m] : ndims[m];
-    }
-    printf("inds_high:\n");
-    spt_DumpArray(inds_high, nmodes, 0, stdout);
-
-
-    size_t subnnz = 0;
-    size_t rest_loc_num = 0;
-    size_t pre_nnz = 0;
-    size_t * tmp_inds = (size_t *)malloc(nmodes * sizeof(size_t));
-    // all segments of rest nnzs
-    for(size_t r=0; r<rest_loc_size; ++r) {
-        size_t nnz_begin = rest_loc_begin[r];
-        size_t nnz_end = rest_loc_end[r];
-        rest_loc_begin[r] = 0;
-        rest_loc_end[r] = 0;
-        if(nnz_begin == nnz_end) {
-            continue;
-        }
-        // local nnzs
-        pre_nnz = nnz_begin;
-        for(size_t x=nnz_begin; x<nnz_end; ++x) {
-            for(size_t i=0; i<nmodes; ++i) {
-                tmp_inds[i] = inds[m].data[x];
-            }
-            if( spt_SparseTensorCompareIndicesLT(inds_low, tmp_inds, nmodes) == 1 && spt_SparseTensorCompareIndicesLT(tmp_inds, inds_high, nmodes) == 1 ) {
-                ++ subnnz;
+    for(size_t x=nnz_ptr_begin; x<nnz; ++x) {
+        if( spt_SparseTensorCompareIndicesRange(tsr, x, est_inds_low, est_inds_high) == 1 ) 
+        {
+            if(tmp_subnnz == 0) {
+                r_ptr = 0;
             } else {
-                if( spt_SparseTensorCompareIndicesLT(tmp_inds, inds_low, nmodes) == 1 ) {
-                    printf("Error: cannot happen for a sorted tensor.\n");
-                } else {
-                    if(rest_loc_begin[r] == 0) {
-                        rest_loc_begin[r] = x;
-                        rest_loc_num = 0;
-                    }
-                    ++ rest_loc_num;
-                }
+                ++ r_ptr;
             }
+            if(r_ptr != x) {
+                spt_SwapValues(tsr, x, r_ptr);
+            }
+            ++ tmp_subnnz;
         }
-    }
-    
-
-
-
-
-    /* inds_low for the next call */
-    for(int i=nmodes-1; i>=0; --i) {
-        if(inds_high[i] < ndims[i]) {
-            inds_low[i] += split_idx_lens[i];
-            for(size_t j=i+1; j<nmodes; ++j) {
-                inds_low[j] = 0;
-            }
+        if(inds[0].data[x] >= est_inds_high[0]) {
             break;
         }
     }
-    printf("End inds_low:\n");
-    spt_DumpArray(inds_low, nmodes, 0, stdout);
+    * subnnz = tmp_subnnz;
+    if(tmp_subnnz == 0) {
+        return 0;
+    }
 
+    *nnz_ptr_next = r_ptr + 1;
+    sptAssert(*nnz_ptr_next - nnz_ptr_begin == *subnnz );
+
+    /* Calculate the accurate index range */
+    size_t * inds_low = (size_t *)malloc(2 * nmodes * sizeof(size_t));
+    memset(inds_low, 0, 2 * nmodes * sizeof(size_t));
+    size_t * inds_high = inds_low + nmodes;
+
+    size_t tmp_ind;
+    for(size_t m=0; m<nmodes; ++m) {
+        tmp_ind = inds[m].data[nnz_ptr_begin];
+        inds_low[m] = tmp_ind;
+        inds_high[m] = tmp_ind;
+    }
+    for(size_t i=nnz_ptr_begin+1; i<*nnz_ptr_next; ++i) {
+        for(size_t m=0; m<nmodes; ++m) {
+            tmp_ind = inds[m].data[i];
+            if(tmp_ind < inds_low[m]) {
+                inds_low[m] = tmp_ind;
+            }
+            if(tmp_ind > inds_high[m]) {
+                inds_high[m] = tmp_ind;
+            }
+        }
+    }
+
+    sptSparseTensor substr;
+    size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));
+    /* substr.ndims range may be larger than its actual range which indicates by inds_low and inds_high, except the ndims[mode]. */
+    for(size_t i=0; i<nmodes; ++i) {
+        subndims[i] = split_idx_len[i];
+    }
+    sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
+    free(subndims); // substr.ndims is hard copy.
+
+    substr.nnz = *subnnz;
+    for(size_t m=0; m<nmodes; ++m) {
+        substr.inds[m].len = substr.nnz;
+        substr.inds[m].cap = substr.nnz;
+        substr.inds[m].data = inds[m].data + nnz_ptr_begin; // pointer copy
+    }
+    substr.values.len = substr.nnz;
+    substr.values.cap = substr.nnz;
+    substr.values.data = values.data + nnz_ptr_begin; // pointer copy
 
     split->next = NULL;
     split->tensor = substr;    // pointer copy
-    split->inds_low = (size_t *)malloc(2 * nmodes * sizeof(size_t));
-    split->inds_high = inds_low + nmodes;
-    for(m=0; m<nmodes; ++m) {
-        split->inds_low[m] = inds_low[m];
-        split->inds_high[m] = inds_high[m];
-    }
+    split->inds_low = inds_low;
+    split->inds_high = inds_high;
+
 
     return 0;
 }
 
-
-
-#if 0
-/**
- * A block sorting for tensor
- *
- * @param[in/out]  tsr               The tensor to split
- * @param[in] blk_size    The block size.
- */
-int sptSparseTensorBlockSortIndex(
-    sptBlockSparseTensor * bstr, 
-    sptSparseTensor * tsr, 
-    size_t const max_nsplits,
-    size_t const blk_size) 
-{
-    /* Sort once to make tensor in order, to save some work. */
-    sptSparseTensorSortIndex(tsr);  // tsr sorted from mode-0, ..., N-1.
-    sptDumpSparseTensor(tsr, 0, stdout);
-
-    size_t const nmodes = tsr->nmodes;
-    size_t const nnz = tsr->nnz;
-    size_t * const ndims = tsr->ndims;
-    sptSizeVector * inds = tsr->inds;
-    sptVector values = tsr->values;
-    size_t const blk_vol = pow(blk_size, nmodes);
-
-    /* Temporary space to store a block tensor */
-    size_t ** binds = (size_t **)malloc(nmodes * sizeof(size_t*));
-    for(size_t i=0; i<nmodes; ++i) {
-        binds[i] = (size_t *)malloc(blk_vol * sizeof(size_t));
-    }
-    sptScalar * bvals = (sptScalar *)malloc(blk_vol * sizeof(sptScalar));
-    size_t * binds_low = (size_t *)malloc(nmodes * sizeof(size_t));
-    size_t * binds_high = (size_t *)malloc(nmodes * sizeof(size_t));
-    size_t * blkptrs = (size_t *)malloc(max_nsplits * sizeof(size_t));
-    memset(blkptrs, 0, max_nsplits * sizeof(size_t));
-
-    size_t rest_loc_size = (size_t)pow(2, nmodes - 2) * blk_size;
-    size_t * rest_loc_begin = (size_t *)malloc(rest_loc_size * sizeof(size_t));
-    size_t * rest_loc_end = (size_t *)malloc(rest_loc_size * sizeof(size_t));
-    memset(rest_loc_begin, 0, rest_loc_size * sizeof(size_t));
-    memset(rest_loc_end, 0, rest_loc_size * sizeof(size_t));
-    rest_loc_begin[0] = 0;
-    rest_loc_end[0] = nnz;
-
-    size_t * tmp_inds = (size_t *)malloc(nmodes * sizeof(size_t));
-    size_t blk_nnz = 0;
-    size_t nblks = 0;
-    size_t rest_loc_num = 0;
-    size_t check_mode;
-
-
-    memset(binds_low, 0, nmodes * sizeof(size_t));
-    for(size_t i=0; i<nmodes; ++i)
-        binds_high[i] = binds_low[i] + blk_size;
-
-
-    for(size_t b=0; b<max_nsplits; ++b) {
-        check_mode = nmodes - 1;
-        while () {
-            if(binds_high[check_mode] <= ndims[check_mode]) {
-                binds_low[check_mode] = binds_high[check_mode];
-                for(size_t j=check_mode+1; j<nmodes; j++) {
-
-                }
-                if(binds_high[i] + blk_size > ndims[i])
-                    binds_high[i] = ndims[i] - 1;
-                else
-                    binds_high[i] = binds_high[i] + blk_size - 1;
-            } else {
-                -- check_mode;
-            }
-        }
-
-
-
-    }
-
-    // all segments of rest nnzs
-    for(size_t r=0; r<rest_loc_size; ++r) {
-        size_t nnz_begin = rest_loc_begin[r];
-        size_t nnz_end = rest_loc_end[r];
-        rest_loc_begin[r] = 0;
-        rest_loc_end[r] = 0;
-        if(nnz_begin == nnz_end) {
-            continue;
-        }
-        // local nnzs
-        for(size_t x=nnz_begin; x<nnz_end; ++x) {
-            for(size_t i=0; i<nmodes; ++i) {
-                tmp_inds[i] = inds[m].data[x];
-            }
-            if( spt_SparseTensorCompareIndicesLT(binds_low, tmp_inds, nmodes) == 1 && spt_SparseTensorCompareIndicesLT(tmp_inds, binds_high, nmodes) == 1 ) {
-                ++ blk_nnz;
-            } else {
-                if( spt_SparseTensorCompareIndicesLT(tmp_inds, binds_low, nmodes) == 1 ) {
-                    printf("Error: cannot happen for a sorted tensor.\n");
-                } else {
-                    if(rest_loc_begin[r] == 0) {
-                        rest_loc_begin[r] = x;
-                        rest_loc_num = 0;
-                    }
-                    ++ rest_loc_num;
-                }
-            }
-        }
-    }
-
-    return 0;
-}
-#endif
 
 
 

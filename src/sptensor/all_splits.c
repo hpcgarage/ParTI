@@ -493,7 +493,7 @@ static int spt_SparseTensorIndexSplit(spt_SplitResult ***splits_end, size_t *nsp
         **splits_end = malloc(sizeof ***splits_end);
         spt_CheckOSError(**splits_end == NULL, "SpTns IdxSplt");
         (**splits_end)->next = NULL;
-        spt_SliceSparseTensor(&(**splits_end)->tensor, tsr, inds_low, inds_high);
+        spt_GetSubSparseTensor(&(**splits_end)->tensor, tsr, inds_low, inds_high);
         if((**splits_end)->tensor.nnz == 0) {
             sptFreeSparseTensor(&(**splits_end)->tensor);
             free(**splits_end);

@@ -24,8 +24,6 @@ extern "C" {
 #endif
 
 #include <ParTI.h>
-
-
 void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
 
 #ifdef __cplusplus

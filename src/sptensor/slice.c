@@ -30,7 +30,8 @@
  * Indices are compared using `limit_low <= index < limit_high`.
  * Free `out` after it is no longer needed.
  */
-int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]) {
+int spt_GetSubSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]) 
+{
     int result;
     size_t i, m;
     result = sptNewSparseTensor(dest, tsr->nmodes, tsr->ndims);
@@ -53,6 +54,23 @@ int spt_SliceSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, con
             spt_CheckError(result, "SpTns Split", NULL);
             ++dest->nnz;
         }
+    }
+
+    return 0;
+}
+
+
+int spt_ComputeSliceSizes(
+    size_t * slice_nnzs, 
+    sptSparseTensor * const tsr,
+    size_t const mode)
+{
+    size_t * const ndims = tsr->ndims;
+    sptSizeVector * inds = tsr->inds;
+    
+    memset(slice_nnzs, 0, ndims[mode] * sizeof(size_t));
+    for(size_t x=0; x<tsr->nnz; ++x) {
+        ++ slice_nnzs[inds[mode].data[x]];
     }
 
     return 0;
