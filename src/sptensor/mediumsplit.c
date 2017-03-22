@@ -241,6 +241,9 @@ int spt_MediumSplitSparseTensorStep(    // In-place
             }
         }
     }
+    for(size_t m=0; m<nmodes; ++m) {
+        ++ inds_high[m];
+    }
 
     sptSparseTensor substr;
     size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));

@@ -151,6 +151,9 @@ int spt_FineSplitSparseTensorStep(
             }
         }
     }
+    for(size_t m=0; m<nmodes; ++m) {
+        ++ inds_high[m];
+    }
     
     substr.nnz = subnnz;
     for(size_t m=0; m<nmodes; ++m) {

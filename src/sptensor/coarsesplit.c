@@ -223,6 +223,9 @@ int spt_CoarseSplitSparseTensorStep(
             }
         }
     }
+    for(size_t m=0; m<nmodes; ++m) {
+        ++ inds_high[m];
+    }
 
     substr.ndims[mode] = inds_num;  // correct the ndims for "mode", for the last substr.
     // substr.ndims[mode] = inds_high[mode] - inds_low[mode];

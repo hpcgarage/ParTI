@@ -342,6 +342,14 @@ int sptSplittedMTTKRP(
     sptVector *scratch,
     size_t const split_count[]
 );
+
+/* Coarse GPU */
+int sptCudaCoarseMTTKRP(
+    sptSparseTensor const * const X,
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode);
+
 /*
    TODO: I'm not sure where to put this forward declaration.
    The "split" operation should not expose its interface to the application,
@@ -361,14 +369,14 @@ int sptPresplittedMTTKRP(
 );
 int sptCudaDistributedMTTKRP(
     double *queue_time,
+    int const split_grain,
     struct spt_TagSplitResult const *splits,
     size_t const nsplits,
     size_t const batch_size,
     sptMatrix *mats[],
     size_t const mats_order[],
     size_t const mode,
-    int const gpu_map[]
-);
+    int const gpu_map[]);
 
 
 

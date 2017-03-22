@@ -36,7 +36,10 @@ static void print_array(const T array[], size_t length, T start_index) {
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[]) 
+{
+    /* 1: Coarse grain; 2: fine grain; 3: medium grain */
+    int split_grain = 3;    
     FILE *fX, *fo;
     sptSparseTensor tsr;
     sptMatrix ** U;
@@ -157,11 +160,12 @@ int main(int argc, char const *argv[]) {
     
         sptAssert(sptCudaDistributedMTTKRP(
             &queue_time,
+            split_grain,
             splits,
             queue_size,
             batch_size,
             U,
-            mats_order + 1,
+            mats_order,
             mode,
             gpu_map
         ) == 0);
