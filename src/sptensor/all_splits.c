@@ -628,8 +628,8 @@ int spt_SparseTensorGetAllSplits(
 void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits, size_t const nsplits) {
     for(size_t i=0; i<nsplits; ++i) {
         spt_SplitResult *temp = splits + i;
-        sptFreeSparseTensor(&splits->tensor);
-        free(splits->inds_low);
-        free(temp);
+        temp->tensor.nnz = 0;
+        free(temp->tensor.ndims);
+        free(temp->inds_low);
     }
 }

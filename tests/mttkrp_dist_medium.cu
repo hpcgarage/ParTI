@@ -140,14 +140,16 @@ int main(int argc, char const *argv[])
         est_inds_high[i] = 0;
     }
 
+    spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
     while (nnz_split_next < tsr.nnz) {
         nnz_split_begin = nnz_split_next;
         // printf("nnz_split_begin: %zu\n", nnz_split_begin);
 
-        spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
+        size_t real_queue_size = 0;
         sptAssert(spt_MediumSplitSparseTensorBatch(
             splits,
             &nnz_split_next,
+            &real_queue_size,
             queue_size,
             split_idx_len,
             &tsr,
@@ -155,14 +157,15 @@ int main(int argc, char const *argv[])
             est_inds_low,
             est_inds_high
         ) == 0);
-        nsplits += queue_size;
+        printf("real_queue_size: %zu\n", real_queue_size);
+        nsplits += real_queue_size;
         // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
     
         sptAssert(sptCudaDistributedMTTKRP(
             &queue_time,
             split_grain,
             splits,
-            queue_size,
+            real_queue_size,
             batch_size,
             U,
             mats_order,
@@ -171,8 +174,10 @@ int main(int argc, char const *argv[])
         ) == 0);
         total_time += queue_time;
 
-        free(splits);
+        spt_SparseTensorFreeAllSplits(splits, real_queue_size);
+        
     }   // Split the whole tensor  
+    free(splits);
 
     printf("Total nsplits: %zu\n", nsplits);
     printf("\n[CUDA SpTns Medium-Dist MTTKRP]: %lf s\n\n", total_time);  

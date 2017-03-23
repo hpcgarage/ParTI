@@ -133,16 +133,16 @@ int main(int argc, char const *argv[]) {
         spt_DumpArray(split_idx_len, queue_size, 0, stdout);
 
         spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
-        sptAssert(spt_CoarseSplitSparseTensorBatch(
-            splits,
-            &nnz_split_next,
-            queue_size,
-            split_idx_len,
-            mode,
-            &tsr,
-            nnz_split_begin
-        ) == 0);
-        nsplits += queue_size;
+        // sptAssert(spt_CoarseSplitSparseTensorBatch(
+        //     splits,
+        //     &nnz_split_next,
+        //     queue_size,
+        //     split_idx_len,
+        //     mode,
+        //     &tsr,
+        //     nnz_split_begin
+        // ) == 0);
+        // nsplits += queue_size;
         // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
     
         // sptAssert(sptCudaCoarseSMMTTKRP(

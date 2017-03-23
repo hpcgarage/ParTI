@@ -377,6 +377,17 @@ int sptCudaDistributedMTTKRP(
     size_t const mats_order[],
     size_t const mode,
     int const gpu_map[]);
+int sptCudaOneMTTKRP(
+    double *queue_time,
+    int const split_grain,
+    sptSparseTensor * const tsr,
+    struct spt_TagSplitResult const *splits,
+    size_t const queue_size,
+    size_t const nblocks,
+    sptMatrix *mats[],
+    size_t const mats_order[],
+    size_t const mode);
+
 
 
 

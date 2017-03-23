@@ -37,9 +37,11 @@
  * products of dense factor matrices, the output is the updated dense matrix for the "mode".
  * In this version, atomic function to lock the global reduction and a large
  * scratch is used to maximize parallelism. (To be optimized)
+ * Do NOT initialize result matrix, mats[nmodes], inside.
  */
-int sptCudaCoarseSMMTTKRP(
+int sptCudaOneMTTKRP(
     double *queue_time,
+    int const split_grain,
     sptSparseTensor * const tsr,
     spt_SplitResult const *splits,
     size_t const queue_size,
@@ -48,7 +50,7 @@ int sptCudaCoarseSMMTTKRP(
     size_t const mats_order[],
     size_t const mode) 
 {
-    #if 0
+#if 0
     if(queue_size == 0) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns SpltMTTKRP", "queue_size == 0");
     }
@@ -69,10 +71,12 @@ int sptCudaCoarseSMMTTKRP(
         }
     }
 
-    /* Initialize result matrix */
-    sptConstantMatrix(mats[nmodes], 0); 
+    /* Initialize part_prod matrix, to store partial results of updated mats[nmodes] */
+    sptMatrix part_prod;
+    result = sptNewMatrix(&part_prod, mats[mode]->nrows, mats[mode]->ncols);
+    spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
-    /* dev_mats_order[i, m] <= mats_order[i, m] */
+    /* dev_mats_order: 1st gpu. Shared by nstreams */
     size_t *dev_mats_order;
     result = sptCudaDuplicateMemory(&dev_mats_order, mats_order, nmodes * sizeof *dev_mats_order, cudaMemcpyHostToDevice);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
@@ -86,8 +90,7 @@ int sptCudaCoarseSMMTTKRP(
     sptScalar ** mats_header = new sptScalar *[nmodes+1];
     size_t * const lengths = new size_t[nmodes+1];
     sptScalar *** dev_mats = new sptScalar **[nstreams];
-    /* Initialize part_prod matrix, to store partial results of updated mats[mode] */
-    sptMatrix * part_prod = (sptMatrix*)malloc(nstreams * sizeof(sptMatrix)); 
+ 
     
     for(size_t i = 0; i < nstreams; ++i) {
         result = cudaMalloc(&dev_Xndims[i], nmodes * sizeof *dev_Xndims);

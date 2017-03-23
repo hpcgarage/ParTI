@@ -64,7 +64,7 @@ typedef struct spt_TagSplitResult {
     sptSparseTensor tensor;
     size_t *inds_low;
     size_t *inds_high;
-    struct spt_TagSplitResult *next;
+    struct spt_TagSplitResult *next;    // Not use now, for one gpu implementation. Now all splits inside one queue has a real subtsr contigously, the length is marked by real_queue_size.
 } spt_SplitResult;
 /* FIXME: index_limit_by_mode is not used yet */
 int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t nnz_limit_by_mode[], const size_t index_limit_by_mode[], int emit_map);
@@ -95,6 +95,7 @@ int spt_ComputeCoarseSplitParameters(
 int spt_CoarseSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
+    size_t * real_nsplits,
     size_t const nsplits,
     size_t * const split_idx_len,
     const size_t mode,
@@ -131,6 +132,7 @@ int spt_ComputeFineSplitParameters(
 int spt_FineSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
+    size_t * real_nsplits,
     const size_t nsplits,
     const size_t split_nnz_len,
     sptSparseTensor * tsr,
@@ -154,6 +156,7 @@ int spt_ComputeMediumSplitParameters(
 int spt_MediumSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
+    size_t * real_nsplits,
     size_t const nsplits,
     size_t * const split_idx_lens,
     sptSparseTensor * tsr,

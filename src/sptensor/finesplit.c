@@ -70,6 +70,7 @@ int spt_ComputeFineSplitParameters(
 int spt_FineSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
+    size_t * real_nsplits,
     const size_t nsplits,
     const size_t split_nnz_len,
     sptSparseTensor * tsr,
@@ -78,18 +79,26 @@ int spt_FineSplitSparseTensorBatch(
     size_t const nnz = tsr->nnz;
     sptAssert(split_nnz_len <= nnz);  
 
-    size_t nnz_ptr_next = 0, nnz_ptr_begin = nnz_split_begin;
-    sptAssert( spt_FineSplitSparseTensorStep(&(splits[0]), &nnz_ptr_next, split_nnz_len, tsr, nnz_ptr_begin) == 0 );
+    size_t nnz_ptr_begin = nnz_split_begin;
+    size_t nnz_ptr_next = nnz_ptr_begin;
+    while(nnz_ptr_next == nnz_ptr_begin) {
+        sptAssert( spt_FineSplitSparseTensorStep(&(splits[0]), &nnz_ptr_next, split_nnz_len, tsr, nnz_ptr_begin) == 0 );
+    }
+    ++ *real_nsplits;
     for(size_t s=1; s<nsplits; ++s) {
         nnz_ptr_begin = nnz_ptr_next;
         if(nnz_ptr_begin < nnz) {
-            sptAssert( spt_FineSplitSparseTensorStep(&(splits[s]), &nnz_ptr_next, split_nnz_len, tsr, nnz_ptr_begin) == 0 );
+            while(nnz_ptr_next == nnz_ptr_begin ) {
+                sptAssert( spt_FineSplitSparseTensorStep(&(splits[s]), &nnz_ptr_next, split_nnz_len, tsr, nnz_ptr_begin) == 0 );
+            }
             splits[s-1].next = &(splits[s]);
+            ++ *real_nsplits;
         } else {
             break;
         }
     }
     *nnz_split_next = nnz_ptr_next;
+    sptAssert(*real_nsplits <= nsplits);
 
     return 0;
 }
@@ -116,15 +125,6 @@ int spt_FineSplitSparseTensorStep(
     sptVector const values = tsr->values;
     sptAssert(nnz_ptr_begin < nnz);
     size_t i;
-
-    sptSparseTensor substr;
-    size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));
-    for(i=0; i<nmodes; ++i) {
-        subndims[i] = tsr->ndims[i];
-    }
-    /* substr.ndims range is larger than its actual range which indicates by inds_low and inds_high. */
-    sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
-    free(subndims); // substr.ndims is hard copy.
 
     size_t * inds_low = (size_t *)malloc(2 * nmodes * sizeof(size_t));
     memset(inds_low, 0, 2 * nmodes * sizeof(size_t));
@@ -155,20 +155,33 @@ int spt_FineSplitSparseTensorStep(
         ++ inds_high[m];
     }
     
-    substr.nnz = subnnz;
-    for(size_t m=0; m<nmodes; ++m) {
-        substr.inds[m].len = substr.nnz;
-        substr.inds[m].cap = substr.nnz;
-        substr.inds[m].data = inds[m].data + nnz_ptr_begin; // pointer copy
-    }
-    substr.values.len = substr.nnz;
-    substr.values.cap = substr.nnz;
-    substr.values.data = values.data + nnz_ptr_begin; // pointer copy
+    if(subnnz > 0) {
+        sptSparseTensor substr;
+        size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));
+        for(i=0; i<nmodes; ++i) {
+            subndims[i] = tsr->ndims[i];
+        }
+        /* substr.ndims range is larger than its actual range which indicates by inds_low and inds_high. */
+        sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
+        free(subndims); // substr.ndims is hard copy.
 
-    split->next = NULL;
-    split->tensor = substr;    // pointer copy
-    split->inds_low = inds_low;
-    split->inds_high = inds_high;
+        substr.nnz = subnnz;
+        for(size_t m=0; m<nmodes; ++m) {
+            substr.inds[m].len = substr.nnz;
+            substr.inds[m].cap = substr.nnz;
+            substr.inds[m].data = inds[m].data + nnz_ptr_begin; // pointer copy
+        }
+        substr.values.len = substr.nnz;
+        substr.values.cap = substr.nnz;
+        substr.values.data = values.data + nnz_ptr_begin; // pointer copy
+
+        split->next = NULL;
+        split->tensor = substr;    // pointer copy
+        split->inds_low = inds_low;
+        split->inds_high = inds_high;
+    } else {
+        free(inds_low);
+    }
 
     return 0;
 }

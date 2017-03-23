@@ -58,6 +58,7 @@ int spt_ComputeMediumSplitParameters(
 int spt_MediumSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
+    size_t * real_nsplits,
     size_t const nsplits,
     size_t * const split_idx_len,
     sptSparseTensor * tsr,
@@ -101,6 +102,7 @@ int spt_MediumSplitSparseTensorBatch(
         }
 
     } // End while (subnnz == 0)
+    ++ *real_nsplits;
     // spt_SparseTensorDumpAllSplits(splits, nsplits, stdout);
 
     int i;
@@ -143,6 +145,7 @@ int spt_MediumSplitSparseTensorBatch(
             }
         }   // End while (subnnz == 0 && nnz_ptr_begin < tsr->nnz)
         splits[s-1].next = &(splits[s]);
+        ++ *real_nsplits;
         // spt_SparseTensorDumpAllSplits(splits+s, nsplits, stdout);
         if(i == -1) {
             printf("From indices range -- No more splits.\n");
@@ -155,6 +158,7 @@ int spt_MediumSplitSparseTensorBatch(
 
     }   // Loop nsplits
     *nnz_split_next = nnz_ptr_next;
+    sptAssert(*real_nsplits <= nsplits);
 
     return 0;
 }
@@ -245,29 +249,33 @@ int spt_MediumSplitSparseTensorStep(    // In-place
         ++ inds_high[m];
     }
 
-    sptSparseTensor substr;
-    size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));
-    /* substr.ndims range may be larger than its actual range which indicates by inds_low and inds_high, except the ndims[mode]. */
-    for(size_t i=0; i<nmodes; ++i) {
-        subndims[i] = split_idx_len[i];
-    }
-    sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
-    free(subndims); // substr.ndims is hard copy.
+    if(*subnnz > 0) {
+        sptSparseTensor substr;
+        size_t * subndims = (size_t *)malloc(nmodes * sizeof(size_t));
+        /* substr.ndims range may be larger than its actual range which indicates by inds_low and inds_high, except the ndims[mode]. */
+        for(size_t i=0; i<nmodes; ++i) {
+            subndims[i] = split_idx_len[i];
+        }
+        sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
+        free(subndims); // substr.ndims is hard copy.
 
-    substr.nnz = *subnnz;
-    for(size_t m=0; m<nmodes; ++m) {
-        substr.inds[m].len = substr.nnz;
-        substr.inds[m].cap = substr.nnz;
-        substr.inds[m].data = inds[m].data + nnz_ptr_begin; // pointer copy
-    }
-    substr.values.len = substr.nnz;
-    substr.values.cap = substr.nnz;
-    substr.values.data = values.data + nnz_ptr_begin; // pointer copy
+        substr.nnz = *subnnz;
+        for(size_t m=0; m<nmodes; ++m) {
+            substr.inds[m].len = substr.nnz;
+            substr.inds[m].cap = substr.nnz;
+            substr.inds[m].data = inds[m].data + nnz_ptr_begin; // pointer copy
+        }
+        substr.values.len = substr.nnz;
+        substr.values.cap = substr.nnz;
+        substr.values.data = values.data + nnz_ptr_begin; // pointer copy
 
-    split->next = NULL;
-    split->tensor = substr;    // pointer copy
-    split->inds_low = inds_low;
-    split->inds_high = inds_high;
+        split->next = NULL;
+        split->tensor = substr;    // pointer copy
+        split->inds_low = inds_low;
+        split->inds_high = inds_high;
+    } else {
+        free(inds_low);
+    }
 
 
     return 0;
