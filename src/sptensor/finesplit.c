@@ -165,6 +165,10 @@ int spt_FineSplitSparseTensorStep(
         sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
         free(subndims); // substr.ndims is hard copy.
 
+        /* put the accurate ndims for substr. */
+        for(size_t m=0; m<nmodes; ++m) {
+            substr.ndims[m] = inds_high[m] - inds_low[m];
+        }
         substr.nnz = subnnz;
         for(size_t m=0; m<nmodes; ++m) {
             substr.inds[m].len = substr.nnz;

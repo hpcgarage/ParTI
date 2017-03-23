@@ -36,15 +36,19 @@ static void print_array(const T array[], size_t length, T start_index) {
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[]) 
+{
+    /* 1: Coarse grain; 2: fine grain; 3: medium grain */
+    int split_grain = 1;
     FILE *fX, *fo;
     sptSparseTensor tsr;
     sptMatrix ** U;
     size_t mode = 0;
     size_t R = 4;
+    size_t max_nstreams = 4;
 
     if(argc < 3) {
-        printf("Usage: %s tsr mode smem_size nstreams nblocks [R Y]\n\n", argv[0]);
+        printf("Usage: %s tsr mode smem_size nstreams nblocks [R Y max_nstreams]\n\n", argv[0]);
         return 1;
     }
 
@@ -123,6 +127,7 @@ int main(int argc, char const *argv[]) {
     size_t nnz_split_next = 0;
     double queue_time = 0, total_time = 0;
 
+    spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
     while (nnz_split_next < tsr.nnz) {
         printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
         nnz_split_begin = nnz_split_next;
@@ -132,33 +137,39 @@ int main(int argc, char const *argv[]) {
         printf("Calculated split_idx_len: \n");
         spt_DumpArray(split_idx_len, queue_size, 0, stdout);
 
-        spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
-        // sptAssert(spt_CoarseSplitSparseTensorBatch(
-        //     splits,
-        //     &nnz_split_next,
-        //     queue_size,
-        //     split_idx_len,
-        //     mode,
-        //     &tsr,
-        //     nnz_split_begin
-        // ) == 0);
-        // nsplits += queue_size;
-        // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
-    
-        // sptAssert(sptCudaCoarseSMMTTKRP(
-        //     &queue_time,
-        //     splits,
-        //     queue_size,
-        //     batch_size,
-        //     U,
-        //     mats_order + 1,
-        //     mode,
-        //     gpu_map
-        // ) == 0);
+        size_t real_queue_size = 0;
+        sptAssert(spt_CoarseSplitSparseTensorBatch(
+            splits,
+            &nnz_split_next,
+            &real_queue_size,
+            queue_size,
+            split_idx_len,
+            mode,
+            &tsr,
+            nnz_split_begin
+        ) == 0);
+        printf("real_queue_size: %zu\n", real_queue_size);
+        nsplits += real_queue_size;
+        spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
+ 
+        sptAssert(sptCudaOneMTTKRP(
+            &queue_time,
+            split_grain,
+            &tsr,
+            splits,
+            real_queue_size,
+            nblocks,
+            U,
+            mats_order,
+            mode, 
+            max_nstreams
+        ) == 0);
         total_time += queue_time;
 
-        free(splits);
+        spt_SparseTensorFreeAllSplits(splits, real_queue_size);
+        
     }   // Split the whole tensor  
+    free(splits);
 
     printf("Total nsplits: %zu\n", nsplits);
     printf("\n[CUDA SpTns Coarse-One MTTKRP]: %lf s\n\n", total_time);  

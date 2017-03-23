@@ -20,7 +20,7 @@
 #include "sptensor.h"
 #include "../cudawrap.h"
 
-__global__ static void spt_MTTKRPKernel(
+__global__ static void spt_MTTKRPKernelScratch(
     const size_t mode,
     const size_t nmodes,
     const size_t nnz,
@@ -166,7 +166,7 @@ int sptCudaDistributedMTTKRP(
     size_t * const lengths = new size_t[nmodes+1];
     /* dev_mats: 1st cpu, 2nd gpu, 3rd gpu. One copy of subtsr's corresponding mats per gpu */
     sptScalar ***dev_mats = new sptScalar **[batch_size];
-    /* the pointer to dev_mats[gpu_count][nmodes] */
+    /* the pointer to dev_mats[gpu_idx][nmodes] */
     sptScalar *dev_part_prod;    
     /* Xinds_header: 1st cpu, 2nd cpu (ghost pointers) */
     size_t **Xinds_header = new size_t *[nmodes];
@@ -174,7 +174,7 @@ int sptCudaDistributedMTTKRP(
     size_t ***dev_Xinds = new size_t **[batch_size];
     /* dev_Xvals: 1st cpu, 2nd gpu. One copy of subtsr's vals per gpu */
     sptScalar **dev_Xvals = new sptScalar *[batch_size];
-    /* dev_Xvals: 1st cpu, 2nd gpu. One copy of scratch per gpu */
+    /* dev_scratch: 1st cpu, 2nd gpu. One copy of scratch per gpu */
     sptScalar **dev_scratch = new sptScalar *[batch_size];
 
     for(size_t i = 0; i < batch_size; ++i) {
@@ -202,7 +202,8 @@ int sptCudaDistributedMTTKRP(
         // printf("gpu_count: %zu\n", gpu_count);
 
         for(size_t gpu_idx = 0; gpu_idx < gpu_count; ++gpu_idx) {
-            size_t queue_idx = batch_idx * batch_count + gpu_idx;            
+            size_t queue_idx = batch_idx * batch_count + gpu_idx;     
+            sptAssert(queue_idx < queue_size);       
             sptAssert(&(splits[queue_idx].tensor) != NULL);
             // printf("queue_idx: %zu, batch_idx: %zu, gpu_idx: %zu\n", queue_idx, batch_idx, gpu_count); fflush(stdout);
             // spt_SparseTensorDumpAllSplits(&splits[queue_idx], 1, stdout);
@@ -266,7 +267,7 @@ int sptCudaDistributedMTTKRP(
 
             cudaSetDevice(gpu_map[gpu_idx]);
 
-            spt_MTTKRPKernel<<<nblocks, nthreads>>>(
+            spt_MTTKRPKernelScratch<<<nblocks, nthreads>>>(
                 mode,
                 nmodes,
                 dev_nnz[gpu_idx],

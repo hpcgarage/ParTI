@@ -238,8 +238,10 @@ int spt_CoarseSplitSparseTensorStep(
         sptAssert( sptNewSparseTensor(&substr, nmodes, subndims) == 0 );
         free(subndims); // substr.ndims is hard copy.
 
-        substr.ndims[mode] = inds_num;  // correct the ndims for "mode", for the last substr.
-        // substr.ndims[mode] = inds_high[mode] - inds_low[mode];
+        /* put the accurate ndims for substr. */
+        for(size_t m=0; m<nmodes; ++m) {
+            substr.ndims[m] = inds_high[m] - inds_low[m];
+        }
         substr.nnz = *nnz_ptr_next - nnz_ptr_begin;
         for(size_t m=0; m<nmodes; ++m) {
             substr.inds[m].len = substr.nnz;

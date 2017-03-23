@@ -386,7 +386,8 @@ int sptCudaOneMTTKRP(
     size_t const nblocks,
     sptMatrix *mats[],
     size_t const mats_order[],
-    size_t const mode);
+    size_t const mode,
+    size_t const max_nstreams);
 
 
 
