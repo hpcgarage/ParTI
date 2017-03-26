@@ -49,7 +49,9 @@ int main(int argc, char const *argv[]) {
     }
 
     fprintf(stderr, "sptRandomizeMatrix(&U, %zu, %zu)\n", X.ndims[mode], R);
-    sptAssert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
+    // sptAssert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
+    sptAssert(sptNewMatrix(&U, X.ndims[mode], R) == 0);
+    sptAssert(sptConstantMatrix(&U, 1) == 0);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
@@ -82,7 +84,7 @@ int main(int argc, char const *argv[]) {
     if(argc >= 6) {
         fY = fopen(argv[5], "w");
         sptAssert(fY != NULL);
-        sptAssert(sptDumpSparseTensor(&spY, 1, fY) == 0);
+        sptAssert(sptDumpSparseTensor(&spY, 0, fY) == 0);
         fclose(fY);
     }
 

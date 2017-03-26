@@ -34,9 +34,10 @@ int main(int argc, char const *argv[]) {
     int niters = 5;
     int nthreads;
     int ncudas = 1;
+    int impl_num = 0;
 
     if(argc < 3) {
-        printf("Usage: %s X mode [cuda_dev_id, R, Y]\n\n", argv[0]);
+        printf("Usage: %s X mode impl_num [cuda_dev_id, R, Y]\n\n", argv[0]);
         return 1;
     }
 
@@ -48,11 +49,12 @@ int main(int argc, char const *argv[]) {
     fclose(fX);
 
     sscanf(argv[2], "%zu", &mode);
-    if(argc >= 4) {
-        sscanf(argv[3], "%d", &cuda_dev_id);
-    }
+    sscanf(argv[3], "%zu", &impl_num);
     if(argc >= 5) {
-        sscanf(argv[4], "%zu", &R);
+        sscanf(argv[4], "%d", &cuda_dev_id);
+    }
+    if(argc >= 6) {
+        sscanf(argv[5], "%zu", &R);
     }
 
     size_t nmodes = X.nmodes;
@@ -109,14 +111,13 @@ int main(int argc, char const *argv[]) {
        switch(ncudas) {
        case 1:
          sptCudaSetDevice(cuda_dev_id);
-         // sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
-         sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode, impl_num) == 0);
          break;
        case 2:
          sptCudaSetDevice(cuda_dev_id);
          sptCudaSetDevice(cuda_dev_id+1);
-         sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-         sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
+         sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode, impl_num) == 0);
+         sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode, impl_num) == 0);
          break;
        }
     }
@@ -164,8 +165,8 @@ int main(int argc, char const *argv[]) {
     sptFreeSparseTensor(&X);
     sptFreeSizeVector(&mats_order);
 
-    if(argc >= 6) {
-        fo = fopen(argv[5], "w");
+    if(argc >= 7) {
+        fo = fopen(argv[6], "w");
         sptAssert(fo != NULL);
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);

@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+
 /**
  * Define sptScalar as 32-bit float
  *
@@ -317,11 +318,13 @@ int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
-    size_t const mode);
+    size_t const mode,
+    size_t const impl_num);
 int sptCudaMTTKRPSM(sptSparseTensor const * const X,
   sptMatrix ** const mats,     // mats[nmodes] as temporary space.
   sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
-  size_t const mode);
+  size_t const mode,
+  size_t const impl_num);
 int sptCudaMTTKRPDevice(
     const size_t mode,
     const size_t nmodes,
