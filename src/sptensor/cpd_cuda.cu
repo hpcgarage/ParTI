@@ -20,9 +20,12 @@
 #include <assert.h>
 #include <math.h>
 #include <cublas_v2.h>
+#include "sptensor.h"
+#if 0
 #include "magma.h"
 #include "magma_lapack.h"
-#include "sptensor.h"
+#endif
+
 
 
 double CudaCpdAlsStep(
@@ -257,6 +260,7 @@ int sptCudaCpdAls(
   result = cudaMemcpy(dev_ata, tmp_ata, (nmodes+1) * sizeof (sptScalar*), cudaMemcpyHostToDevice);
   spt_CheckCudaError(result != 0, "CUDA SpTns CPD-ALS");
 
+#if 0
   magma_init();
   // sptTimer timer;
   // sptNewTimer(&timer, 0);
@@ -272,6 +276,7 @@ int sptCudaCpdAls(
   // sptPrintElapsedTime(timer, "CUDA  SpTns CPD-ALS");
   // sptFreeTimer(timer);
   magma_finalize();
+#endif
 
   for(size_t i=0; i<nmodes; ++i) {
     result = cudaMemcpy(mats[i]->values, tmp_mats[i], mats[i]->nrows * mats[i]->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
