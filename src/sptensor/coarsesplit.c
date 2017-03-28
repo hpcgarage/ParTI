@@ -21,6 +21,49 @@
 #include "sptensor.h"
 
 
+int spt_ComputeCoarseSplitParametersOne(
+    size_t * split_idx_len, // size: nsplits
+    size_t const nsplits,
+    sptSparseTensor * const tsr,
+    size_t * const slice_nnzs,
+    size_t const idx_begin,
+    size_t const mode,
+    size_t const R,
+    size_t const memwords,
+    size_t const max_nthreads_per_block) 
+{
+    size_t const nmodes = tsr->nmodes;
+    size_t * const ndims = tsr->ndims;
+
+    memset(split_idx_len, 0, nsplits * sizeof(size_t));
+    size_t mode_factor_words = 0;
+    size_t sum_nnz = 0;
+    size_t split_num = 0;
+    size_t pre_idx = idx_begin;
+    for(size_t i=idx_begin; i<ndims[mode]; ++i) {
+        sum_nnz += slice_nnzs[i];
+        mode_factor_words += R;
+        // printf("i: %zu, pre_idx: %zu, mode_factor_words: %zu, sum_nnz: %zu\n", i, pre_idx, mode_factor_words, sum_nnz);
+        if(mode_factor_words > memwords || sum_nnz >= max_nthreads_per_block) {
+            split_idx_len[split_num] = i - pre_idx;
+            pre_idx = i;
+            ++ split_num;
+            sum_nnz = slice_nnzs[i];
+            mode_factor_words = R;
+            if(split_num >= nsplits) {
+                break;
+            }
+        }
+        if(i == ndims[mode] - 1) {
+            split_idx_len[split_num] = ndims[mode] - pre_idx;
+            split_num = 1;
+        }
+    }
+
+    return 0;
+}
+
+
 int spt_ComputeCoarseSplitParameters(
     size_t * split_idx_len, // size: nsplits
     size_t const nsplits,
@@ -50,12 +93,14 @@ int spt_ComputeCoarseSplitParameters(
     memset(split_idx_len, 0, nsplits * sizeof(size_t));
     size_t tensor_modefactor_words = 0;
     size_t split_num = 0;
+    size_t pre_idx = idx_begin;
     for(size_t i=idx_begin; i<ndims[mode]; ++i) {
         size_t snnz = slice_nnzs[i];
         tensor_modefactor_words += (R + (nmodes + 1) * snnz);
         // printf("tensor_modefactor_words: %zu\n", tensor_modefactor_words);
         if(tensor_modefactor_words + other_factor_words > memwords) {
-            split_idx_len[split_num] = i - idx_begin;
+            split_idx_len[split_num] = i - pre_idx;
+            pre_idx = i;
             ++ split_num;
             tensor_modefactor_words = 0;
             if(split_num >= nsplits) {
@@ -63,7 +108,7 @@ int spt_ComputeCoarseSplitParameters(
             }
         }
         if(i == ndims[mode] - 1) {
-            split_idx_len[split_num] = ndims[mode] - idx_begin;
+            split_idx_len[split_num] = ndims[mode] - pre_idx;
             split_num = 1;
         }
     }
@@ -282,7 +327,7 @@ int spt_CoarseSplitSparseTensorAll(
     sptSparseTensor * tsr) 
 {
     size_t const * ndims = tsr->ndims;
-    size_t const * nnz = tsr->nnz;
+    size_t const nnz = tsr->nnz;
     size_t const nmodes = tsr->nmodes;
 
     sptAssert(mode < tsr->nmodes);

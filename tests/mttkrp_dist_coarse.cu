@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
     size_t mode = 0;
     size_t R = 4;
 
-    if(argc < 3) {
+    if(argc < 7) {
         printf("Usage: %s tsr mode mem_size nbatchs batch_size cuda_dev_ids... [R Y]\n\n", argv[0]);
         return 1;
     }

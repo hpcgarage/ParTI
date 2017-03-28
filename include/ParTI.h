@@ -317,14 +317,15 @@ int sptOmpMTTKRP(
 int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    size_t * const mats_order,    // Correspond to the mode order of X.
     size_t const mode,
     size_t const impl_num);
-int sptCudaMTTKRPSM(sptSparseTensor const * const X,
-  sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
-  size_t const mode,
-  size_t const impl_num);
+int sptCudaMTTKRPSM(
+    sptSparseTensor const * const X,
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    size_t * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode,
+    size_t const impl_num);
 int sptCudaMTTKRPDevice(
     const size_t mode,
     const size_t nmodes,
@@ -390,7 +391,8 @@ int sptCudaOneMTTKRP(
     sptMatrix *mats[],
     size_t const mats_order[],
     size_t const mode,
-    size_t const max_nstreams);
+    size_t const max_nstreams,
+    size_t const cuda_dev_id);
 
 
 

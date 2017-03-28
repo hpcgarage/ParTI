@@ -22,7 +22,6 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-#define COARSEGRAIN
 
 template <typename T>
 static void print_array(const T array[], size_t length, T start_index) {
@@ -46,9 +45,10 @@ int main(int argc, char const *argv[])
     size_t mode = 0;
     size_t R = 4;
     size_t max_nstreams = 4;
+    size_t const max_nthreads_per_block = 1024;
 
-    if(argc < 3) {
-        printf("Usage: %s tsr mode smem_size nstreams nblocks [R Y max_nstreams]\n\n", argv[0]);
+    if(argc < 7) {
+        printf("Usage: %s tsr mode smem_size nstreams nblocks cuda_dev_id [R max_nstreams Y]\n\n", argv[0]);
         return 1;
     }
 
@@ -80,11 +80,20 @@ int main(int argc, char const *argv[])
     sscanf(argv[5], "%zu", &nblocks);
     printf("nblocks = %zu\n", nblocks);
 
+    size_t cuda_dev_id;
+    sscanf(argv[6], "%zu", &cuda_dev_id);
+    printf("cuda_dev_id = %zu\n", cuda_dev_id);
 
-    if((unsigned) argc > 6) {
-        sscanf(argv[6], "%zu", &R);
+    if((unsigned) argc > 7) {
+        sscanf(argv[7], "%zu", &R);
     }
     printf("R = %zu\n", R);
+
+    if((unsigned) argc > 8) {
+        sscanf(argv[8], "%zu", &max_nstreams);
+    }
+    printf("max_nstreams = %zu\n", max_nstreams);
+
     printf("Tensor NNZ: %zu\n", tsr.nnz);
 
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -116,7 +125,7 @@ int main(int argc, char const *argv[])
     size_t * slice_nnzs = (size_t *)malloc(ndims[mode] * sizeof(size_t));
     sptAssert( spt_ComputeSliceSizes(slice_nnzs, &tsr, mode) == 0 );
     printf("slice_nnzs: \n");
-    spt_DumpArray(slice_nnzs, ndims[mode], 0, stdout);
+    // spt_DumpArray(slice_nnzs, ndims[mode], 0, stdout);
 
     size_t queue_size = nstreams * nblocks;
     printf("queue_size: %zu (%zu * %zu)\n", queue_size, nstreams, nblocks);
@@ -132,7 +141,8 @@ int main(int argc, char const *argv[])
         printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
         nnz_split_begin = nnz_split_next;
         size_t idx_begin = tsr.inds[mode].data[nnz_split_begin];
-        sptAssert(spt_ComputeCoarseSplitParameters(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, R, smemwords) == 0);
+        printf("idx_begin: %lu\n", idx_begin);
+        sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, R, smemwords, max_nthreads_per_block) == 0);
         // printf("idx_begin: %zu\n", idx_begin);
         printf("Calculated split_idx_len: \n");
         spt_DumpArray(split_idx_len, queue_size, 0, stdout);
@@ -150,7 +160,7 @@ int main(int argc, char const *argv[])
         ) == 0);
         printf("real_queue_size: %zu\n", real_queue_size);
         nsplits += real_queue_size;
-        spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
+        // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
  
         sptAssert(sptCudaOneMTTKRP(
             &queue_time,
@@ -162,7 +172,8 @@ int main(int argc, char const *argv[])
             U,
             mats_order,
             mode, 
-            max_nstreams
+            max_nstreams,
+            cuda_dev_id
         ) == 0);
         total_time += queue_time;
 
@@ -170,6 +181,8 @@ int main(int argc, char const *argv[])
         
     }   // Split the whole tensor  
     free(splits);
+
+    // sptDumpMatrix(U[nmodes], stdout);
 
     printf("Total nsplits: %zu\n", nsplits);
     printf("\n[CUDA SpTns Coarse-One MTTKRP]: %lf s\n\n", total_time);  
@@ -180,11 +193,11 @@ int main(int argc, char const *argv[])
         sptFreeMatrix(U[m]);
     }
     sptFreeSparseTensor(&tsr);
-    free(mats_order);
+    // free(mats_order);
 
-    if((unsigned) argc > 7) {
-        printf("Output = %s\n", argv[7]);
-        fo = fopen(argv[7], "w");
+    if((unsigned) argc > 9) {
+        printf("Output = %s\n", argv[9]);
+        fo = fopen(argv[9], "w");
         sptAssert(fo != NULL);
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);

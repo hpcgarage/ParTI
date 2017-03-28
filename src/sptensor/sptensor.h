@@ -91,6 +91,17 @@ int spt_ComputeCoarseSplitParameters(
     size_t const mode,
     size_t const R,
     size_t const memwords);
+
+int spt_ComputeCoarseSplitParametersOne(
+    size_t * split_idx_len, // size: nsplits
+    size_t const nsplits,
+    sptSparseTensor * const tsr,
+    size_t * const slice_nnzs,
+    size_t const idx_begin,
+    size_t const mode,
+    size_t const R,
+    size_t const memwords,
+    size_t const max_nthreads_per_block);
     
 int spt_CoarseSplitSparseTensorBatch(
     spt_SplitResult * splits,

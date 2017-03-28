@@ -19,82 +19,7 @@
 #include <ParTI.h>
 #include "sptensor.h"
 #include "../cudawrap.h"
-
-__global__ static void spt_MTTKRPKernelScratch(
-    const size_t mode,
-    const size_t nmodes,
-    const size_t nnz,
-    const size_t R,
-    const size_t stride,
-    const size_t * Xndims,
-    const size_t * inds_low,
-    size_t ** const Xinds,
-    const sptScalar * Xvals,
-    const size_t * dev_mats_order,
-    sptScalar ** dev_mats,
-    sptScalar * dev_scratch
-) {
-    const size_t tidx = threadIdx.x;
-    const size_t x = blockIdx.x * blockDim.x + tidx;
-
-    size_t const nmats = nmodes - 1;
-    size_t const * const mode_ind = Xinds[mode];
-    sptScalar * const mvals = dev_mats[nmodes];
-
-    if(x == 0) {
-        printf("mvals:\n");
-        for(size_t i=0; i<Xndims[mode]; ++i) {
-            printf("%lf\n", mvals[i * stride]);
-        }
-        printf("mvals end\n");
-    }
-
-    if(x < nnz) {
-        size_t times_mat_index = dev_mats_order[1];
-        sptScalar * times_mat = dev_mats[times_mat_index];
-        size_t * times_inds = Xinds[times_mat_index];
-        size_t tmp_i = times_inds[x] - inds_low[times_mat_index];
-        sptScalar const entry = Xvals[x];
-        for(size_t r=0; r<R; ++r) {
-            dev_scratch[x * stride + r] = entry * times_mat[tmp_i * stride + r];
-        }
-
-        for(size_t i=1; i<nmats; ++i) {
-            times_mat_index = dev_mats_order[i+1];
-            times_mat = dev_mats[times_mat_index];
-            times_inds = Xinds[times_mat_index];
-            tmp_i = times_inds[x] - inds_low[times_mat_index];
-            for(size_t r=0; r<R; ++r) {
-                dev_scratch[x * stride + r] *= times_mat[tmp_i * stride + r];
-            }
-        }
-
-    }
-
-    __syncthreads();
-
-    if(x < nnz) {
-        size_t const mode_i = mode_ind[x] - inds_low[mode];
-        // printf("x: %lu, mode_ind[x]: %lu, mode_i: %lu\n", x, mode_ind[x], mode_i);
-        for(size_t r=0; r<R; ++r) {
-            atomicAdd(&(mvals[mode_i * stride + r]), dev_scratch[x * stride + r]);
-        }
-    }
-    __syncthreads();
-
-    // if(x == 0) {
-    //     printf("inds_low[mode]: %lu, Xndims[mode]: %lu\n", inds_low[mode], Xndims[mode]);
-    //     printf("nnz: %lu\n", nnz);;
-    //     printf("mvals:\n");
-    //     for(size_t i=0; i<Xndims[mode]; ++i) {
-    //         printf("%lf\n", mvals[i * stride]);
-    //     }
-    //     printf("mvals end\n");
-    // }
-    
-}
-
-
+#include "mttkrp_cuda_kernels.h"
 
 
 /**
@@ -267,7 +192,7 @@ int sptCudaDistributedMTTKRP(
 
             cudaSetDevice(gpu_map[gpu_idx]);
 
-            spt_MTTKRPKernelScratch<<<nblocks, nthreads>>>(
+            spt_MTTKRPKernelScratchDist<<<nblocks, nthreads>>>(
                 mode,
                 nmodes,
                 dev_nnz[gpu_idx],
