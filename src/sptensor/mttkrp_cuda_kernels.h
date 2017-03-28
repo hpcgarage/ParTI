@@ -53,23 +53,6 @@ __global__ void spt_MTTKRPKernelNnzRank3D(
     size_t block_offset);
 
 
-
-/* impl_num = 4 */
-__global__ void spt_MTTKRPKernelNnzRankExchangexy3D(
-    const size_t mode,
-    const size_t nmodes,
-    const size_t nnz,
-    const size_t R,
-    const size_t stride,
-    const size_t * Xndims,
-    size_t ** const Xinds,
-    const sptScalar * Xvals,
-    const size_t * dev_mats_order,
-    sptScalar ** dev_mats,
-    size_t block_offset);
-
-
-
 /* impl_num = 3 */
 __global__ void spt_MTTKRPKernelNnzRankSplit3D(
     const size_t mode,
@@ -83,6 +66,38 @@ __global__ void spt_MTTKRPKernelNnzRankSplit3D(
     const size_t * dev_mats_order,
     sptScalar ** dev_mats,
     size_t block_offset);
+
+
+/* impl_num = 4 */
+__global__ void spt_MTTKRPKernelRankNnz3D(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t R,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    size_t block_offset);
+
+
+/* impl_num = 5 */
+__global__ void spt_MTTKRPKernelRankSplitNnz3D(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t R,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    size_t block_offset);
+
+
 
 /* impl_num = 9 */
 __global__ void spt_MTTKRPKernelScratch(

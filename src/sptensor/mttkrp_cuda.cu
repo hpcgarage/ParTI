@@ -118,13 +118,13 @@ int sptCudaMTTKRP(
     spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
     /* dev_scratch */
-    result = cudaMalloc((void **) &dev_scratch, nnz * R * sizeof (sptScalar));
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-    result = cudaMemset(dev_scratch, 0, nnz * R * sizeof (sptScalar));
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    // result = cudaMalloc((void **) &dev_scratch, nnz * R * sizeof (sptScalar));
+    // spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    // result = cudaMemset(dev_scratch, 0, nnz * R * sizeof (sptScalar));
+    // spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
 
-    size_t max_nthreads_per_block = 1024;
+    size_t max_nthreads_per_block = 512;
     size_t max_nblocks = 32768;
     size_t max_nthreadsy = 16;
 
@@ -149,8 +149,16 @@ int sptCudaMTTKRP(
         nthreadsx = max_nthreads_per_block / nthreadsy;
         all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
         break;
-    case 4: // 2D
+    case 4: // 2D, exchange x and y
         nthreadsx = R;
+        nthreadsy = max_nthreads_per_block / nthreadsx;
+        all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
+        break;
+    case 5: // 2D, exchange x and y, rank split. Best performance
+        if(R <= max_nthreadsy)
+            nthreadsx = R;
+        else
+            nthreadsx = max_nthreadsy;
         nthreadsy = max_nthreads_per_block / nthreadsx;
         all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
         break;
@@ -224,8 +232,23 @@ int sptCudaMTTKRP(
                 block_offset);
             break;
         case 4:
-            printf("Execute spt_MTTKRPKernelNnzRankExchangexy3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
-            spt_MTTKRPKernelNnzRankExchangexy3D<<<nblocks, dimBlock>>>(
+            printf("Execute spt_MTTKRPKernelRankNnz3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
+            spt_MTTKRPKernelRankNnz3D<<<nblocks, dimBlock>>>(
+                mode,
+                nmodes,
+                nnz,
+                R,
+                stride,
+                dev_Xndims,
+                dev_Xinds,
+                dev_Xvals,
+                dev_mats_order,
+                dev_mats,
+                block_offset);
+            break;
+        case 5:
+            printf("Execute spt_MTTKRPKernelRankSplitNnz3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
+            spt_MTTKRPKernelRankSplitNnz3D<<<nblocks, dimBlock>>>(
                 mode,
                 nmodes,
                 nnz,
@@ -239,74 +262,77 @@ int sptCudaMTTKRP(
                 block_offset);
             break;
         default:
-            printf("Execute spt_MTTKRPKernelScratch (%zu, %zu)\n", nblocks, nthreadsx);
-            spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
-                mode,
-                nmodes,
-                nnz,
-                R,
-                stride,
-                dev_Xndims,
-                dev_Xinds,
-                dev_Xvals,
-                dev_mats_order,
-                dev_mats,
-                dev_scratch,
-                block_offset);
+            printf("Not support: Execute spt_MTTKRPKernelScratch (%zu, %zu)\n", nblocks, nthreadsx);
+            // spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
+            //     mode,
+            //     nmodes,
+            //     nnz,
+            //     R,
+            //     stride,
+            //     dev_Xndims,
+            //     dev_Xinds,
+            //     dev_Xvals,
+            //     dev_mats_order,
+            //     dev_mats,
+            //     dev_scratch,
+            //     block_offset);
         }   // End switch impl_num
         break;
 
     case 4: 
         switch(impl_num) {
         default:
-            spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
-                mode,
-                nmodes,
-                nnz,
-                R,
-                stride,
-                dev_Xndims,
-                dev_Xinds,
-                dev_Xvals,
-                dev_mats_order,
-                dev_mats,
-                dev_scratch,
-                block_offset);
+            printf("Not support: Execute spt_MTTKRPKernelScratch (%zu, %zu)\n", nblocks, nthreadsx);
+            // spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
+            //     mode,
+            //     nmodes,
+            //     nnz,
+            //     R,
+            //     stride,
+            //     dev_Xndims,
+            //     dev_Xinds,
+            //     dev_Xvals,
+            //     dev_mats_order,
+            //     dev_mats,
+            //     dev_scratch,
+            //     block_offset);
         }   // End switch impl_num
         break;
     case 5:
         switch(impl_num) {
         default:
-            spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
-                mode,
-                nmodes,
-                nnz,
-                R,
-                stride,
-                dev_Xndims,
-                dev_Xinds,
-                dev_Xvals,
-                dev_mats_order,
-                dev_mats,
-                dev_scratch,
-                block_offset);
+            printf("Not support: Execute spt_MTTKRPKernelScratch (%zu, %zu)\n", nblocks, nthreadsx);
+            // spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
+            //     mode,
+            //     nmodes,
+            //     nnz,
+            //     R,
+            //     stride,
+            //     dev_Xndims,
+            //     dev_Xinds,
+            //     dev_Xvals,
+            //     dev_mats_order,
+            //     dev_mats,
+            //     dev_scratch,
+            //     block_offset);
         }   // End switch impl_num
         break;
 
     default:
-        spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
-            mode,
-            nmodes,
-            nnz,
-            R,
-            stride,
-            dev_Xndims,
-            dev_Xinds,
-            dev_Xvals,
-            dev_mats_order,
-            dev_mats,
-            dev_scratch,
-            block_offset);
+        printf("Not support: Execute spt_MTTKRPKernelScratch (%zu, %zu)\n", nblocks, nthreadsx);
+        // spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
+        //     mode,
+        //     nmodes,
+        //     nnz,
+        //     R,
+        //     stride,
+        //     dev_Xndims,
+        //     dev_Xinds,
+        //     dev_Xvals,
+        //     dev_mats_order,
+        //     dev_mats,
+        //     dev_scratch,
+        //     block_offset);
     }   // End switch nmodes
     result = cudaThreadSynchronize();
     spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
@@ -337,8 +363,8 @@ int sptCudaMTTKRP(
     spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
     result = cudaFree(dev_mats);
     spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-    result = cudaFree(dev_scratch);
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
+    // result = cudaFree(dev_scratch);
+    // spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
     delete[] Xinds_header;
     delete[] mats_header;
     delete[] lengths;

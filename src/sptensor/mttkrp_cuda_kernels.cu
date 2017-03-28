@@ -124,51 +124,6 @@ __global__ void spt_MTTKRPKernelNnzRank3D(
 }
 
 
-
-/* impl_num = 04 */
-__global__ void spt_MTTKRPKernelNnzRankExchangexy3D(
-    const size_t mode,
-    const size_t nmodes,
-    const size_t nnz,
-    const size_t R,
-    const size_t stride,
-    const size_t * Xndims,
-    size_t ** const Xinds,
-    const sptScalar * Xvals,
-    const size_t * dev_mats_order,
-    sptScalar ** dev_mats,
-    size_t block_offset
-) {
-    const size_t tidx = threadIdx.x;  // index rank
-    const size_t tidy = threadIdx.y;  // index nnz
-    const size_t x = (blockIdx.x + block_offset) * blockDim.y + tidy;
-
-    size_t const * const mode_ind = Xinds[mode];
-    /* The 64-bit floating-point version of atomicAdd() is only supported by devices of compute capability 6.x and higher. */
-    sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
-
-    if(x < nnz && tidx < R) {
-      size_t const mode_i = mode_ind[x];
-      size_t times_mat_index = dev_mats_order[1];
-      sptScalar * times_mat = dev_mats[times_mat_index];
-      size_t * times_inds = Xinds[times_mat_index];
-      size_t tmp_i = times_inds[x];
-      sptScalar const entry = Xvals[x];
-      size_t times_mat_index_2 = dev_mats_order[2];
-      sptScalar * times_mat_2 = dev_mats[times_mat_index_2];
-      size_t * times_inds_2 = Xinds[times_mat_index_2];
-      size_t tmp_i_2 = times_inds_2[x];
-      sptScalar tmp_val = 0;
-
-      tmp_val = entry * times_mat[tmp_i * stride + tidx] * times_mat_2[tmp_i_2 * stride + tidx];
-      atomicAdd(&(mvals[mode_i * stride + tidx]), tmp_val);      
-    }
-   __syncthreads();
-
-}
-
-
-
 /* impl_num = 03 */
 __global__ void spt_MTTKRPKernelNnzRankSplit3D(
     const size_t mode,
@@ -210,6 +165,106 @@ __global__ void spt_MTTKRPKernelNnzRankSplit3D(
         atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
       }
 
+    }
+   __syncthreads();
+
+}
+
+
+/* impl_num = 04 */
+__global__ void spt_MTTKRPKernelRankNnz3D(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t R,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    size_t block_offset
+) {
+    const size_t tidx = threadIdx.x;  // index rank
+    const size_t tidy = threadIdx.y;  // index nnz
+    const size_t x = (blockIdx.x + block_offset) * blockDim.y + tidy;
+
+    size_t const * const mode_ind = Xinds[mode];
+    /* The 64-bit floating-point version of atomicAdd() is only supported by devices of compute capability 6.x and higher. */
+    sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
+
+    if(x < nnz && tidx < R) {
+      size_t const mode_i = mode_ind[x];
+      size_t times_mat_index = dev_mats_order[1];
+      sptScalar * times_mat = dev_mats[times_mat_index];
+      size_t * times_inds = Xinds[times_mat_index];
+      size_t tmp_i = times_inds[x];
+      sptScalar const entry = Xvals[x];
+      size_t times_mat_index_2 = dev_mats_order[2];
+      sptScalar * times_mat_2 = dev_mats[times_mat_index_2];
+      size_t * times_inds_2 = Xinds[times_mat_index_2];
+      size_t tmp_i_2 = times_inds_2[x];
+      sptScalar tmp_val = 0;
+
+      tmp_val = entry * times_mat[tmp_i * stride + tidx] * times_mat_2[tmp_i_2 * stride + tidx];
+      atomicAdd(&(mvals[mode_i * stride + tidx]), tmp_val);      
+    }
+   __syncthreads();
+
+}
+
+
+/* impl_num = 05 */
+__global__ void spt_MTTKRPKernelRankSplitNnz3D(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t R,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats,
+    size_t block_offset
+) {
+    const size_t tidx = threadIdx.x;  // index rank
+    const size_t tidy = threadIdx.y;  // index nnz
+    const size_t x = (blockIdx.x + block_offset) * blockDim.y + tidy;
+    const size_t num_loops = R / blockDim.x;
+    const size_t rest_loop = R - num_loops * blockDim.x;
+
+
+    size_t const * const mode_ind = Xinds[mode];
+    /* The 64-bit floating-point version of atomicAdd() is only supported by devices of compute capability 6.x and higher. */
+    sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
+
+    if(x < nnz) {
+      size_t const mode_i = mode_ind[x];
+      size_t times_mat_index = dev_mats_order[1];
+      sptScalar * times_mat = dev_mats[times_mat_index];
+      size_t * times_inds = Xinds[times_mat_index];
+      size_t tmp_i = times_inds[x];
+      sptScalar const entry = Xvals[x];
+      size_t times_mat_index_2 = dev_mats_order[2];
+      sptScalar * times_mat_2 = dev_mats[times_mat_index_2];
+      size_t * times_inds_2 = Xinds[times_mat_index_2];
+      size_t tmp_i_2 = times_inds_2[x];
+      sptScalar tmp_val = 0;
+      size_t r;
+
+      for(size_t l=0; l<num_loops; ++l) {
+        r = tidx + l * blockDim.x;
+        tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
+        atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+      }
+       
+      if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops * blockDim.x;
+        tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
+        atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+      }
+        
     }
    __syncthreads();
 
@@ -346,13 +401,13 @@ __global__ void spt_MTTKRPKernelScratchDist(
     size_t const * const mode_ind = Xinds[mode];
     sptScalar * const mvals = dev_mats[nmodes];
 
-    if(x == 0) {
-        printf("mvals:\n");
-        for(size_t i=0; i<Xndims[mode]; ++i) {
-            printf("%lf\n", mvals[i * stride]);
-        }
-        printf("mvals end\n");
-    }
+    // if(x == 0) {
+    //     printf("mvals:\n");
+    //     for(size_t i=0; i<Xndims[mode]; ++i) {
+    //         printf("%lf\n", mvals[i * stride]);
+    //     }
+    //     printf("mvals end\n");
+    // }
 
     if(x < nnz) {
         size_t times_mat_index = dev_mats_order[1];

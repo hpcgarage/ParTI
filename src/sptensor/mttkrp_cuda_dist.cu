@@ -130,7 +130,7 @@ int sptCudaDistributedMTTKRP(
             size_t queue_idx = batch_idx * batch_count + gpu_idx;     
             sptAssert(queue_idx < queue_size);       
             sptAssert(&(splits[queue_idx].tensor) != NULL);
-            // printf("queue_idx: %zu, batch_idx: %zu, gpu_idx: %zu\n", queue_idx, batch_idx, gpu_count); fflush(stdout);
+            printf("queue_idx: %zu, batch_idx: %zu, gpu_idx: %zu\n", queue_idx, batch_idx, gpu_count); fflush(stdout);
             // spt_SparseTensorDumpAllSplits(&splits[queue_idx], 1, stdout);
             cudaSetDevice(gpu_map[gpu_idx]);
 
@@ -140,10 +140,10 @@ int sptCudaDistributedMTTKRP(
             for(size_t i=0; i<nmodes; ++i)
                 accurate_Xndims[i] = inds_high_ptr[i] - inds_low_ptr[i];
 
-            fprintf(stdout, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", gpu_idx, gpu_map[gpu_idx]);
-            fprintf(stdout, "Input tensor:\n");
-            sptDumpSparseTensor(subtsr_ptr, 0, stdout);
-            fprintf(stdout, "\n");
+            // fprintf(stdout, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", gpu_idx, gpu_map[gpu_idx]);
+            // fprintf(stdout, "Input tensor:\n");
+            // sptDumpSparseTensor(subtsr_ptr, 0, stdout);
+            // fprintf(stdout, "\n");
 
             /* dev_Xndims */
             result = cudaMemcpy(dev_Xndims[gpu_idx], accurate_Xndims, nmodes * sizeof *dev_Xndims, cudaMemcpyHostToDevice);
@@ -228,8 +228,8 @@ int sptCudaDistributedMTTKRP(
             for(size_t i=0; i<nmodes; ++i)
                 accurate_Xndims[i] = inds_high_ptr[i] - inds_low_ptr[i];
 
-            spt_DumpArray(inds_low_ptr, nmodes, 0, stdout);
-            spt_DumpArray(accurate_Xndims, nmodes, 0, stdout);
+            // spt_DumpArray(inds_low_ptr, nmodes, 0, stdout);
+            // spt_DumpArray(accurate_Xndims, nmodes, 0, stdout);
 
             /* Copy back the pointer to dev_mats[gpu_idx][nmodes] to the result */
             result = cudaMemcpy(&dev_part_prod, dev_mats[gpu_idx] + nmodes, sizeof dev_part_prod, cudaMemcpyDeviceToHost);
@@ -238,10 +238,10 @@ int sptCudaDistributedMTTKRP(
             result = cudaMemcpy(part_prod.values + inds_low_ptr[mode] * stride, dev_part_prod, accurate_Xndims[mode] * stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-            fprintf(stdout, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", gpu_idx, gpu_map[gpu_idx]);
-            fprintf(stdout, "part_prod:\n");
-            sptDumpMatrix(&part_prod, stdout);
-            fprintf(stdout, "\n");
+            // fprintf(stdout, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", gpu_idx, gpu_map[gpu_idx]);
+            // fprintf(stdout, "part_prod:\n");
+            // sptDumpMatrix(&part_prod, stdout);
+            // fprintf(stdout, "\n");
 
             /* mats[nmodes] += part_prod */
             for(size_t i = 0; i < accurate_Xndims[mode] * stride; ++i) {
@@ -250,10 +250,10 @@ int sptCudaDistributedMTTKRP(
             }
 
 
-            fprintf(stdout, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", gpu_idx, gpu_map[gpu_idx]);
-            fprintf(stdout, "Output matrix:\n");
-            sptDumpMatrix(mats[nmodes], stdout);
-            fprintf(stdout, "\n");
+            // fprintf(stdout, "[CUDA SpTns SpltMTTKRP] Kernel %zu, device %d\n", gpu_idx, gpu_map[gpu_idx]);
+            // fprintf(stdout, "Output matrix:\n");
+            // sptDumpMatrix(mats[nmodes], stdout);
+            // fprintf(stdout, "\n");
 
             /* dev_part_prod = 0 */
             /* Why mix inputs & outputs together inside these deep device pointers?! */

@@ -45,6 +45,9 @@ int main(int argc, char const *argv[]) {
     sptLoadSparseTensor(&X, 1, fX);
     // sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
+    printf("Tensor ndims:\n");
+    spt_DumpArray(X.ndims, X.nmodes, 0, stdout);
+    printf("Tensor NNZ: %zu\n", X.nnz);
 
     sscanf(argv[2], "%zu", &mode);
     sscanf(argv[3], "%zu", &impl_num);
