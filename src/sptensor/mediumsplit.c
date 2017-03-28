@@ -26,13 +26,13 @@
 int spt_ComputeMediumSplitParameters(
     size_t * split_idx_len, // size: nmodes
     sptSparseTensor * const tsr,
-    size_t const R,
+    size_t const stride,
     size_t const memwords) 
 {
     size_t const nmodes = tsr->nmodes;
     size_t * const ndims = tsr->ndims;
 
-    size_t tmp_split_idx_len = (size_t)((double)memwords / (nmodes * R));
+    size_t tmp_split_idx_len = (size_t)((double)memwords / (nmodes * stride));
     tmp_split_idx_len = pow(2, (int)(log(tmp_split_idx_len) / log(2)));
     // printf("tmp_split_idx_len: %zu\n", tmp_split_idx_len);
 

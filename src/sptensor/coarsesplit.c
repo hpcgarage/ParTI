@@ -28,7 +28,7 @@ int spt_ComputeCoarseSplitParametersOne(
     size_t * const slice_nnzs,
     size_t const idx_begin,
     size_t const mode,
-    size_t const R,
+    size_t const stride,
     size_t const memwords,
     size_t const max_nthreads_per_block) 
 {
@@ -42,14 +42,14 @@ int spt_ComputeCoarseSplitParametersOne(
     size_t pre_idx = idx_begin;
     for(size_t i=idx_begin; i<ndims[mode]; ++i) {
         sum_nnz += slice_nnzs[i];
-        mode_factor_words += R;
+        mode_factor_words += stride;
         // printf("i: %zu, pre_idx: %zu, mode_factor_words: %zu, sum_nnz: %zu\n", i, pre_idx, mode_factor_words, sum_nnz);
         if(mode_factor_words > memwords || sum_nnz >= max_nthreads_per_block) {
             split_idx_len[split_num] = i - pre_idx;
             pre_idx = i;
             ++ split_num;
             sum_nnz = slice_nnzs[i];
-            mode_factor_words = R;
+            mode_factor_words = stride;
             if(split_num >= nsplits) {
                 break;
             }
@@ -71,7 +71,7 @@ int spt_ComputeCoarseSplitParameters(
     size_t * const slice_nnzs,
     size_t const idx_begin,
     size_t const mode,
-    size_t const R,
+    size_t const stride,
     size_t const memwords) 
 {
     size_t const nmodes = tsr->nmodes;
@@ -83,7 +83,7 @@ int spt_ComputeCoarseSplitParameters(
             other_factor_words += ndims[i];
         }
     }
-    other_factor_words *= R;
+    other_factor_words *= stride;
     printf("other_factor_words: %zu\n", other_factor_words);
     if(memwords <= other_factor_words) {
         printf("Error: set a larger memory size.\n");
@@ -96,7 +96,7 @@ int spt_ComputeCoarseSplitParameters(
     size_t pre_idx = idx_begin;
     for(size_t i=idx_begin; i<ndims[mode]; ++i) {
         size_t snnz = slice_nnzs[i];
-        tensor_modefactor_words += (R + (nmodes + 1) * snnz);
+        tensor_modefactor_words += (stride + (nmodes + 1) * snnz);
         // printf("tensor_modefactor_words: %zu\n", tensor_modefactor_words);
         if(tensor_modefactor_words + other_factor_words > memwords) {
             split_idx_len[split_num] = i - pre_idx;

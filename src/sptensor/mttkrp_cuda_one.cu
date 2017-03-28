@@ -93,13 +93,13 @@ int sptCudaOneMTTKRP(
     /* max_inds_high: 1st cpu, 2nd cpu. Maximum high indices for each stream */
     size_t ** max_inds_high = new size_t *[max_nstreams];
     /* inds_low_header: 1st cpu, 2nd cpu (ghost pointers) */
-    // size_t **inds_low_header = new size_t *[nblocks];
+    size_t **inds_low_header = new size_t *[nblocks];
     /* dev_inds_low: 1st cpu, 2nd gpu, 3rd gpu. nblocks subtsrs' inds_low per stream */
-    // size_t ***dev_inds_low = new size_t **[max_nstreams];
+    size_t ***dev_inds_low = new size_t **[max_nstreams];
     /* Xndims_header: 1st cpu, 2nd cpu (ghost pointers) */
-    // size_t **Xndims_header = new size_t *[nblocks];
+    size_t **Xndims_header = new size_t *[nblocks];
     /* dev_Xndims: 1st cpu, 2nd gpu, 3rd gpu. nblocks subtsrs' ndims per stream */
-    // size_t ***dev_Xndims = new size_t **[max_nstreams];
+    size_t ***dev_Xndims = new size_t **[max_nstreams];
     /* nnz_blk: 1st cpu, save the copy of nnz of each thread block */
     size_t *nnz_blk = new size_t[nblocks];
     /* max_nnz_stream: 1st cpu, save the maximum nnz of each stream */
@@ -170,8 +170,8 @@ int sptCudaOneMTTKRP(
                 size_t * inds_low_ptr = splits[queue_idx].inds_low;
                 size_t * inds_high_ptr = splits[queue_idx].inds_high;
 
-                // inds_low_header[block_idx] = inds_low_ptr;
-                // Xndims_header[block_idx] = subtsr_ptr->ndims;
+                inds_low_header[block_idx] = inds_low_ptr;
+                Xndims_header[block_idx] = subtsr_ptr->ndims;
                 nnz_blk[block_idx] = subtsr_ptr->nnz;
                 if(block_idx > 0)
                     nnz_blk_begin[block_idx] = nnz_blk_begin[block_idx-1] + nnz_blk[block_idx-1];
@@ -194,12 +194,12 @@ int sptCudaOneMTTKRP(
             spt_DumpArray(max_nnz_stream, stream_idx+1, 0, stdout);
 
             /* dev_inds_low */
-            // result = sptCudaDuplicateMemoryIndirect(&dev_inds_low[stream_idx], inds_low_header, nblocks, nmodes, cudaMemcpyHostToDevice);
-            // spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+            result = sptCudaDuplicateMemoryIndirect(&dev_inds_low[stream_idx], inds_low_header, nblocks, nmodes, cudaMemcpyHostToDevice);
+            spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* dev_Xndims */
-            // result = sptCudaDuplicateMemoryIndirect(&dev_Xndims[stream_idx], Xndims_header, nblocks, nmodes, cudaMemcpyHostToDevice);
-            // spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+            result = sptCudaDuplicateMemoryIndirect(&dev_Xndims[stream_idx], Xndims_header, nblocks, nmodes, cudaMemcpyHostToDevice);
+            spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* dev_nnz */
             result = sptCudaDuplicateMemory(&dev_nnz[stream_idx], nnz_blk, nblocks * sizeof (size_t), cudaMemcpyHostToDevice);
@@ -297,8 +297,8 @@ int sptCudaOneMTTKRP(
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
             // result = cudaFree(dev_Xndims[stream_idx]);
             // spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
-            // result = cudaFree(dev_inds_low[stream_idx]);
-            // spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+            result = cudaFree(dev_inds_low[stream_idx]);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_mats[stream_idx]);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_nnz[stream_idx]);
@@ -321,32 +321,32 @@ int sptCudaOneMTTKRP(
     *queue_time = elapsed_time;
     sptFreeTimer(timer);
 
-    // delete[] dev_Xvals;
-    // delete[] dev_Xinds;
-    // delete[] Xinds_header;
-    // delete[] dev_mats;
-    // delete[] mats_header;
-    // delete[] lengths;
-    // delete[] dev_nnz;
-    // delete[] dev_min_inds_low;
-    // // delete[] dev_Xndims;
-    // // delete[] Xndims_header;
-    // // delete[] dev_inds_low;
-    // // delete[] inds_low_header;
+    delete[] dev_Xvals;
+    delete[] dev_Xinds;
+    delete[] Xinds_header;
+    delete[] dev_mats;
+    delete[] mats_header;
+    delete[] lengths;
+    delete[] dev_nnz;
+    delete[] dev_min_inds_low;
+    delete[] dev_Xndims;
+    delete[] Xndims_header;
+    delete[] dev_inds_low;
+    delete[] inds_low_header;
 
-    // result = cudaFree(dev_mats_order);
-    // spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+    result = cudaFree(dev_mats_order);
+    spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-    // for(size_t i=0; i<max_nstreams; ++i) {
-    //     delete[] min_inds_low[i];
-    //     delete[] max_inds_high[i];
-    // }
-    // delete[] min_inds_low;
-    // delete[] max_inds_high;
-    // delete[] max_nnz_stream;
-    // delete[] nblocks_count;
-    // delete[] nnz_blk;
-    // delete[] nnz_blk_begin;
+    for(size_t i=0; i<max_nstreams; ++i) {
+        delete[] min_inds_low[i];
+        delete[] max_inds_high[i];
+    }
+    delete[] min_inds_low;
+    delete[] max_inds_high;
+    delete[] max_nnz_stream;
+    delete[] nblocks_count;
+    delete[] nnz_blk;
+    delete[] nnz_blk_begin;
 
     sptFreeMatrix(&part_prod);
 

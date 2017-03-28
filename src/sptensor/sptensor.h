@@ -89,7 +89,7 @@ int spt_ComputeCoarseSplitParameters(
     size_t * const slice_nnzs,
     size_t const idx_begin,
     size_t const mode,
-    size_t const R,
+    size_t const stride,
     size_t const memwords);
 
 int spt_ComputeCoarseSplitParametersOne(
@@ -99,7 +99,7 @@ int spt_ComputeCoarseSplitParametersOne(
     size_t * const slice_nnzs,
     size_t const idx_begin,
     size_t const mode,
-    size_t const R,
+    size_t const stride,
     size_t const memwords,
     size_t const max_nthreads_per_block);
     
@@ -137,7 +137,7 @@ int spt_CoarseSplitSparseTensorStep(
 int spt_ComputeFineSplitParameters(
     size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,
-    size_t const R,
+    size_t const stride,
     size_t const memwords);
     
 int spt_FineSplitSparseTensorBatch(
@@ -161,7 +161,7 @@ int spt_FineSplitSparseTensorStep(
 int spt_ComputeMediumSplitParameters(
     size_t * split_idx_len, // size: nmodes
     sptSparseTensor * const tsr,
-    size_t const R,
+    size_t const stride,
     size_t const memwords);
 
 int spt_MediumSplitSparseTensorBatch(

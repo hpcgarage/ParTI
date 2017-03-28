@@ -28,7 +28,7 @@
 int spt_ComputeFineSplitParameters(
     size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,
-    size_t const R,
+    size_t const stride,
     size_t const memwords) 
 {
     size_t const nmodes = tsr->nmodes;
@@ -39,7 +39,7 @@ int spt_ComputeFineSplitParameters(
     for(size_t i=0; i<nmodes; ++i) {
         factor_words += ndims[i];
     }
-    factor_words *= R;
+    factor_words *= stride;
     printf("factor_words: %zu\n", factor_words);
     if(memwords <= factor_words) {
         printf("Error: set a larger memory size.\n");
