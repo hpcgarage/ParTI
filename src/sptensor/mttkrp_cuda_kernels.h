@@ -99,7 +99,7 @@ __global__ void spt_MTTKRPKernelRankSplitNnz3D(
 
 
 
-/* impl_num = 9 */
+/* impl_num = 09, for arbitraty nmodes. Scratch is necessary for tensors with arbitrary modes. */
 __global__ void spt_MTTKRPKernelScratch(
     const size_t mode,
     const size_t nmodes,
@@ -178,8 +178,10 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Medium(
     const size_t * dev_mats_order,
     sptScalar ** dev_mats);
 
+
+
 /**** impl_num = 2x: multiple GPUs ****/
-/* impl_num = 29 */
+/* impl_num = 29, only the interface is a bit different. */
 __global__ void spt_MTTKRPKernelScratchDist(
     const size_t mode,
     const size_t nmodes,

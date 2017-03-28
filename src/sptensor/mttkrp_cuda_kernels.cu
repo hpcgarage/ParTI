@@ -540,7 +540,6 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
 
 
 
-
 /* impl_num = 17 */
 __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Medium(
     const size_t mode,
@@ -732,3 +731,4 @@ __global__ void spt_MTTKRPKernelScratchDist(
     // }
     
 }
+
