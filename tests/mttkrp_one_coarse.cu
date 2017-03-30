@@ -45,14 +45,20 @@ int main(int argc, char const *argv[])
     size_t mode = 0;
     size_t R = 4;
     size_t max_nstreams = 4;
-    size_t const max_nthreads_per_block = 1024;
+    size_t const max_nthreads_per_block = 512;
+    size_t const max_nthreadsy = 16;
+    size_t const max_nthreadsx = (size_t) max_nthreads_per_block / max_nthreadsy;
+    printf("max_nthreadsx: %zu\n", max_nthreadsx);
+    int arg_loc = 0;
 
     if(argc < 7) {
-        printf("Usage: %s tsr mode smem_size nstreams nblocks cuda_dev_id [R max_nstreams Y]\n\n", argv[0]);
+        printf("Usage: %s tsr mode impl_num smem_size nstreams nblocks cuda_dev_id [R max_nstreams Y]\n\n", argv[0]);
         return 1;
     }
 
-    fX = fopen(argv[1], "r");
+    ++ arg_loc;
+    fX = fopen(argv[arg_loc], "r");
+    ++ arg_loc;
     sptAssert(fX != NULL);
     printf("input file: %s\n", argv[1]); fflush(stdout);
     sptAssert(sptLoadSparseTensor(&tsr, 1, fX) == 0);
@@ -61,36 +67,49 @@ int main(int argc, char const *argv[])
     size_t const nmodes = tsr.nmodes;
     size_t * const ndims = tsr.ndims;
 
-    sscanf(argv[2], "%zu", &mode);
+    sscanf(argv[arg_loc], "%zu", &mode);
+    ++ arg_loc;
     printf("Mode = %zu\n", mode);
 
+    size_t impl_num;
+    sscanf(argv[arg_loc], "%zu", &impl_num);
+    ++ arg_loc;
+    printf("impl_num = %zu\n", impl_num);
+
     size_t smem_size;
-    sscanf(argv[3], "%zu", &smem_size);
+    sscanf(argv[arg_loc], "%zu", &smem_size);
+    ++ arg_loc;
     printf("smem_size = %zu\n", smem_size);
 
     size_t wordsize = (sizeof(size_t) > sizeof(sptScalar)) ? sizeof(size_t) : sizeof(sptScalar);
     size_t smemwords = smem_size / wordsize;
     printf("smemwords: %zu\n", smemwords);
 
+    /* nstreams > max_nstreams */
     size_t nstreams;
-    sscanf(argv[4], "%zu", &nstreams);
+    sscanf(argv[arg_loc], "%zu", &nstreams);
+    ++ arg_loc;
     printf("nstreams = %zu\n", nstreams);
 
     size_t nblocks;
-    sscanf(argv[5], "%zu", &nblocks);
+    sscanf(argv[arg_loc], "%zu", &nblocks);
+    ++ arg_loc;
     printf("nblocks = %zu\n", nblocks);
 
     size_t cuda_dev_id;
-    sscanf(argv[6], "%zu", &cuda_dev_id);
+    sscanf(argv[arg_loc], "%zu", &cuda_dev_id);
+    ++ arg_loc;
     printf("cuda_dev_id = %zu\n", cuda_dev_id);
 
-    if((unsigned) argc > 7) {
-        sscanf(argv[7], "%zu", &R);
+    if((unsigned) argc > arg_loc) {
+        sscanf(argv[arg_loc], "%zu", &R);
+        ++ arg_loc;
     }
     printf("R = %zu\n", R);
 
-    if((unsigned) argc > 8) {
-        sscanf(argv[8], "%zu", &max_nstreams);
+    if((unsigned) argc > arg_loc) {
+        sscanf(argv[arg_loc], "%zu", &max_nstreams);
+        ++ arg_loc;
     }
     printf("max_nstreams = %zu\n", max_nstreams);
 
@@ -110,6 +129,8 @@ int main(int argc, char const *argv[])
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+    size_t stride = U[nmodes]->stride;
+    printf("stride: %zu\n", stride);
 
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
@@ -125,7 +146,7 @@ int main(int argc, char const *argv[])
     size_t * slice_nnzs = (size_t *)malloc(ndims[mode] * sizeof(size_t));
     sptAssert( spt_ComputeSliceSizes(slice_nnzs, &tsr, mode) == 0 );
     printf("slice_nnzs: \n");
-    // spt_DumpArray(slice_nnzs, ndims[mode], 0, stdout);
+    spt_DumpArray(slice_nnzs, ndims[mode], 0, stdout);
 
     size_t queue_size = nstreams * nblocks;
     printf("queue_size: %zu (%zu * %zu)\n", queue_size, nstreams, nblocks);
@@ -142,7 +163,7 @@ int main(int argc, char const *argv[])
         nnz_split_begin = nnz_split_next;
         size_t idx_begin = tsr.inds[mode].data[nnz_split_begin];
         printf("idx_begin: %lu\n", idx_begin);
-        sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, R, smemwords, max_nthreads_per_block) == 0);
+        sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, stride, smemwords, max_nthreadsx) == 0);
         // printf("idx_begin: %zu\n", idx_begin);
         printf("Calculated split_idx_len: \n");
         spt_DumpArray(split_idx_len, queue_size, 0, stdout);
@@ -159,6 +180,7 @@ int main(int argc, char const *argv[])
             nnz_split_begin
         ) == 0);
         printf("real_queue_size: %zu\n", real_queue_size);
+        sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
         // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
  
@@ -172,7 +194,10 @@ int main(int argc, char const *argv[])
             U,
             mats_order,
             mode, 
+            nnz_split_begin,
             max_nstreams,
+            max_nthreadsy,
+            impl_num,
             cuda_dev_id
         ) == 0);
         total_time += queue_time;
@@ -195,9 +220,10 @@ int main(int argc, char const *argv[])
     sptFreeSparseTensor(&tsr);
     // free(mats_order);
 
-    if((unsigned) argc > 9) {
-        printf("Output = %s\n", argv[9]);
-        fo = fopen(argv[9], "w");
+    if((unsigned) argc > arg_loc) {
+        printf("Output = %s\n", argv[arg_loc]);
+        fo = fopen(argv[arg_loc], "w");
+        ++ arg_loc;
         sptAssert(fo != NULL);
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);

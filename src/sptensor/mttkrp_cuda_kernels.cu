@@ -328,7 +328,9 @@ __global__ void spt_MTTKRPKernelScratch(
 }
 
 
-/* impl_num = 11 */
+/* impl_num = 11. 
+    For coarse-grain, it doesn't work because of the nthreads is more than 1024. 
+*/
 __global__ void spt_MTTKRPKernelBlockNnz3D(
     const size_t mode,
     const size_t nmodes,
@@ -344,6 +346,8 @@ __global__ void spt_MTTKRPKernelBlockNnz3D(
 ) {
     const size_t tidx = threadIdx.x;
     const size_t bidx = blockIdx.x;
+    if(tidx == 0 && bidx == 0)
+        printf("Execute spt_MTTKRPKernelBlockNnz3D kernel.\n");
 
     /* block range */
     const size_t nnz_blk = nnz[bidx];
@@ -367,7 +371,7 @@ __global__ void spt_MTTKRPKernelBlockNnz3D(
       size_t * times_inds_2 = Xinds[times_mat_index_2];
       size_t tmp_i_2 = times_inds_2[tidx + nnz_blk_begin] - inds_low_allblocks[times_mat_index_2];  // local base
       sptScalar tmp_val = 0;
-      printf("[tidx: %lu, bidx: %lu] entry: %f, 1st: %f, 2nd: %f\n", tidx, bidx, entry, times_mat[tmp_i * stride + 0], times_mat_2[tmp_i_2 * stride + 0]);
+      printf("[tidx: %lu, bidx: %lu] nnz_blk_begin: %lu, mode_ind[tidx + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", tidx, bidx, nnz_blk_begin, mode_ind[tidx + nnz_blk_begin], mode_i, entry, tmp_i, times_mat[tmp_i * stride + 0], tmp_i_2, times_mat_2[tmp_i_2 * stride + 0]);
       for(size_t r=0; r<R; ++r) {
         tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
         atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
@@ -399,6 +403,8 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
     const size_t bidx = blockIdx.x; // index block, also nnz
     const size_t num_loops = R / blockDim.x;
     const size_t rest_loop = R - num_loops * blockDim.x;
+    if(tidx == 0 && bidx == 0)
+        printf("Execute spt_MTTKRPKernelBlockRankSplitNnz3D kernel.\n");
     
 
     /* block range */
@@ -446,7 +452,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
 
 
 /* impl_num = 16 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
+__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
     const size_t mode,
     const size_t nmodes,
     const size_t * nnz,
@@ -541,7 +547,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
 
 
 /* impl_num = 17 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Medium(
+__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     const size_t mode,
     const size_t nmodes,
     const size_t * nnz,

@@ -49,7 +49,10 @@ int sptCudaOneMTTKRP(
     sptMatrix *mats[],
     size_t const mats_order[],
     size_t const mode,
+    size_t const nnz_split_begin,
     size_t const max_nstreams,
+    size_t const max_nthreadsy,
+    size_t const impl_num,
     size_t const cuda_dev_id) 
 {
     if(queue_size == 0) {
@@ -77,10 +80,6 @@ int sptCudaOneMTTKRP(
     sptMatrix part_prod;
     result = sptNewMatrix(&part_prod, mats[mode]->nrows, mats[mode]->ncols);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
-
-    size_t total_nstreams = (queue_size-1)/nblocks + 1;
-    size_t nstreams = (total_nstreams-1)/max_nstreams + 1;
-    printf("total_nstreams: %zu, nstreams: %zu\n", total_nstreams, nstreams);
 
 
     /*** Very careful about these sizes!!! ***/
@@ -132,23 +131,29 @@ int sptCudaOneMTTKRP(
     result = sptCudaDuplicateMemory(&dev_mats_order, mats_order, nmodes * sizeof (size_t), cudaMemcpyHostToDevice);
     spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
+    for(size_t stream_idx = 0; stream_idx < max_nstreams; ++stream_idx) {
+        min_inds_low[stream_idx] = new size_t[nmodes];
+        max_inds_high[stream_idx] = new size_t[nmodes];
+    }    
 
+    size_t total_nstreams = (queue_size-1)/nblocks + 1;
+    size_t rest_nblocks = queue_size - (total_nstreams - 1) * nblocks;
+    size_t batched_nstreams = (total_nstreams-1)/max_nstreams + 1;
+    printf("total_nstreams: %zu, batched_nstreams: %zu, rest_nblocks: %zu\n", total_nstreams, batched_nstreams, rest_nblocks);
     double elapsed_time = 0;
     sptTimer timer;
     sptNewTimer(&timer, 0);
-    size_t nnz_begin = 0;
+    size_t nnz_begin = nnz_split_begin;
 
     /* Loop batches of streams */
-    for(size_t sbatch_idx = 0; sbatch_idx < nstreams; ++sbatch_idx) {
+    for(size_t sbatch_idx = 0; sbatch_idx < batched_nstreams; ++sbatch_idx) {
         /* Index inside sbatch_idx */
-        size_t stream_count = sbatch_idx == nstreams-1 ? total_nstreams - sbatch_idx * max_nstreams : max_nstreams;
+        size_t stream_count = sbatch_idx == batched_nstreams-1 ? total_nstreams - sbatch_idx * max_nstreams : max_nstreams;
         printf("sbatch_idx: %zu, stream_count: %zu\n", sbatch_idx, stream_count); fflush(stdout);
 
         /* Loop cocurrent streams */
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
             size_t sum_nnz = 0;
-            min_inds_low[stream_idx] = new size_t[nmodes];
-            max_inds_high[stream_idx] = new size_t[nmodes];
             for(size_t m=0; m<nmodes; ++m) {
                 min_inds_low[stream_idx][m] = tsr->ndims[m];
                 max_inds_high[stream_idx][m] = 0;
@@ -158,10 +163,10 @@ int sptCudaOneMTTKRP(
             
             /* Loop blocks inside one stream, nblocks should allocate once to a GPU. */
             nnz_blk_begin[0] = 0;
-            for(size_t block_idx = 0; block_idx < nblocks && sbatch_idx * nstreams + stream_idx * stream_count + block_idx < queue_size; ++block_idx) 
+            nblocks_count[stream_idx] = (stream_idx == stream_count - 1) ? rest_nblocks: nblocks;
+            for(size_t block_idx = 0; block_idx < nblocks_count[stream_idx]; ++block_idx) 
             {
-                ++ nblocks_count[stream_idx];
-                size_t queue_idx = sbatch_idx * nstreams + stream_idx * stream_count + block_idx;
+                size_t queue_idx = (sbatch_idx * batched_nstreams + stream_idx) * nblocks + block_idx;
                 printf("sbatch_idx: %zu, stream_idx: %zu, block_idx: %zu, queue_idx: %zu\n", sbatch_idx, stream_idx, block_idx, queue_idx);
                 sptAssert(queue_idx < queue_size);
                 sptAssert(&(splits[queue_idx].tensor) != NULL);
@@ -169,12 +174,15 @@ int sptCudaOneMTTKRP(
                 sptSparseTensor const * subtsr_ptr = &(splits[queue_idx].tensor);
                 size_t * inds_low_ptr = splits[queue_idx].inds_low;
                 size_t * inds_high_ptr = splits[queue_idx].inds_high;
+                printf("block_idx: %zu, inds_low_ptr, inds_high_ptr:\n", block_idx);
+                spt_DumpArray(inds_low_ptr, nmodes, 0, stdout);
+                spt_DumpArray(inds_high_ptr, nmodes, 0, stdout);
 
                 inds_low_header[block_idx] = inds_low_ptr;
                 Xndims_header[block_idx] = subtsr_ptr->ndims;
                 nnz_blk[block_idx] = subtsr_ptr->nnz;
                 if(block_idx > 0)
-                    nnz_blk_begin[block_idx] = nnz_blk_begin[block_idx-1] + nnz_blk[block_idx-1];
+                    nnz_blk_begin[block_idx] = nnz_blk_begin[block_idx-1] + nnz_blk[block_idx-1]; 
 
                 /* Determine the needed range of factor matrices */
                 for(size_t m=0; m<nmodes; ++m) {
@@ -190,15 +198,15 @@ int sptCudaOneMTTKRP(
                     max_nnz_stream[stream_idx] = subtsr_ptr->nnz;
 
             }   // End loop for block_idx in [0, nblocks-1]
-            printf("max_nnz_stream:\n");
-            spt_DumpArray(max_nnz_stream, stream_idx+1, 0, stdout);
+            // printf("max_nnz_stream:\n");
+            // spt_DumpArray(max_nnz_stream, stream_idx+1, 0, stdout);
 
             /* dev_inds_low */
-            result = sptCudaDuplicateMemoryIndirect(&dev_inds_low[stream_idx], inds_low_header, nblocks, nmodes, cudaMemcpyHostToDevice);
+            result = sptCudaDuplicateMemoryIndirect(&dev_inds_low[stream_idx], inds_low_header, nblocks_count[stream_idx], nmodes, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* dev_Xndims */
-            result = sptCudaDuplicateMemoryIndirect(&dev_Xndims[stream_idx], Xndims_header, nblocks, nmodes, cudaMemcpyHostToDevice);
+            result = sptCudaDuplicateMemoryIndirect(&dev_Xndims[stream_idx], Xndims_header, nblocks_count[stream_idx], nmodes, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* dev_nnz */
@@ -220,13 +228,19 @@ int sptCudaOneMTTKRP(
             }
             mats_header[nmodes] = mats[nmodes]->values + min_inds_low[stream_idx][mode] * stride;
             lengths[nmodes] = (max_inds_high[stream_idx][mode] - min_inds_low[stream_idx][mode]) * stride;
+            printf("min_inds_low[%zu]:\n", stream_idx);
+            spt_DumpArray(min_inds_low[stream_idx], nmodes, 0, stdout);
+            // printf("lengths[nmodes]: %zu\n", lengths[nmodes]);
             /* dev_mats */
             result = sptCudaDuplicateMemoryIndirect(&dev_mats[stream_idx], mats_header, nmodes+1, lengths, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* Xinds_header */
+            // printf("nnz_begin: %zu, sum_nnz: %zu\n", nnz_begin, sum_nnz);
             for(size_t m = 0; m < nmodes; ++m) {
                 Xinds_header[m] = tsr->inds[m].data + nnz_begin;
+                // printf("Xinds_header[%zu]\n", m);
+                // spt_DumpArray(Xinds_header[m], sum_nnz, 0, stdout);
             }
             /* dev_Xinds */
             result = sptCudaDuplicateMemoryIndirect(&dev_Xinds[stream_idx], Xinds_header, nmodes, sum_nnz, cudaMemcpyHostToDevice);
@@ -240,26 +254,94 @@ int sptCudaOneMTTKRP(
 
         } // End loop for stream_idx in [0, stream_count-1]
 
+        
         sptStartTimer(timer);
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
-            size_t nthreads = max_nnz_stream[stream_idx];
+            size_t nthreadsx, nthreadsy;
+            if(impl_num == 11) {
+                nthreadsx = max_nnz_stream[stream_idx];
+                nthreadsy = 1;
+            } else if(impl_num == 15) {
+                nthreadsy = max_nnz_stream[stream_idx];
+                if(R < max_nthreadsy)
+                    nthreadsx = R;
+                else
+                    nthreadsx = max_nthreadsy;
+            }
+            dim3 dimBlock (nthreadsx, nthreadsy);
             size_t real_nblocks = nblocks_count[stream_idx];
-            printf("spt_MTTKRPKernelBlockNnz3D<%zu, %zu>\n", real_nblocks, nthreads);
 
-            spt_MTTKRPKernelBlockNnz3D<<<real_nblocks, nthreads>>>(
-                mode,
-                nmodes,
-                dev_nnz[stream_idx],
-                dev_nnz_blk_begin[stream_idx],
-                R,
-                stride,
-                dev_min_inds_low[stream_idx],
-                dev_Xinds[stream_idx],
-                dev_Xvals[stream_idx],
-                dev_mats_order,
-                dev_mats[stream_idx]
-            );
-        }
+            switch(nmodes) {
+            case 3:
+                switch(impl_num) {
+                case 11: // Naive
+                    printf("spt_MTTKRPKernelBlockNnz3D<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockNnz3D<<<real_nblocks, dimBlock>>>(
+                        mode,
+                        nmodes,
+                        dev_nnz[stream_idx],
+                        dev_nnz_blk_begin[stream_idx],
+                        R,
+                        stride,
+                        dev_min_inds_low[stream_idx],
+                        dev_Xinds[stream_idx],
+                        dev_Xvals[stream_idx],
+                        dev_mats_order,
+                        dev_mats[stream_idx]);
+                    break;
+                case 15:
+                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnz3D<<<real_nblocks, dimBlock>>>(
+                        mode,
+                        nmodes,
+                        dev_nnz[stream_idx],
+                        dev_nnz_blk_begin[stream_idx],
+                        R,
+                        stride,
+                        dev_min_inds_low[stream_idx],
+                        dev_Xinds[stream_idx],
+                        dev_Xvals[stream_idx],
+                        dev_mats_order,
+                        dev_mats[stream_idx]);
+                    break;
+                case 16:
+                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<<<real_nblocks, dimBlock>>>(
+                        mode,
+                        nmodes,
+                        dev_nnz[stream_idx],
+                        dev_nnz_blk_begin[stream_idx],
+                        R,
+                        stride,
+                        dev_min_inds_low[stream_idx],
+                        dev_inds_low[stream_idx],
+                        dev_Xndims[stream_idx],
+                        dev_Xinds[stream_idx],
+                        dev_Xvals[stream_idx],
+                        dev_mats_order,
+                        dev_mats[stream_idx]);
+                    break;
+                case 17:
+                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<<<real_nblocks, dimBlock>>>(
+                        mode,
+                        nmodes,
+                        dev_nnz[stream_idx],
+                        dev_nnz_blk_begin[stream_idx],
+                        R,
+                        stride,
+                        dev_min_inds_low[stream_idx],
+                        dev_inds_low[stream_idx],
+                        dev_Xndims[stream_idx],
+                        dev_Xinds[stream_idx],
+                        dev_Xvals[stream_idx],
+                        dev_mats_order,
+                        dev_mats[stream_idx]);
+                    break;
+                }
+                break;
+            }   // switch nmodes
+        } // Loop stream_idx
 
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
             result = cudaDeviceSynchronize();
@@ -276,17 +358,18 @@ int sptCudaOneMTTKRP(
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
             size_t stream_mode_dim = max_inds_high[stream_idx][mode] - min_inds_low[stream_idx][mode];
-            result = cudaMemcpy(part_prod.values + min_inds_low[stream_idx][mode] * stride, dev_part_prod, stream_mode_dim * stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+            // result = cudaMemcpy(part_prod.values + min_inds_low[stream_idx][mode] * stride, dev_part_prod, stream_mode_dim * stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+            result = cudaMemcpy(mats[nmodes]->values + min_inds_low[stream_idx][mode] * stride, dev_part_prod, stream_mode_dim * stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
-            // printf("part_prod:\n");
-            // sptDumpMatrix(&part_prod, stdout);
+            printf("[stream %zu] part_prod:\n", stream_idx);
+            sptDumpMatrix(&part_prod, stdout);
 
             /* mats[nmodes] += part_prod */
-            for(size_t i = 0; i < stream_mode_dim * stride; ++i) {
-                size_t j = i + min_inds_low[stream_idx][mode] * stride;
-                mats[nmodes]->values[j] += part_prod.values[j];
-            }
+            // for(size_t i = 0; i < stream_mode_dim * stride; ++i) {
+            //     size_t j = i + min_inds_low[stream_idx][mode] * stride;
+            //     mats[nmodes]->values[j] += part_prod.values[j];
+            // }
 
             /* dev_part_prod = 0 */
             result = cudaMemset(dev_part_prod, 0, stream_mode_dim * stride * sizeof (sptScalar));
@@ -295,8 +378,8 @@ int sptCudaOneMTTKRP(
 
 
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
-            // result = cudaFree(dev_Xndims[stream_idx]);
-            // spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+            result = cudaFree(dev_Xndims[stream_idx]);
+            spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_inds_low[stream_idx]);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
             result = cudaFree(dev_mats[stream_idx]);
@@ -314,7 +397,7 @@ int sptCudaOneMTTKRP(
         }
 
 
-    } // End loop for sbatch_idx in [0, nstreams-1]
+    } // End loop for sbatch_idx in [0, batched_nstreams-1]
 
 
     printf("[CUDA SpTns One MTTKRP (per Stream)]: %lf s\n\n", elapsed_time);

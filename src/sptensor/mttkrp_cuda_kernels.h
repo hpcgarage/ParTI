@@ -147,7 +147,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
     sptScalar ** dev_mats);
 
 /* impl_num = 16 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
+__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
     const size_t mode,
     const size_t nmodes,
     const size_t * nnz,
@@ -163,7 +163,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
     sptScalar ** dev_mats);
 
 /* impl_num = 17 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Medium(
+__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     const size_t mode,
     const size_t nmodes,
     const size_t * nnz,
