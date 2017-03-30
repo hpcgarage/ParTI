@@ -391,7 +391,10 @@ int sptCudaOneMTTKRP(
     sptMatrix *mats[],
     size_t const mats_order[],
     size_t const mode,
+    size_t const nnz_split_begin,
     size_t const max_nstreams,
+    size_t const max_nthreadsy,
+    size_t const impl_num,
     size_t const cuda_dev_id);
 
 

@@ -107,6 +107,8 @@ int main(int argc, char const *argv[])
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+    size_t stride = U[nmodes]->stride;
+    printf("stride: %zu\n", stride);
 
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
@@ -131,7 +133,7 @@ int main(int argc, char const *argv[])
     size_t nnz_split_next = 0;
     double queue_time = 0, total_time = 0;
 
-    sptAssert( spt_ComputeMediumSplitParameters(split_idx_len, &tsr, R, memwords) ==0 );
+    sptAssert( spt_ComputeMediumSplitParameters(split_idx_len, &tsr, stride, memwords) ==0 );
     printf("\nCalculated split_idx_len:\n");
     spt_DumpArray(split_idx_len, nmodes, 0, stdout);
 
