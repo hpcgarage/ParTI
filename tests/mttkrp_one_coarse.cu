@@ -35,6 +35,7 @@ static void print_array(const T array[], size_t length, T start_index) {
     }
 }
 
+
 int main(int argc, char const *argv[]) 
 {
     /* 1: Coarse grain; 2: fine grain; 3: medium grain */

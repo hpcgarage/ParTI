@@ -146,6 +146,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
     const size_t * dev_mats_order,
     sptScalar ** dev_mats);
 
+
 /* impl_num = 16 */
 __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
     const size_t mode,
@@ -161,6 +162,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Coarse(
     const sptScalar * Xvals,
     const size_t * dev_mats_order,
     sptScalar ** dev_mats);
+
 
 /* impl_num = 17 */
 __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_Medium(
