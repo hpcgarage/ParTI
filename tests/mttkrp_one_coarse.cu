@@ -23,19 +23,6 @@
 #include "../src/sptensor/sptensor.h"
 
 
-template <typename T>
-static void print_array(const T array[], size_t length, T start_index) {
-    if(length == 0) {
-        return;
-    }
-    printf("%d", (int) (array[0] + start_index));
-    size_t i;
-    for(i = 1; i < length; ++i) {
-        printf(", %d", (int) (array[i] + start_index));
-    }
-}
-
-
 int main(int argc, char const *argv[]) 
 {
     /* 1: Coarse grain; 2: fine grain; 3: medium grain */
@@ -44,15 +31,14 @@ int main(int argc, char const *argv[])
     sptSparseTensor tsr;
     sptMatrix ** U;
     size_t mode = 0;
-    size_t R = 4;
+    size_t R = 16;
     size_t max_nstreams = 4;
     size_t const max_nthreads_per_block = 512;
     size_t const max_nthreadsy = 16;
-    size_t const max_nthreadsx = (size_t) max_nthreads_per_block / max_nthreadsy;
-    printf("max_nthreadsx: %zu\n", max_nthreadsx);
+    size_t max_nthreadsx = 256;
     int arg_loc = 0;
 
-    if(argc < 7) {
+    if(argc < 8) {
         printf("Usage: %s tsr mode impl_num smem_size nstreams nblocks cuda_dev_id [R max_nstreams Y]\n\n", argv[0]);
         return 1;
     }
@@ -102,19 +88,23 @@ int main(int argc, char const *argv[])
     ++ arg_loc;
     printf("cuda_dev_id = %zu\n", cuda_dev_id);
 
-    if((unsigned) argc > arg_loc) {
+    if(argc > arg_loc) {
         sscanf(argv[arg_loc], "%zu", &R);
         ++ arg_loc;
     }
     printf("R = %zu\n", R);
 
-    if((unsigned) argc > arg_loc) {
+    if(argc > arg_loc) {
         sscanf(argv[arg_loc], "%zu", &max_nstreams);
         ++ arg_loc;
     }
     printf("max_nstreams = %zu\n", max_nstreams);
 
     printf("Tensor NNZ: %zu\n", tsr.nnz);
+
+    if(impl_num != 11)
+        max_nthreadsx = (size_t) max_nthreads_per_block / max_nthreadsy;
+    printf("max_nthreadsx: %zu\n", max_nthreadsx);
 
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
     for(size_t m=0; m<nmodes+1; ++m) {
@@ -219,9 +209,9 @@ int main(int argc, char const *argv[])
         sptFreeMatrix(U[m]);
     }
     sptFreeSparseTensor(&tsr);
-    // free(mats_order);
+    free(mats_order);
 
-    if((unsigned) argc > arg_loc) {
+    if(argc > arg_loc) {
         printf("Output = %s\n", argv[arg_loc]);
         fo = fopen(argv[arg_loc], "w");
         ++ arg_loc;

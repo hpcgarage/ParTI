@@ -101,7 +101,7 @@ int spt_ComputeCoarseSplitParametersOne(
     size_t const mode,
     size_t const stride,
     size_t const memwords,
-    size_t const max_nthreads_per_block);
+    size_t const max_nthreadsx);
     
 int spt_CoarseSplitSparseTensorBatch(
     spt_SplitResult * splits,
@@ -134,6 +134,11 @@ int spt_CoarseSplitSparseTensorStep(
 
 
 /* Fine-grain split */
+int spt_ComputeFineSplitParametersOne(
+    size_t * split_nnz_len, // Scalar
+    sptSparseTensor * const tsr,
+    size_t const max_nthreadsx);
+    
 int spt_ComputeFineSplitParameters(
     size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,

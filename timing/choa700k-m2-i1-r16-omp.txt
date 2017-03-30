@@ -1,0 +1,8 @@
+input file: /nethome/jli458/BIGTENSORS/choa700k.tns
+Tensor ndims:
+712329, 9827, 767
+Tensor NNZ: 26953732
+mats_order:
+2, 0, 1
+nthreads: 32
+[OMP  SpTns MTTKRP]: 1.885720019 s

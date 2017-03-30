@@ -25,6 +25,23 @@
 #include "sptensor.h"
 
 
+int spt_ComputeFineSplitParametersOne(
+    size_t * split_nnz_len, // Scalar
+    sptSparseTensor * const tsr,
+    size_t const max_nthreadsx) 
+{
+    size_t const nnz = tsr->nnz;
+
+    if(max_nthreadsx > nnz) {
+        *split_nnz_len = nnz;
+    } else {
+        *split_nnz_len = max_nthreadsx;
+    }
+
+    return 0;
+}
+
+
 int spt_ComputeFineSplitParameters(
     size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,

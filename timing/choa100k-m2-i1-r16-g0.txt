@@ -1,0 +1,15 @@
+input file: /nethome/jli458/BIGTENSORS/choa100k.tns
+Tensor ndims:
+99960, 7170, 598
+Tensor NNZ: 4142857
+mats_order:
+2, 0, 1
+[CUDA SpTns MTTKRP H2D]: 0.251252061 s
+[Bandwidth H2D]: 0.489281 GBytes/sec
+all_nblocks: 16184, nthreadsx: 256, nthreadsy: 0
+block_offset: 0
+Execute spt_MTTKRPKernelNnz3D (16184, 256)
+[CUDA SpTns MTTKRP]: 0.028942858 s
+[GFLOPS]: 4.580455 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.000047517 s
+[Bandwidth D2H]: 0.805606 GBytes/sec

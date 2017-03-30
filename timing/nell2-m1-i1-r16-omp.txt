@@ -1,0 +1,8 @@
+input file: /nethome/jli458/BIGTENSORS/nell2.tns
+Tensor ndims:
+12092, 9184, 28818
+Tensor NNZ: 76879419
+mats_order:
+1, 2, 0
+nthreads: 32
+[OMP  SpTns MTTKRP]: 5.383220460 s

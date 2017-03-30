@@ -1,0 +1,43 @@
+input file: /nethome/jli458/BIGTENSORS/choa200k.tns
+Tensor ndims:
+199880, 8086, 656
+Tensor NNZ: 7598531
+mats_order:
+2, 0, 1
+[CUDA SpTns MTTKRP H2D]: 0.284968180 s
+[Bandwidth H2D]: 0.793607 GBytes/sec
+all_nblocks: 474909, nthreadsx: 16, nthreadsy: 16
+block_offset: 0
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 32768
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 65536
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 98304
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 131072
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 163840
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 196608
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 229376
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 262144
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 294912
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 327680
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 360448
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 393216
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 425984
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 458752
+Execute spt_MTTKRPKernelRankSplitNnz3D (16157, (16, 16))
+[CUDA SpTns MTTKRP]: 0.038155545 s
+[GFLOPS]: 6.372679 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.000049425 s
+[Bandwidth D2H]: 0.849611 GBytes/sec

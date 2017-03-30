@@ -1,0 +1,21 @@
+input file: /nethome/jli458/BIGTENSORS/choa700k.tns
+Tensor ndims:
+712329, 9827, 767
+Tensor NNZ: 26953732
+mats_order:
+0, 1, 2
+[CUDA SpTns MTTKRP H2D]: 0.466612629 s
+[Bandwidth H2D]: 1.814269 GBytes/sec
+all_nblocks: 105289, nthreadsx: 256, nthreadsy: 0
+block_offset: 0
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 32768
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 65536
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 98304
+Execute spt_MTTKRPKernelNnz3D (6985, 256)
+[CUDA SpTns MTTKRP]: 0.243892601 s
+[GFLOPS]: 3.536472 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.019849087 s
+[Bandwidth D2H]: 2.296784 GBytes/sec

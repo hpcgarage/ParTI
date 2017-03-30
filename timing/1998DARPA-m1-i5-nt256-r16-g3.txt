@@ -1,0 +1,123 @@
+input file: /nethome/jli458/BIGTENSORS/1998DARPA.tns
+Tensor ndims:
+22476, 22476, 23776223
+Tensor NNZ: 28436033
+mats_order:
+1, 2, 0
+[CUDA SpTns MTTKRP H2D]: 0.680684561 s
+[Bandwidth H2D]: 3.411569 GBytes/sec
+all_nblocks: 1777253, nthreadsx: 16, nthreadsy: 16
+block_offset: 0
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 32768
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 65536
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 98304
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 131072
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 163840
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 196608
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 229376
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 262144
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 294912
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 327680
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 360448
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 393216
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 425984
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 458752
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 491520
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 524288
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 557056
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 589824
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 622592
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 655360
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 688128
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 720896
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 753664
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 786432
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 819200
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 851968
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 884736
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 917504
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 950272
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 983040
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1015808
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1048576
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1081344
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1114112
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1146880
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1179648
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1212416
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1245184
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1277952
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1310720
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1343488
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1376256
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1409024
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1441792
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1474560
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1507328
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1540096
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1572864
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1605632
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1638400
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1671168
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1703936
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1736704
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 16))
+block_offset: 1769472
+Execute spt_MTTKRPKernelRankSplitNnz3D (7781, (16, 16))
+[CUDA SpTns MTTKRP]: 0.556618408 s
+[GFLOPS]: 1.634788 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.001444912 s
+[Bandwidth D2H]: 0.995543 GBytes/sec

@@ -150,7 +150,8 @@ int sptCudaMTTKRP(
     printf("[Bandwidth H2D]: %lf GBytes/sec\n", gbw_h2d);
 
 
-    size_t max_nthreads_per_block = 512;
+    // size_t max_nthreads_per_block = 512;    // old run
+    size_t max_nthreads_per_block = 256;
     size_t max_nblocks = 32768;
     size_t max_nthreadsy = 16;
 

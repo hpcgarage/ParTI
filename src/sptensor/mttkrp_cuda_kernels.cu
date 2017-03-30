@@ -346,14 +346,14 @@ __global__ void spt_MTTKRPKernelBlockNnz3D(
 ) {
     const size_t tidx = threadIdx.x;
     const size_t bidx = blockIdx.x;
-    if(tidx == 0 && bidx == 0)
-        printf("Execute spt_MTTKRPKernelBlockNnz3D kernel.\n");
+    // if(tidx == 0 && bidx == 0)
+    //     printf("Execute spt_MTTKRPKernelBlockNnz3D kernel.\n");
 
     /* block range */
     const size_t nnz_blk = nnz[bidx];
     const size_t nnz_blk_begin = dev_nnz_blk_begin[bidx];
-    if(tidx == 0)
-        printf("bidx: %lu, nnz_blk: %lu, nnz_blk_begin: %lu\n", bidx, nnz_blk, nnz_blk_begin);
+    // if(tidx == 0)
+    //     printf("bidx: %lu, nnz_blk: %lu, nnz_blk_begin: %lu\n", bidx, nnz_blk, nnz_blk_begin);
 
     size_t const * const mode_ind = Xinds[mode];
     sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
@@ -371,7 +371,7 @@ __global__ void spt_MTTKRPKernelBlockNnz3D(
       size_t * times_inds_2 = Xinds[times_mat_index_2];
       size_t tmp_i_2 = times_inds_2[tidx + nnz_blk_begin] - inds_low_allblocks[times_mat_index_2];  // local base
       sptScalar tmp_val = 0;
-      printf("[tidx: %lu, bidx: %lu] nnz_blk_begin: %lu, mode_ind[tidx + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", tidx, bidx, nnz_blk_begin, mode_ind[tidx + nnz_blk_begin], mode_i, entry, tmp_i, times_mat[tmp_i * stride + 0], tmp_i_2, times_mat_2[tmp_i_2 * stride + 0]);
+      // printf("[tidx: %lu, bidx: %lu] nnz_blk_begin: %lu, mode_ind[tidx + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", tidx, bidx, nnz_blk_begin, mode_ind[tidx + nnz_blk_begin], mode_i, entry, tmp_i, times_mat[tmp_i * stride + 0], tmp_i_2, times_mat_2[tmp_i_2 * stride + 0]);
       for(size_t r=0; r<R; ++r) {
         tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
         atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);

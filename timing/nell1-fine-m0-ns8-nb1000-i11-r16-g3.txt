@@ -1,0 +1,1078 @@
+input file: /nethome/jli458/BIGTENSORS/nell1.tns
+Mode = 0
+impl_num = 11
+smem_size = 48000
+smemwords: 6000
+nstreams = 8
+nblocks = 1000
+cuda_dev_id = 3
+R = 16
+max_nstreams = 4
+Tensor NNZ: 143599552
+max_nthreadsx: 256
+stride: 16
+mats_order:
+0, 1, 2
+queue_size: 8000 (8 * 1000)
+Calculated split_nnz_len: 256
+nnz_split_begin: 0, nnz_split_next: 0
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.073596 s
+
+nnz_split_begin: 0, nnz_split_next: 2048000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.058890 s
+
+nnz_split_begin: 2048000, nnz_split_next: 4096000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.065488 s
+
+nnz_split_begin: 4096000, nnz_split_next: 6144000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.065107 s
+
+nnz_split_begin: 6144000, nnz_split_next: 8192000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.079497 s
+
+nnz_split_begin: 8192000, nnz_split_next: 10240000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.081492 s
+
+nnz_split_begin: 10240000, nnz_split_next: 12288000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.068557 s
+
+nnz_split_begin: 12288000, nnz_split_next: 14336000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.070495 s
+
+nnz_split_begin: 14336000, nnz_split_next: 16384000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.077172 s
+
+nnz_split_begin: 16384000, nnz_split_next: 18432000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.074106 s
+
+nnz_split_begin: 18432000, nnz_split_next: 20480000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.078486 s
+
+nnz_split_begin: 20480000, nnz_split_next: 22528000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.069090 s
+
+nnz_split_begin: 22528000, nnz_split_next: 24576000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.088939 s
+
+nnz_split_begin: 24576000, nnz_split_next: 26624000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.074434 s
+
+nnz_split_begin: 26624000, nnz_split_next: 28672000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.078085 s
+
+nnz_split_begin: 28672000, nnz_split_next: 30720000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.070275 s
+
+nnz_split_begin: 30720000, nnz_split_next: 32768000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.067950 s
+
+nnz_split_begin: 32768000, nnz_split_next: 34816000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.073382 s
+
+nnz_split_begin: 34816000, nnz_split_next: 36864000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.081160 s
+
+nnz_split_begin: 36864000, nnz_split_next: 38912000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.069790 s
+
+nnz_split_begin: 38912000, nnz_split_next: 40960000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.075692 s
+
+nnz_split_begin: 40960000, nnz_split_next: 43008000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.078547 s
+
+nnz_split_begin: 43008000, nnz_split_next: 45056000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.083880 s
+
+nnz_split_begin: 45056000, nnz_split_next: 47104000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.069864 s
+
+nnz_split_begin: 47104000, nnz_split_next: 49152000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.071984 s
+
+nnz_split_begin: 49152000, nnz_split_next: 51200000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.078683 s
+
+nnz_split_begin: 51200000, nnz_split_next: 53248000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.076776 s
+
+nnz_split_begin: 53248000, nnz_split_next: 55296000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.080365 s
+
+nnz_split_begin: 55296000, nnz_split_next: 57344000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.073189 s
+
+nnz_split_begin: 57344000, nnz_split_next: 59392000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.077951 s
+
+nnz_split_begin: 59392000, nnz_split_next: 61440000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.067108 s
+
+nnz_split_begin: 61440000, nnz_split_next: 63488000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.064155 s
+
+nnz_split_begin: 63488000, nnz_split_next: 65536000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.083214 s
+
+nnz_split_begin: 65536000, nnz_split_next: 67584000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.065663 s
+
+nnz_split_begin: 67584000, nnz_split_next: 69632000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.075240 s
+
+nnz_split_begin: 69632000, nnz_split_next: 71680000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.084663 s
+
+nnz_split_begin: 71680000, nnz_split_next: 73728000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.071957 s
+
+nnz_split_begin: 73728000, nnz_split_next: 75776000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.082424 s
+
+nnz_split_begin: 75776000, nnz_split_next: 77824000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.070015 s
+
+nnz_split_begin: 77824000, nnz_split_next: 79872000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.070134 s
+
+nnz_split_begin: 79872000, nnz_split_next: 81920000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.075690 s
+
+nnz_split_begin: 81920000, nnz_split_next: 83968000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.068926 s
+
+nnz_split_begin: 83968000, nnz_split_next: 86016000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.067013 s
+
+nnz_split_begin: 86016000, nnz_split_next: 88064000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.069946 s
+
+nnz_split_begin: 88064000, nnz_split_next: 90112000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.077260 s
+
+nnz_split_begin: 90112000, nnz_split_next: 92160000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.102917 s
+
+nnz_split_begin: 92160000, nnz_split_next: 94208000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.065103 s
+
+nnz_split_begin: 94208000, nnz_split_next: 96256000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.063462 s
+
+nnz_split_begin: 96256000, nnz_split_next: 98304000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.072456 s
+
+nnz_split_begin: 98304000, nnz_split_next: 100352000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.064814 s
+
+nnz_split_begin: 100352000, nnz_split_next: 102400000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.061561 s
+
+nnz_split_begin: 102400000, nnz_split_next: 104448000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.075571 s
+
+nnz_split_begin: 104448000, nnz_split_next: 106496000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.057782 s
+
+nnz_split_begin: 106496000, nnz_split_next: 108544000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.068474 s
+
+nnz_split_begin: 108544000, nnz_split_next: 110592000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.062421 s
+
+nnz_split_begin: 110592000, nnz_split_next: 112640000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.079973 s
+
+nnz_split_begin: 112640000, nnz_split_next: 114688000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.067686 s
+
+nnz_split_begin: 114688000, nnz_split_next: 116736000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.062053 s
+
+nnz_split_begin: 116736000, nnz_split_next: 118784000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.065060 s
+
+nnz_split_begin: 118784000, nnz_split_next: 120832000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.070963 s
+
+nnz_split_begin: 120832000, nnz_split_next: 122880000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.067309 s
+
+nnz_split_begin: 122880000, nnz_split_next: 124928000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.080417 s
+
+nnz_split_begin: 124928000, nnz_split_next: 126976000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.084425 s
+
+nnz_split_begin: 126976000, nnz_split_next: 129024000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.066226 s
+
+nnz_split_begin: 129024000, nnz_split_next: 131072000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.060053 s
+
+nnz_split_begin: 131072000, nnz_split_next: 133120000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.067236 s
+
+nnz_split_begin: 133120000, nnz_split_next: 135168000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.068611 s
+
+nnz_split_begin: 135168000, nnz_split_next: 137216000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.059177 s
+
+nnz_split_begin: 137216000, nnz_split_next: 139264000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.064145 s
+
+nnz_split_begin: 139264000, nnz_split_next: 141312000
+real_queue_size: 8000
+total_nstreams: 8, batched_nstreams: 2, rest_nblocks: 1000
+sbatch_idx: 0, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+sbatch_idx: 1, stream_count: 4
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+spt_MTTKRPKernelBlockNnz3D<1000, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.057525 s
+
+nnz_split_begin: 141312000, nnz_split_next: 143360000
+real_queue_size: 936
+total_nstreams: 1, batched_nstreams: 1, rest_nblocks: 936
+sbatch_idx: 0, stream_count: 1
+spt_MTTKRPKernelBlockNnz3D<936, (256, 1)>
+[CUDA SpTns One MTTKRP (per Stream)]: 0.008507 s
+
+Total nsplits: 560936
+
+[CUDA SpTns Fine-One MTTKRP]: 5.050258 s
+

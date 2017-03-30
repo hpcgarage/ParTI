@@ -1,0 +1,29 @@
+input file: /nethome/jli458/BIGTENSORS/choa200k.tns
+Tensor ndims:
+199880, 8086, 656
+Tensor NNZ: 7598531
+mats_order:
+1, 2, 0
+[CUDA SpTns MTTKRP H2D]: 0.247660472 s
+[Bandwidth H2D]: 0.915076 GBytes/sec
+all_nblocks: 237455, nthreadsx: 16, nthreadsy: 32
+block_offset: 0
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 32768
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 65536
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 98304
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 131072
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 163840
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 196608
+Execute spt_MTTKRPKernelRankSplitNnz3D (32768, (16, 32))
+block_offset: 229376
+Execute spt_MTTKRPKernelRankSplitNnz3D (8079, (16, 32))
+[CUDA SpTns MTTKRP]: 0.038895925 s
+[GFLOPS]: 6.251375 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.000178316 s
+[Bandwidth D2H]: 2.902219 GBytes/sec

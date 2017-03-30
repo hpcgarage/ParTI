@@ -1,0 +1,49 @@
+input file: /nethome/jli458/BIGTENSORS/nell1.tns
+Tensor ndims:
+2902330, 2143368, 25495389
+Tensor NNZ: 143599552
+mats_order:
+0, 1, 2
+[CUDA SpTns MTTKRP H2D]: 1.732077092 s
+[Bandwidth H2D]: 3.557097 GBytes/sec
+all_nblocks: 560936, nthreadsx: 256, nthreadsy: 0
+block_offset: 0
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 32768
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 65536
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 98304
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 131072
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 163840
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 196608
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 229376
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 262144
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 294912
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 327680
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 360448
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 393216
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 425984
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 458752
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 491520
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 524288
+Execute spt_MTTKRPKernelNnz3D (32768, 256)
+block_offset: 557056
+Execute spt_MTTKRPKernelNnz3D (3880, 256)
+[CUDA SpTns MTTKRP]: 4.465542872 s
+[GFLOPS]: 1.029032 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.029030206 s
+[Bandwidth D2H]: 6.398478 GBytes/sec

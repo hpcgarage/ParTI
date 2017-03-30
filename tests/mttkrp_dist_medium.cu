@@ -22,7 +22,6 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-#define COARSEGRAIN
 
 template <typename T>
 static void print_array(const T array[], size_t length, T start_index) {
@@ -35,6 +34,7 @@ static void print_array(const T array[], size_t length, T start_index) {
         printf(", %d", (int) (array[i] + start_index));
     }
 }
+
 
 int main(int argc, char const *argv[]) 
 {
@@ -160,6 +160,7 @@ int main(int argc, char const *argv[])
             est_inds_high
         ) == 0);
         printf("real_queue_size: %zu\n", real_queue_size);
+        sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
         // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
     
@@ -203,6 +204,7 @@ int main(int argc, char const *argv[])
     sptFreeMatrix(U[nmodes]);
     free(U);
     free(split_idx_len);
+    free(est_inds_low);
     
 
     delete[] gpu_map;

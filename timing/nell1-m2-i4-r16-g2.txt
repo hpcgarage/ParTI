@@ -1,0 +1,287 @@
+input file: /nethome/jli458/BIGTENSORS/nell1.tns
+Tensor ndims:
+2902330, 2143368, 25495389
+Tensor NNZ: 143599552
+mats_order:
+2, 0, 1
+[CUDA SpTns MTTKRP H2D]: 1.390119583 s
+[Bandwidth H2D]: 5.472279 GBytes/sec
+all_nblocks: 4487486, nthreadsx: 16, nthreadsy: 32
+block_offset: 0
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 32768
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 65536
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 98304
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 131072
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 163840
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 196608
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 229376
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 262144
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 294912
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 327680
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 360448
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 393216
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 425984
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 458752
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 491520
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 524288
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 557056
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 589824
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 622592
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 655360
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 688128
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 720896
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 753664
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 786432
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 819200
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 851968
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 884736
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 917504
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 950272
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 983040
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1015808
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1048576
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1081344
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1114112
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1146880
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1179648
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1212416
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1245184
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1277952
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1310720
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1343488
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1376256
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1409024
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1441792
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1474560
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1507328
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1540096
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1572864
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1605632
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1638400
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1671168
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1703936
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1736704
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1769472
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1802240
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1835008
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1867776
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1900544
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1933312
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1966080
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 1998848
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2031616
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2064384
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2097152
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2129920
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2162688
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2195456
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2228224
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2260992
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2293760
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2326528
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2359296
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2392064
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2424832
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2457600
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2490368
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2523136
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2555904
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2588672
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2621440
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2654208
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2686976
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2719744
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2752512
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2785280
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2818048
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2850816
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2883584
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2916352
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2949120
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 2981888
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3014656
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3047424
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3080192
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3112960
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3145728
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3178496
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3211264
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3244032
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3276800
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3309568
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3342336
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3375104
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3407872
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3440640
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3473408
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3506176
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3538944
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3571712
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3604480
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3637248
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3670016
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3702784
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3735552
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3768320
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3801088
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3833856
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3866624
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3899392
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3932160
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3964928
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 3997696
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4030464
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4063232
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4096000
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4128768
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4161536
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4194304
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4227072
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4259840
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4292608
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4325376
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4358144
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4390912
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4423680
+Execute spt_MTTKRPKernelRankNnz3D (32768, (16, 32))
+block_offset: 4456448
+Execute spt_MTTKRPKernelRankNnz3D (31038, (16, 32))
+[CUDA SpTns MTTKRP]: 0.298745271 s
+[GFLOPS]: 15.381618 GFlops 
+[CUDA SpTns MTTKRP D2H]: 0.291269765 s
+[Bandwidth D2H]: 5.602040 GBytes/sec

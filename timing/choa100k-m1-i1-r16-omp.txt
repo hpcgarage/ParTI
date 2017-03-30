@@ -1,0 +1,8 @@
+input file: /nethome/jli458/BIGTENSORS/choa100k.tns
+Tensor ndims:
+99960, 7170, 598
+Tensor NNZ: 4142857
+mats_order:
+1, 2, 0
+nthreads: 32
+[OMP  SpTns MTTKRP]: 0.305410248 s
