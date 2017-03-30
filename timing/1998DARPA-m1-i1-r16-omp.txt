@@ -1,8 +1,0 @@
-input file: /nethome/jli458/BIGTENSORS/1998DARPA.tns
-Tensor ndims:
-22476, 22476, 23776223
-Tensor NNZ: 28436033
-mats_order:
-1, 2, 0
-nthreads: 32
-[OMP  SpTns MTTKRP]: 2.040189447 s

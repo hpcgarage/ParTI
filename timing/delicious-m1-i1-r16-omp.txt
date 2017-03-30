@@ -1,8 +1,0 @@
-input file: /nethome/jli458/BIGTENSORS/delicious.tns
-Tensor ndims:
-532924, 17262471, 2480308
-Tensor NNZ: 140126181
-mats_order:
-1, 2, 0
-nthreads: 32
-[OMP  SpTns MTTKRP]: 13.110207810 s
