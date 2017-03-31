@@ -19,7 +19,7 @@ nstreams=8
 nblocks=32000
 
 
-for tsr_name in "${s3tsrs[@]}"
+for tsr_name in "${l3tsrs[@]}"
 do
 	# Single Split GPU code, fine-grain. impl_num=11, 15.
 	dev_id=3

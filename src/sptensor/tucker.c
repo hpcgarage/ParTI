@@ -48,6 +48,5 @@ int sptTuckerDecomposition(
 
         // if(iter != 0 && fitchange < fitchangetol) {
             break;
-        }
     }
 }

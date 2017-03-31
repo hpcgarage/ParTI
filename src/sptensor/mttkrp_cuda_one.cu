@@ -378,6 +378,7 @@ int sptCudaOneMTTKRP(
             // sptDumpMatrix(&part_prod, stdout);
 
             /* mats[nmodes] += part_prod */
+            #pragma omp parallel for
             for(size_t i = 0; i < stream_mode_dim * stride; ++i) {
                 size_t j = i + min_inds_low[stream_idx][mode] * stride;
                 mats[nmodes]->values[j] += part_prod.values[j];
