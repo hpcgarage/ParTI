@@ -87,20 +87,6 @@ typedef struct {
     sptVector     values;      /// non-zero values, length nnz
 } sptSparseTensor;
 
-/**
- * Block-sorted Sparse tensor type
- */
-typedef struct {
-    size_t        nmodes;  /// # modes
-    size_t        *sortorder; /// the mode sorting order
-    size_t        *ndims;  /// size of each mode, length nmodes
-    size_t        nnz;     /// # non-zeros
-    size_t        blksize;  /// same block size for each mode
-    size_t        nblks;  /// number of blocks
-    size_t        *blkptrs; /// Pointers to the beginning of each block.
-    sptSizeVector *inds;   /// indices of each element, length [nmodes][nnz]
-    sptVector     values;  /// non-zero values, length nnz
-} sptBlockSparseTensor;
 
 /**
  * Semi-sparse tensor type
@@ -381,7 +367,24 @@ int sptCudaDistributedMTTKRP(
     size_t const mats_order[],
     size_t const mode,
     int const gpu_map[]);
+
 int sptCudaOneMTTKRP(
+    double *queue_time,
+    int const split_grain,
+    sptSparseTensor * const tsr,
+    struct spt_TagSplitResult const *splits,
+    size_t const queue_size,
+    size_t const nblocks,
+    sptMatrix *mats[],
+    size_t const mats_order[],
+    size_t const mode,
+    size_t const nnz_split_begin,
+    size_t const max_nstreams,
+    size_t const max_nthreadsy,
+    size_t const impl_num,
+    size_t const cuda_dev_id);
+
+int sptCudaOneMTTKRPAsync(
     double *queue_time,
     int const split_grain,
     sptSparseTensor * const tsr,

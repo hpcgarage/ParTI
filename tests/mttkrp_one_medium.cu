@@ -112,9 +112,9 @@ int main(int argc, char const *argv[])
     }
     size_t max_ndims = 0;
     for(size_t m=0; m<nmodes; ++m) {
-      // sptAssert(sptRandomizeMatrix(U[m], ndims[m], R) == 0);
-      sptAssert(sptNewMatrix(U[m], ndims[m], R) == 0);
-      sptAssert(sptConstantMatrix(U[m], 1) == 0);
+      sptAssert(sptRandomizeMatrix(U[m], ndims[m], R) == 0);
+      // sptAssert(sptNewMatrix(U[m], ndims[m], R) == 0);
+      // sptAssert(sptConstantMatrix(U[m], 1) == 0);
       if(ndims[m] > max_ndims)
         max_ndims = ndims[m];
     }
@@ -122,6 +122,9 @@ int main(int argc, char const *argv[])
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     size_t stride = U[nmodes]->stride;
     printf("stride: %zu\n", stride);
+
+    printf("U[2]:\n");
+    sptDumpMatrix(U[2], stdout);
 
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
@@ -175,7 +178,7 @@ int main(int argc, char const *argv[])
         printf("real_queue_size: %zu\n", real_queue_size);
         sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
-        // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
+        spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
  
         sptAssert(sptCudaOneMTTKRP(
             &queue_time,

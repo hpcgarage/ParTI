@@ -403,15 +403,15 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
     const size_t bidx = blockIdx.x; // index block, also nnz
     const size_t num_loops = R / blockDim.x;
     const size_t rest_loop = R - num_loops * blockDim.x;
-    if(tidx == 0 && bidx == 0)
-        printf("Execute spt_MTTKRPKernelBlockRankSplitNnz3D kernel.\n");
+    // if(tidx == 0 && bidx == 0)
+    //     printf("Execute spt_MTTKRPKernelBlockRankSplitNnz3D kernel.\n");
     
 
     /* block range */
     const size_t nnz_blk = nnz[bidx];
     const size_t nnz_blk_begin = dev_nnz_blk_begin[bidx];
-    if(tidy == 0)
-        printf("bidx: %lu, nnz_blk: %lu, nnz_blk_begin: %lu\n", bidx, nnz_blk, nnz_blk_begin);
+    // if(tidy == 0)
+    //     printf("bidx: %lu, nnz_blk: %lu, nnz_blk_begin: %lu\n", bidx, nnz_blk, nnz_blk_begin);
 
     size_t const * const mode_ind = Xinds[mode];
     sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
@@ -430,22 +430,24 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
       size_t tmp_i_2 = times_inds_2[tidy + nnz_blk_begin] - inds_low_allblocks[times_mat_index_2];  // local base
       sptScalar tmp_val = 0;
       size_t r;
-      printf("[tidy: %lu, bidx: %lu] entry: %f, 1st: %f, 2nd: %f\n", tidy, bidx, entry, times_mat[tmp_i * stride + 0], times_mat_2[tmp_i_2 * stride + 0]);
+      // if(tidx == 0)
+        // printf("[tidy: %lu, bidx: %lu] nnz_blk_begin: %lu, mode_ind[tidx + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", tidy, bidx, nnz_blk_begin, mode_ind[tidy + nnz_blk_begin], mode_i, entry, tmp_i, times_mat[tmp_i * stride + 0], tmp_i_2, times_mat_2[tmp_i_2 * stride + 0]);
 
       for(size_t l=0; l<num_loops; ++l) {
         r = tidx + l * blockDim.x;
         tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
         atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+        __syncthreads();
       }
 
       if(rest_loop > 0 && tidx < rest_loop) {
         r = tidx + num_loops * blockDim.x;
         tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r]; 
         atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+        __syncthreads();
       }
 
     }
-   __syncthreads();
 
 }
 
@@ -501,7 +503,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
       size_t tmp_i_2 = times_inds_2[tidy + nnz_blk_begin] - inds_low_allblocks[times_mat_index_2];  // local base
       sptScalar tmp_val = 0;
       size_t r;
-      printf("[tidy: %lu, bidx: %lu] entry: %f, 1st: %f, 2nd: %f\n", tidy, bidx, entry, times_mat[tmp_i * stride + 0], times_mat_2[tmp_i_2 * stride + 0]);
+      // printf("[tidy: %lu, bidx: %lu] entry: %f, 1st: %f, 2nd: %f\n", tidy, bidx, entry, times_mat[tmp_i * stride + 0], times_mat_2[tmp_i_2 * stride + 0]);
 
       for(size_t l=0; l<num_loops; ++l) {
         r = tidx + l * blockDim.x;
@@ -596,6 +598,9 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     size_t const Xndims_blk_B = Xndims_blk[times_mat_index];
     size_t const Xndims_blk_C = Xndims_blk[times_mat_index_2];
 
+    if(tidx == 0 && tidy == 0 && bidx == 0)
+        printf("OK\n");
+
     sptScalar * const shrA = (sptScalar *) mem_pool; // A: size nrows * stride
     sptScalar * const shrB = (sptScalar *) (shrA + Xndims_blk_A * stride); // B: size nrows * stride
     sptScalar * const shrC = (sptScalar *) (shrB + Xndims_blk_B * stride); // B: size nrows * stride
@@ -623,6 +628,8 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
         }
         __syncthreads();
 
+        if(tidx == 0)
+            printf("[tidy: %lu, bidx: %lu] nnz_blk_begin: %lu, mode_ind[tidy + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", tidy, bidx, nnz_blk_begin, mode_ind[tidy + nnz_blk_begin], mode_i, entry, tmp_i, shrB[tmp_i * stride + 0], tmp_i_2, shrC[tmp_i_2 * stride + 0]);
         tmp_val = entry * shrB[tmp_i * stride + r] * shrC[tmp_i_2 * stride + r];
         atomicAdd(&(shrA[mode_i * stride + r]), tmp_val);
         __syncthreads();

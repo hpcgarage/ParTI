@@ -51,6 +51,11 @@ int main(int argc, char const *argv[])
     sptAssert(sptLoadSparseTensor(&tsr, 1, fX) == 0);
     fclose(fX);
 
+    // for(size_t i=0; i<tsr.nnz; ++i)
+    //     tsr.values.data[i] = 1;
+    // sptSparseTensorSortIndex(&tsr, 1);
+    // sptDumpSparseTensor(&tsr, 0, stdout);
+
     size_t const nmodes = tsr.nmodes;
     size_t * const ndims = tsr.ndims;
 
@@ -122,6 +127,8 @@ int main(int argc, char const *argv[])
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     size_t stride = U[nmodes]->stride;
     printf("stride: %zu\n", stride);
+    // printf("U[0]:\n");
+    // sptDumpMatrix(U[0], stdout);
 
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
