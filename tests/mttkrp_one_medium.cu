@@ -112,19 +112,18 @@ int main(int argc, char const *argv[])
     }
     size_t max_ndims = 0;
     for(size_t m=0; m<nmodes; ++m) {
-      sptAssert(sptRandomizeMatrix(U[m], ndims[m], R) == 0);
-      // sptAssert(sptNewMatrix(U[m], ndims[m], R) == 0);
-      // sptAssert(sptConstantMatrix(U[m], 1) == 0);
+      // sptAssert(sptRandomizeMatrix(U[m], ndims[m], R) == 0);
+      sptAssert(sptNewMatrix(U[m], ndims[m], R) == 0);
+      sptAssert(sptConstantMatrix(U[m], 1) == 0);
       if(ndims[m] > max_ndims)
         max_ndims = ndims[m];
+    // printf("U[%zu]:\n", m);
+    // sptDumpMatrix(U[m], stdout);
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     size_t stride = U[nmodes]->stride;
     printf("stride: %zu\n", stride);
-
-    printf("U[2]:\n");
-    sptDumpMatrix(U[2], stdout);
 
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
@@ -147,7 +146,11 @@ int main(int argc, char const *argv[])
     size_t * est_inds_high = est_inds_low + nmodes;
     size_t nnz_split_begin = 0;
     size_t nnz_split_next = 0;
-    double queue_time = 0, total_time = 0;
+    double queue_time = 0, queue_time_h2d = 0, queue_time_d2h = 0, queue_time_reduce = 0, split_time = 0;
+    double total_time = 0, total_time_h2d = 0, total_time_d2h = 0, total_time_reduce = 0, total_split_time = 0;
+
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
 
     sptAssert( spt_ComputeMediumSplitParameters(split_idx_len, &tsr, stride, smemwords) ==0 );
     printf("\nCalculated split_idx_len:\n");
@@ -158,12 +161,15 @@ int main(int argc, char const *argv[])
         est_inds_high[i] = 0;
     }
 
+
+
     spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
     while (nnz_split_next < tsr.nnz) {
         printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
         nnz_split_begin = nnz_split_next;
 
         size_t real_queue_size = 0;
+        sptStartTimer(timer);
         sptAssert(spt_MediumSplitSparseTensorBatch(
             splits,
             &nnz_split_next,
@@ -175,13 +181,20 @@ int main(int argc, char const *argv[])
             est_inds_low,
             est_inds_high
         ) == 0);
+        sptStopTimer(timer);
+        split_time = sptElapsedTime(timer);
+        total_split_time += split_time;
         printf("real_queue_size: %zu\n", real_queue_size);
+        printf("split time (per Stream): %lf s\n", split_time);
         sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
-        spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
+        // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
  
         sptAssert(sptCudaOneMTTKRP(
             &queue_time,
+            &queue_time_h2d,
+            &queue_time_d2h,
+            &queue_time_reduce,
             split_grain,
             &tsr,
             splits,
@@ -193,10 +206,14 @@ int main(int argc, char const *argv[])
             nnz_split_begin,
             max_nstreams,
             max_nthreadsy,
+            smem_size,
             impl_num,
             cuda_dev_id
         ) == 0);
         total_time += queue_time;
+        total_time_h2d += queue_time_h2d;
+        total_time_d2h += queue_time_d2h;
+        total_time_reduce += queue_time_reduce;
 
         spt_SparseTensorFreeAllSplits(splits, real_queue_size);
         
@@ -206,7 +223,11 @@ int main(int argc, char const *argv[])
     // sptDumpMatrix(U[nmodes], stdout);
 
     printf("Total nsplits: %zu\n", nsplits);
-    printf("\n[CUDA SpTns Medium-One MTTKRP]: %lf s\n\n", total_time);  
+    printf("\n[CUDA SpTns Medium-One MTTKRP]: %lf s\n", total_time);  
+    printf("\tsplit time: %lf s\n", split_time);
+    printf("\tH2D time: %lf s\n", total_time_h2d);
+    printf("\tD2H time: %lf s\n", total_time_d2h);
+    printf("\treduce time: %lf s\n\n", total_time_reduce);
     
 
 
@@ -229,7 +250,8 @@ int main(int argc, char const *argv[])
     free(U);
     free(split_idx_len);
     free(est_inds_low);
-    
+
+    sptFreeTimer(timer);    
 
     return 0;
 }

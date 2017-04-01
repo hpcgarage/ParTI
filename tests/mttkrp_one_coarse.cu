@@ -146,7 +146,11 @@ int main(int argc, char const *argv[])
     size_t * split_idx_len = (size_t*)malloc(queue_size * sizeof(size_t));
     size_t nnz_split_begin = 0;
     size_t nnz_split_next = 0;
-    double queue_time = 0, total_time = 0;
+    double queue_time = 0, queue_time_h2d = 0, queue_time_d2h = 0, queue_time_reduce = 0, split_time = 0;
+    double total_time = 0, total_time_h2d = 0, total_time_d2h = 0, total_time_reduce = 0, total_split_time = 0;
+
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
 
     spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
     while (nnz_split_next < tsr.nnz) {
@@ -154,6 +158,8 @@ int main(int argc, char const *argv[])
         nnz_split_begin = nnz_split_next;
         size_t idx_begin = tsr.inds[mode].data[nnz_split_begin];
         printf("idx_begin: %lu\n", idx_begin);
+
+        sptStartTimer(timer);
         sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, stride, smemwords, max_nthreadsx) == 0);
         // printf("idx_begin: %zu\n", idx_begin);
         printf("Calculated split_idx_len: \n");
@@ -170,13 +176,20 @@ int main(int argc, char const *argv[])
             &tsr,
             nnz_split_begin
         ) == 0);
+        sptStopTimer(timer);
+        split_time = sptElapsedTime(timer);
+        total_split_time += split_time;
         printf("real_queue_size: %zu\n", real_queue_size);
+        printf("split time (per Stream): %lf s\n", split_time);
         sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
         // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
  
         sptAssert(sptCudaOneMTTKRP(
             &queue_time,
+            &queue_time_h2d,
+            &queue_time_d2h,
+            &queue_time_reduce,
             split_grain,
             &tsr,
             splits,
@@ -188,10 +201,14 @@ int main(int argc, char const *argv[])
             nnz_split_begin,
             max_nstreams,
             max_nthreadsy,
+            smem_size,
             impl_num,
             cuda_dev_id
         ) == 0);
         total_time += queue_time;
+        total_time_h2d += queue_time_h2d;
+        total_time_d2h += queue_time_d2h;
+        total_time_reduce += queue_time_reduce;
 
         spt_SparseTensorFreeAllSplits(splits, real_queue_size);
         
@@ -201,8 +218,11 @@ int main(int argc, char const *argv[])
     // sptDumpMatrix(U[nmodes], stdout);
 
     printf("Total nsplits: %zu\n", nsplits);
-    printf("\n[CUDA SpTns Coarse-One MTTKRP]: %lf s\n\n", total_time);  
-    
+    printf("\n[CUDA SpTns Coarse-One MTTKRP]: %lf s\n", total_time);  
+    printf("\tsplit time: %lf s\n", split_time);
+    printf("\tH2D time: %lf s\n", total_time_h2d);
+    printf("\tD2H time: %lf s\n", total_time_d2h);
+    printf("\treduce time: %lf s\n\n", total_time_reduce);
 
 
     for(size_t m=0; m<nmodes; ++m) {

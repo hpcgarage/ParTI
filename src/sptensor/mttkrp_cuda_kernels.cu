@@ -20,6 +20,33 @@
 #include <cuda_runtime.h>
 
 
+template <typename T>
+__device__ static void print_array(const T array[], size_t length, T start_index) {
+    if(length == 0) {
+        return;
+    }
+    printf("%d", (int) (array[0] + start_index));
+    size_t i;
+    for(i = 1; i < length; ++i) {
+        printf(", %d", (int) (array[i] + start_index));
+    }
+    printf("\n");
+}
+
+
+__device__ static void print_array(const sptScalar array[], size_t length, size_t start_index) {
+    if(length == 0) {
+        return;
+    }
+    printf("%.2f", array[0] + start_index);
+    size_t i;
+    for(i = 1; i < length; ++i) {
+        printf(", %.2f", array[i] + start_index);
+    }
+    printf("\n");
+}
+
+
 __device__ void lock(int* mutex) {
   /* compare mutex to 0.
      when it equals 0, set it to 1
@@ -33,6 +60,9 @@ __device__ void lock(int* mutex) {
 __device__ void unlock(int* mutex) {
     atomicExch(mutex, 0);
 }
+
+
+
 
 
 /* impl_num = 01 */
@@ -598,12 +628,13 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     size_t const Xndims_blk_B = Xndims_blk[times_mat_index];
     size_t const Xndims_blk_C = Xndims_blk[times_mat_index_2];
 
-    if(tidx == 0 && tidy == 0 && bidx == 0)
-        printf("OK\n");
+    // printf("[%lu, (%lu, %lu)]  (Xndims_blk_A: %lu, Xndims_blk_B: %lu, Xndims_blk_C: %lu); (inds_low_blk_A: %lu, inds_low_blk_B: %lu, inds_low_blk_C: %lu); (inds_low_allblocks_A: %lu, inds_low_allblocks_B: %lu, inds_low_allblocks_C: %lu)\n", bidx, tidx, tidy, Xndims_blk_A, Xndims_blk_B, Xndims_blk_C, inds_low_blk_A, inds_low_blk_B, inds_low_blk_C, inds_low_allblocks_A, inds_low_allblocks_B, inds_low_allblocks_C);
+
 
     sptScalar * const shrA = (sptScalar *) mem_pool; // A: size nrows * stride
     sptScalar * const shrB = (sptScalar *) (shrA + Xndims_blk_A * stride); // B: size nrows * stride
-    sptScalar * const shrC = (sptScalar *) (shrB + Xndims_blk_B * stride); // B: size nrows * stride
+    sptScalar * const shrC = (sptScalar *) (shrB + Xndims_blk_B * stride); // C: size nrows * stride
+
 
     if(tidy < nnz_blk) {
       size_t const mode_i = mode_ind[tidy + nnz_blk_begin] - inds_low_blk_A;    // local base for block
@@ -619,17 +650,21 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
 
         if(tidy < Xndims_blk_A) {
             shrA[tidy * stride + r] = 0;
+            // if(tidx ==0)
+            //     printf("[%lu, (0, %lu)]  shrA ele: %.2f\n", bidx, tidy, shrA[tidy * stride + 0]);
         }
         if(tidy < Xndims_blk_B) {
             shrB[tidy * stride + r] = times_mat[(tidy + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
+            // if(tidx == 0)
+            //     printf("[%lu, (0, %lu)]  times_mat ele: %.2f, shrB ele: %.2f\n", bidx, tidy, times_mat[(tidy + inds_low_blk_B - inds_low_allblocks_B) * stride + 0], shrB[tidy * stride + 0]);
         }
         if(tidy < Xndims_blk_C) {
             shrC[tidy * stride + r] = times_mat_2[(tidy + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
         }
         __syncthreads();
 
-        if(tidx == 0)
-            printf("[tidy: %lu, bidx: %lu] nnz_blk_begin: %lu, mode_ind[tidy + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", tidy, bidx, nnz_blk_begin, mode_ind[tidy + nnz_blk_begin], mode_i, entry, tmp_i, shrB[tmp_i * stride + 0], tmp_i_2, shrC[tmp_i_2 * stride + 0]);
+        // if(tidx == 0)
+        //     printf("[%lu, (0, %lu)]  nnz_blk_begin: %lu, mode_ind[tidy + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", bidx, tidy, nnz_blk_begin, mode_ind[tidy + nnz_blk_begin], mode_i, entry, tmp_i, shrB[tmp_i * stride + 0], tmp_i_2, shrC[tmp_i_2 * stride + 0]);
         tmp_val = entry * shrB[tmp_i * stride + r] * shrC[tmp_i_2 * stride + r];
         atomicAdd(&(shrA[mode_i * stride + r]), tmp_val);
         __syncthreads();
@@ -665,6 +700,7 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
       }
 
     }
+
 
 }
 

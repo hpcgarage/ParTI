@@ -41,6 +41,9 @@
  */
 int sptCudaOneMTTKRP(
     double *queue_time,
+    double *queue_time_h2d,
+    double *queue_time_d2h,
+    double *queue_time_reduce,
     int const split_grain,
     sptSparseTensor * const tsr,
     spt_SplitResult const *splits,
@@ -52,6 +55,7 @@ int sptCudaOneMTTKRP(
     size_t const nnz_split_begin,
     size_t const max_nstreams,
     size_t const max_nthreadsy,
+    size_t const smem_size,
     size_t const impl_num,
     size_t const cuda_dev_id) 
 {
@@ -140,7 +144,7 @@ int sptCudaOneMTTKRP(
     size_t rest_nblocks = queue_size - (total_nstreams - 1) * nblocks;
     size_t batched_nstreams = (total_nstreams-1)/max_nstreams + 1;
     printf("total_nstreams: %zu, batched_nstreams: %zu, rest_nblocks: %zu\n", total_nstreams, batched_nstreams, rest_nblocks);
-    double elapsed_time = 0;
+    double elapsed_time = 0, time_h2d = 0, time_d2h = 0, time_reduce = 0;
     sptTimer timer;
     sptNewTimer(&timer, 0);
     size_t nnz_begin = nnz_split_begin;
@@ -201,6 +205,9 @@ int sptCudaOneMTTKRP(
             // printf("max_nnz_stream:\n");
             // spt_DumpArray(max_nnz_stream, stream_idx+1, 0, stdout);
 
+
+            sptStartTimer(timer);
+
             /* dev_inds_low */
             result = sptCudaDuplicateMemoryIndirect(&dev_inds_low[stream_idx], inds_low_header, nblocks_count[stream_idx], nmodes, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
@@ -218,6 +225,8 @@ int sptCudaOneMTTKRP(
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
             /* dev_min_inds_low */
+            // printf("min_inds_low[%zu]:\n", stream_idx);
+            // spt_DumpArray(min_inds_low[stream_idx], nmodes, 0, stdout);
             result = sptCudaDuplicateMemory(&dev_min_inds_low[stream_idx], min_inds_low[stream_idx], nmodes * sizeof (size_t), cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
@@ -235,8 +244,8 @@ int sptCudaOneMTTKRP(
             result = sptCudaDuplicateMemoryIndirect(&dev_mats[stream_idx], mats_header, nmodes+1, lengths, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
-            /* Copy back the pointer to dev_mats[gpu_idx][nmodes] to the result */
-            result = cudaMemcpy(&dev_part_prod[stream_idx], &(dev_mats[stream_idx][nmodes]), sizeof dev_part_prod, cudaMemcpyDeviceToHost);
+            /* Copy back the pointer to dev_mats[stream_idx][nmodes] to the result */
+            result = cudaMemcpy(&dev_part_prod[stream_idx], &(dev_mats[stream_idx][nmodes]), sizeof *dev_part_prod, cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
 
             /* dev_part_prod = 0 */
@@ -257,6 +266,9 @@ int sptCudaOneMTTKRP(
             /* dev_Xvals */
             result = sptCudaDuplicateMemory(&dev_Xvals[stream_idx], tsr->values.data + nnz_begin, sum_nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
+
+            sptStopTimer(timer);
+            time_h2d += sptElapsedTime(timer);
 
             nnz_begin += sum_nnz;
 
@@ -321,7 +333,7 @@ int sptCudaOneMTTKRP(
                     if(split_grain != 1)
                         printf("Error: wrong impl_num for coarse grain.\n");
                     printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<<<real_nblocks, dimBlock>>>(
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<<<real_nblocks, dimBlock, smem_size>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -340,7 +352,7 @@ int sptCudaOneMTTKRP(
                     if(split_grain != 3)
                         printf("Error: wrong impl_num for coarse grain.\n");
                     printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<<<real_nblocks, dimBlock>>>(
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<<<real_nblocks, dimBlock, smem_size>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -371,20 +383,28 @@ int sptCudaOneMTTKRP(
 
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
             size_t stream_mode_dim = max_inds_high[stream_idx][mode] - min_inds_low[stream_idx][mode];
+
+            sptStartTimer(timer);
             result = cudaMemcpy(part_prod.values + min_inds_low[stream_idx][mode] * stride, dev_part_prod[stream_idx], stream_mode_dim * stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
             spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
+            sptStopTimer(timer);
+            time_d2h += sptElapsedTime(timer);
 
             // printf("[stream %zu] part_prod:\n", stream_idx);
             // sptDumpMatrix(&part_prod, stdout);
 
             /* mats[nmodes] += part_prod */
+            sptStartTimer(timer);
             #pragma omp parallel for
             for(size_t i = 0; i < stream_mode_dim * stride; ++i) {
                 size_t j = i + min_inds_low[stream_idx][mode] * stride;
                 mats[nmodes]->values[j] += part_prod.values[j];
             }
+            sptStopTimer(timer);
+            time_reduce += sptElapsedTime(timer);
 
         }
+
 
 
 
@@ -411,8 +431,14 @@ int sptCudaOneMTTKRP(
     } // End loop for sbatch_idx in [0, batched_nstreams-1]
 
 
-    printf("[CUDA SpTns One MTTKRP (per Stream)]: %lf s\n\n", elapsed_time);
+    printf("[CUDA SpTns One MTTKRP (per Stream)]: %lf s\n", elapsed_time);
+    printf("\tH2D time: %lf s\n", time_h2d);
+    printf("\tD2H time: %lf s\n", time_d2h);
+    printf("\treduce time: %lf s\n\n", time_reduce);
     *queue_time = elapsed_time;
+    *queue_time_h2d = time_h2d;
+    *queue_time_d2h = time_d2h;
+    *queue_time_reduce = time_reduce;
     sptFreeTimer(timer);
 
     delete[] dev_Xvals;

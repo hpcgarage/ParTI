@@ -22,12 +22,12 @@ nblocks=32000
 for tsr_name in "${l3tsrs[@]}"
 do
 	# Single Split GPU code, fine-grain. impl_num=11, 15.
-	dev_id=3
-	for mode in ${modes[@]}
-	do
-		echo "./build/tests/mttkrp_one_fine ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-fine-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt"
-		./build/tests/mttkrp_one_fine ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-fine-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt
-	done
+	# dev_id=3
+	# for mode in ${modes[@]}
+	# do
+	# 	echo "./build/tests/mttkrp_one_fine ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-fine-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt"
+	# 	./build/tests/mttkrp_one_fine ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-fine-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt
+	# done
 
 	# Single Split GPU code, coarse-grain. impl_num=11, 15, 16.
 	# dev_id=3
@@ -59,12 +59,12 @@ do
 
 
 	# OpenMP code
-	# dev_id=-1
-	# for mode in ${modes[@]}
-	# do
-	# 	echo "./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${dev_id} ${R} > timing/${tsr_name}-m${mode}-i${impl_num}-r${R}-omp.txt"
-	# 	./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${dev_id} ${R} > timing/${tsr_name}-m${mode}-i${impl_num}-r${R}-omp.txt
-	# done
+	dev_id=-1
+	for mode in ${modes[@]}
+	do
+		echo "./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${dev_id} ${R} > timing/${tsr_name}-m${mode}-i${impl_num}-r${R}-omp.txt"
+		./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${dev_id} ${R} > timing/${tsr_name}-m${mode}-i${impl_num}-r${R}-omp.txt
+	done
 
 	# Sequetial code
 	# dev_id=-2

@@ -370,6 +370,9 @@ int sptCudaDistributedMTTKRP(
 
 int sptCudaOneMTTKRP(
     double *queue_time,
+    double *queue_time_h2d,
+    double *queue_time_d2h,
+    double *queue_time_reduce,
     int const split_grain,
     sptSparseTensor * const tsr,
     struct spt_TagSplitResult const *splits,
@@ -381,6 +384,7 @@ int sptCudaOneMTTKRP(
     size_t const nnz_split_begin,
     size_t const max_nstreams,
     size_t const max_nthreadsy,
+    size_t const smem_size,
     size_t const impl_num,
     size_t const cuda_dev_id);
 
