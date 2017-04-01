@@ -274,23 +274,31 @@ int sptCudaOneMTTKRP(
 
         } // End loop for stream_idx in [0, stream_count-1]
 
+        size_t max_nthreads_per_block = 256;
         
         sptStartTimer(timer);
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
             size_t nthreadsx, nthreadsy;
             switch(impl_num) {
             case 11:
-                nthreadsx = max_nnz_stream[stream_idx];
+                if(max_nnz_stream[stream_idx] < max_nthreads_per_block) {
+                    nthreadsx = max_nnz_stream[stream_idx];
+                } else {
+                    nthreadsx = max_nthreads_per_block;
+                }
                 nthreadsy = 1;
                 break;
             case 15:
             case 16:
             case 17:
-                nthreadsy = max_nnz_stream[stream_idx];
-                if(R < max_nthreadsy)
+                if(R <= max_nthreadsy)
                     nthreadsx = R;
                 else
                     nthreadsx = max_nthreadsy;
+                nthreadsy = max_nthreads_per_block / nthreadsx;
+                if(max_nnz_stream[stream_idx] < nthreadsy) {
+                    nthreadsy = max_nnz_stream[stream_idx];
+                }
                 break;
             }
             dim3 dimBlock (nthreadsx, nthreadsy);

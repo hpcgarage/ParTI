@@ -306,6 +306,12 @@ int sptCudaMTTKRP(
     size_t * const mats_order,    // Correspond to the mode order of X.
     size_t const mode,
     size_t const impl_num);
+int sptCudaMTTKRPOneKernel(
+    sptSparseTensor const * const X,
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    size_t * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode,
+    size_t const impl_num);
 int sptCudaMTTKRPSM(
     sptSparseTensor const * const X,
     sptMatrix ** const mats,     // mats[nmodes] as temporary space.

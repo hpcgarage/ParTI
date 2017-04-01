@@ -38,7 +38,7 @@
  * In this version, atomic function to lock the global reduction and a large
  * scratch is used to maximize parallelism. (To be optimized)
  */
-int sptCudaMTTKRP(
+int sptCudaMTTKRPOneKernel(
     sptSparseTensor const * const X,
     sptMatrix ** const mats,     // mats[nmodes] as temporary space.
     size_t * const mats_order,    // Correspond to the mode order of X.
@@ -158,10 +158,21 @@ int sptCudaMTTKRP(
     size_t nthreadsx = 0;
     size_t nthreadsy = 0;
     size_t all_nblocks = 0;
+    size_t nblocks = 0;
     switch(impl_num) {
-    case 1: // Naive, 1D
-        nthreadsx = 256;
-        all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
+    case 31: // Naive, 1D
+        if(nnz < max_nthreads_per_block) {
+            nthreadsx = nnz;
+            nblocks = 1;
+        } else {
+            nthreadsx = max_nthreads_per_block;
+            all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
+            if(all_nblocks < max_nblocks) {
+                nblocks = all_nblocks;
+            } else {
+                nblocks = max_nblocks;
+            }
+        }
         break;
     case 2: // 2D
         nthreadsy = R;
@@ -181,35 +192,38 @@ int sptCudaMTTKRP(
         nthreadsy = max_nthreads_per_block / nthreadsx;
         all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
         break;
-    case 5: // 2D, exchange x and y, rank split. Best performance
+    case 35: // 2D, exchange x and y, rank split. Best performance
         if(R <= max_nthreadsy)
             nthreadsx = R;
         else
             nthreadsx = max_nthreadsy;
         nthreadsy = max_nthreads_per_block / nthreadsx;
-        all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
+
+        if(nnz < nthreadsy) {
+            nthreadsy = nnz;
+            nblocks = 1;
+        } else {
+            all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
+            if(all_nblocks < max_nblocks) {
+                nblocks = all_nblocks;
+            } else {
+                nblocks = max_nblocks;
+            }   
+        }
         break;
     }
     dim3 dimBlock(nthreadsx, nthreadsy);
     printf("all_nblocks: %zu, nthreadsx: %zu, nthreadsy: %zu\n", all_nblocks, nthreadsx, nthreadsy);
 
 
-  sptStartTimer(timer);
-
-  for(size_t block_offset = 0; block_offset < all_nblocks; block_offset += max_nblocks) {
-    printf("block_offset: %zu\n", block_offset);
-    size_t nblocks = (all_nblocks > block_offset) ? all_nblocks - block_offset: 0;
-    if(nblocks > max_nblocks) {
-        nblocks = max_nblocks;
-    }
-
+    sptStartTimer(timer);
 
     switch(nmodes) {
     case 3:
         switch(impl_num) {
-        case 1: // Naive
-            printf("Execute spt_MTTKRPKernelNnz3D (%zu, %zu)\n", nblocks, nthreadsx);
-            spt_MTTKRPKernelNnz3D<<<nblocks, nthreadsx>>>(
+        case 31: // Naive
+            printf("Execute spt_MTTKRPKernelNnz3DOneKernel (%zu, %zu)\n", nblocks, nthreadsx);
+            spt_MTTKRPKernelNnz3DOneKernel<<<nblocks, nthreadsx>>>(
                 mode,
                 nmodes,
                 nnz,
@@ -219,57 +233,56 @@ int sptCudaMTTKRP(
                 dev_Xinds,
                 dev_Xvals,
                 dev_mats_order,
-                dev_mats,
-                block_offset);
+                dev_mats);
             break;
         case 2:
             printf("Execute spt_MTTKRPKernelNnzRank3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
-            spt_MTTKRPKernelNnzRank3D<<<nblocks, dimBlock>>>(
-                mode,
-                nmodes,
-                nnz,
-                R,
-                stride,
-                dev_Xndims,
-                dev_Xinds,
-                dev_Xvals,
-                dev_mats_order,
-                dev_mats,
-                block_offset);
+            // spt_MTTKRPKernelNnzRank3D<<<nblocks, dimBlock>>>(
+            //     mode,
+            //     nmodes,
+            //     nnz,
+            //     R,
+            //     stride,
+            //     dev_Xndims,
+            //     dev_Xinds,
+            //     dev_Xvals,
+            //     dev_mats_order,
+            //     dev_mats,
+            //     block_offset);
             break;
         case 3:
             printf("Execute spt_MTTKRPKernelNnzRankSplit3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
-            spt_MTTKRPKernelNnzRankSplit3D<<<nblocks, dimBlock>>>(
-                mode,
-                nmodes,
-                nnz,
-                R,
-                stride,
-                dev_Xndims,
-                dev_Xinds,
-                dev_Xvals,
-                dev_mats_order,
-                dev_mats,
-                block_offset);
+            // spt_MTTKRPKernelNnzRankSplit3D<<<nblocks, dimBlock>>>(
+            //     mode,
+            //     nmodes,
+            //     nnz,
+            //     R,
+            //     stride,
+            //     dev_Xndims,
+            //     dev_Xinds,
+            //     dev_Xvals,
+            //     dev_mats_order,
+            //     dev_mats,
+            //     block_offset);
             break;
         case 4:
             printf("Execute spt_MTTKRPKernelRankNnz3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
-            spt_MTTKRPKernelRankNnz3D<<<nblocks, dimBlock>>>(
-                mode,
-                nmodes,
-                nnz,
-                R,
-                stride,
-                dev_Xndims,
-                dev_Xinds,
-                dev_Xvals,
-                dev_mats_order,
-                dev_mats,
-                block_offset);
+            // spt_MTTKRPKernelRankNnz3D<<<nblocks, dimBlock>>>(
+            //     mode,
+            //     nmodes,
+            //     nnz,
+            //     R,
+            //     stride,
+            //     dev_Xndims,
+            //     dev_Xinds,
+            //     dev_Xvals,
+            //     dev_mats_order,
+            //     dev_mats,
+            //     block_offset);
             break;
-        case 5:
-            printf("Execute spt_MTTKRPKernelRankSplitNnz3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
-            spt_MTTKRPKernelRankSplitNnz3D<<<nblocks, dimBlock>>>(
+        case 35:
+            printf("Execute spt_MTTKRPKernelRankSplitNnz3DOneKernel (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
+            spt_MTTKRPKernelRankSplitNnz3DOneKernel<<<nblocks, dimBlock>>>(
                 mode,
                 nmodes,
                 nnz,
@@ -279,8 +292,7 @@ int sptCudaMTTKRP(
                 dev_Xinds,
                 dev_Xvals,
                 dev_mats_order,
-                dev_mats,
-                block_offset);
+                dev_mats);
             break;
         }   // End switch impl_num
         break;
@@ -307,24 +319,23 @@ int sptCudaMTTKRP(
 
     default:
         printf("Execute spt_MTTKRPKernelScratch (%zu, %zu)\n", nblocks, nthreadsx);
-        spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
-            mode,
-            nmodes,
-            nnz,
-            R,
-            stride,
-            dev_Xndims,
-            dev_Xinds,
-            dev_Xvals,
-            dev_mats_order,
-            dev_mats,
-            dev_scratch,
-            block_offset);
+        // spt_MTTKRPKernelScratch<<<nblocks, nthreadsx>>>(
+        //     mode,
+        //     nmodes,
+        //     nnz,
+        //     R,
+        //     stride,
+        //     dev_Xndims,
+        //     dev_Xinds,
+        //     dev_Xvals,
+        //     dev_mats_order,
+        //     dev_mats,
+        //     dev_scratch,
+        //     block_offset);
     }   // End switch nmodes
     result = cudaThreadSynchronize();
     spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
 
-  } // End loop block_offset
 
 
     sptStopTimer(timer);
@@ -374,61 +385,3 @@ int sptCudaMTTKRP(
 }
 
 
-
-int sptCudaMTTKRPDevice(
-    const size_t mode,
-    const size_t nmodes,
-    const size_t nnz,
-    const size_t rank,
-    const size_t stride,
-    const size_t * Xndims,
-    size_t ** const Xinds,
-    const sptScalar * Xvals,
-    const size_t * dev_mats_order,
-    sptScalar ** dev_mats,
-    sptScalar * dev_scratch)
-{
-  int result;
-
-  result = cudaMemset(dev_scratch, 0, nnz * rank * sizeof (sptScalar));
-  spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-
-  size_t nthreads = 128;
-  const size_t max_nblocks = 32768;
-  size_t all_nblocks = (nnz + nthreads -1) / nthreads;
-
-  // sptTimer timer;
-  // sptNewTimer(&timer, 0);
-  // sptStartTimer(timer);
-
-
-  for(size_t block_offset = 0; block_offset < all_nblocks; block_offset += max_nblocks) {
-    size_t nblocks = all_nblocks - block_offset;
-    if(nblocks > max_nblocks) {
-        nblocks = max_nblocks;
-    }
-    spt_MTTKRPKernelScratch<<<nblocks, nthreads>>>(
-        mode,
-        nmodes,
-        nnz,
-        rank,
-        stride,
-        Xndims,
-        Xinds,
-        Xvals,
-        dev_mats_order,
-        dev_mats,
-        dev_scratch,
-        block_offset
-        );
-    result = cudaThreadSynchronize();
-    spt_CheckCudaError(result != 0, "CUDA SpTns MTTKRP");
-  }
-
-  // sptStopTimer(timer);
-  // sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-  // sptFreeTimer(timer);
-
-
-  return 0;
-}

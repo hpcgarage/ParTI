@@ -109,7 +109,8 @@ int main(int argc, char const *argv[]) {
         sptFreeVector(&scratch);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
+        // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
+        sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
     }
     // sptDumpMatrix(U[nmodes], stdout);
 

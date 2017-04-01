@@ -200,4 +200,29 @@ __global__ void spt_MTTKRPKernelScratchDist(
 
 
 
+/* impl_num = 31 */
+__global__ void spt_MTTKRPKernelNnz3DOneKernel(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t R,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats);
+
+__global__ void spt_MTTKRPKernelRankSplitNnz3DOneKernel(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t nnz,
+    const size_t R,
+    const size_t stride,
+    const size_t * Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats);
+
 #endif
