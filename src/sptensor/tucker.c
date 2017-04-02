@@ -22,6 +22,13 @@
 
 #if 0
 
+/*
+  (sb) TODO:
+  - Get to know types of each variable
+  - Norm & Eigen calculation from cuSOLVER
+  - Implement one-copy version of sspTTM
+*/
+
 int sptTuckerDecomposition(
     sptSparseTensor     *X,
     const size_t        R[],
