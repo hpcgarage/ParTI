@@ -4,6 +4,7 @@ sftp-config.json
 build/
 results/
 timing/
+timing_old/
 build.config
 *.ptx
 *.mex*

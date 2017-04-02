@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     size_t mode = 0;
     size_t R = 16;
     size_t max_nstreams = 4;
-    size_t const max_nthreads_per_block = 512;
+    size_t const max_nthreads_per_block = 256;
     size_t const max_nthreadsy = 16;
     size_t max_nthreadsx = 256;
     int arg_loc = 0;
@@ -166,8 +166,8 @@ int main(int argc, char const *argv[])
 
     spt_SplitResult *splits = (spt_SplitResult *)malloc(queue_size * sizeof(spt_SplitResult));
     while (nnz_split_next < tsr.nnz) {
-        printf("nnz_split_begin: %zu, nnz_split_next: %zu\n", nnz_split_begin, nnz_split_next);
         nnz_split_begin = nnz_split_next;
+        printf("nnz_split_begin: %zu\n", nnz_split_begin);
 
         size_t real_queue_size = 0;
         sptStartTimer(timer);
@@ -189,7 +189,7 @@ int main(int argc, char const *argv[])
         printf("split time (per Stream): %lf s\n", split_time);
         sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
-        spt_SparseTensorDumpAllSplits(splits, real_queue_size, stdout);
+        // spt_SparseTensorDumpAllSplits(splits, real_queue_size, stdout);
  
         sptAssert(sptCudaOneMTTKRP(
             &queue_time,

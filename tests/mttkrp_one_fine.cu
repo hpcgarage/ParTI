@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     size_t mode = 0;
     size_t R = 16;
     size_t max_nstreams = 4;
-    size_t const max_nthreads_per_block = 512;
+    size_t const max_nthreads_per_block = 256;
     size_t const max_nthreadsy = 16;
     size_t max_nthreadsx = 256;
     int arg_loc = 0;

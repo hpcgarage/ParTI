@@ -21,6 +21,7 @@
 #include "sptensor.h"
 
 
+
 int spt_ComputeCoarseSplitParametersOne(
     size_t * split_idx_len, // size: nsplits
     size_t const nsplits,
@@ -30,7 +31,7 @@ int spt_ComputeCoarseSplitParametersOne(
     size_t const mode,
     size_t const stride,
     size_t const memwords,
-    size_t const max_nthreadsx) 
+    size_t const max_nnzs) 
 {
     size_t const nmodes = tsr->nmodes;
     size_t * const ndims = tsr->ndims;
@@ -44,7 +45,7 @@ int spt_ComputeCoarseSplitParametersOne(
         sum_nnz += slice_nnzs[i];
         mode_factor_words += stride;
         // printf("i: %zu, pre_idx: %zu, mode_factor_words: %zu, sum_nnz: %zu\n", i, pre_idx, mode_factor_words, sum_nnz);
-        if(mode_factor_words > memwords || sum_nnz >= max_nthreadsx) {
+        if(mode_factor_words > memwords || sum_nnz >= max_nnzs) {
             split_idx_len[split_num] = i - pre_idx;
             pre_idx = i;
             ++ split_num;
@@ -62,6 +63,7 @@ int spt_ComputeCoarseSplitParametersOne(
 
     return 0;
 }
+
 
 
 int spt_ComputeCoarseSplitParameters(

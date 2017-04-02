@@ -160,7 +160,8 @@ int sptCudaMTTKRPOneKernel(
     size_t all_nblocks = 0;
     size_t nblocks = 0;
     switch(impl_num) {
-    case 31: // Naive, 1D
+    // case 1:
+    case 11: // Naive, 1D
         if(nnz < max_nthreads_per_block) {
             nthreadsx = nnz;
             nblocks = 1;
@@ -174,25 +175,42 @@ int sptCudaMTTKRPOneKernel(
             }
         }
         break;
-    case 2: // 2D
-        nthreadsy = R;
-        nthreadsx = max_nthreads_per_block / nthreadsy;
-        all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
-        break;
-    case 3: // 2D, rank split
+    // case 2: // 2D
+    case 12:
         if(R <= max_nthreadsy)
             nthreadsy = R;
         else
             nthreadsy = max_nthreadsy;
         nthreadsx = max_nthreads_per_block / nthreadsy;
-        all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
+
+        if(nnz < nthreadsx) {
+            nthreadsx = nnz;
+            nblocks = 1;
+        } else {
+            all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
+            if(all_nblocks < max_nblocks) {
+                nblocks = all_nblocks;
+            } else {
+                nblocks = max_nblocks;
+            }   
+        }
         break;
-    case 4: // 2D, exchange x and y
-        nthreadsx = R;
-        nthreadsy = max_nthreads_per_block / nthreadsx;
-        all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
-        break;
-    case 35: // 2D, exchange x and y, rank split. Best performance
+    // case 3: // 2D, rank split
+    //     if(R <= max_nthreadsy)
+    //         nthreadsy = R;
+    //     else
+    //         nthreadsy = max_nthreadsy;
+    //     nthreadsx = max_nthreads_per_block / nthreadsy;
+    //     all_nblocks = (nnz + nthreadsx -1) / nthreadsx;
+    //     break;
+    // case 4: // 2D, exchange x and y
+    //     nthreadsx = R;
+    //     nthreadsy = max_nthreads_per_block / nthreadsx;
+    //     all_nblocks = (nnz + nthreadsy -1) / nthreadsy;
+    //     break;
+    // case 5:
+    case 15: // 2D, exchange x and y, rank split. Best performance
+    case 16:
         if(R <= max_nthreadsy)
             nthreadsx = R;
         else
@@ -221,7 +239,8 @@ int sptCudaMTTKRPOneKernel(
     switch(nmodes) {
     case 3:
         switch(impl_num) {
-        case 31: // Naive
+        // case 1:
+        case 11: // Naive
             printf("Execute spt_MTTKRPKernelNnz3DOneKernel (%zu, %zu)\n", nblocks, nthreadsx);
             spt_MTTKRPKernelNnz3DOneKernel<<<nblocks, nthreadsx>>>(
                 mode,
@@ -235,20 +254,20 @@ int sptCudaMTTKRPOneKernel(
                 dev_mats_order,
                 dev_mats);
             break;
-        case 2:
-            printf("Execute spt_MTTKRPKernelNnzRank3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
-            // spt_MTTKRPKernelNnzRank3D<<<nblocks, dimBlock>>>(
-            //     mode,
-            //     nmodes,
-            //     nnz,
-            //     R,
-            //     stride,
-            //     dev_Xndims,
-            //     dev_Xinds,
-            //     dev_Xvals,
-            //     dev_mats_order,
-            //     dev_mats,
-            //     block_offset);
+        // case 2:
+        case 12:
+            printf("Execute spt_MTTKRPKernelRankNnz3DOneKernel (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
+            spt_MTTKRPKernelRankNnz3DOneKernel<<<nblocks, dimBlock>>>(
+                mode,
+                nmodes,
+                nnz,
+                R,
+                stride,
+                dev_Xndims,
+                dev_Xinds,
+                dev_Xvals,
+                dev_mats_order,
+                dev_mats);
             break;
         case 3:
             printf("Execute spt_MTTKRPKernelNnzRankSplit3D (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
@@ -280,9 +299,24 @@ int sptCudaMTTKRPOneKernel(
             //     dev_mats,
             //     block_offset);
             break;
-        case 35:
+        // case 5:
+        case 15:
             printf("Execute spt_MTTKRPKernelRankSplitNnz3DOneKernel (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
             spt_MTTKRPKernelRankSplitNnz3DOneKernel<<<nblocks, dimBlock>>>(
+                mode,
+                nmodes,
+                nnz,
+                R,
+                stride,
+                dev_Xndims,
+                dev_Xinds,
+                dev_Xvals,
+                dev_mats_order,
+                dev_mats);
+            break;
+        case 16:
+            printf("Execute spt_MTTKRPKernelRankSplitNnzRB3DOneKernel (%zu, (%u, %u))\n", nblocks, dimBlock.x, dimBlock.y);
+            spt_MTTKRPKernelRankSplitNnzRB3DOneKernel<<<nblocks, dimBlock>>>(
                 mode,
                 nmodes,
                 nnz,

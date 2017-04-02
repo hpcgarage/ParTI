@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     size_t mode = 0;
     size_t R = 16;
     size_t max_nstreams = 4;
-    size_t const max_nthreads_per_block = 512;
+    size_t const max_nthreads_per_block = 256;
     size_t const max_nthreadsy = 16;
     size_t max_nthreadsx = 256;
     int arg_loc = 0;
@@ -104,6 +104,7 @@ int main(int argc, char const *argv[])
 
     if(impl_num != 11)
         max_nthreadsx = (size_t) max_nthreads_per_block / max_nthreadsy;
+    size_t max_nnzs = 100 * max_nthreadsx;
     printf("max_nthreadsx: %zu\n", max_nthreadsx);
 
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -160,10 +161,10 @@ int main(int argc, char const *argv[])
         printf("idx_begin: %lu\n", idx_begin);
 
         sptStartTimer(timer);
-        sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, stride, smemwords, max_nthreadsx) == 0);
+        sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, stride, smemwords, max_nnzs) == 0);
         // printf("idx_begin: %zu\n", idx_begin);
-        printf("Calculated split_idx_len: \n");
-        spt_DumpArray(split_idx_len, queue_size, 0, stdout);
+        // printf("Calculated split_idx_len: \n");
+        // spt_DumpArray(split_idx_len, queue_size, 0, stdout);
 
         size_t real_queue_size = 0;
         sptAssert(spt_CoarseSplitSparseTensorBatch(

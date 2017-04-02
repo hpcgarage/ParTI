@@ -145,14 +145,14 @@ int spt_MediumSplitSparseTensorBatch(
                 break;
             }
         }   // End while (subnnz == 0 && nnz_ptr_begin < tsr->nnz)
-        splits[s-1].next = &(splits[s]);
-        ++ *real_nsplits;
-        // spt_SparseTensorDumpAllSplits(splits+s, nsplits, stdout);
         if(i == -1) {
             printf("From indices range -- No more splits.\n");
             break;
         }
-        if(nnz_ptr_begin >= tsr->nnz) {
+        if(nnz_ptr_begin < tsr->nnz) {
+            splits[s-1].next = &(splits[s]);
+            ++ *real_nsplits;
+        } else{
             printf("No more nnz to split.\n");
             break;
         }
@@ -215,12 +215,13 @@ int spt_MediumSplitSparseTensorStep(    // In-place
         }
     }
     *subnnz = tmp_subnnz;
+    *nnz_ptr_next = r_ptr + 1;
+    // printf("nnz_ptr_begin: %zu, *nnz_ptr_next: %zu\n", nnz_ptr_begin, *nnz_ptr_next); fflush(stdout);
     if(tmp_subnnz == 0) {
         return 0;
     }
 
     // printf("r_ptr: %zu, loop stop at: %zu\n", r_ptr, x-1);
-    *nnz_ptr_next = r_ptr + 1;
     // printf("nnz_ptr_begin: %zu, nnz_ptr_next: %zu, subnnz: %zu\n", nnz_ptr_begin, *nnz_ptr_next, *subnnz); fflush(stdout);
     sptAssert(*nnz_ptr_next - nnz_ptr_begin == *subnnz );
 

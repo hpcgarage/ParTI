@@ -72,12 +72,20 @@ int sptCudaOneMTTKRP(
     size_t const R = mats[mode]->ncols;
     size_t const stride = mats[mode]->stride;
     int result;
+    size_t max_nthreads_per_block = 256;
 
     /* Check the mats. */
     for(size_t i = 0; i < nmodes; ++i) {
         if(mats[i]->ncols != mats[nmodes]->ncols) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns SpltMTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
+    }
+
+    /* Create streams */
+    cudaStream_t * streams = new cudaStream_t[max_nstreams];
+    for(size_t i=0; i<max_nstreams; ++i) {
+        result = cudaStreamCreate(&streams[i]);
+        spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
     }
 
     /* Initialize part_prod matrix, to store partial results of updated mats[nmodes] */
@@ -130,6 +138,12 @@ int sptCudaOneMTTKRP(
     /* dev_Xvals: 1st cpu, 2nd gpu. One copy of subtsr's vals per gpu */
     sptScalar **dev_Xvals = new sptScalar *[max_nstreams];
 
+    size_t * aver_Xndims = new size_t [nmodes];
+    size_t aver_nnz_blk = 0;
+    size_t total_nblocks = 0;
+    for(size_t i=0; i<nmodes; ++i)
+        aver_Xndims[i] = 0;
+
 
     /* dev_mats_order */
     result = sptCudaDuplicateMemory(&dev_mats_order, mats_order, nmodes * sizeof (size_t), cudaMemcpyHostToDevice);
@@ -168,7 +182,7 @@ int sptCudaOneMTTKRP(
             /* Loop blocks inside one stream, nblocks should allocate once to a GPU. */
             nnz_blk_begin[0] = 0;
             nblocks_count[stream_idx] = (sbatch_idx == batched_nstreams-1 && stream_idx == stream_count - 1) ? rest_nblocks: nblocks;
-            printf("nblocks_count[%zu]: %zu\n", stream_idx, nblocks_count[stream_idx]); fflush(stdout);
+            total_nblocks += nblocks_count[stream_idx];
             for(size_t block_idx = 0; block_idx < nblocks_count[stream_idx]; ++block_idx) 
             {
                 size_t queue_idx = (sbatch_idx * max_nstreams + stream_idx) * nblocks + block_idx;
@@ -179,13 +193,18 @@ int sptCudaOneMTTKRP(
                 sptSparseTensor const * subtsr_ptr = &(splits[queue_idx].tensor);
                 size_t * inds_low_ptr = splits[queue_idx].inds_low;
                 size_t * inds_high_ptr = splits[queue_idx].inds_high;
-                printf("block_idx: %zu, inds_low_ptr, inds_high_ptr:\n", block_idx);
+                // printf("block_idx: %zu, inds_low_ptr, inds_high_ptr:\n", block_idx);
                 // spt_DumpArray(inds_low_ptr, nmodes, 0, stdout);
-                spt_DumpArray(inds_high_ptr, nmodes, 0, stdout);
+                // spt_DumpArray(inds_high_ptr, nmodes, 0, stdout);
 
                 inds_low_header[block_idx] = inds_low_ptr;
                 Xndims_header[block_idx] = subtsr_ptr->ndims;
                 nnz_blk[block_idx] = subtsr_ptr->nnz;
+                for(size_t i=0; i<nmodes; ++i)
+                    aver_Xndims[i] += Xndims_header[block_idx][i];
+                aver_nnz_blk += nnz_blk[block_idx];
+                // printf("[stream_idx: %zu, block_idx: %zu] Xndims_header:\n", stream_idx, block_idx);
+                // spt_DumpArray(Xndims_header[block_idx], nmodes, 0, stdout);
                 if(block_idx > 0)
                     nnz_blk_begin[block_idx] = nnz_blk_begin[block_idx-1] + nnz_blk[block_idx-1]; 
 
@@ -219,6 +238,7 @@ int sptCudaOneMTTKRP(
             result = sptCudaDuplicateMemoryIndirect(&dev_Xndims[stream_idx], Xndims_header, nblocks_count[stream_idx], nmodes, cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
 
+
             /* dev_nnz */
             result = sptCudaDuplicateMemory(&dev_nnz[stream_idx], nnz_blk, nblocks * sizeof (size_t), cudaMemcpyHostToDevice);
             spt_CheckError(result, "CUDA SpTns SpltMTTKRP", NULL);
@@ -244,12 +264,12 @@ int sptCudaOneMTTKRP(
             }
             mats_header[nmodes] = mats[nmodes]->values + min_inds_low[stream_idx][mode] * stride;
             lengths[nmodes] = (max_inds_high[stream_idx][mode] - min_inds_low[stream_idx][mode]) * stride;
-            printf("max_inds_high[%zu]:\n", stream_idx);
-            spt_DumpArray(max_inds_high[stream_idx], nmodes, 0, stdout);
-            printf("min_inds_low[%zu]:\n", stream_idx);
-            spt_DumpArray(min_inds_low[stream_idx], nmodes, 0, stdout);
-            printf("lengths[%zu]:\n", stream_idx);
-            spt_DumpArray(lengths, nmodes+1, 0, stdout);
+            // printf("max_inds_high[%zu]:\n", stream_idx);
+            // spt_DumpArray(max_inds_high[stream_idx], nmodes, 0, stdout);
+            // printf("min_inds_low[%zu]:\n", stream_idx);
+            // spt_DumpArray(min_inds_low[stream_idx], nmodes, 0, stdout);
+            // printf("lengths[%zu]:\n", stream_idx);
+            // spt_DumpArray(lengths, nmodes+1, 0, stdout);
             // printf("lengths[nmodes]: %zu\n", lengths[nmodes]);
             /* dev_mats */
             result = sptCudaDuplicateMemoryIndirect(&dev_mats[stream_idx], mats_header, nmodes+1, lengths, cudaMemcpyHostToDevice);
@@ -286,13 +306,18 @@ int sptCudaOneMTTKRP(
 
         } // End loop for stream_idx in [0, stream_count-1]
 
-        size_t max_nthreads_per_block = 256;
+        for(size_t i=0; i<nmodes; ++i)
+            aver_Xndims[i] /= total_nblocks;
+        aver_nnz_blk /= total_nblocks;
+        printf("[sbatch_idx: %zu] aver_nnz_blk: %zu, aver_Xndims: \n", sbatch_idx, aver_nnz_blk);
+        spt_DumpArray(aver_Xndims, nmodes, 0, stdout);
+
         
         sptStartTimer(timer);
         for(size_t stream_idx = 0; stream_idx < stream_count; ++stream_idx) {
             size_t nthreadsx, nthreadsy;
             switch(impl_num) {
-            case 11:
+            case 21:
                 if(max_nnz_stream[stream_idx] < max_nthreads_per_block) {
                     nthreadsx = max_nnz_stream[stream_idx];
                 } else {
@@ -300,18 +325,20 @@ int sptCudaOneMTTKRP(
                 }
                 nthreadsy = 1;
                 break;
-            case 15:
-            case 16:
-            case 17:
-            case 18:
+            case 25:
+            case 26:
+            case 35:
+            case 36:
+            case 45:
+            case 46:
                 if(R <= max_nthreadsy)
                     nthreadsx = R;
                 else
                     nthreadsx = max_nthreadsy;
                 nthreadsy = max_nthreads_per_block / nthreadsx;
-                if(max_nnz_stream[stream_idx] < nthreadsy) {
-                    nthreadsy = max_nnz_stream[stream_idx];
-                }
+                // if(max_nnz_stream[stream_idx] < nthreadsy) {
+                //     nthreadsy = max_nnz_stream[stream_idx];
+                // }
                 break;
             }
             dim3 dimBlock (nthreadsx, nthreadsy);
@@ -320,9 +347,9 @@ int sptCudaOneMTTKRP(
             switch(nmodes) {
             case 3:
                 switch(impl_num) {
-                case 11: // Naive
+                case 21: // Naive
                     printf("spt_MTTKRPKernelBlockNnz3D<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockNnz3D<<<real_nblocks, dimBlock>>>(
+                    spt_MTTKRPKernelBlockNnz3D<<<real_nblocks, dimBlock, 0, streams[stream_idx]>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -335,9 +362,9 @@ int sptCudaOneMTTKRP(
                         dev_mats_order,
                         dev_mats[stream_idx]);
                     break;
-                case 15:
+                case 25:
                     printf("spt_MTTKRPKernelBlockRankSplitNnz3D<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockRankSplitNnz3D<<<real_nblocks, dimBlock>>>(
+                    spt_MTTKRPKernelBlockRankSplitNnz3D<<<real_nblocks, dimBlock, 0, streams[stream_idx]>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -350,11 +377,26 @@ int sptCudaOneMTTKRP(
                         dev_mats_order,
                         dev_mats[stream_idx]);
                     break;
-                case 16:
+                case 26:
+                    printf("spt_MTTKRPKernelBlockRankSplitNnzRB3D<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnzRB3D<<<real_nblocks, dimBlock, 0, streams[stream_idx]>>>(
+                        mode,
+                        nmodes,
+                        dev_nnz[stream_idx],
+                        dev_nnz_blk_begin[stream_idx],
+                        R,
+                        stride,
+                        dev_min_inds_low[stream_idx],
+                        dev_Xinds[stream_idx],
+                        dev_Xvals[stream_idx],
+                        dev_mats_order,
+                        dev_mats[stream_idx]);
+                    break;
+                case 35:
                     if(split_grain != 1)
                         printf("Error: wrong impl_num for coarse grain.\n");
                     printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<<<real_nblocks, dimBlock, smem_size>>>(
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse<<<real_nblocks, dimBlock, smem_size, streams[stream_idx]>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -369,11 +411,11 @@ int sptCudaOneMTTKRP(
                         dev_mats_order,
                         dev_mats[stream_idx]);
                     break;
-                case 17:
-                    if(split_grain != 3)
+                case 36:
+                    if(split_grain != 1)
                         printf("Error: wrong impl_num for coarse grain.\n");
-                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<<<real_nblocks, dimBlock, smem_size>>>(
+                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarseRB<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarseRB<<<real_nblocks, dimBlock, smem_size, streams[stream_idx]>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -388,12 +430,31 @@ int sptCudaOneMTTKRP(
                         dev_mats_order,
                         dev_mats[stream_idx]);
                     break;
-                case 18:
+                case 45:
+                    if(split_grain != 3)
+                        printf("Error: wrong impl_num for medium grain.\n");
+                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium<<<real_nblocks, dimBlock, smem_size, streams[stream_idx]>>>(
+                        mode,
+                        nmodes,
+                        dev_nnz[stream_idx],
+                        dev_nnz_blk_begin[stream_idx],
+                        R,
+                        stride,
+                        dev_min_inds_low[stream_idx],
+                        dev_inds_low[stream_idx],
+                        dev_Xndims[stream_idx],
+                        dev_Xinds[stream_idx],
+                        dev_Xvals[stream_idx],
+                        dev_mats_order,
+                        dev_mats[stream_idx]);
+                    break;
+                case 46:
                     /* Use max_nthreadsy for spt_ComputeMediumSplitParameters */
                     if(split_grain != 3)
-                        printf("Error: wrong impl_num for coarse grain.\n");
-                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumOpt<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
-                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumOpt<<<real_nblocks, dimBlock, smem_size>>>(
+                        printf("Error: wrong impl_num for medium grain.\n");
+                    printf("spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumRB<%zu, (%u, %u)>\n", real_nblocks, dimBlock.x, dimBlock.y); fflush(stdout);
+                    spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumRB<<<real_nblocks, dimBlock, smem_size, streams[stream_idx]>>>(
                         mode,
                         nmodes,
                         dev_nnz[stream_idx],
@@ -513,6 +574,10 @@ int sptCudaOneMTTKRP(
     delete[] nnz_blk_begin;
 
     sptFreeMatrix(&part_prod);
+
+    for(size_t i=0; i<max_nstreams; ++i)
+        cudaStreamDestroy(streams[i]);
+    delete[] streams;
 
     return 0;
 }
