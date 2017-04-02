@@ -153,6 +153,7 @@ int main(int argc, char const *argv[])
     sptNewTimer(&timer, 0);
 
     sptAssert( spt_ComputeMediumSplitParameters(split_idx_len, &tsr, stride, smemwords) ==0 );
+    // sptAssert( spt_ComputeMediumSplitParameters(split_idx_len, &tsr, max_nthreadsy, smemwords) ==0 );
     printf("\nCalculated split_idx_len:\n");
     spt_DumpArray(split_idx_len, nmodes, 0, stdout);
 
@@ -188,7 +189,7 @@ int main(int argc, char const *argv[])
         printf("split time (per Stream): %lf s\n", split_time);
         sptAssert(real_queue_size <= queue_size);
         nsplits += real_queue_size;
-        // spt_SparseTensorDumpAllSplits(splits, queue_size, stdout);
+        spt_SparseTensorDumpAllSplits(splits, real_queue_size, stdout);
  
         sptAssert(sptCudaOneMTTKRP(
             &queue_time,

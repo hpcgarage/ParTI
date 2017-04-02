@@ -180,7 +180,21 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     const size_t * dev_mats_order,
     sptScalar ** dev_mats);
 
-
+/* impl_num = 18 */
+__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumOpt(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t * nnz,
+    const size_t * dev_nnz_blk_begin,
+    const size_t R,
+    const size_t stride,
+    size_t * const inds_low_allblocks,
+    size_t ** const inds_low,
+    size_t ** const Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats);
 
 /**** impl_num = 2x: multiple GPUs ****/
 /* impl_num = 29, only the interface is a bit different. */

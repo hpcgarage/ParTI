@@ -22,6 +22,7 @@
 #include "sptensor.h"
 
 
+
 /* Assume Ib = Jb = Kb */
 int spt_ComputeMediumSplitParameters(
     size_t * split_idx_len, // size: nmodes

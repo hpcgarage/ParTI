@@ -13,7 +13,8 @@ impl_num=15
 R=16
 
 # single split
-smem_size=40000
+smem_size=40000 # default
+# smem_size=20000
 max_nstreams=4
 nstreams=8
 nblocks=32000
@@ -30,22 +31,22 @@ do
 	# done
 
 	# Single Split GPU code, coarse-grain. impl_num=11, 15, 16.
-	dev_id=3
-	for mode in ${modes[@]}
-	# for mode in 0
-	do
-		echo "./build/tests/mttkrp_one_coarse ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-coarse-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt"
-		./build/tests/mttkrp_one_coarse ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-coarse-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt
-	done
-
-	# Single Split GPU code, medium-grain. impl_num=11, 15, 17.
 	# dev_id=3
 	# for mode in ${modes[@]}
 	# # for mode in 0
 	# do
-	# 	echo "./build/tests/mttkrp_one_medium ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-medium-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt"
-	# 	./build/tests/mttkrp_one_medium ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-medium-m${mode}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt
+	# 	echo "./build/tests/mttkrp_one_coarse ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-coarse-m${mode}-sm${smem_size}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt"
+	# 	./build/tests/mttkrp_one_coarse ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-coarse-m${mode}-sm${smem_size}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt
 	# done
+
+	# Single Split GPU code, medium-grain. impl_num=11, 15, 17.
+	dev_id=3
+	for mode in ${modes[@]}
+	# for mode in 0
+	do
+		echo "./build/tests/mttkrp_one_medium ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-medium-m${mode}-sm${smem_size}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt"
+		./build/tests/mttkrp_one_medium ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${smem_size} ${nstreams} ${nblocks} ${dev_id} ${R} ${max_nstreams} > timing/${tsr_name}-medium-m${mode}-sm${smem_size}-ns${nstreams}-nb${nblocks}-i${impl_num}-r${R}-g${dev_id}.txt
+	done
 
 
 	# Single GPU code

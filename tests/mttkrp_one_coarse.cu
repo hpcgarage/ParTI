@@ -163,7 +163,7 @@ int main(int argc, char const *argv[])
         sptAssert(spt_ComputeCoarseSplitParametersOne(split_idx_len, queue_size, &tsr, slice_nnzs, idx_begin, mode, stride, smemwords, max_nthreadsx) == 0);
         // printf("idx_begin: %zu\n", idx_begin);
         printf("Calculated split_idx_len: \n");
-        // spt_DumpArray(split_idx_len, queue_size, 0, stdout);
+        spt_DumpArray(split_idx_len, queue_size, 0, stdout);
 
         size_t real_queue_size = 0;
         sptAssert(spt_CoarseSplitSparseTensorBatch(

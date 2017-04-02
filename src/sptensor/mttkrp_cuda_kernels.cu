@@ -523,7 +523,11 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
     size_t x;
     const size_t num_loops_r = R / blockDim.x;
     const size_t rest_loop = R - num_loops_r * blockDim.x;
+    size_t r;
     extern __shared__ sptScalar mem_pool[];
+    // clock_t start_tick, end_tick;
+    // double elapsed_time;
+    // double g2s_time = 0, comp_time = 0, s2g_time = 0;
 
     /* block range */
     const size_t nnz_blk = nnz[bidx];
@@ -554,6 +558,27 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
     /* Use registers to avoid repeated memory accesses */
     size_t const inds_low_allblocks_mode = inds_low_allblocks[mode];
 
+    for(size_t l=0; l<num_loops_r; ++l) {
+        r = tidx + l * blockDim.x;
+        for(size_t sl=0; sl<num_loops_blk_mode; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_mode) {
+                shr_mvals[sx * stride + r] = 0;
+            }
+            __syncthreads();
+        }        
+    }
+    if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops_r * blockDim.x;
+        for(size_t sl=0; sl<num_loops_blk_mode; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_mode) {
+                shr_mvals[sx * stride + r] = 0;
+            }
+            __syncthreads();
+        }
+    }
+
     for(size_t nl=0; nl<num_loops_nnz; ++nl) {
         x = tidy + nl * blockDim.y;
         if(x < nnz_blk) {
@@ -562,63 +587,57 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
             sptScalar const entry = Xvals[x + nnz_blk_begin];
             size_t tmp_i_2 = times_inds_2[x + nnz_blk_begin] - inds_low_allblocks[times_mat_index_2];  // local base
             sptScalar tmp_val = 0;
-            size_t r;
             // printf("[x: %lu, bidx: %lu] entry: %f, 1st: %f, 2nd: %f\n", x, bidx, entry, times_mat[tmp_i * stride + 0], times_mat_2[tmp_i_2 * stride + 0]);
 
             for(size_t l=0; l<num_loops_r; ++l) {
                 r = tidx + l * blockDim.x;
 
-                for(size_t sl=0; sl<num_loops_nnz; ++sl) {
-                    sx = tidy + sl * blockDim.y;
-                    if(sx < Xndims_blk_mode) {
-                        shr_mvals[sx * stride + r] = 0;
-                    }
-                    __syncthreads();
-                }
-
-
+                // start_tick = clock();
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(shr_mvals[mode_i * stride + r]), tmp_val);
                 __syncthreads();
-
-                for(size_t sl=0; sl<num_loops_nnz; ++sl) {
-                    sx = tidy + sl * blockDim.y;
-                    if(sx < Xndims_blk_mode) {
-                        atomicAdd(&(mvals[(sx + inds_low_mode - inds_low_allblocks_mode) * stride + r]), shr_mvals[sx * stride + r]);
-                    }
-                    __syncthreads();
-                }
+                // elapsed_time = (clock() - start_tick)/0.82e9;
+                // comp_time += elapsed_time;
 
             } // End loop l
 
             if(rest_loop > 0 && tidx < rest_loop) {
                 r = tidx + num_loops_r * blockDim.x;
 
-                for(size_t sl=0; sl<num_loops_nnz; ++sl) {
-                    sx = tidy + sl * blockDim.y;
-                    if(sx < Xndims_blk_mode) {
-                        shr_mvals[sx * stride + r] = 0;
-                    }
-                    __syncthreads();
-                }
-
-
+                // start_tick = clock();
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r]; 
                 atomicAdd(&(shr_mvals[mode_i * stride + r]), tmp_val);
                 __syncthreads();
-
-                for(size_t sl=0; sl<num_loops_nnz; ++sl) {
-                    sx = tidy + sl * blockDim.y;
-                    if(sx < Xndims_blk_mode) {
-                        atomicAdd(&(mvals[(sx + inds_low_mode - inds_low_allblocks_mode) * stride + r]), shr_mvals[sx * stride + r]);
-                    }
-                    __syncthreads();
-                }
+                // elapsed_time = (clock() - start_tick)/0.82e9;
+                // comp_time += elapsed_time;
             } // End rest_loop
           __syncthreads();
         }   // End if(x < nnz_blk)
     }   // End loop nl
 
+
+    for(size_t l=0; l<num_loops_r; ++l) {
+        r = tidx + l * blockDim.x;
+        for(size_t sl=0; sl<num_loops_blk_mode; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_mode) {
+                atomicAdd(&(mvals[(sx + inds_low_mode - inds_low_allblocks_mode) * stride + r]), shr_mvals[sx * stride + r]);
+            }
+            __syncthreads();
+        }
+    }
+    if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops_r * blockDim.x;
+        for(size_t sl=0; sl<num_loops_blk_mode; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_mode) {
+                atomicAdd(&(mvals[(sx + inds_low_mode - inds_low_allblocks_mode) * stride + r]), shr_mvals[sx * stride + r]);
+            }
+            __syncthreads();
+        }
+    }
+
+    // printf("(%u, <%u, %u>)  g2s_time: %lf, comp_time: %lf, s2g_time: %lf\n", bidx, tidx, tidy, g2s_time, comp_time, s2g_time);
 }
 
 
@@ -643,9 +662,10 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     const size_t tidx = threadIdx.x;  // index rank
     const size_t tidy = threadIdx.y;  // index nnz
     const size_t bidx = blockIdx.x; // index block, also nnz
-    const size_t x = bidx * blockDim.y + tidy;
-    const size_t num_loops = R / blockDim.x;
-    const size_t rest_loop = R - num_loops * blockDim.x;
+    size_t x;
+    const size_t num_loops_r = R / blockDim.x;
+    const size_t rest_loop = R - num_loops_r * blockDim.x;
+    size_t r;
     extern __shared__ sptScalar mem_pool[];
 
     /* block range */
@@ -653,6 +673,11 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     const size_t nnz_blk_begin = dev_nnz_blk_begin[bidx];
     size_t * const inds_low_blk = inds_low[bidx];
     size_t * const Xndims_blk = Xndims[bidx];
+    size_t num_loops_nnz = 1;
+    if(nnz_blk > blockDim.y) {
+        num_loops_nnz = (nnz_blk + blockDim.y - 1) / blockDim.y;
+    }   
+
 
     size_t const * const mode_ind = Xinds[mode];
     sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
@@ -674,81 +699,340 @@ __global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
     size_t const Xndims_blk_B = Xndims_blk[times_mat_index];
     size_t const Xndims_blk_C = Xndims_blk[times_mat_index_2];
 
-    // printf("[%lu, (%lu, %lu)]  (Xndims_blk_A: %lu, Xndims_blk_B: %lu, Xndims_blk_C: %lu); (inds_low_blk_A: %lu, inds_low_blk_B: %lu, inds_low_blk_C: %lu); (inds_low_allblocks_A: %lu, inds_low_allblocks_B: %lu, inds_low_allblocks_C: %lu)\n", bidx, tidx, tidy, Xndims_blk_A, Xndims_blk_B, Xndims_blk_C, inds_low_blk_A, inds_low_blk_B, inds_low_blk_C, inds_low_allblocks_A, inds_low_allblocks_B, inds_low_allblocks_C);
+    size_t num_loops_blk_A = 1;
+    if(Xndims_blk_A > blockDim.y) {
+        num_loops_blk_A = (Xndims_blk_A + blockDim.y - 1) / blockDim.y;
+    }
+    size_t num_loops_blk_B = 1;
+    if(Xndims_blk_B > blockDim.y) {
+        num_loops_blk_B = (Xndims_blk_B + blockDim.y - 1) / blockDim.y;
+    }
+    size_t num_loops_blk_C = 1;
+    if(Xndims_blk_C > blockDim.y) {
+        num_loops_blk_C = (Xndims_blk_C + blockDim.y - 1) / blockDim.y;
+    }   
+    size_t sx;
+
+
+    // if(tidx == 0 && tidy == 0)
+    //     printf("[%lu, (%lu, %lu)]  (Xndims_blk_A: %lu, Xndims_blk_B: %lu, Xndims_blk_C: %lu); (inds_low_blk_A: %lu, inds_low_blk_B: %lu, inds_low_blk_C: %lu); (inds_low_allblocks_A: %lu, inds_low_allblocks_B: %lu, inds_low_allblocks_C: %lu)\n", bidx, tidx, tidy, Xndims_blk_A, Xndims_blk_B, Xndims_blk_C, inds_low_blk_A, inds_low_blk_B, inds_low_blk_C, inds_low_allblocks_A, inds_low_allblocks_B, inds_low_allblocks_C);
 
 
     sptScalar * const shrA = (sptScalar *) mem_pool; // A: size nrows * stride
     sptScalar * const shrB = (sptScalar *) (shrA + Xndims_blk_A * stride); // B: size nrows * stride
     sptScalar * const shrC = (sptScalar *) (shrB + Xndims_blk_B * stride); // C: size nrows * stride
 
-
-    if(tidy < nnz_blk) {
-      size_t const mode_i = mode_ind[tidy + nnz_blk_begin] - inds_low_blk_A;    // local base for block
-      // printf("[tidy: %lu, bidx: %lu] global: %lu, mode_i: %lu\n", tidy, bidx, mode_ind[tidy + nnz_blk_begin], mode_i);
-      size_t tmp_i = times_inds[tidy + nnz_blk_begin] - inds_low_blk_B;  // local base
-      sptScalar const entry = Xvals[tidy + nnz_blk_begin];
-      size_t tmp_i_2 = times_inds_2[tidy + nnz_blk_begin] - inds_low_blk_C;  // local base
-      sptScalar tmp_val = 0;
-      size_t r;
-
-      for(size_t l=0; l<num_loops; ++l) {
+    for(size_t l=0; l<num_loops_r; ++l) {
         r = tidx + l * blockDim.x;
-
-        if(tidy < Xndims_blk_A) {
-            shrA[tidy * stride + r] = 0;
-            // if(tidx ==0)
-            //     printf("[%lu, (0, %lu)]  shrA ele: %.2f\n", bidx, tidy, shrA[tidy * stride + 0]);
+        /* Set shrA = 0 */
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                shrA[sx * stride + r] = 0;
+            }
+            __syncthreads();
         }
-        if(tidy < Xndims_blk_B) {
-            shrB[tidy * stride + r] = times_mat[(tidy + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
-            // if(tidx == 0)
-            //     printf("[%lu, (0, %lu)]  times_mat ele: %.2f, shrB ele: %.2f\n", bidx, tidy, times_mat[(tidy + inds_low_blk_B - inds_low_allblocks_B) * stride + 0], shrB[tidy * stride + 0]);
+        /* Load shrB */
+        for(size_t sl=0; sl<num_loops_blk_B; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_B) {
+                shrB[sx * stride + r] = times_mat[(sx + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
+            }
+            __syncthreads();
         }
-        if(tidy < Xndims_blk_C) {
-            shrC[tidy * stride + r] = times_mat_2[(tidy + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
+        /* Load shrC */
+        for(size_t sl=0; sl<num_loops_blk_C; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_C) {
+                shrC[sx * stride + r] = times_mat_2[(sx + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
+            }
+            __syncthreads();
         }
-        __syncthreads();
 
-        // if(tidx == 0)
-        //     printf("[%lu, (0, %lu)]  nnz_blk_begin: %lu, mode_ind[tidy + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", bidx, tidy, nnz_blk_begin, mode_ind[tidy + nnz_blk_begin], mode_i, entry, tmp_i, shrB[tmp_i * stride + 0], tmp_i_2, shrC[tmp_i_2 * stride + 0]);
-        tmp_val = entry * shrB[tmp_i * stride + r] * shrC[tmp_i_2 * stride + r];
-        atomicAdd(&(shrA[mode_i * stride + r]), tmp_val);
-        __syncthreads();
+    }   // End loop l: num_loops_r
 
-        if(tidy < Xndims_blk_A) {
-            atomicAdd(&(mvals[(tidy + inds_low_blk_A - inds_low_allblocks_A) * stride + r]), shrA[tidy * stride + r]);
+    if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops_r * blockDim.x;
+        /* Set shrA = 0 */
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                shrA[sx * stride + r] = 0;
+            }
+            __syncthreads();
         }
-        __syncthreads();
-      }
-
-      if(rest_loop > 0 && tidx < rest_loop) {
-        r = tidx + num_loops * blockDim.x;
-
-        if(tidy < Xndims_blk_A) {
-            shrA[tidy * stride + r] = 0;
+        /* Load shrB */
+        for(size_t sl=0; sl<num_loops_blk_B; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_B) {
+                shrB[sx * stride + r] = times_mat[(sx + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
+            }
+            __syncthreads();
         }
-        if(tidy < Xndims_blk_B) {
-            shrB[tidy * stride + r] = times_mat[(tidy + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
+        /* Load shrC */
+        for(size_t sl=0; sl<num_loops_blk_C; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_C) {
+                shrC[sx * stride + r] = times_mat_2[(sx + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
+            }
+            __syncthreads();
         }
-        if(tidy < Xndims_blk_C) {
-            shrC[tidy * stride + r] = times_mat_2[(tidy + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
-        }
-        __syncthreads();
-
-        tmp_val = entry * shrB[tmp_i * stride + r] * shrC[tmp_i_2 * stride + r];
-        atomicAdd(&(shrA[mode_i * stride + r]), tmp_val);
-        __syncthreads();
-
-        if(tidy < Xndims_blk_A) {
-            atomicAdd(&(mvals[(tidy + inds_low_blk_A - inds_low_allblocks_A) * stride + r]), shrA[tidy * stride + r]);
-        }
-        __syncthreads();
-      }
-
     }
 
+    for(size_t nl=0; nl<num_loops_nnz; ++nl) {
+        x = tidy + nl * blockDim.y;
+        if(x < nnz_blk) {
+            size_t const mode_i = mode_ind[x + nnz_blk_begin] - inds_low_blk_A;    // local base for block
+            // printf("[x: %lu, bidx: %lu] global: %lu, mode_i: %lu\n", x, bidx, mode_ind[x + nnz_blk_begin], mode_i);
+            size_t tmp_i = times_inds[x + nnz_blk_begin] - inds_low_blk_B;  // local base
+            sptScalar const entry = Xvals[x + nnz_blk_begin];
+            size_t tmp_i_2 = times_inds_2[x + nnz_blk_begin] - inds_low_blk_C;  // local base
+            sptScalar tmp_val = 0;
+
+            for(size_t l=0; l<num_loops_r; ++l) {
+                r = tidx + l * blockDim.x;            
+                // if(tidx == 0)
+                //     printf("[%lu, (0, %lu)]  nnz_blk_begin: %lu, mode_ind[tidy + nnz_blk_begin]: %lu, mode_i: %lu, entry: %.2f, tmp_i: %lu, 1st: %.2f, tmp_i_2: %lu, 2nd: %.2f\n", bidx, tidy, nnz_blk_begin, mode_ind[tidy + nnz_blk_begin], mode_i, entry, tmp_i, shrB[tmp_i * stride + 0], tmp_i_2, shrC[tmp_i_2 * stride + 0]);
+
+                tmp_val = entry * shrB[tmp_i * stride + r] * shrC[tmp_i_2 * stride + r];
+                atomicAdd(&(shrA[mode_i * stride + r]), tmp_val);
+                __syncthreads();
+            } // End loop l: num_loops_r
+
+            if(rest_loop > 0 && tidx < rest_loop) {
+                r = tidx + num_loops_r * blockDim.x;
+
+                tmp_val = entry * shrB[tmp_i * stride + r] * shrC[tmp_i_2 * stride + r];
+                atomicAdd(&(shrA[mode_i * stride + r]), tmp_val);
+                __syncthreads();
+            } // End if rest_loop
+        }   // End if(x < nnz_blk)
+
+    }   // End loop nl: num_loops_nnz
+
+    /* Store back shrA */
+    for(size_t l=0; l<num_loops_r; ++l) {
+        r = tidx + l * blockDim.x;
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                atomicAdd(&(mvals[(sx + inds_low_blk_A - inds_low_allblocks_A) * stride + r]), shrA[sx * stride + r]);
+                // __syncthreads();
+                // if(tidx == 0)
+                //     printf("[%lu, (0, %lu)] sx: %lu, sx + inds_low_blk_A - inds_low_allblocks_A: %lu, mvals: %lf\n", bidx, tidy, sx, sx + inds_low_blk_A - inds_low_allblocks_A, mvals[(sx + inds_low_blk_A - inds_low_allblocks_A) * stride + 0]);
+            }
+            __syncthreads();
+        }
+    }
+    if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops_r * blockDim.x;
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                atomicAdd(&(mvals[(sx + inds_low_blk_A - inds_low_allblocks_A) * stride + r]), shrA[sx * stride + r]);
+            }
+            __syncthreads();
+        }
+    }
 
 }
+
+
+
+
+/* impl_num = 18 */
+__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumOpt(
+    const size_t mode,
+    const size_t nmodes,
+    const size_t * nnz,
+    const size_t * dev_nnz_blk_begin,
+    const size_t R,
+    const size_t stride,
+    size_t * const inds_low_allblocks,
+    size_t ** const inds_low,
+    size_t ** const Xndims,
+    size_t ** const Xinds,
+    const sptScalar * Xvals,
+    const size_t * dev_mats_order,
+    sptScalar ** dev_mats) 
+{
+    const size_t tidx = threadIdx.x;  // index rank
+    const size_t tidy = threadIdx.y;  // index nnz
+    const size_t bidx = blockIdx.x; // index block, also nnz
+    size_t x;
+    const size_t num_loops_r = R / blockDim.x;
+    const size_t rest_loop = R - num_loops_r * blockDim.x;
+    size_t r;
+    extern __shared__ sptScalar mem_pool[];
+
+    /* block range */
+    const size_t nnz_blk = nnz[bidx];
+    const size_t nnz_blk_begin = dev_nnz_blk_begin[bidx];
+    size_t * const inds_low_blk = inds_low[bidx];
+    size_t * const Xndims_blk = Xndims[bidx];
+    size_t num_loops_nnz = 1;
+    if(nnz_blk > blockDim.y) {
+        num_loops_nnz = (nnz_blk + blockDim.y - 1) / blockDim.y;
+    }   
+
+
+    size_t const * const mode_ind = Xinds[mode];
+    sptScalar * const mvals = (sptScalar*)dev_mats[nmodes];
+    size_t times_mat_index = dev_mats_order[1];
+    sptScalar * times_mat = dev_mats[times_mat_index];
+    size_t * times_inds = Xinds[times_mat_index];
+    size_t times_mat_index_2 = dev_mats_order[2];
+    sptScalar * times_mat_2 = dev_mats[times_mat_index_2];
+    size_t * times_inds_2 = Xinds[times_mat_index_2];
+
+    /* Use registers to avoid repeated memory accesses */
+    size_t const inds_low_blk_A = inds_low_blk[mode];
+    size_t const inds_low_blk_B = inds_low_blk[times_mat_index];
+    size_t const inds_low_blk_C = inds_low_blk[times_mat_index_2];
+    size_t const inds_low_allblocks_A = inds_low_allblocks[mode];
+    size_t const inds_low_allblocks_B = inds_low_allblocks[times_mat_index];
+    size_t const inds_low_allblocks_C = inds_low_allblocks[times_mat_index_2];
+    size_t const Xndims_blk_A = Xndims_blk[mode];
+    size_t const Xndims_blk_B = Xndims_blk[times_mat_index];
+    size_t const Xndims_blk_C = Xndims_blk[times_mat_index_2];
+
+    size_t num_loops_blk_A = 1;
+    if(Xndims_blk_A > blockDim.y) {
+        num_loops_blk_A = (Xndims_blk_A + blockDim.y - 1) / blockDim.y;
+    }
+    size_t num_loops_blk_B = 1;
+    if(Xndims_blk_B > blockDim.y) {
+        num_loops_blk_B = (Xndims_blk_B + blockDim.y - 1) / blockDim.y;
+    }
+    size_t num_loops_blk_C = 1;
+    if(Xndims_blk_C > blockDim.y) {
+        num_loops_blk_C = (Xndims_blk_C + blockDim.y - 1) / blockDim.y;
+    }   
+    size_t sx;
+
+
+    // if(tidx == 0 && tidy == 0)
+    //     printf("[%lu, (%lu, %lu)]  (Xndims_blk_A: %lu, Xndims_blk_B: %lu, Xndims_blk_C: %lu); (inds_low_blk_A: %lu, inds_low_blk_B: %lu, inds_low_blk_C: %lu); (inds_low_allblocks_A: %lu, inds_low_allblocks_B: %lu, inds_low_allblocks_C: %lu)\n", bidx, tidx, tidy, Xndims_blk_A, Xndims_blk_B, Xndims_blk_C, inds_low_blk_A, inds_low_blk_B, inds_low_blk_C, inds_low_allblocks_A, inds_low_allblocks_B, inds_low_allblocks_C);
+
+
+    sptScalar * const shrA = (sptScalar *) mem_pool; // A: size nrows * stride
+    sptScalar * const shrB = (sptScalar *) (shrA + Xndims_blk_A * stride); // B: size nrows * stride
+    sptScalar * const shrC = (sptScalar *) (shrB + Xndims_blk_B * stride); // C: size nrows * stride
+
+    for(size_t l=0; l<num_loops_r; ++l) {
+        r = tidx + l * blockDim.x;
+        /* Set shrA = 0 */
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                shrA[sx * stride + tidx] = 0;
+            }
+            __syncthreads();
+        }
+        /* Load shrB */
+        for(size_t sl=0; sl<num_loops_blk_B; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_B) {
+                shrB[sx * stride + tidx] = times_mat[(sx + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
+            }
+            __syncthreads();
+        }
+        /* Load shrC */
+        for(size_t sl=0; sl<num_loops_blk_C; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_C) {
+                shrC[sx * stride + tidx] = times_mat_2[(sx + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
+            }
+            __syncthreads();
+        }
+
+
+        for(size_t nl=0; nl<num_loops_nnz; ++nl) {
+            x = tidy + nl * blockDim.y;
+            if(x < nnz_blk) {
+                size_t const mode_i = mode_ind[x + nnz_blk_begin] - inds_low_blk_A;    // local base for block
+                size_t tmp_i = times_inds[x + nnz_blk_begin] - inds_low_blk_B;  // local base
+                sptScalar const entry = Xvals[x + nnz_blk_begin];
+                size_t tmp_i_2 = times_inds_2[x + nnz_blk_begin] - inds_low_blk_C;  // local base
+                sptScalar tmp_val = 0;
+
+                tmp_val = entry * shrB[tmp_i * stride + tidx] * shrC[tmp_i_2 * stride + tidx];
+                atomicAdd(&(shrA[mode_i * stride + tidx]), tmp_val);
+                __syncthreads();
+
+            }
+        }
+
+        /* Store back shrA */
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                atomicAdd(&(mvals[(sx + inds_low_blk_A - inds_low_allblocks_A) * stride + r]), shrA[sx * stride + tidx]);
+            }
+            __syncthreads();
+        }
+
+    }   // End loop l: num_loops_r
+
+    if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops_r * blockDim.x;
+
+        /* Set shrA = 0 */
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                shrA[sx * stride + tidx] = 0;
+            }
+            __syncthreads();
+        }
+        /* Load shrB */
+        for(size_t sl=0; sl<num_loops_blk_B; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_B) {
+                shrB[sx * stride + tidx] = times_mat[(sx + inds_low_blk_B - inds_low_allblocks_B) * stride + r];
+            }
+            __syncthreads();
+        }
+        /* Load shrC */
+        for(size_t sl=0; sl<num_loops_blk_C; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_C) {
+                shrC[sx * stride + tidx] = times_mat_2[(sx + inds_low_blk_C - inds_low_allblocks_C) * stride + r];
+            }
+            __syncthreads();
+        }
+
+
+        for(size_t nl=0; nl<num_loops_nnz; ++nl) {
+            x = tidy + nl * blockDim.y;
+            if(x < nnz_blk) {
+                size_t const mode_i = mode_ind[x + nnz_blk_begin] - inds_low_blk_A;    // local base for block
+                size_t tmp_i = times_inds[x + nnz_blk_begin] - inds_low_blk_B;  // local base
+                sptScalar const entry = Xvals[x + nnz_blk_begin];
+                size_t tmp_i_2 = times_inds_2[x + nnz_blk_begin] - inds_low_blk_C;  // local base
+                sptScalar tmp_val = 0;
+
+                tmp_val = entry * shrB[tmp_i * stride + tidx] * shrC[tmp_i_2 * stride + tidx];
+                atomicAdd(&(shrA[mode_i * stride + tidx]), tmp_val);
+                __syncthreads();
+
+            }
+        }
+
+
+        /* Store back shrA */
+        for(size_t sl=0; sl<num_loops_blk_A; ++sl) {
+            sx = tidy + sl * blockDim.y;
+            if(sx < Xndims_blk_A) {
+                atomicAdd(&(mvals[(sx + inds_low_blk_A - inds_low_allblocks_A) * stride + r]), shrA[sx * stride + tidx]);
+            }
+            __syncthreads();
+        }
+    }   // End if rest_loop
+
+}
+
+
 
 
 
