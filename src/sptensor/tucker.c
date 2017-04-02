@@ -20,6 +20,15 @@
 #include "sptensor.h"
 #include <stdlib.h>
 
+#if 0
+
+/*
+  (sb) TODO:
+  - Get to know types of each variable
+  - Norm & Eigen calculation from cuSOLVER
+  - Implement one-copy version of sspTTM
+*/
+
 int sptTuckerDecomposition(
     sptSparseTensor     *X,
     const size_t        R[],
@@ -29,6 +38,7 @@ int sptTuckerDecomposition(
 ) {
     size_t nmodes = X->nmodes;
     sptSemiSparseTensor *U = malloc(nmodes * sizeof *U);
+    sptSemiSparseTensor core;
     unsigned iter;
     double fit = 0;
     for(iter = 0; iter < maxiters; ++iter) {
@@ -36,11 +46,18 @@ int sptTuckerDecomposition(
         size_t ni;
         for(ni = 0; ni < nmodes; ++ni) {
             size_t n = dimorder[ni];
+            size_t m;
             // Utilde = ttm(X, U, -n, 't');
+            for(m = 0; m < nmodes; ++m) {
+                if(m != n) {
+                    sptSemiSparseTensorMulMatrix(Utilde, X, U[m], m);
+                }
+            }
             // U[n] = nvecs(Utilde, n, R[n]);
         }
 
         // core = ttm(Utilde, U, n, 't');
+        sptSemiSparseTensorMulMatrix(core, Utilde, U[0], nmodes-1);
 
         // normresidual = hypot(normX, norm(core));
         // fit = 1 - normresidual / normX;
@@ -48,5 +65,8 @@ int sptTuckerDecomposition(
 
         // if(iter != 0 && fitchange < fitchangetol) {
             break;
+        // }
     }
 }
+
+#endif
