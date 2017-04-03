@@ -18,9 +18,9 @@
 
 #include <ParTI.h>
 #include "sptensor.h"
+#include "../ssptensor/ssptensor.h"
 #include <stdlib.h>
-
-#if 0
+#include <math.h>
 
 /*
   (sb) TODO:
@@ -30,43 +30,62 @@
 */
 
 int sptTuckerDecomposition(
-    sptSparseTensor     *X,
-    const size_t        R[],
-    double              tol /* = 1.0e-4 */,
-    unsigned            maxiters /* = 50 */,
-    const size_t        dimorder[]
+    sptSemiSparseTensor   *core,
+    const sptSparseTensor *X,
+    const size_t          R[],
+    double                tol /* = 1.0e-4 */,
+    unsigned              maxiters /* = 50 */,
+    const size_t          dimorder[]
 ) {
-    size_t nmodes = X->nmodes;
-    sptSemiSparseTensor *U = malloc(nmodes * sizeof *U);
-    sptSemiSparseTensor core;
-    unsigned iter;
+    size_t N = X->nmodes;
+    double normX = spt_SparseTensorNorm(X);
+    sptMatrix *U = malloc(N * sizeof *U);
+
+    memset(core, 0, sizeof *core);
+
+    // Random init
+    for(size_t ni = 1; ni < N; ++ni) {
+        size_t n = dimorder[ni];
+        sptRandomizeMatrix(&U[n], X->ndims[n], R[n]);
+    }
+
     double fit = 0;
-    for(iter = 0; iter < maxiters; ++iter) {
+
+    for(unsigned iter = 0; iter < maxiters; ++iter) {
         double fitold = fit;
-        size_t ni;
-        for(ni = 0; ni < nmodes; ++ni) {
+
+        sptSemiSparseTensor Utilde;
+        sptSparseTensorToSemiSparseTensor(&Utilde, X, dimorder[0]);
+        for(size_t ni = 0; ni < N; ++ni) {
             size_t n = dimorder[ni];
             size_t m;
-            // Utilde = ttm(X, U, -n, 't');
-            for(m = 0; m < nmodes; ++m) {
+            // TODO: zero-copy TTM?
+            // TODO: transpose?
+            for(m = 0; m < N; ++m) {
                 if(m != n) {
-                    sptSemiSparseTensorMulMatrix(Utilde, X, U[m], m);
+                    sptSemiSparseTensor Utilde_next;
+                    sptSemiSparseTensorMulMatrix(&Utilde_next, &Utilde, &U[m], m);
+                    sptFreeSemiSparseTensor(&Utilde);
+                    Utilde = Utilde_next;
                 }
             }
             // U[n] = nvecs(Utilde, n, R[n]);
         }
 
-        // core = ttm(Utilde, U, n, 't');
-        sptSemiSparseTensorMulMatrix(core, Utilde, U[0], nmodes-1);
+        if(core->nmodes != 0) {
+            sptFreeSemiSparseTensor(core);
+        }
 
-        // normresidual = hypot(normX, norm(core));
-        // fit = 1 - normresidual / normX;
-        // fitchange = abs(fitold - fit);
+        sptSemiSparseTensorMulMatrix(core, &Utilde, &U[dimorder[N-1]], dimorder[N-1]);
 
-        // if(iter != 0 && fitchange < fitchangetol) {
+        double normresidual = hypot(normX, spt_SemiSparseTensorNorm(core));
+        fit = 1 - normresidual / normX;
+        double fitchange = abs(fitold - fit);
+
+        if(iter != 0 && fitchange < tol) {
             break;
-        // }
+        }
     }
-}
 
-#endif
+    return 0;
+}

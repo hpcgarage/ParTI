@@ -16,24 +16,19 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PARTI_SSPTENSOR_H
-#define PARTI_SSPTENSOR_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <ParTI.h>
-#include "../error/error.h"
+#include "ssptensor.h"
+#include <math.h>
 
-int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[], sptScalar value);
-int spt_SemiSparseTensorCompareIndices(const sptSemiSparseTensor *tsr1, size_t ind1, const sptSemiSparseTensor *tsr2, size_t ind2);
-int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr);
-
-double spt_SemiSparseTensorNorm(const sptSemiSparseTensor *X);
-
-#ifdef __cplusplus
+double spt_SemiSparseTensorNorm(const sptSemiSparseTensor *X) {
+    double sqnorm = 0;
+    size_t i;
+    for(i = 0; i < X->nnz; ++i) {
+        size_t j;
+        for(j = 0; j < X->values.ncols; ++j) {
+            double cell_value = X->values.values[i * X->stride + j];
+            sqnorm += cell_value * cell_value;
+        }
+    }
+    return sqrt(sqnorm);
 }
-#endif
-
-#endif

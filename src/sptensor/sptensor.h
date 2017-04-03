@@ -26,6 +26,8 @@ extern "C" {
 #include <ParTI.h>
 #include "../error/error.h"
 
+double spt_SparseTensorNorm(const sptSparseTensor *X);
+
 int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2);
 int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, size_t * const inds1, size_t * const inds2);
 void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
@@ -75,9 +77,9 @@ void spt_DumpArray(const size_t array[], size_t length, size_t start_index, FILE
 
 // abundant
 int spt_SparseTensorBalancedSplit(
-    spt_SplitResult **splits, 
-    size_t *nsplits, 
-    sptSparseTensor *tsr, 
+    spt_SplitResult **splits,
+    size_t *nsplits,
+    sptSparseTensor *tsr,
     const size_t nnz_limit,
     const size_t index_limit_by_mode[]);
 
@@ -102,7 +104,7 @@ int spt_ComputeCoarseSplitParametersOne(
     size_t const stride,
     size_t const memwords,
     size_t const max_nthreadsx);
-    
+
 int spt_CoarseSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
@@ -138,13 +140,13 @@ int spt_ComputeFineSplitParametersOne(
     size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,
     size_t const max_nthreadsx);
-    
+
 int spt_ComputeFineSplitParameters(
     size_t * split_nnz_len, // Scalar
     sptSparseTensor * const tsr,
     size_t const stride,
     size_t const memwords);
-    
+
 int spt_FineSplitSparseTensorBatch(
     spt_SplitResult * splits,
     size_t * nnz_split_next,
@@ -179,7 +181,7 @@ int spt_MediumSplitSparseTensorBatch(
     size_t const nnz_split_begin,
     size_t * est_inds_low,
     size_t * est_inds_high);
-    
+
 int spt_MediumSplitSparseTensorStep(    // In-place
     spt_SplitResult * split,
     size_t * nnz_ptr_next,
