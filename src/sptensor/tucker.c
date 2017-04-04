@@ -80,7 +80,7 @@ int sptTuckerDecomposition(
 
         double normresidual = hypot(normX, spt_SemiSparseTensorNorm(core));
         fit = 1 - normresidual / normX;
-        double fitchange = abs(fitold - fit);
+        double fitchange = fabs(fitold - fit);
 
         if(iter != 0 && fitchange < tol) {
             break;
