@@ -5,6 +5,7 @@ build/
 results/
 timing/
 timing_old/
+summary/
 build.config
 *.ptx
 *.mex*
