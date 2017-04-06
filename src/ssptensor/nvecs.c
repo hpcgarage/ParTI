@@ -26,12 +26,23 @@ int sptSemiSparseTensorNvecs(
     size_t                    n,
     size_t                    r
 ) {
-    /*
-    TODO:
-    tnt = double(sptenmat(t,n,'t'));
-    y = tnt' * tnt;
-    opts.disp = 0;
-    [u,d] = eigs(y,r,'LM',eigsopts);
+    /* TODO */
+    sptMatrix tnt;
+    /* NOTE:
+    %   A = SPTENMAT(T, RDIMS) creates a sparse matrix representation of
+    %   an sptensor T.  The dimensions (or modes) specified in RDIMS map
+    %   to the rows of the matrix, and the remaining dimensions (in
+    %   ascending order) map to the columns.
+    */
+    /* For modes > 3, concatenate remaining dimensions */
+    /* sptenmat(&tnt, t, n, 't'); */
+    sptMatrix y;
+    /* y = tnt' * tnt; */
+    /* [u,d] = eigs(y,r,'LM',eigsopts); */
+    /* LM means Largest Magnitude (default) */
+    /* Refer to OpenBLAS
+    Naming convension: http://www.netlib.org/lapack/lug/node24.html
+    We need S**EV?
     */
 
     return 0;
