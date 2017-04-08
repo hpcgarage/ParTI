@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)  # CMake 3.2 supports CUDA 7.0
 project(ParTI)
 
 option(BUILD_STATIC "Build static library" ON)
@@ -12,6 +12,8 @@ option(USE_MKL "Use Intel MKL library" OFF)
 if(USE_CUDA)
     find_package(CUDA REQUIRED)
     add_definitions(-DPARTI_USE_CUDA)
+    link_libraries(${CUDA_cusparse_LIBRARY})
+    link_libraries(${CUDA_cusolver_LIBRARY})
 endif()
 
 # A bug in FindCUDA module forces us to put "link_libraries" before "cuda_add_library".
