@@ -32,7 +32,7 @@ int spt_SemiSparseTensorSetMode(
     spt_CheckError(result, "ssp setmode", NULL);
     sptSparseTensorToSemiSparseTensor(dest, &tmp, newmode);
     spt_CheckError(result, "ssp setmode", NULL);
-    sptFreeSemiSparseTensor(&tmp);
+    sptFreeSparseTensor(&tmp);
 
     return 0;
 }
