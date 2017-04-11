@@ -35,6 +35,36 @@ __global__ void spt_TTMKernel(
     const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride,
     size_t block_offset);
 
-    
+
+
+/* impl_num = 11 */
+__global__ void spt_TTMNnzKernel(
+    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    const size_t *fiberidx_val, size_t fiberidx_len,
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride);
+
+/* impl_num = 12 */
+__global__ void spt_TTMNnzRankKernel(
+    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    const size_t *fiberidx_val, size_t fiberidx_len,
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride);
+
+/* impl_num = 13 */
+__global__ void spt_TTMRankNnzKernel(
+    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    const size_t *fiberidx_val, size_t fiberidx_len,
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride);
+
+
+/* impl_num = 14 */
+__global__ void spt_TTMRankRBNnzKernel(
+    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    const size_t *fiberidx_val, size_t fiberidx_len,
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride);
+
 
 #endif

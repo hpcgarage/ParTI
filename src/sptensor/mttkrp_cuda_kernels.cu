@@ -502,8 +502,8 @@ __global__ void spt_MTTKRPKernelRankNnz3DOneKernel(
     const size_t tidx = threadIdx.x;  // index rank
     const size_t tidy = threadIdx.y;  // index nnz
     size_t x;
-    const size_t num_loops_r = R / blockDim.y;
-    const size_t rest_loop = R - num_loops_r * blockDim.y;
+    const size_t num_loops_r = R / blockDim.x;
+    const size_t rest_loop = R - num_loops_r * blockDim.x;
 
 
     size_t const * const mode_ind = Xinds[mode];
