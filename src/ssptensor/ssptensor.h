@@ -32,6 +32,18 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr);
 
 double spt_SemiSparseTensorNorm(const sptSemiSparseTensor *X);
 
+int spt_SemiSparseTensorSetMode(
+    sptSemiSparseTensor       *dest,
+    const sptSemiSparseTensor *src,
+    size_t                    newmode
+);
+int spt_SemiSparseTensorToSparseMatrixCSR(
+    sptScalar                  *csrVal,
+    int                        *csrRowPtr,
+    int                        *csrColInd,
+    const sptSemiSparseTensor  *tsr
+);
+
 #ifdef __cplusplus
 }
 #endif

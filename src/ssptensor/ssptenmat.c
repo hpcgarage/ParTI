@@ -31,9 +31,9 @@
  */
 int spt_SemiSparseTensorToSparseMatrixCSR(
     sptScalar                  *csrVal,
-    size_t                     *csrRowPtr,
-    size_t                     *csrColInd,
-    sptSemiSparseTensor        *tsr
+    int                        *csrRowPtr,
+    int                        *csrColInd,
+    const sptSemiSparseTensor  *tsr
 ) {
     /*
         For tensor size [X, Y, Z], col_dim = 1,
