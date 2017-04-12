@@ -75,6 +75,20 @@ typedef struct {
     sptVector     values; /// non-zero values, length nnz
 } sptSparseMatrix;
 
+
+/**
+ * Sparse matrix type, CSR format
+ */
+typedef struct {
+    size_t        nrows;  /// # rows
+    size_t        ncols;  /// # colums
+    size_t        nnz;    /// # non-zeros
+    sptSizeVector rowptr; /// row indices, length nnz
+    sptSizeVector colind; /// column indices, length nnz
+    sptVector     values; /// non-zero values, length nnz
+} sptSparseMatrixCSR;
+
+
 /**
  * Sparse tensor type
  */
@@ -104,6 +118,22 @@ typedef struct {
     size_t        stride; /// ndims[mode] rounded up to 8
     sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
 } sptSemiSparseTensor;
+
+
+/**
+ * General Semi-sparse tensor type
+ */
+typedef struct {
+    size_t        nmodes; /// # Modes, must >= 2
+    size_t        *ndims; /// size of each mode, length nmodes
+    size_t        ndmodes;
+    size_t        *dmodes;   /// the mode where data is stored in dense format, allocate nmodes sized space
+    size_t        nnz;    /// # non-zero fibers
+    sptSizeVector *inds;  /// indices of each dense fiber, length [nmodes][nnz], the mode-th value is ignored
+    size_t        *strides; /// ndims[mode] rounded up to 8
+    sptMatrix     values; /// dense fibers, size nnz*ndims[mode]
+} sptSemiSparseTensorGeneral;
+
 
 
 typedef struct {
@@ -239,6 +269,9 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
 void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr);
 int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparseTensor *src, size_t mode);
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr);
+
+int sptNewSemiSparseTensorGeneral(sptSemiSparseTensorGeneral *tsr, size_t nmodes, const size_t ndims[], size_t ndmodes, const size_t dmodes[]);
+void sptFreeSemiSparseTensorGeneral(sptSemiSparseTensorGeneral *tsr);
 
 /**
  * Set indices of a semi-sparse according to a reference sparse

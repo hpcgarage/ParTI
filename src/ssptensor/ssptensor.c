@@ -93,3 +93,61 @@ void sptFreeSemiSparseTensor(sptSemiSparseTensor *tsr) {
     free(tsr->inds);
     sptFreeMatrix(&tsr->values);
 }
+
+
+
+/**
+ * Create a new semi sparse tensor
+ * @param tsr    a pointer to an uninitialized semi sparse tensor
+ * @param nmodes number of modes the tensor will have
+ * @param mode   the mode which will be stored in dense format
+ * @param ndims  the dimension of each mode the tensor will have
+ */
+int sptNewSemiSparseTensorGeneral(sptSemiSparseTensorGeneral *tsr, size_t nmodes, const size_t ndims[], size_t ndmodes, const size_t dmodes[]) {
+    size_t i;
+    int result;
+    if(nmodes < 2) {
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "SspTns New", "nmodes < 2");
+    }
+    tsr->nmodes = nmodes;
+    tsr->ndims = malloc(nmodes * sizeof *tsr->ndims);
+    spt_CheckOSError(!tsr->ndims, "SspTns New");
+    memcpy(tsr->ndims, ndims, nmodes * sizeof *tsr->ndims);
+
+    tsr->ndmodes = ndmodes;
+    tsr->dmodes = malloc(nmodes * sizeof *tsr->dmodes);
+    spt_CheckOSError(!tsr->dmodes, "SspTns New");
+    memcpy(tsr->dmodes, dmodes, nmodes * sizeof *tsr->dmodes);
+
+    size_t nsmodes = nmodes - ndmodes;
+    tsr->nnz = 0;
+    tsr->inds = malloc(nsmodes * sizeof *tsr->inds);
+    spt_CheckOSError(!tsr->inds, "SspTns New");
+    for(i = 0; i < nsmodes; ++i) {
+        result = sptNewSizeVector(&tsr->inds[i], 0, 0);
+        spt_CheckError(result, "SspTns New", NULL);
+    }
+    tsr->strides = malloc(ndmodes * sizeof *tsr->strides);
+    for(i = 0; i < ndmodes; ++i) {
+        tsr->strides[i] = ((ndims[dmodes[i]]-1)/8+1)*8;
+    }
+    result = sptNewMatrix(&tsr->values, 0, tsr->strides[0]);
+    spt_CheckError(result, "SspTns New", NULL);
+    return 0;
+}
+
+/**
+ * Release any memory the semi sparse tensor is holding
+ * @param tsr the tensor to release
+ */
+void sptFreeSemiSparseTensorGeneral(sptSemiSparseTensorGeneral *tsr) {
+    size_t i;
+    for(i = 0; i < (tsr->nmodes - tsr->ndmodes); ++i) {
+        sptFreeSizeVector(&tsr->inds[i]);
+    }
+    free(tsr->ndims);
+    free(tsr->dmodes);
+    free(tsr->strides);
+    free(tsr->inds);
+    sptFreeMatrix(&tsr->values);
+}
