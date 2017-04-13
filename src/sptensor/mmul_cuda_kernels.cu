@@ -276,3 +276,78 @@ __global__ void spt_TTMRankRBNnzKernel(
     }
 
 }
+
+
+/* impl_num = 15 */
+__global__ void spt_TTMRankRBNnzKernelSM(
+    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
+    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
+    const size_t *fiberidx_val, size_t fiberidx_len,
+    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride) 
+{
+    extern __shared__ sptScalar mem_pool[];
+    sptScalar * const Y_shr = (sptScalar *) mem_pool; // size U_ncols
+
+    size_t num_loops_nnz = 1;
+    size_t const nnz_per_loop = gridDim.x * blockDim.y;
+    if(Y_nnz > nnz_per_loop) {
+        num_loops_nnz = (Y_nnz + nnz_per_loop - 1) / nnz_per_loop;
+    }
+    
+    const size_t tidx = threadIdx.x;
+    const size_t tidy = threadIdx.y;
+    size_t x;
+    const size_t num_loops_r = U_ncols / blockDim.x;
+    const size_t rest_loop = U_ncols - num_loops_r * blockDim.x;
+    size_t r;
+
+
+    for(size_t l=0; l<num_loops_r; ++l) {
+        r = tidx + l * blockDim.x;
+        for(size_t nl=0; nl<num_loops_nnz; ++nl) {
+            x = blockIdx.x * blockDim.y + tidy + nl * nnz_per_loop;
+
+            Y_shr[tidx * Y_stride + tidy] = 0;
+            __syncthreads();
+
+            if(x < Y_nnz) {
+                const size_t inz_begin = fiberidx_val[x];
+                const size_t inz_end = fiberidx_val[x+1];
+                for(size_t i = inz_begin; i < inz_end; ++i) {
+                    const size_t row = X_inds_m[i];
+                    Y_shr[tidy*Y_stride + tidx] += X_val[i] * U_val[row*U_stride + r]; 
+                }
+                __syncthreads();
+
+                Y_val[x*Y_stride + tidx] = Y_shr[tidy*Y_stride + tidx];
+                __syncthreads();
+            }
+        }
+    }
+
+
+    if(rest_loop > 0 && tidx < rest_loop) {
+        r = tidx + num_loops_r * blockDim.x;
+
+        for(size_t nl=0; nl<num_loops_nnz; ++nl) {
+            x = blockIdx.x * blockDim.y + tidy + nl * nnz_per_loop;
+
+            Y_shr[tidx * Y_stride + tidy] = 0;
+            __syncthreads();
+
+            if(x < Y_nnz) {
+                const size_t inz_begin = fiberidx_val[x];
+                const size_t inz_end = fiberidx_val[x+1];
+                for(size_t i = inz_begin; i < inz_end; ++i) {
+                    const size_t row = X_inds_m[i];
+                    Y_shr[tidy*Y_stride + tidx] += X_val[i] * U_val[row*U_stride + r]; 
+                }
+                __syncthreads();
+
+                Y_val[x*Y_stride + tidx] = Y_shr[tidy*Y_stride + tidx];
+                __syncthreads();
+            }
+        }
+    }
+
+}
