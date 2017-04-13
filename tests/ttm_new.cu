@@ -64,7 +64,8 @@ int main(int argc, char const *argv[]) {
     } else {
         sptCudaSetDevice(cuda_dev_id);
         // sptAssert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-        sptAssert(sptCudaSparseTensorMulMatrixOneKernel(&Y, &X, &U, mode, impl_num) == 0);
+        abort(); // (sam) FIXME: The following line is commented to pass linking. Uncomment it if it's ready.
+        //sptAssert(sptCudaSparseTensorMulMatrixOneKernel(&Y, &X, &U, mode, impl_num) == 0);
     }
 
     // for(int it=0; it<niters; ++it) {
