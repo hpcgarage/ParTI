@@ -20,6 +20,7 @@
 #include "ssptensor.h"
 #include <math.h>
 #include <cusparse.h>
+#include "../cudawrap.h"
 
 int sptSemiSparseTensorNvecs(
     sptSparseTensor           *u,
@@ -27,16 +28,45 @@ int sptSemiSparseTensorNvecs(
     size_t                    n,
     size_t                    r
 ) {
+    int result = 0;
+    cusparseHandle_t cusparse_handle;
+    result = spt_cusparseCreate(&cusparse_handle);
+    spt_CheckCudaError(result, "NVECS");
+
     sptSemiSparseTensor tn;
     spt_SemiSparseTensorSetMode(&tn, t, n);
-    float *tnt_val = new float[tn.nnz * tn.ndims[tn.mode]];
-    int *tnt_rowptr = new int[tn.nnz + 1];
-    int *tnt_colind = new int[tn.nnz * tn.ndims[tn.mode]];
-    spt_SemiSparseTensorToSparseMatrixCSR(tnt_val, tnt_rowptr, tnt_colind, &tn);
 
-    float *y_val;
-    size_t *y_rowptr;
-    size_t *y_colind;
+    size_t tnt_width = tn.nnz;
+    size_t tnt_height = tn.ndims[tn.mode];
+
+    float *tnt_val = new float[tnt_width * tnt_height];
+    int *tnt_rowptr = new int[tnt_height + 1];
+    int *tnt_colind = new int[tnt_width * tnt_height];
+    result = spt_SemiSparseTensorToSparseMatrixCSR(tnt_val, tnt_rowptr, tnt_colind, &tn);
+    spt_CheckCudaError(result, "NVECS");
+    sptFreeSemiSparseTensor(&tn);
+
+    float *dev_tnt_val;
+    int *dev_tnt_rowptr;
+    int *dev_tnt_colind;
+    result = sptCudaDuplicateMemory(&dev_tnt_val, tnt_val, tnt_width * tnt_height * sizeof *tnt_val, cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result, "NVECS");
+    result = sptCudaDuplicateMemory(&dev_tnt_rowptr, tnt_rowptr, (tnt_height + 1) * sizeof *tnt_rowptr, cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result, "NVECS");
+    result = sptCudaDuplicateMemory(&dev_tnt_colind, tnt_colind, tnt_width * tnt_height * sizeof *tnt_colind, cudaMemcpyHostToDevice);
+    spt_CheckCudaError(result, "NVECS");
+
+    delete[] tnt_colind;
+    delete[] tnt_rowptr;
+    delete[] tnt_val;
+
+    float *dev_y_val;
+    int *dev_y_rowptr;
+    int *dev_y_colind;
+    int y_nnz;
+
+    result = cudaMalloc((int **) &dev_y_rowptr, (tnt_height + 1) * sizeof *dev_y_rowptr);
+    spt_CheckCudaError(result, "NVECS");
 
     cusparseMatDescr_t matrix_descriptor;
     cusparseCreateMatDescr(&matrix_descriptor);
@@ -45,33 +75,61 @@ int sptSemiSparseTensorNvecs(
     cusparseSetMatDiagType(matrix_descriptor, CUSPARSE_DIAG_TYPE_NON_UNIT);
     cusparseSetMatIndexBase(matrix_descriptor, CUSPARSE_INDEX_BASE_ZERO);
 
-    cusparseXcsrgemmNnz(
-        /* handle */ NULL, // TODO
+    result = cusparseXcsrgemmNnz(
+        /* handle */ cusparse_handle,
         /* transA */ CUSPARSE_OPERATION_TRANSPOSE,
         /* transB */ CUSPARSE_OPERATION_NON_TRANSPOSE,
-        /* m */ tn.nnz,
-        /* n */ tn.nnz,
-        /* k */ tn.ndims[tn.mode],
+        /* m */ tnt_width,
+        /* n */ tnt_width,
+        /* k */ tnt_height,
         /* descrA */ matrix_descriptor,
-        /* nnzA */ tn.nnz * tn.ndims[tn.mode],
-        /* csrRowPtrA */ tnt_rowptr,
-        /* csrColIndA */ tnt_colind,
+        /* nnzA */ tnt_width * tnt_height,
+        /* csrRowPtrA */ dev_tnt_rowptr,
+        /* csrColIndA */ dev_tnt_colind,
         /* descrB */ matrix_descriptor,
-        /* nnzB */ tn.nnz * tn.ndims[tn.mode],
-        /* csrRowPtrB */ tnt_rowptr,
-        /* csrColIndB */ tnt_colind,
+        /* nnzB */ tnt_width * tnt_height,
+        /* csrRowPtrB */ dev_tnt_rowptr,
+        /* csrColIndB */ dev_tnt_colind,
         /* descrC */ matrix_descriptor,
-        /* csrRowPtrC */ NULL, // TODO
-        /* nnzTotalDevHostPtr */ NULL // TODO
+        /* csrRowPtrC */ dev_y_rowptr,
+        /* nnzTotalDevHostPtr */ &y_nnz
     );
+    spt_CheckCudaError(result, "NVECS");
 
-    // TODO
+    result = cudaMalloc((float **) &dev_y_val, y_nnz * sizeof *dev_y_val);
+    spt_CheckCudaError(result, "NVECS");
+    result = cudaMalloc((int **) &dev_y_colind, y_nnz * sizeof *dev_y_colind);
+    spt_CheckCudaError(result, "NVECS");
+
+    result = cusparseScsrgemm(
+        /* handle */ cusparse_handle,
+        /* transA */ CUSPARSE_OPERATION_TRANSPOSE,
+        /* transB */ CUSPARSE_OPERATION_NON_TRANSPOSE,
+        /* m */ tnt_width,
+        /* n */ tnt_width,
+        /* k */ tnt_height,
+        /* descrA */ matrix_descriptor,
+        /* nnzA */ tnt_width * tnt_height,
+        /* csrValA */ dev_tnt_val,
+        /* csrRowPtrA */ dev_tnt_rowptr,
+        /* csrColIndA */ dev_tnt_colind,
+        /* descrB */ matrix_descriptor,
+        /* nnzB */ tnt_width * tnt_height,
+        /* csrValB */ dev_tnt_val,
+        /* csrRowPtrB */ dev_tnt_rowptr,
+        /* csrColIndB */ dev_tnt_colind,
+        /* descrC */ matrix_descriptor,
+        /* csrValC */ dev_y_val,
+        /* csrRowPtrC */ dev_y_rowptr,
+        /* csrColIndC */ dev_y_colind
+    );
+    spt_CheckCudaError(result, "NVECS");
+
+    cudaFree(dev_tnt_colind);
+    cudaFree(dev_tnt_rowptr);
+    cudaFree(dev_tnt_val);
 
     cusparseDestroyMatDescr(matrix_descriptor);
-    delete[] tnt_colind;
-    delete[] tnt_rowptr;
-    delete[] tnt_val;
-    sptFreeSemiSparseTensor(&tn);
 
     return 0;
 }

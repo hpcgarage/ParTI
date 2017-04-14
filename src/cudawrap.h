@@ -26,9 +26,17 @@
 #include <cuda_runtime.h>
 #include "error/error.h"
 
+typedef struct cusparseContext *cusparseHandle_t;
+typedef struct cusolverSpContext *cusolverSpHandle_t;
+
 extern "C" {
+
+int spt_cusparseCreate(cusparseHandle_t *handle);
+int spt_cusolverSpCreate(cusolverSpHandle_t *handle);
+
 int spt_CudaDuplicateMemoryGenerics(void **dest, const void *src, size_t size, int direction);
 int spt_CudaDuplicateMemoryGenericsAsync(void **dest, const void *src, size_t size, int direction, cudaStream_t stream);
+
 }
 
 template <class T>
