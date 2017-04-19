@@ -1,0 +1,6 @@
+[OMP  SpTns * Mtx]: 1.352161215 s
+[OMP  SpTns * Mtx]: 1.150916194 s
+[OMP  SpTns * Mtx]: 1.142889326 s
+[OMP  SpTns * Mtx]: 1.224589301 s
+[OMP  SpTns * Mtx]: 1.138060324 s
+[OMP  SpTns * Mtx]: 1.334174683 s

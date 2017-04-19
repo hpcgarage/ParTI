@@ -18,8 +18,8 @@
 
 %A = load('/home/jli/Work/ParTI/tensors/3D_12031.tns');
 %sz = [100 80 60];
-file = '/home/BIGDATA/Collection/SPLATT/brainq.tns';
-sz = [60 70365 9];
+%file = '/home/BIGDATA/Collection/SPLATT/brainq.tns';
+%sz = [60 70365 9];
 % file = '/home/BIGDATA/Collection/SPLATT/brainq.fixed.tns';
 % sz = [60 22870 9];
 % file = 'rand_1000_0.0001.tns';
@@ -30,21 +30,27 @@ sz = [60 70365 9];
 %sz = [2902330 2143368 25495389];
 %file = '/home/BIGDATA/Collection/SPLATT/delicious.tns';
 %sz = [532924 17262471 2480308];
+file = '/nethome/jli458/BIGTENSORS/nips-4d_init.tns';
+sz = [2482 2862 14036 17];
+nmodes = length(sz);
 
 mode = 1;
 R = 16;
 fprintf('R: %d, mode: %d\n', R, mode);
 
 A = load(file);
-subs = A(:, 1:3);
-vals = A(:, 4);
+subs = A(:, 1:nmodes);
+vals = A(:, nmodes+1);
 spA = sptensor(subs, vals, sz);
 
 U = rand(R, sz(mode));
 
+res = ttm_timing(spA, U, mode);
+
+niters = 1;
 ts = tic;
-for niter = 1:5
+for i = 1:niters
   res = ttm_timing(spA, U, mode);
 end
 time = toc(ts);
-fprintf('time: %f sec\n', time/5);
+fprintf('time: %f sec\n', time/niters);

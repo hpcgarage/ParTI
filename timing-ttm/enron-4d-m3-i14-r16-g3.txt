@@ -1,0 +1,18 @@
+all_nblocks: 1957024, nthreadsx: 16, nthreadsy: 16
+[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32768, (16, 16)>>>
+[CUDA SpTns * Mtx]: 0.146083653 s
+all_nblocks: 1957024, nthreadsx: 16, nthreadsy: 16
+[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32768, (16, 16)>>>
+[CUDA SpTns * Mtx]: 0.135141149 s
+all_nblocks: 1957024, nthreadsx: 16, nthreadsy: 16
+[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32768, (16, 16)>>>
+[CUDA SpTns * Mtx]: 0.113229879 s
+all_nblocks: 1957024, nthreadsx: 16, nthreadsy: 16
+[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32768, (16, 16)>>>
+[CUDA SpTns * Mtx]: 0.103175282 s
+all_nblocks: 1957024, nthreadsx: 16, nthreadsy: 16
+[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32768, (16, 16)>>>
+[CUDA SpTns * Mtx]: 0.103151079 s
+all_nblocks: 1957024, nthreadsx: 16, nthreadsy: 16
+[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32768, (16, 16)>>>
+[CUDA SpTns * Mtx]: 0.103150263 s

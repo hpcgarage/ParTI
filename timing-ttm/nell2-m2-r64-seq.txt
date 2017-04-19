@@ -1,0 +1,6 @@
+[CPU  SpTns * Mtx]: 28.806527469 s
+[CPU  SpTns * Mtx]: 28.739985431 s
+[CPU  SpTns * Mtx]: 28.793991147 s
+[CPU  SpTns * Mtx]: 28.665040456 s
+[CPU  SpTns * Mtx]: 31.166041153 s
+[CPU  SpTns * Mtx]: 31.707928425 s
