@@ -1,3 +1,0 @@
-all_nblocks: 32091, nthreadsx: 16, nthreadsy: 16
-[CUDA SpTns * Mtx] spt_TTMRankRBNnzKernel<<<32091, (16, 16)>>>
-[CUDA SpTns * Mtx]: 0.095010180 s

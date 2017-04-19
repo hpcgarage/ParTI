@@ -5,7 +5,7 @@ build/
 results/
 timing/
 timing_old/
-timing_ttm/
+timing-ttm/
 summary/
 build.config
 *.ptx

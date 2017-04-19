@@ -1,3 +1,0 @@
-all_nblocks: 299, nthreadsx: 256, nthreadsy: 1
-[CUDA SpTns * Mtx] spt_TTMNnzKernel<<<299, (256, 1)>>>
-[CUDA SpTns * Mtx]: 10.297135098 s
