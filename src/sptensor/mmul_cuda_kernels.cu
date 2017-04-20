@@ -346,7 +346,7 @@ __global__ void spt_TTMRankRBNnzKernelSM(
         for(size_t nl=0; nl<num_loops_nnz; ++nl) {
             x = blockIdx.x * blockDim.y + tidy + nl * nnz_per_loop;
 
-            Y_shr[tidx * Y_stride + tidy] = 0;
+            Y_shr[tidy * Y_stride + tidx] = 0;
             __syncthreads();
 
             if(x < Y_nnz) {
@@ -358,7 +358,7 @@ __global__ void spt_TTMRankRBNnzKernelSM(
                 }
                 __syncthreads();
 
-                Y_val[x*Y_stride + tidx] = Y_shr[tidy*Y_stride + tidx];
+                Y_val[x*Y_stride + r] = Y_shr[tidy*Y_stride + tidx];
                 __syncthreads();
             }
         }
@@ -371,7 +371,7 @@ __global__ void spt_TTMRankRBNnzKernelSM(
         for(size_t nl=0; nl<num_loops_nnz; ++nl) {
             x = blockIdx.x * blockDim.y + tidy + nl * nnz_per_loop;
 
-            Y_shr[tidx * Y_stride + tidy] = 0;
+            Y_shr[tidy * Y_stride + tidx] = 0;
             __syncthreads();
 
             if(x < Y_nnz) {
@@ -383,7 +383,7 @@ __global__ void spt_TTMRankRBNnzKernelSM(
                 }
                 __syncthreads();
 
-                Y_val[x*Y_stride + tidx] = Y_shr[tidy*Y_stride + tidx];
+                Y_val[x*Y_stride + r] = Y_shr[tidy*Y_stride + tidx];
                 __syncthreads();
             }
         }

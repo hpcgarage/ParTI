@@ -7,8 +7,7 @@ declare -a sl4tsrs=("nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a test_tsr_names=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2")
 
 tsr_path="/nethome/jli458/BIGTENSORS"
-nmodes=4
-modes="$(seq -s ' ' 0 $((nmodes-1)))"
+nmodes=3
 impl_num=11
 
 # single split
@@ -16,10 +15,12 @@ impl_num=11
 smem_size=14000
 
 
+modes="$(seq -s ' ' 0 $((nmodes-1)))"
+
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${sl4tsrs[@]}"
+	for tsr_name in "${s3tsrs[@]}"
 	do
 
 		### Single GPU code
