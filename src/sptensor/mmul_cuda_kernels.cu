@@ -93,10 +93,18 @@ __global__ void spt_TTMKernel(
 
 /* impl_num = 11 */
 __global__ void spt_TTMNnzKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride)
+    sptScalar *Y_val, 
+    size_t Y_stride, 
+    size_t Y_nnz,
+    const sptScalar * __restrict__ X_val, 
+    size_t X_nnz, 
+    const size_t * __restrict__ X_inds_m,
+    const size_t * __restrict__ fiberidx_val, 
+    size_t fiberidx_len,
+    const sptScalar * __restrict__ U_val, 
+    size_t U_nrows, 
+    size_t U_ncols, 
+    size_t U_stride)
 {
     size_t num_loops_nnz = 1;
     size_t const nnz_per_loop = gridDim.x * blockDim.x;
@@ -128,10 +136,18 @@ __global__ void spt_TTMNnzKernel(
 
 /* impl_num = 12 */
 __global__ void spt_TTMNnzRankKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride)
+    sptScalar *Y_val, 
+    size_t Y_stride, 
+    size_t Y_nnz,
+    const sptScalar * __restrict__ X_val, 
+    size_t X_nnz, 
+    const size_t * __restrict__ X_inds_m,
+    const size_t * __restrict__ fiberidx_val, 
+    size_t fiberidx_len,
+    const sptScalar * __restrict__ U_val, 
+    size_t U_nrows, 
+    size_t U_ncols, 
+    size_t U_stride)
 {
     size_t num_loops_nnz = 1;
     size_t const nnz_per_loop = gridDim.x * blockDim.x;
@@ -175,10 +191,18 @@ __global__ void spt_TTMNnzRankKernel(
 
 /* impl_num = 13 */
 __global__ void spt_TTMRankNnzKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride)
+    sptScalar *Y_val, 
+    size_t Y_stride, 
+    size_t Y_nnz,
+    const sptScalar * __restrict__ X_val, 
+    size_t X_nnz, 
+    const size_t * __restrict__ X_inds_m,
+    const size_t * __restrict__ fiberidx_val, 
+    size_t fiberidx_len,
+    const sptScalar * __restrict__ U_val, 
+    size_t U_nrows, 
+    size_t U_ncols, 
+    size_t U_stride)
 {
     size_t num_loops_nnz = 1;
     size_t const nnz_per_loop = gridDim.x * blockDim.y;
@@ -221,10 +245,18 @@ __global__ void spt_TTMRankNnzKernel(
 
 /* impl_num = 14 */
 __global__ void spt_TTMRankRBNnzKernel(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride)
+    sptScalar *Y_val, 
+    size_t Y_stride, 
+    size_t Y_nnz,
+    const sptScalar * __restrict__ X_val, 
+    size_t X_nnz, 
+    const size_t * __restrict__ X_inds_m,
+    const size_t * __restrict__ fiberidx_val, 
+    size_t fiberidx_len,
+    const sptScalar * __restrict__ U_val, 
+    size_t U_nrows, 
+    size_t U_ncols, 
+    size_t U_stride)
 {
     size_t num_loops_nnz = 1;
     size_t const nnz_per_loop = gridDim.x * blockDim.y;
@@ -280,10 +312,17 @@ __global__ void spt_TTMRankRBNnzKernel(
 
 /* impl_num = 15 */
 __global__ void spt_TTMRankRBNnzKernelSM(
-    sptScalar *Y_val, size_t Y_stride, size_t Y_nnz,
-    const sptScalar *X_val, size_t X_nnz, const size_t *X_inds_m,
-    const size_t *fiberidx_val, size_t fiberidx_len,
-    const sptScalar *U_val, size_t U_nrows, size_t U_ncols, size_t U_stride) 
+    sptScalar *Y_val, 
+    size_t Y_stride, size_t Y_nnz,
+    const sptScalar * __restrict__ X_val, 
+    size_t X_nnz, 
+    const size_t * __restrict__ X_inds_m,
+    const size_t * __restrict__ fiberidx_val, 
+    size_t fiberidx_len,
+    const sptScalar * __restrict__ U_val, 
+    size_t U_nrows, 
+    size_t U_ncols, 
+    size_t U_stride) 
 {
     extern __shared__ sptScalar mem_pool[];
     sptScalar * const Y_shr = (sptScalar *) mem_pool; // size U_ncols
