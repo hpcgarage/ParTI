@@ -24,16 +24,23 @@
 % sz = [60 22870 9];
 % file = 'rand_1000_0.0001.tns';
 % sz = [1000 1000 1000];
-%file = '/home/BIGDATA/Collection/SPLATT/nell2.tns';
-%sz = [12092 9184 28818];
-%file = '/home/BIGDATA/Collection/SPLATT/nell1.tns';
-%sz = [2902330 2143368 25495389];
+% file = '/nethome/jli458/BIGTENSORS/nell2_init.tns';
+% sz = [12092 9184 28818];
+file = '/nethome/jli458/BIGTENSORS/nell1_init.tns';
+sz = [2902330 2143368 25495389];
 %file = '/home/BIGDATA/Collection/SPLATT/delicious.tns';
 %sz = [532924 17262471 2480308];
-file = '/nethome/jli458/BIGTENSORS/nips-4d_init.tns';
-sz = [2482 2862 14036 17];
+% file = '/nethome/jli458/BIGTENSORS/choa700k_init.tns';
+% sz = [712329 9827 767];
+%%% 4D
+% file = '/nethome/jli458/BIGTENSORS/nips-4d_init.tns';
+% sz = [2482 2862 14036 17];
+% file = '/nethome/jli458/BIGTENSORS/enron-4d_init.tns';
+% sz = [6066 5699 244268 1176];
+
 nmodes = length(sz);
 
+niters = 1;
 mode = 1;
 R = 16;
 fprintf('R: %d, mode: %d\n', R, mode);
@@ -47,10 +54,9 @@ U = rand(R, sz(mode));
 
 res = ttm_timing(spA, U, mode);
 
-niters = 1;
 ts = tic;
 for i = 1:niters
-  res = ttm_timing(spA, U, mode);
+  res = ttm(spA, U, mode);
 end
 time = toc(ts);
 fprintf('time: %f sec\n', time/niters);

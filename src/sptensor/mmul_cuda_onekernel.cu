@@ -53,6 +53,18 @@ int sptCudaSparseTensorMulMatrixOneKernel(
     spt_CheckError(result, "CUDA SpTns * Mtx", NULL);
     sptSemiSparseTensorSetIndices(Y, &fiberidx, X);
 
+    double flen = (double)X->nnz / fiberidx.len;
+    size_t tmp_flen = (fiberidx.data[1] - fiberidx.data[0]) - flen;
+    double fvar = tmp_flen * tmp_flen;
+    for(size_t i=1; i<fiberidx.len - 1; ++i) {
+        tmp_flen = (fiberidx.data[i+1] - fiberidx.data[i]) - flen;
+        fvar += tmp_flen * tmp_flen;
+    }
+    tmp_flen = (X->nnz - fiberidx.data[fiberidx.len - 1]) - flen;
+    fvar += tmp_flen * tmp_flen;
+    fvar = sqrt(fvar);
+    printf("nfibs: %zu, flen: %.2f, fvar: %.2f\n", fiberidx.len, flen, fvar);
+
     sptScalar *Y_val = NULL;
     result = cudaMalloc((void **) &Y_val, Y->nnz * Y->stride * sizeof (sptScalar));
     spt_CheckCudaError(result != 0, "CUDA SpTns * Mtx");
