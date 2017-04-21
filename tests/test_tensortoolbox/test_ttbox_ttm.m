@@ -26,12 +26,12 @@
 % sz = [1000 1000 1000];
 % file = '/nethome/jli458/BIGTENSORS/nell2_init.tns';
 % sz = [12092 9184 28818];
-file = '/nethome/jli458/BIGTENSORS/nell1_init.tns';
-sz = [2902330 2143368 25495389];
+% file = '/nethome/jli458/BIGTENSORS/nell1_init.tns';
+% sz = [2902330 2143368 25495389];
 %file = '/home/BIGDATA/Collection/SPLATT/delicious.tns';
 %sz = [532924 17262471 2480308];
-% file = '/nethome/jli458/BIGTENSORS/choa700k_init.tns';
-% sz = [712329 9827 767];
+file = '/nethome/jli458/BIGTENSORS/choa700k_init.tns';
+sz = [712329 9827 767];
 %%% 4D
 % file = '/nethome/jli458/BIGTENSORS/nips-4d_init.tns';
 % sz = [2482 2862 14036 17];
@@ -41,7 +41,7 @@ sz = [2902330 2143368 25495389];
 nmodes = length(sz);
 
 niters = 1;
-mode = 1;
+mode = 3;
 R = 16;
 fprintf('R: %d, mode: %d\n', R, mode);
 

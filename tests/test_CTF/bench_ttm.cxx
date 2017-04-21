@@ -76,14 +76,24 @@ CTF_Tensor *read_tensor(
     std::vector<int64_t> inds;
     std::vector<double> values;
     for(;;) {
-        long ii, jj, kk;
-        assert(nmodes == 3);
-        if(fscanf(f, "%ld%ld%ld", &ii, &jj, &kk) == 3) {
-            ii--; jj--; kk--; // offset 1
-            int64_t global_idx = ii + jj*ndims[0] + kk*ndims[0]*ndims[1];
-            inds.push_back(global_idx);
-        } else {
-            goto read_done;
+        long ii, jj, kk, ll;
+        assert(nmodes == 3 || nmodes == 4);
+        if (nmodes == 3) {
+          if(fscanf(f, "%ld%ld%ld", &ii, &jj, &kk) == 3) {
+              ii--; jj--; kk--; // offset 1
+              int64_t global_idx = ii + jj*ndims[0] + kk*ndims[0]*ndims[1];
+              inds.push_back(global_idx);
+          } else {
+              goto read_done;
+          }
+        } else if (nmodes ==4) {
+          if(fscanf(f, "%ld%ld%ld%ld", &ii, &jj, &kk, &ll) == 4) {
+              ii--; jj--; kk--; ll--; // offset 1
+              int64_t global_idx = ii + jj*ndims[0] + kk*ndims[0]*ndims[1] + ll*ndims[0] * ndims[1] * ndims[2];
+              inds.push_back(global_idx);
+          } else {
+              goto read_done;
+          }
         }
         double v;
         if(fscanf(f, "%lf", &v) == 1) {
