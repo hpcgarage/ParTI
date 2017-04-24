@@ -6,13 +6,14 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Supported sparse tensor operations:
 
-* Scala-tensor mul/div
-* Element-wise tensor add/sub/mul/div
-* Kronecker product
-* Khatri-Rao product
-* Sparse tensor-times-dense matrix (SpTTM)
-* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP)
-* Sparse tensor matricization
+* Scala-tensor mul/div (CPU)
+* Kronecker product (CPU)
+* Khatri-Rao product (CPU)
+* Sparse tensor matricization (CPU)
+* Element-wise tensor add/sub/mul/div (CPU, OMP, GPU)
+* Sparse tensor-times-dense matrix (SpTTM) (CPU, OMP, GPU)
+* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP) (CPU, OMP, GPU)
+
 
 ## Build requirements:
 
