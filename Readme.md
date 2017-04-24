@@ -25,7 +25,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 - [OpenBLAS](http://www.openblas.net)
 
-- [MAGMA](http://icl.cs.utk.edu/magma/)
+- [MAGMA](http://icl.cs.utk.edu/magma/) (not required)
 
 
 ## Build:
