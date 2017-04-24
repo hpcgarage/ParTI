@@ -53,8 +53,6 @@ int sptCudaMTTKRP(
     size_t const stride = mats[mode]->stride;
     int result;
 
-    double time_h2d, time_exe, time_d2h;
-    double gbw_h2d, gflops_exe, gbw_d2h;
     sptTimer timer;
     sptNewTimer(&timer, 0);
 
@@ -91,7 +89,6 @@ int sptCudaMTTKRP(
     /* the pointer to dev_mats[nmodes] */
     sptScalar *dev_part_prod;  
     size_t dev_mem_size = 0;
-    size_t dev_flops = 2 * nnz * R + (nmodes - 1) * R;
 
 
     sptStartTimer(timer);
@@ -145,10 +142,6 @@ int sptCudaMTTKRP(
     }
 
     sptStopTimer(timer);
-    time_h2d = sptElapsedTime(timer);
-    gbw_h2d = dev_mem_size / time_h2d /1e9;
-//     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP H2D");
-//     printf("[Bandwidth H2D]: %lf GBytes/sec\n", gbw_h2d);
 
 
     // size_t max_nthreads_per_block = 512;    // old run
@@ -325,10 +318,7 @@ int sptCudaMTTKRP(
 
 
     sptStopTimer(timer);
-    time_exe = sptElapsedTime(timer);
-    gflops_exe = dev_flops / time_exe / 1e9;
     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-//     printf("[GFLOPS]: %lf GFlops \n", gflops_exe);
 
     sptStartTimer(timer);
 
@@ -342,11 +332,6 @@ int sptCudaMTTKRP(
     spt_CheckCudaError(result != 0, "CUDA SpTns SpltMTTKRP");
     dev_mem_size += mats[mode]->nrows * stride * sizeof (sptScalar);
 
-    sptStopTimer(timer);
-    time_d2h = sptElapsedTime(timer);
-    gbw_d2h = dev_mem_size / time_d2h /1e9;
-//     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP D2H");
-//     printf("[Bandwidth D2H]: %lf GBytes/sec\n", gbw_d2h);
     sptFreeTimer(timer);
 
     result = cudaFree(dev_mats_order);
@@ -401,8 +386,6 @@ int sptCudaMTTKRPOneKernel(
     size_t const stride = mats[mode]->stride;
     int result;
 
-    double time_h2d, time_exe, time_d2h;
-    double gbw_h2d, gflops_exe, gbw_d2h;
     sptTimer timer;
     sptNewTimer(&timer, 0);
 
@@ -439,7 +422,6 @@ int sptCudaMTTKRPOneKernel(
     /* the pointer to dev_mats[nmodes] */
     sptScalar *dev_part_prod;  
     size_t dev_mem_size = 0;
-    size_t dev_flops = 2 * nnz * R + (nmodes - 1) * R;
 
 
     sptStartTimer(timer);
@@ -493,10 +475,6 @@ int sptCudaMTTKRPOneKernel(
     }
 
     sptStopTimer(timer);
-    time_h2d = sptElapsedTime(timer);
-    gbw_h2d = dev_mem_size / time_h2d /1e9;
-//     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP H2D");
-//     printf("[Bandwidth H2D]: %lf GBytes/sec\n", gbw_h2d);
 
 
     // size_t max_nthreads_per_block = 512;    // old run
@@ -657,10 +635,7 @@ int sptCudaMTTKRPOneKernel(
 
 
     sptStopTimer(timer);
-    time_exe = sptElapsedTime(timer);
-    gflops_exe = dev_flops / time_exe / 1e9;
     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-//     printf("[GFLOPS]: %lf GFlops \n", gflops_exe);
 
     sptStartTimer(timer);
 
@@ -675,10 +650,6 @@ int sptCudaMTTKRPOneKernel(
     dev_mem_size += mats[mode]->nrows * stride * sizeof (sptScalar);
 
     sptStopTimer(timer);
-    time_d2h = sptElapsedTime(timer);
-    gbw_d2h = dev_mem_size / time_d2h /1e9;
-//     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP D2H");
-//     printf("[Bandwidth D2H]: %lf GBytes/sec\n", gbw_d2h);
     sptFreeTimer(timer);
 
     result = cudaFree(dev_mats_order);
