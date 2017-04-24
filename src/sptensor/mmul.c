@@ -44,9 +44,7 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     if(X->ndims[mode] != U->nrows) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns * Mtx", "shape mismatch");
     }
-    if(X->sortkey != mode) {
-        sptSparseTensorSortIndexAtMode(X, mode);
-    }
+    sptSparseTensorSortIndexAtMode(X, mode, 0);
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     spt_CheckOSError(!ind_buf, "CPU  SpTns * Mtx");

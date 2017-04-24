@@ -18,20 +18,45 @@
 
 #include <ParTI.h>
 #include "sptensor.h"
+#include "sort.h"
+    
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
-static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
+
+
+void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
+    size_t i;
+    sptScalar val1, val2;
+    for(i = 0; i < tsr->nmodes; ++i) {
+        size_t eleind1 = tsr->inds[i].data[ind1];
+        size_t eleind2 = tsr->inds[i].data[ind2];
+        tsr->inds[i].data[ind1] = eleind2;
+        tsr->inds[i].data[ind2] = eleind1;
+    }
+    val1 = tsr->values.data[ind1];
+    val2 = tsr->values.data[ind2];
+    tsr->values.data[ind2] = val1;
+    tsr->values.data[ind1] = val2;
+}
+
 
 /**
  * Reorder the elements in a sparse tensor lexicographically
  * @param tsr  the sparse tensor to operate on
  */
-void sptSparseTensorSortIndex(sptSparseTensor *tsr) {
-    spt_QuickSortIndex(tsr, 0, tsr->nnz);
-    if(tsr->nmodes != 0) {
-        tsr->sortkey = tsr->nmodes - 1;
-    } else {
-        tsr->sortkey = 0;
+void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force) {
+    size_t m;
+    int needsort = 0;
+
+    for(m = 0; m < tsr->nmodes; ++m) {
+        if(tsr->sortorder[m] != m) {
+            tsr->sortorder[m] = m;
+            needsort = 1;
+        }
+    }
+
+    if(needsort || force) {
+        spt_QuickSortIndex(tsr, 0, tsr->nnz);
     }
 }
 
@@ -62,17 +87,4 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
     spt_QuickSortIndex(tsr, i, r);
 }
 
-static void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
-    size_t i;
-    sptScalar val1, val2;
-    for(i = 0; i < tsr->nmodes; ++i) {
-        size_t eleind1 = tsr->inds[i].data[ind1];
-        size_t eleind2 = tsr->inds[i].data[ind2];
-        tsr->inds[i].data[ind1] = eleind2;
-        tsr->inds[i].data[ind2] = eleind1;
-    }
-    val1 = tsr->values.data[ind1];
-    val2 = tsr->values.data[ind2];
-    tsr->values.data[ind2] = val1;
-    tsr->values.data[ind1] = val2;
-}
+

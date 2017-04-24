@@ -35,6 +35,7 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
     size_t nmodes = src->nmodes;
     assert(epsilon > 0);
     dest->nmodes = nmodes;
+    dest->sortorder = malloc(nmodes * sizeof dest->sortorder[0]);
     dest->ndims = malloc(nmodes * sizeof *dest->ndims);
     spt_CheckOSError(!dest->ndims, "SspTns -> SpTns");
     memcpy(dest->ndims, src->ndims, nmodes * sizeof *dest->ndims);
@@ -72,6 +73,6 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
             }
         }
     }
-    sptSparseTensorSortIndex(dest);
+    sptSparseTensorSortIndex(dest, 1);
     return 0;
 }

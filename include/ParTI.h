@@ -78,12 +78,12 @@ typedef struct {
  * Sparse tensor type
  */
 typedef struct {
-    size_t        nmodes;  /// # modes
-    size_t        sortkey; /// the least significant mode during sort
-    size_t        *ndims;  /// size of each mode, length nmodes
-    size_t        nnz;     /// # non-zeros
-    sptSizeVector *inds;   /// indices of each element, length [nmodes][nnz]
-    sptVector     values;  /// non-zero values, length nnz
+    size_t        nmodes;      /// # modes
+    size_t        *sortorder;  /// the order in which the indices are sorted
+    size_t        *ndims;      /// size of each mode, length nmodes
+    size_t        nnz;         /// # non-zeros
+    sptSizeVector *inds;       /// indices of each element, length [nmodes][nnz]
+    sptVector     values;      /// non-zero values, length nnz
 } sptSparseTensor;
 
 /**
@@ -122,6 +122,13 @@ typedef enum {
 
 int sptGetLastError(const char **module, const char **file, unsigned *line, const char **reason);
 void sptClearLastError(void);
+void spt_Panic(const char *file, unsigned line, const char *expr);
+/**
+ * The assert function that always execute even when `NDEBUG` is set
+ *
+ * Quick & dirty error checking. Useful when writing small programs.
+ */
+#define sptAssert(expr) ((expr) ? (void) 0 : spt_Panic(__FILE__, __LINE__, #expr))
 
 /* Helper function for pure C module */
 int sptCudaSetDevice(int device);
@@ -135,6 +142,10 @@ double sptElapsedTime(const sptTimer timer);
 double sptPrintElapsedTime(const sptTimer timer, const char *name);
 int sptFreeTimer(sptTimer timer);
 
+
+/* Dense array */
+size_t sptMaxSizeArray(size_t const * const indices, size_t const size);
+void spt_DumpArray(const size_t array[], size_t length, size_t start_index, FILE *fp);
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -196,8 +207,8 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
-void sptSparseTensorSortIndex(sptSparseTensor *tsr);
-void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode);
+void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force);
 
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
@@ -231,6 +242,7 @@ int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sp
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
 int sptCudaSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode);
+int sptCudaSparseTensorMulMatrixOneKernel(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode, size_t const impl_num, size_t const smen_size);
 
 /**
  * Kronecker product
@@ -246,32 +258,25 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
  * Matricized tensor times Khatri-Rao product.
  */
 int sptMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch);
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch);
 int sptOmpMTTKRP(sptSparseTensor const * const X,
-	sptMatrix ** const mats, 	// mats[nmodes] as temporary space.
-  sptSizeVector const * const mats_order,	// Correspond to the mode order of X.
-	size_t const mode,
-  sptVector * scratch);
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    sptVector * scratch);
 int sptCudaMTTKRP(sptSparseTensor const * const X,
     sptMatrix ** const mats,    // mats[nmodes] as temporary space.
     sptSizeVector const * const mats_order, // Correspond to the mode order of X.
     size_t const mode);
-int sptCudaMTTKRPDevice(
-    const size_t mode,
-    const size_t nmodes,
-    const size_t nnz,
-    const size_t rank,
-    const size_t stride,
-    const size_t * Xndims,
-    size_t ** const Xinds,
-    const sptScalar * Xvals,
-    const size_t * dev_mats_order,
-    sptScalar ** dev_mats,
-    sptScalar * dev_scratch);
-
+int sptCudaMTTKRPOneKernel(
+    sptSparseTensor const * const X,
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    size_t * const mats_order,    // Correspond to the mode order of X.
+    size_t const mode,
+    size_t const impl_num);
 
 #ifdef __cplusplus
 }

@@ -34,8 +34,8 @@
  * In this version, a large scratch is used to maximize parallelism. (To be optimized)
  */
 int sptOmpMTTKRP(sptSparseTensor const * const X,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptSizeVector const * const mats_order,    // Correspond to the mode order of X.
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
     size_t const mode,
     sptVector * scratch) {
 
@@ -43,7 +43,6 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
     size_t const nnz = X->nnz;
     size_t const * const ndims = X->ndims;
     sptScalar const * const vals = X->values.data;
-    size_t const nmats = nmodes - 1;
     size_t const stride = mats[0]->stride;
 
     /* Check the mats. */
@@ -70,7 +69,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
     #pragma omp parallel for
     for(size_t x=0; x<nnz; ++x) {
 
-        size_t times_mat_index = mats_order->data[0];
+        size_t times_mat_index = mats_order[1];
         sptMatrix * times_mat = mats[times_mat_index];
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
@@ -79,8 +78,8 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
             scratch->data[x * stride + r] = entry * times_mat->values[tmp_i * stride + r];
         }
 
-        for(size_t i=1; i<nmats; ++i) {
-            times_mat_index = mats_order->data[i];
+        for(size_t i=2; i<nmodes; ++i) {
+            times_mat_index = mats_order[i];
             times_mat = mats[times_mat_index];
             times_inds = X->inds[times_mat_index].data;
             tmp_i = times_inds[x];

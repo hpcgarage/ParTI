@@ -17,6 +17,11 @@
 */
 
 #include <ParTI.h>
+#include <stdlib.h>
+#include "error/error.h"
+#include "cudawrap.h"
+#include <cusparse.h>
+#include <cusolverSp.h>
 
 int sptCudaSetDevice(int device) {
     return (int) cudaSetDevice(device);
@@ -24,4 +29,46 @@ int sptCudaSetDevice(int device) {
 
 int sptCudaGetLastError(void) {
     return (int) cudaGetLastError();
+}
+
+
+int spt_CudaDuplicateMemoryGenerics(void **dest, const void *src, size_t size, int direction) {
+    int result;
+    switch(direction) {
+    case cudaMemcpyHostToDevice:
+    case cudaMemcpyDeviceToDevice:
+        result = cudaMalloc(dest, size);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemory");
+        break;
+    case cudaMemcpyDeviceToHost:
+        *dest = malloc(size);
+        spt_CheckOSError(*dest == NULL, "sptCudaDuplicateMemory");
+        break;
+    default:
+        spt_CheckError(SPTERR_UNKNOWN, "sptCudaDuplicateMemory", "Unknown memory copy kind")
+    }
+    result = cudaMemcpy(*dest, src, size, (cudaMemcpyKind) direction);
+    spt_CheckCudaError(result != 0, "sptCudaDuplicateMemory");
+    return 0;
+}
+
+
+int spt_CudaDuplicateMemoryGenericsAsync(void **dest, const void *src, size_t size, int direction, cudaStream_t stream) {
+    int result;
+    switch(direction) {
+    case cudaMemcpyHostToDevice:
+    case cudaMemcpyDeviceToDevice:
+        result = cudaMalloc(dest, size);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemory");
+        break;
+    case cudaMemcpyDeviceToHost:
+        *dest = malloc(size);
+        spt_CheckOSError(*dest == NULL, "sptCudaDuplicateMemory");
+        break;
+    default:
+        spt_CheckError(SPTERR_UNKNOWN, "sptCudaDuplicateMemory", "Unknown memory copy kind")
+    }
+    result = cudaMemcpyAsync(*dest, src, size, (cudaMemcpyKind) direction, stream);
+    spt_CheckCudaError(result != 0, "sptCudaDuplicateMemory");
+    return 0;
 }

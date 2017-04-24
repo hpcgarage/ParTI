@@ -83,3 +83,4 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
     free(tsr->inds);
     sptFreeVector(&tsr->values);
 }
+

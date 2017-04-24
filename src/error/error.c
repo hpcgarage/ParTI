@@ -70,6 +70,16 @@ void spt_ComplainError(const char *module, int errcode, const char *file, unsign
 }
 
 /**
+ * Print out an assertion error and stop the program
+ * Should not be called directly, use the macro `sptAssert`.
+ */
+void spt_Panic(const char *file, unsigned line, const char *expr) {
+    fprintf(stderr, "%s:%u: assertion error: \"%s\"\n", file, line, expr);
+    abort();
+}
+
+
+/**
  * Get the last error code and message.
  * @param[out] module store the module name of the last error
  * @param[out] file   store the C source name of the last error

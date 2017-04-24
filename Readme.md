@@ -13,7 +13,6 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 * Sparse tensor-times-dense matrix (SpTTM)
 * Sparse matricized tensor times Khatri-Rao product (SpMTTKRP)
 * Sparse tensor matricization
-* Sparse CANDECOMP/PARAFAC decomposition
 
 ## Build requirements:
 
@@ -74,5 +73,5 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Contributiors
 
-* Yuchen Ma (Contact: m13253@hotmail.com)
 * Jiajia Li (Contact: jiajiali@gatech.edu)
+* Yuchen Ma (Contact: m13253@hotmail.com)
