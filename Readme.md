@@ -64,6 +64,27 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 3. Type `make`
 
 
+## Run examples:
+
+1. MTTKRP: 
+    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
+    * tsr: input sparse tensor
+    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
+    * impl_num: 11, 12, 15, where 15 should be the best case
+    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
+    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
+    * output: the file name for output. [Optinal]
+    
+2. TTM: 
+    * Usage: ./build/examples/ttm tsr mode impl_num smem_size [cuda_dev_id, R, output]
+    * tsr: input sparse tensor
+    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
+    * impl_num: 11, 12, 13, 14, 15, where either 14 or 15 should be the best case
+    * smem_size: shared memory size in bytes (0, or 16000, or 32000, or 48000) 
+    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
+    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
+    * output: the file name for output. [Optinal]
+    
 
 <br/>The algorithms and details are described in the following publications.
 ## Publication
