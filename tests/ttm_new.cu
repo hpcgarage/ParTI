@@ -82,20 +82,21 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    // sptAssert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
-
-    sptFreeSemiSparseTensor(&Y);
-    sptFreeMatrix(&U);
-    sptFreeSparseTensor(&X);
 
     if(argc > 7) {
+        sptAssert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
+
         fY = fopen(argv[7], "w");
         sptAssert(fY != NULL);
         sptAssert(sptDumpSparseTensor(&spY, 0, fY) == 0);
         fclose(fY);
+
+        sptFreeSparseTensor(&spY);
     }
 
-    // sptFreeSparseTensor(&spY);
+    sptFreeSemiSparseTensor(&Y);
+    sptFreeMatrix(&U);
+    sptFreeSparseTensor(&X);
 
     return 0;
 }

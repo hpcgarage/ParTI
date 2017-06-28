@@ -46,9 +46,6 @@ int main(int argc, char const *argv[]) {
     // sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
 
-    // for debug
-    // for(size_t i=0; i<X.nnz; ++i)
-    //     X.values.data[i] = 1;
 
     printf("Tensor ndims:\n");
     spt_DumpArray(X.ndims, X.nmodes, 0, stdout);

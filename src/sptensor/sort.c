@@ -22,6 +22,23 @@
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
 
+
+void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
+    size_t i;
+    sptScalar val1, val2;
+    for(i = 0; i < tsr->nmodes; ++i) {
+        size_t eleind1 = tsr->inds[i].data[ind1];
+        size_t eleind2 = tsr->inds[i].data[ind2];
+        tsr->inds[i].data[ind1] = eleind2;
+        tsr->inds[i].data[ind2] = eleind1;
+    }
+    val1 = tsr->values.data[ind1];
+    val2 = tsr->values.data[ind2];
+    tsr->values.data[ind2] = val1;
+    tsr->values.data[ind1] = val2;
+}
+
+
 /**
  * Reorder the elements in a sparse tensor lexicographically
  * @param tsr  the sparse tensor to operate on
@@ -69,17 +86,3 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
     spt_QuickSortIndex(tsr, i, r);
 }
 
-void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
-    size_t i;
-    sptScalar val1, val2;
-    for(i = 0; i < tsr->nmodes; ++i) {
-        size_t eleind1 = tsr->inds[i].data[ind1];
-        size_t eleind2 = tsr->inds[i].data[ind2];
-        tsr->inds[i].data[ind1] = eleind2;
-        tsr->inds[i].data[ind2] = eleind1;
-    }
-    val1 = tsr->values.data[ind1];
-    val2 = tsr->values.data[ind2];
-    tsr->values.data[ind2] = val1;
-    tsr->values.data[ind1] = val2;
-}
