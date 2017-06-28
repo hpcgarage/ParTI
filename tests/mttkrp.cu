@@ -18,12 +18,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h>
 #include <omp.h>
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
 int main(int argc, char const *argv[]) {
-    FILE *fX, *fo;
+    FILE *fX, *fo = NULL;
     sptSparseTensor X;
     sptMatrix ** U;
     sptVector scratch;
@@ -34,14 +35,55 @@ int main(int argc, char const *argv[]) {
     int nthreads;
     int impl_num = 0;
 
-    if(argc < 4) {
-        printf("Usage: %s X mode impl_num [cuda_dev_id, R, Y]\n\n", argv[0]);
+    for(;;) {
+        static struct option long_options[] = {
+            {"mode", required_argument, 0, 'm'},
+            {"impl-num", required_argument, 0, 'i'},
+            {"cuda-dev-id", required_argument, 0, 'd'},
+            {0, 0, 0, 0}
+        };
+        int option_index = 0;
+        int c;
+        c = getopt_long(argc, const_cast<char *const *>(argv), "m:i:d:r:y:", long_options, &option_index);
+        if(c == -1) {
+            break;
+        }
+        switch(c) {
+        case 'm':
+            sscanf(optarg, "%zu", &mode);
+            break;
+        case 'i':
+            sscanf(optarg, "%d", &impl_num);
+            break;
+        case 'd':
+            sscanf(optarg, "%d", &cuda_dev_id);
+            break;
+        case 'r':
+            sscanf(optarg, "%zu", &R);
+            break;
+        case 'y':
+            fo = fopen(optarg, "w");
+            sptAssert(fo != NULL);
+            break;
+        default:
+            abort();
+        }
+    }
+
+    if(optind >= argc) {
+        printf("Usage: %s [options] X\n\n", argv[0]);
+        printf("Options: -m MODE, --mode=MODE\n");
+        printf("         -i IMPL_NUM, --impl-num=IMPL_NUM\n");
+        printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+        printf("         -r R\n");
+        printf("         -y Y\n");
+        printf("\n");
         return 1;
     }
 
-    fX = fopen(argv[1], "r");
+    fX = fopen(argv[optind], "r");
     sptAssert(fX != NULL);
-    printf("input file: %s\n", argv[1]); fflush(stdout);
+    printf("input file: %s\n", argv[optind]); fflush(stdout);
     sptLoadSparseTensor(&X, 1, fX);
     // sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
@@ -50,15 +92,6 @@ int main(int argc, char const *argv[]) {
     printf("Tensor ndims:\n");
     spt_DumpArray(X.ndims, X.nmodes, 0, stdout);
     printf("Tensor NNZ: %zu\n", X.nnz);
-
-    sscanf(argv[2], "%zu", &mode);
-    sscanf(argv[3], "%zu", &impl_num);
-    if(argc >= 5) {
-        sscanf(argv[4], "%d", &cuda_dev_id);
-    }
-    if(argc >= 6) {
-        sscanf(argv[5], "%zu", &R);
-    }
 
     size_t nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -153,9 +186,7 @@ int main(int argc, char const *argv[]) {
     sptFreeSparseTensor(&X);
     free(mats_order);
 
-    if(argc >= 7) {
-        fo = fopen(argv[6], "w");
-        sptAssert(fo != NULL);
+    if(fo != NULL) {
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
     }
