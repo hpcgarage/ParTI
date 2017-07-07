@@ -365,6 +365,13 @@ int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp
 void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force);
 void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t sortkeys[], int force);
+void sptSparseTensorSortIndexMorton(
+    sptSparseTensor *tsr, 
+    int force,
+    const sptNnzIndex begin,
+    const sptNnzIndex end,
+    const sptElementIndex sb);
+void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
 int spt_ComputeSliceSizes(
     size_t * slice_sizes, 
@@ -389,8 +396,8 @@ int sptSparseTensorToHiCOO(
     const sptElementIndex sb,
     const sptBlockIndex sk,
     const sptBlockNnzIndex sc);
-int sptDumpSparseTensorHiCOO(const sptSparseTensor *hitsr, size_t start_index, FILE *fp);
-void sptSparseTensorSortIndexBlocked(sptSparseTensor *tsr, int force, const sptElementIndex sb);
+int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, size_t start_index, FILE *fp);
+
 
 
 /**

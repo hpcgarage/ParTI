@@ -27,7 +27,7 @@
  * @param start_index the index of the first element in array. Set to 1 for MATLAB compability, else set to 0
  * @param fp          the file to write into
  */
-int sptDumpSparseTensorHiCOO(const sptSparseTensor *hitsr, size_t start_index, FILE *fp) 
+int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, size_t start_index, FILE *fp) 
 {
     #if 0
     int iores;

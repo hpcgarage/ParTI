@@ -27,7 +27,7 @@
  * @param tsr    a pointer to a sparse tensor
  * @return      1, z > item; otherwise, 0.
  */
-int sptCompareCoordinates(
+int sptLargerThanCoordinates(
     sptSparseTensor *tsr,
     const sptNnzIndex z,
     const sptIndex * item)
@@ -57,8 +57,8 @@ int sptCoordinatesInRange(
     const sptIndex * range_begin,
     const sptIndex * range_end)
 {
-    if (sptCompareCoordinates(tsr, z, range_begin) == 1 &&
-        sptCompareCoordinates(tsr, z, range_end) == 0) {
+    if (sptLargerThanCoordinates(tsr, z, range_begin) == 1 &&
+        sptLargerThanCoordinates(tsr, z, range_end) == 0) {
         return 1;
     }
     return 0;
@@ -155,6 +155,7 @@ int sptGetBlockFiberPointers(
     
     for(sptNnzIndex z=0; z<nnz; ++z) {
         i = tsr->inds[0].data[z];
+        /* Compare with the next block row index */
         if(i >= sb * (b+1)) {
             mptr->data[b] = oldz;
             ++ b;
@@ -182,15 +183,24 @@ int sptPreprocessSparseTensor(
 
     // TODO: possible permute modes to improve parallelism
 
-    /* Sort tsr in a particular order */
-    sptSparseTensorSortIndexBlocked(tsr, 1, sb);
+    /* Sort tsr only in mode-0 */
+    sptSparseTensorSortIndexSingleMode(tsr, 1, 0);
 
     sptIndex num_mb = (sptIndex)(nnz / sb + 0.5);
     result = sptNewNnzIndexVector(mptr, num_mb, num_mb);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
+    /* Morton order conserves the block-sorted order in mode-0. */
     result = sptGetBlockFiberPointers(mptr, tsr, sb);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
 
+    /* Sort tsr in a Morton order for each blocked-mode0 subtensor */
+    sptNnzIndex mb_begin, mb_end;
+    /* Loop for all mode blocks, mptr.len -> nk for OMP code */
+    for(sptNnzIndex mb=0; mb<mptr->len; ++mb) {
+        mb_begin = mptr->data[mb];
+        mb_end = mb < mptr->len - 1 ? mptr->data[mb+1] : nnz;
+        sptSparseTensorSortIndexMorton(tsr, 1, mb_begin, mb_end, sb);
+    }
 
     return 0;
 }
@@ -229,79 +239,84 @@ int sptSparseTensorToHiCOO(
     sptNnzIndexVector mptr;
     sptPreprocessSparseTensor(&mptr, tsr, sb);
 
-#if 0
     sptIndex * block_begin = (sptIndex *)malloc(nmodes * sizeof(*block_begin));
     sptIndex * block_end = (sptIndex *)malloc(nmodes * sizeof(*block_end));
     sptIndex * block_begin_next = (sptIndex *)malloc(nmodes * sizeof(*block_begin_next));
-    sptIndex * min_block_begin = (sptIndex *)malloc(nmodes * sizeof(*min_block_begin));
+    sptIndex * block_begin_coord = (sptIndex *)malloc(nmodes * sizeof(*block_begin_coord));
     for(sptIndex m=0; m<nmodes; ++m) 
-        block_begin[m] = 0;
+        block_begin_coord[m] = tsr->inds[m].data[0];
+    result = sptLocateBlockBegin(block_begin, tsr, block_begin_coord, sb);
+    spt_CheckError(result, "HiSpTns Convert", NULL);
+    for(sptIndex m=0; m<nmodes; ++m)
+        sptAppendBlockIndexVector(&hitsr->binds[m], (sptBlockIndex)block_begin[m]);
+    sptAppendBlockIndexVector(&hitsr->cptr, 0);
 
     sptNnzIndex mb_begin, mb_end;
-    sptNnzIndex nb = 0;
-    sptNnzIndex ne = 0;
+    sptBlockNnzIndex chunk_size_limit = sc * sb;  //#Blocks in a chunk
+    sptNnzIndex nk = 0; // #Kernels
+    sptNnzIndex nc = 0; // #Chunks
+    sptNnzIndex nb = 0; // #Blocks
+    sptNnzIndex ne = 0; // #Nonzeros in a block
     sptIndex eindex = 0;
-    /* Loop for all mode blocks */
+    sptBlockNnzIndex chunk_size = 0;
+    /* Loop for all mode blocks, mptr.len -> nk for OMP code */
     for(sptNnzIndex mb=0; mb<mptr.len; ++mb) {
         mb_begin = mptr.data[mb];
         mb_end = mb < mptr.len - 1 ? mptr.data[mb+1] : nnz;
 
-        /* Find all blocks for each mode block */
-        while(block_begin_next[0] < mb_end) {
-            /* Loop mode block for each block range */
+        /* Find nonzeros in each block */
+        for(sptNnzIndex z = mb_begin; z <= mb_end; ) {
             result = sptBlockEnd(block_end, tsr, block_begin, sb);
             spt_CheckError(result, "HiSpTns Convert", NULL);
-            for(sptIndex m=0; m<nmodes; ++m) 
-                min_block_begin[m] = ndims[m] - 1;  // Set the largest possible indices
-            ne = 0;
 
-            /* Find nonzeros in each block */
-            for(sptNnzIndex z = mb_begin; z<=mb_end; ++z) {
-                if (sptCoordinatesInRange(tsr, z, block_begin, block_end) == 1)
-                {
-                    for(sptIndex m=0; m<nmodes; ++m) {
-                        eindex = tsr->inds[m].data[z] - block_begin[m];
-                        assert(eindex < sb);
-                        sptAppendElementIndexVector(&hitsr->einds[m], (sptElementIndex)eindex);
-                    }
-                    sptAppendValueVector(&hitsr->values, tsr->values.data[z]);
-                    ++ ne;
-                }
-                if (sptCompareCoordinates(tsr, z, block_end) == 1 &&
-                    sptCompareCoordinates(tsr, z, min_block_begin) == 0)
-                {
-                    for(sptIndex m=0; m<nmodes; ++m)
-                        min_block_begin[m] = tsr->inds[m].data[z];
-                }
-            }
-
-            /* Record nonzero blocks in binds */
-            if(ne > 0) {
+            if (sptCoordinatesInRange(tsr, z, block_begin, block_end) == 1)
+            {
                 for(sptIndex m=0; m<nmodes; ++m) {
-                    sptAppendBlockIndexVector(&hitsr->binds[m], (sptBlockIndex)block_begin[m]);
+                    eindex = tsr->inds[m].data[z] - block_begin[m];
+                    assert(eindex < sb);
+                    sptAppendElementIndexVector(&hitsr->einds[m], (sptElementIndex)eindex);
                 }
-                ++ nb;
+                sptAppendValueVector(&hitsr->values, tsr->values.data[z]);
+                ++ ne;
+                ++ z;
+            }
+            /* Next block */
+            if (sptLargerThanCoordinates(tsr, z, block_end) == 1)
+            {
+                for(sptIndex m=0; m<nmodes; ++m)
+                    block_begin_coord[m] = tsr->inds[m].data[z];
+                result = sptLocateBlockBegin(block_begin_next, tsr, block_begin_coord, sb);
+                spt_CheckError(result, "HiSpTns Convert", NULL);
+                for(sptIndex m=0; m<nmodes; ++m) 
+                    block_begin[m] = block_begin_next[m];
+
+                if(ne > 0) {
+                    for(sptIndex m=0; m<nmodes; ++m) {
+                        sptAppendBlockIndexVector(&hitsr->binds[m], (sptBlockIndex)block_begin[m]);
+                    }
+                    ++ nb;
+                    
+                    if(chunk_size + ne > chunk_size_limit) {
+                        ++ nc;
+                        sptAppendBlockIndexVector(&hitsr->cptr, nb);
+                    } else {
+                        chunk_size += ne;
+                    }
+                    ne = 0;
+                }
+                
             }
 
-            /* Calculate the next block, from the min_block_begin.
-             * Can jump some zero blocks.
-             */
-            // result = sptNextBlockBegin(block_begin_next, tsr, block_begin, sb);
-            // spt_CheckError(result, "HiSpTns Convert", NULL);
-            result = sptLocateBlockBegin(block_begin_next, tsr, min_block_begin, sb);
-            spt_CheckError(result, "HiSpTns Convert", NULL);
-            assert(ne == mb_end - mb_begin + 1);
         }
-
-    assert(nb == hitsr->binds[0].len);
+        assert(nb <= mb_end - mb_begin + 1);
+        assert(nb == hitsr->binds[0].len); 
     }
 
 
     free(block_begin);
     free(block_end);
     free(block_begin_next);
-    free(min_block_begin);
-#endif
+    free(block_begin_coord);
 
 	return 0;
 }
