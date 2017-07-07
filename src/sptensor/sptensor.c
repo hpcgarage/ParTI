@@ -77,7 +77,7 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
 }
 
 /**
- * Release any memory the semi sparse tensor is holding
+ * Release any memory the sparse tensor is holding
  * @param tsr the tensor to release
  */
 void sptFreeSparseTensor(sptSparseTensor *tsr) {

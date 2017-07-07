@@ -25,6 +25,9 @@ extern "C" {
 
 #include <ParTI.h>
 void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
+/* TODO: change the below two function, remove "_" */
+int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t loc1, const sptSparseTensor *tsr2, size_t loc2);
+int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, size_t * const inds1, size_t * const inds2);
 
 #ifdef __cplusplus
 }

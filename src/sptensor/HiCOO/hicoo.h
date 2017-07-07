@@ -16,36 +16,29 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef PARTI_SPTENSORHICOO_H
+#define PARTI_SPTENSORHICOO_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ParTI.h>
+#include "../../error/error.h"
 
-size_t sptMaxSizeArray(
-  size_t const * const indices,
-  size_t const size)
-{
-  size_t max = indices[0];
-  for(size_t i=1; i < size; ++i) {
-    if(indices[i] > max) {
-      max = indices[i];
-    }
-  }
-  return max;
+
+
+
+
+
+
+
+
+
+
+
+#ifdef __cplusplus
 }
+#endif
 
-
-/* TODO: copied from SPLATT, to modify */
-char * sptBytesString(size_t const bytes)
-{
-  double size = (double)bytes;
-  int suff = 0;
-  const char *suffix[5] = {"B", "KB", "MB", "GB", "TB"};
-  while(size > 1024 && suff < 5) {
-    size /= 1024.;
-    ++suff;
-  }
-  char * ret = NULL;
-  if(asprintf(&ret, "%0.2f%s", size, suffix[suff]) == -1) {
-    fprintf(stderr, "SPT: asprintf failed with%"SPT_PF_INDEX" bytes.\n", bytes);
-    ret = NULL;
-  }
-  return ret;
-}
+#endif

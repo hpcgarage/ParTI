@@ -64,3 +64,113 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp) {
 
     return 0;
 }
+
+
+/**
+ * Dum a dense sptElementIndexVector to file
+ *
+ * @param vec a pointer to a valid size vector
+ * @param fp a file pointer
+ *
+ */
+int sptDumpElementIndexVector(sptElementIndexVector *vec, FILE *fp) {
+    int iores;
+    uint64_t len = vec->len;
+    iores = fprintf(fp, "sptElementIndexVector length: %lu\n", len);
+    spt_CheckOSError(iores < 0, "EleIdxVec Dump");
+    for(uint64_t i=0; i < len; ++i) {
+        iores = fprintf(fp, "%u\t", vec->data[i]);
+        spt_CheckOSError(iores < 0, "EleIdxVec Dump");
+    }
+    iores = fprintf(fp, "\n");
+
+    return 0;
+}
+
+
+/**
+ * Dum a dense sptBlockIndexVector to file
+ *
+ * @param vec a pointer to a valid size vector
+ * @param fp a file pointer
+ *
+ */
+int sptDumpBlockIndexVector(sptBlockIndexVector *vec, FILE *fp) {
+    int iores;
+    uint64_t len = vec->len;
+    iores = fprintf(fp, "sptBlockIndexVector length: %lu\n", len);
+    spt_CheckOSError(iores < 0, "BlkIdxVec Dump");
+    for(uint64_t i=0; i < len; ++i) {
+        iores = fprintf(fp, "%u\t", vec->data[i]);
+        spt_CheckOSError(iores < 0, "BlkIdxVec Dump");
+    }
+    iores = fprintf(fp, "\n");
+
+    return 0;
+}
+
+
+/**
+ * Dum a dense sptNnzIndexVector to file
+ *
+ * @param vec a pointer to a valid size vector
+ * @param fp a file pointer
+ *
+ */
+int sptDumpNnzIndexVector(sptNnzIndexVector *vec, FILE *fp) {
+    int iores;
+    uint64_t len = vec->len;
+    iores = fprintf(fp, "sptNnzIndexVector length: %lu\n", len);
+    spt_CheckOSError(iores < 0, "NnzIdxVec Dump");
+    for(uint64_t i=0; i < len; ++i) {
+        iores = fprintf(fp, "%lu\t", vec->data[i]);
+        spt_CheckOSError(iores < 0, "NnzIdxVec Dump");
+    }
+    iores = fprintf(fp, "\n");
+
+    return 0;
+}
+
+
+/**
+ * Dum a dense sptIndexVector to file
+ *
+ * @param vec a pointer to a valid size vector
+ * @param fp a file pointer
+ *
+ */
+int sptDumpIndexVector(sptIndexVector *vec, FILE *fp) {
+    int iores;
+    uint64_t len = vec->len;
+    iores = fprintf(fp, "sptIndexVector length: %lu\n", len);
+    spt_CheckOSError(iores < 0, "IdxVec Dump");
+    for(uint64_t i=0; i < len; ++i) {
+        iores = fprintf(fp, "%u\t", vec->data[i]);
+        spt_CheckOSError(iores < 0, "IdxVec Dump");
+    }
+    iores = fprintf(fp, "\n");
+
+    return 0;
+}
+
+
+/**
+ * Dum a dense sptValueVector to file
+ *
+ * @param vec a pointer to a valid size vector
+ * @param fp a file pointer
+ *
+ */
+int sptDumpValueIndexVector(sptValueVector *vec, FILE *fp) {
+    int iores;
+    uint64_t len = vec->len;
+    iores = fprintf(fp, "sptValueVector length: %lu\n", len);
+    spt_CheckOSError(iores < 0, "ValVec Dump");
+    for(uint64_t i=0; i < len; ++i) {
+        iores = fprintf(fp, "%f\t", vec->data[i]);
+        spt_CheckOSError(iores < 0, "ValVec Dump");
+    }
+    iores = fprintf(fp, "\n");
+
+    return 0;
+}

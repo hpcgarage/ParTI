@@ -300,3 +300,318 @@ int sptResizeSizeVector(sptSizeVector *vec, size_t size) {
 void sptFreeSizeVector(sptSizeVector *vec) {
     free(vec->data);
 }
+
+
+/**** New added vectors to support HiCOO ****/
+/*
+ * Initialize a new sptElementIndexVector vector
+ *
+ * @param vec a valid pointer to an uninitialized sptElementIndex variable,
+ * @param len number of values to create
+ * @param cap total number of values to reserve
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+
+int sptNewElementIndexVector(sptElementIndexVector *vec, uint64_t len, uint64_t cap) {
+    if(cap < len) {
+        cap = len;
+    }
+    if(cap < 2) {
+        cap = 2;
+    }
+    vec->len = len;
+    vec->cap = cap;
+    vec->data = malloc(cap * sizeof *vec->data);
+    spt_CheckOSError(!vec->data, "EleIdxVec New");
+    return 0;
+}
+
+/**
+ * Add a value to the end of a sptElementIndexVector
+ *
+ * @param vec   a pointer to a valid size vector
+ * @param value the value to be appended
+ *
+ * The length of the size vector will be changed to contain the new value.
+ */
+int sptAppendElementIndexVector(sptElementIndexVector *vec, sptElementIndex value) {
+    if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
+        size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
+        sptElementIndex *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        spt_CheckOSError(!newdata, "EleIdxVec Append");
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    vec->data[vec->len] = value;
+    ++vec->len;
+    return 0;
+}
+
+
+/**
+ * Release the memory buffer a sptElementIndexVector is holding
+ *
+ * @param vec a pointer to a valid size vector
+ *
+ */
+void sptFreeElementIndexVector(sptElementIndexVector *vec) {
+    free(vec->data);
+    vec->len = 0;
+    vec->cap = 0;
+}
+
+
+/*
+ * Initialize a new sptBlockIndexVector vector
+ *
+ * @param vec a valid pointer to an uninitialized sptBlockIndex variable,
+ * @param len number of values to create
+ * @param cap total number of values to reserve
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+
+int sptNewBlockIndexVector(sptBlockIndexVector *vec, uint64_t len, uint64_t cap) {
+    if(cap < len) {
+        cap = len;
+    }
+    if(cap < 2) {
+        cap = 2;
+    }
+    vec->len = len;
+    vec->cap = cap;
+    vec->data = malloc(cap * sizeof *vec->data);
+    spt_CheckOSError(!vec->data, "BlkIdxVec New");
+    return 0;
+}
+
+/**
+ * Add a value to the end of a sptBlockIndexVector
+ *
+ * @param vec   a pointer to a valid size vector
+ * @param value the value to be appended
+ *
+ * The length of the size vector will be changed to contain the new value.
+ */
+int sptAppendBlockIndexVector(sptBlockIndexVector *vec, sptBlockIndex value) {
+    if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
+        size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
+        sptBlockIndex *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        spt_CheckOSError(!newdata, "BlkIdxVec Append");
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    vec->data[vec->len] = value;
+    ++vec->len;
+    return 0;
+}
+
+
+/**
+ * Release the memory buffer a sptBlockIndexVector is holding
+ *
+ * @param vec a pointer to a valid size vector
+ *
+ */
+void sptFreeBlockIndexVector(sptBlockIndexVector *vec) {
+    free(vec->data);
+    vec->len = 0;
+    vec->cap = 0;
+}
+
+
+/*
+ * Initialize a new sptIndex vector
+ *
+ * @param vec a valid pointer to an uninitialized sptIndex variable,
+ * @param len number of values to create
+ * @param cap total number of values to reserve
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+
+int sptNewIndexVector(sptIndexVector *vec, uint64_t len, uint64_t cap) {
+    if(cap < len) {
+        cap = len;
+    }
+    if(cap < 2) {
+        cap = 2;
+    }
+    vec->len = len;
+    vec->cap = cap;
+    vec->data = malloc(cap * sizeof *vec->data);
+    spt_CheckOSError(!vec->data, "IdxVec New");
+    return 0;
+}
+
+/**
+ * Add a value to the end of a sptIndexVector
+ *
+ * @param vec   a pointer to a valid size vector
+ * @param value the value to be appended
+ *
+ * The length of the size vector will be changed to contain the new value.
+ */
+int sptAppendIndexVector(sptIndexVector *vec, sptIndex value) {
+    if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
+        size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
+        sptIndex *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        spt_CheckOSError(!newdata, "IdxVec Append");
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    vec->data[vec->len] = value;
+    ++vec->len;
+    return 0;
+}
+
+
+/**
+ * Release the memory buffer a sptIndexVector is holding
+ *
+ * @param vec a pointer to a valid size vector
+ *
+ */
+void sptFreeIndexVector(sptIndexVector *vec) {
+    free(vec->data);
+    vec->len = 0;
+    vec->cap = 0;
+}
+
+
+
+/*
+ * Initialize a new sptNnzIndexVector vector
+ *
+ * @param vec a valid pointer to an uninitialized sptNnzIndex variable,
+ * @param len number of values to create
+ * @param cap total number of values to reserve
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+
+int sptNewNnzIndexVector(sptNnzIndexVector *vec, uint64_t len, uint64_t cap) {
+    if(cap < len) {
+        cap = len;
+    }
+    if(cap < 2) {
+        cap = 2;
+    }
+    vec->len = len;
+    vec->cap = cap;
+    vec->data = malloc(cap * sizeof *vec->data);
+    spt_CheckOSError(!vec->data, "NnzIdxVec New");
+    return 0;
+}
+
+/**
+ * Add a value to the end of a sptNnzIndexVector
+ *
+ * @param vec   a pointer to a valid size vector
+ * @param value the value to be appended
+ *
+ * The length of the size vector will be changed to contain the new value.
+ */
+int sptAppendNnzIndexVector(sptNnzIndexVector *vec, sptNnzIndex value) {
+    if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
+        size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
+        sptNnzIndex *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        spt_CheckOSError(!newdata, "NnzIdxVec Append");
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    vec->data[vec->len] = value;
+    ++vec->len;
+    return 0;
+}
+
+
+/**
+ * Release the memory buffer a sptNnzIndexVector is holding
+ *
+ * @param vec a pointer to a valid size vector
+ *
+ */
+void sptFreeNnzIndexVector(sptNnzIndexVector *vec) {
+    free(vec->data);
+    vec->len = 0;
+    vec->cap = 0;
+}
+
+
+/**
+ * Initialize a new value vector
+ *
+ * @param vec a valid pointer to an uninitialized sptValueVector variable,
+ * @param len number of values to create
+ * @param cap total number of values to reserve
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap) {
+    if(cap < len) {
+        cap = len;
+    }
+    if(cap < 2) {
+        cap = 2;
+    }
+    vec->len = len;
+    vec->cap = cap;
+    vec->data = malloc(cap * sizeof *vec->data);
+    spt_CheckOSError(!vec->data, "ValVec New");
+    return 0;
+}
+
+/**
+ * Add a value to the end of a value vector
+ *
+ * @param vec   a pointer to a valid value vector
+ * @param value the value to be appended
+ *
+ * The length of the value vector will be changed to contain the new value.
+ */
+int sptAppendValueVector(sptValueVector *vec, sptValue value) {
+    if(vec->cap <= vec->len) {
+#ifndef MEMCHECK_MODE
+        size_t newcap = vec->cap + vec->cap/2;
+#else
+        size_t newcap = vec->len+1;
+#endif
+        sptValue *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        spt_CheckOSError(!newdata, "ValVec Append");
+        vec->cap = newcap;
+        vec->data = newdata;
+    }
+    vec->data[vec->len] = value;
+    ++vec->len;
+    return 0;
+}
+
+/**
+ * Release the memory buffer a value vector is holding
+ *
+ * @param vec a pointer to a valid value vector
+ *
+ */
+void sptFreeValueVector(sptValueVector *vec) {
+    vec->len = 0;
+    vec->cap = 0;
+    free(vec->data);
+}

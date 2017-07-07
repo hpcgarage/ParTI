@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,14 +29,35 @@ extern "C" {
 
 
 /**
- * Define sptScalar as 32-bit float
+ * Define sptScalar as 32-bit float (save to compatible with old ParTI code, TODO: delete it)
  *
  * You can adjust this type to suit the application
  */
 typedef float sptScalar;
 
+
 /**
- * Dense dynamic array of scalars
+ * Re-Define types, TODO: check the bit size of them, add branch for different settings
+ */
+typedef uint8_t sptElementIndex;
+typedef uint32_t sptBlockIndex;
+typedef sptBlockIndex sptBlockNnzIndex;
+typedef uint32_t sptIndex;
+typedef uint64_t sptNnzIndex;
+typedef float sptValue;
+typedef unsigned __int128 sptMortonIndex;
+
+
+#define SPT_PF_ELEMENTINDEX PRIu8
+#define SPT_PF_BLOCKINDEX PRIu32
+#define SPT_PF_BLOCKNNZINDEX SPT_PF_BLOCKINDEX
+#define SPT_PF_INDEX PRIu32
+#define SPT_PF_NNZINDEX PRIu64
+#define SPT_PF_VALUE "f"
+
+
+/**
+ * Dense dynamic array of scalars, TODO: delete
  */
 typedef struct {
     size_t    len;   /// length
@@ -44,13 +66,51 @@ typedef struct {
 } sptVector;
 
 /**
- * Dense dynamic array of size_t's
+ * Dense dynamic array of size_t's, TODO: delete
  */
 typedef struct {
     size_t len;   /// length
     size_t cap;   /// capacity
     size_t *data; /// data
 } sptSizeVector;
+
+
+/**
+ * Dense dynamic array of specified type of scalars
+ */
+typedef struct {
+    uint64_t    len;   /// length
+    uint64_t    cap;   /// capacity
+    sptValue    *data; /// data
+} sptValueVector;
+
+/**
+ * Dense dynamic array of different types of integers
+ */
+typedef struct {
+    uint64_t len;   /// length
+    uint64_t cap;   /// capacity
+    sptElementIndex *data; /// data
+} sptElementIndexVector;
+
+typedef struct {
+    uint64_t len;   /// length
+    uint64_t cap;   /// capacity
+    sptBlockIndex *data; /// data
+} sptBlockIndexVector;
+
+typedef struct {
+    uint64_t len;   /// length
+    uint64_t cap;   /// capacity
+    sptIndex *data; /// data
+} sptIndexVector;
+
+typedef struct {
+    uint64_t len;   /// length
+    uint64_t cap;   /// capacity
+    sptNnzIndex *data; /// data
+} sptNnzIndexVector;
+
 
 /**
  * Dense matrix type
@@ -102,6 +162,33 @@ typedef struct {
 } sptSparseTensor;
 
 
+
+/**
+ * Sparse tensor type, Hierarchical COO format (HiCOO)
+ */
+typedef struct {
+    /* Basic information */
+    sptIndex            nmodes;      /// # modes
+    sptIndex            *sortorder;  /// the order in which the indices are sorted
+    sptIndex            *ndims;      /// size of each mode, length nmodes
+    sptNnzIndex         nnz;         /// # non-zeros
+
+    /* Parameters */
+    sptElementIndex     sb;         /// block size
+    sptBlockIndex       sk;         /// kernel size
+    sptBlockNnzIndex    sc;         /// chunk size
+
+    /* Data arrays */
+    sptNnzIndexVector         kptr;      /// Kernel pointers in 1-D array
+    sptBlockIndexVector       cptr;      /// Chunk pointers to evenly split or combine blocks in a group
+    sptBlockIndexVector       *binds;    /// Block indices within each group
+    sptElementIndexVector     *einds;    /// Element indices within each block 
+    sptValueVector            values;      /// non-zero values, length nnz
+} sptSparseTensorHiCOO;
+
+
+
+
 /**
  * Semi-sparse tensor type
  * The chosen mode is dense, while other modes are sparse.
@@ -135,7 +222,9 @@ typedef struct {
 } sptSemiSparseTensorGeneral;
 
 
-
+/**
+ * Kruskal tensor type, for CP decomposition result
+ */
 typedef struct {
   size_t nmodes;
   size_t rank;
@@ -186,6 +275,7 @@ int sptFreeTimer(sptTimer timer);
 
 /* Base functions */
 size_t sptMaxSizeArray(size_t const * const indices, size_t const size);
+char * sptBytesString(size_t const bytes);
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -206,6 +296,28 @@ int sptAppendSizeVectorWithVector(sptSizeVector *vec, const sptSizeVector *appen
 int sptResizeSizeVector(sptSizeVector *vec, size_t value);
 void sptFreeSizeVector(sptSizeVector *vec);
 int sptDumpSizeVector(sptSizeVector *vec, FILE *fp);
+
+int sptNewElementIndexVector(sptElementIndexVector *vec, uint64_t len, uint64_t cap);
+int sptAppendElementIndexVector(sptElementIndexVector *vec, sptElementIndex value);
+void sptFreeElementIndexVector(sptElementIndexVector *vec);
+int sptNewBlockIndexVector(sptBlockIndexVector *vec, uint64_t len, uint64_t cap);
+int sptAppendBlockIndexVector(sptBlockIndexVector *vec, sptBlockIndex value);
+void sptFreeBlockIndexVector(sptBlockIndexVector *vec);
+int sptNewIndexVector(sptIndexVector *vec, uint64_t len, uint64_t cap);
+int sptAppendIndexVector(sptIndexVector *vec, sptIndex value);
+void sptFreeIndexVector(sptIndexVector *vec);
+int sptNewNnzIndexVector(sptNnzIndexVector *vec, uint64_t len, uint64_t cap);
+int sptAppendNnzIndexVector(sptNnzIndexVector *vec, sptNnzIndex value);
+void sptFreeNnzIndexVector(sptNnzIndexVector *vec);
+int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap);
+int sptAppendValueVector(sptValueVector *vec, sptValue value);
+void sptFreeValueVector(sptValueVector *vec);
+int sptDumpElementIndexVector(sptElementIndexVector *vec, FILE *fp);
+int sptDumpBlockIndexVector(sptBlockIndexVector *vec, FILE *fp);
+int sptDumpNnzIndexVector(sptNnzIndexVector *vec, FILE *fp);
+int sptDumpIndexVector(sptIndexVector *vec, FILE *fp);
+int sptDumpValueIndexVector(sptValueVector *vec, FILE *fp);
+
 
 /* Dense matrix */
 int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
@@ -258,6 +370,28 @@ int spt_ComputeSliceSizes(
     size_t * slice_sizes, 
     sptSparseTensor * const tsr,
     size_t const mode);
+void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp);
+double sptSparseTensorDensity(sptSparseTensor const * const tsr);
+
+/* Sparse tensor HiCOO */
+int sptNewSparseTensorHiCOO(
+    sptSparseTensorHiCOO *hitsr, 
+    const sptIndex nmodes, 
+    const sptIndex ndims[],
+    const sptNnzIndex nnz,
+    const sptElementIndex sb,
+    const sptBlockIndex sk,
+    const sptBlockNnzIndex sc);
+void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr);
+int sptSparseTensorToHiCOO(
+    sptSparseTensorHiCOO *hitsr, 
+    sptSparseTensor *tsr, 
+    const sptElementIndex sb,
+    const sptBlockIndex sk,
+    const sptBlockNnzIndex sc);
+int sptDumpSparseTensorHiCOO(const sptSparseTensor *hitsr, size_t start_index, FILE *fp);
+void sptSparseTensorSortIndexBlocked(sptSparseTensor *tsr, int force, const sptElementIndex sb);
+
 
 /**
  * epsilon is a small positive value, every -epsilon < x < x would be considered as zero
