@@ -99,3 +99,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 * Jiajia Li (Contact: jiajiali@gatech.edu)
 * Yuchen Ma (Contact: m13253@hotmail.com)
+
+## License
+
+ParTI! is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
