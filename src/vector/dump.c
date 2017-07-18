@@ -23,7 +23,7 @@
 
 
 /**
- * Dum a dense value vector to file
+ * Dump a dense value vector to file
  *
  * @param vec a pointer to a valid value vector
  * @param fp a file pointer
@@ -45,7 +45,7 @@ int sptDumpVector(sptVector *vec, FILE *fp) {
 
 
 /**
- * Dum a dense size vector to file
+ * Dump a dense size vector to file
  *
  * @param vec a pointer to a valid size vector
  * @param fp a file pointer
@@ -67,9 +67,9 @@ int sptDumpSizeVector(sptSizeVector *vec, FILE *fp) {
 
 
 /**
- * Dum a dense sptElementIndexVector to file
+ * Dump a dense sptElementIndexVector to file
  *
- * @param vec a pointer to a valid size vector
+ * @param vec a pointer to a valid sptElementIndexVector
  * @param fp a file pointer
  *
  */
@@ -89,9 +89,9 @@ int sptDumpElementIndexVector(sptElementIndexVector *vec, FILE *fp) {
 
 
 /**
- * Dum a dense sptBlockIndexVector to file
+ * Dump a dense sptBlockIndexVector to file
  *
- * @param vec a pointer to a valid size vector
+ * @param vec a pointer to a valid sptBlockIndexVector
  * @param fp a file pointer
  *
  */
@@ -111,9 +111,9 @@ int sptDumpBlockIndexVector(sptBlockIndexVector *vec, FILE *fp) {
 
 
 /**
- * Dum a dense sptNnzIndexVector to file
+ * Dump a dense sptNnzIndexVector to file
  *
- * @param vec a pointer to a valid size vector
+ * @param vec a pointer to a valid sptNnzIndexVector
  * @param fp a file pointer
  *
  */
@@ -133,9 +133,9 @@ int sptDumpNnzIndexVector(sptNnzIndexVector *vec, FILE *fp) {
 
 
 /**
- * Dum a dense sptIndexVector to file
+ * Dump a dense sptIndexVector to file
  *
- * @param vec a pointer to a valid size vector
+ * @param vec a pointer to a valid sptIndexVector
  * @param fp a file pointer
  *
  */
@@ -155,9 +155,9 @@ int sptDumpIndexVector(sptIndexVector *vec, FILE *fp) {
 
 
 /**
- * Dum a dense sptValueVector to file
+ * Dump a dense sptValueVector to file
  *
- * @param vec a pointer to a valid size vector
+ * @param vec a pointer to a valid sptValueVector
  * @param fp a file pointer
  *
  */
@@ -169,6 +169,28 @@ int sptDumpValueIndexVector(sptValueVector *vec, FILE *fp) {
     for(uint64_t i=0; i < len; ++i) {
         iores = fprintf(fp, "%f\t", vec->data[i]);
         spt_CheckOSError(iores < 0, "ValVec Dump");
+    }
+    iores = fprintf(fp, "\n");
+
+    return 0;
+}
+
+
+/**
+ * Dump a dense sptIndex array to file
+ *
+ * @param array a pointer to a valid sptIndex array
+ * @param size of the array
+ * @param fp a file pointer
+ *
+ */
+int sptDumpIndexArray(sptIndex *array, uint64_t n, FILE *fp) {
+    int iores;
+    iores = fprintf(fp, "sptIndex array length: %lu\n", n);
+    spt_CheckOSError(iores < 0, "IdxArray Dump");
+    for(uint64_t i=0; i < n; ++i) {
+        iores = fprintf(fp, "%u\t", array[i]);
+        spt_CheckOSError(iores < 0, "IdxArray Dump");
     }
     iores = fprintf(fp, "\n");
 

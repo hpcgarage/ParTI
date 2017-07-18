@@ -324,6 +324,7 @@ int sptNewElementIndexVector(sptElementIndexVector *vec, uint64_t len, uint64_t 
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     spt_CheckOSError(!vec->data, "EleIdxVec New");
+    memset(vec->data, 0, cap * sizeof *vec->data);
     return 0;
 }
 
@@ -387,6 +388,7 @@ int sptNewBlockIndexVector(sptBlockIndexVector *vec, uint64_t len, uint64_t cap)
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     spt_CheckOSError(!vec->data, "BlkIdxVec New");
+    memset(vec->data, 0, cap * sizeof *vec->data);
     return 0;
 }
 
@@ -450,6 +452,7 @@ int sptNewIndexVector(sptIndexVector *vec, uint64_t len, uint64_t cap) {
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     spt_CheckOSError(!vec->data, "IdxVec New");
+    memset(vec->data, 0, cap * sizeof *vec->data);
     return 0;
 }
 
@@ -514,6 +517,7 @@ int sptNewNnzIndexVector(sptNnzIndexVector *vec, uint64_t len, uint64_t cap) {
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     spt_CheckOSError(!vec->data, "NnzIdxVec New");
+    memset(vec->data, 0, cap * sizeof *vec->data);
     return 0;
 }
 
@@ -576,6 +580,7 @@ int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap) {
     vec->cap = cap;
     vec->data = malloc(cap * sizeof *vec->data);
     spt_CheckOSError(!vec->data, "ValVec New");
+    memset(vec->data, 0, cap * sizeof *vec->data);
     return 0;
 }
 

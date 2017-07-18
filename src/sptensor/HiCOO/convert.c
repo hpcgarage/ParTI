@@ -17,17 +17,16 @@
 */
 
 #include <math.h>
-#include <assert.h>
 #include <ParTI.h>
 #include "../sptensor.h"
 #include "hicoo.h"
 
 /**
- * Compare two coordinates of a sparse tensor, in the order of mode-0,...,N-1. One from the sparse tensor, the other is specified.
+ * Compare two coordinates, in the order of mode-0,...,N-1. One from the sparse tensor, the other is specified.
  * @param tsr    a pointer to a sparse tensor
  * @return      1, z > item; otherwise, 0.
  */
-int sptLargerThanCoordinates(
+static int sptLargerThanCoordinates(
     sptSparseTensor *tsr,
     const sptNnzIndex z,
     const sptIndex * item)
@@ -46,19 +45,71 @@ int sptLargerThanCoordinates(
     return 0;
 }
 
+
+/**
+ * Compare two coordinates, in the order of mode-0,...,N-1. One from the sparse tensor, the other is specified.
+ * @param tsr    a pointer to a sparse tensor
+ * @return      1, z < item; otherwise, 0.
+ */
+static int sptSmallerThanCoordinates(
+    sptSparseTensor *tsr,
+    const sptNnzIndex z,
+    const sptIndex * item)
+{
+    sptIndex nmodes = tsr->nmodes;
+    sptIndex i1, i2;
+
+    for(sptIndex m=0; m<nmodes; ++m) {
+        i1 = tsr->inds[m].data[z];
+        i2 = item[m];
+        if(i1 < i2) {
+            return 1;
+            break;
+        }
+    }
+    return 0;
+}
+
+
+/**
+ * Compare two coordinates, in the order of mode-0,...,N-1. One from the sparse tensor, the other is specified.
+ * @param tsr    a pointer to a sparse tensor
+ * @return      1, z = item; otherwise, 0.
+ */
+static int sptEqualWithCoordinates(
+    sptSparseTensor *tsr,
+    const sptNnzIndex z,
+    const sptIndex * item)
+{
+    sptIndex nmodes = tsr->nmodes;
+    sptIndex i1, i2;
+
+    for(sptIndex m=0; m<nmodes; ++m) {
+        i1 = tsr->inds[m].data[z];
+        i2 = item[m];
+        if(i1 != i2) {
+            return 0;
+            break;
+        }
+    }
+    return 1;
+}
+
+
 /**
  * Check if a nonzero item is in the range of two given coordinates, in the order of mode-0,...,N-1. 
  * @param tsr    a pointer to a sparse tensor
  * @return      1, yes; 0, no.
  */
-int sptCoordinatesInRange(
+static int sptCoordinatesInRange(
     sptSparseTensor *tsr,
     const sptNnzIndex z,
     const sptIndex * range_begin,
     const sptIndex * range_end)
 {
-    if (sptLargerThanCoordinates(tsr, z, range_begin) == 1 &&
-        sptLargerThanCoordinates(tsr, z, range_end) == 0) {
+    if ( (sptLargerThanCoordinates(tsr, z, range_begin) == 1 ||
+        sptEqualWithCoordinates(tsr, z, range_begin) == 1)
+        sptSmallerThanCoordinates(tsr, z, range_end) == 1) {
         return 1;
     }
     return 0;
@@ -69,7 +120,7 @@ int sptCoordinatesInRange(
  * @param tsr    a pointer to a sparse tensor
  * @return out_item     the beginning indices of the next block
  */
-int sptNextBlockBegin(
+static int sptNextBlockBegin(
     sptIndex * out_item,
     sptSparseTensor *tsr,
     const sptIndex * in_item,
@@ -93,7 +144,7 @@ int sptNextBlockBegin(
  * @param tsr    a pointer to a sparse tensor
  * @return out_item     the end indices of this block
  */
-int sptBlockEnd(
+static int sptBlockEnd(
     sptIndex * out_item,
     sptSparseTensor *tsr,
     const sptIndex * in_item,
@@ -102,8 +153,8 @@ int sptBlockEnd(
     sptIndex nmodes = tsr->nmodes;
 
     for(sptIndex m=0; m<nmodes; ++m) {
-        assert(in_item[m] < tsr->ndims[m] - 1);
-        out_item[m] = in_item[m]+sb-1 < tsr->ndims[m] ? in_item[m]+sb-1 : tsr->ndims[m] - 1;
+        sptAssert(in_item[m] < tsr->ndims[m]);
+        out_item[m] = in_item[m]+sb < tsr->ndims[m] ? in_item[m]+sb : tsr->ndims[m];    // exclusive
     }
 
     return 0;
@@ -115,14 +166,15 @@ int sptBlockEnd(
  * @param tsr    a pointer to a sparse tensor
  * @return out_item     the beginning indices of this block
  */
-int sptLocateBlockBegin(
+static int sptLocateBlockBegin(
     sptIndex * out_item,
     sptSparseTensor *tsr,
     const sptIndex * in_item,
     const sptElementIndex sb)
 {
     sptIndex nmodes = tsr->nmodes;
-
+    
+    // TODO: efficiently use bitwise operation
     for(sptIndex m=0; m<nmodes; ++m) {
         out_item[m] = in_item[m] - in_item[m] % sb;
     }
@@ -132,6 +184,7 @@ int sptLocateBlockBegin(
 
 /**
  * Record mode pointers for block rows, from a sorted tensor.
+ * @param mptr  a vector of pointers as a dense array
  * @param tsr    a pointer to a sparse tensor
  * @return      mode pointers
  */
@@ -144,32 +197,43 @@ int sptGetBlockFiberPointers(
     int result;
 
     sptIndex i = tsr->inds[0].data[0];
-    sptIndex oldi = i;
-    sptNnzIndex oldz = 0;
     sptNnzIndex b = 0;
-    if(i >= sb * (b+1)) {
-        mptr->data[b] = oldz;
-        ++ b;
+    sptNnzIndex bnnz = 0;
+    mptr->data[0] = 0;
+    while(1) {
+        if(i >= sb * b && i < sb * (b+1)) {
+            ++ bnnz;
+            break;
+        } else {
+            ++ b;
+            mptr->data[b] = bnnz + mptr->data[b-1];
+            bnnz = 0;
+        }
     }
 
     
-    for(sptNnzIndex z=0; z<nnz; ++z) {
+    for(sptNnzIndex z=1; z<nnz; ++z) {
         i = tsr->inds[0].data[z];
         /* Compare with the next block row index */
-        if(i >= sb * (b+1)) {
-            mptr->data[b] = oldz;
-            ++ b;
+        while(1) {
+            if(i >= sb * b && i < sb * (b+1)) {
+                ++ bnnz;
+                break;
+            } else {
+                ++ b;
+                mptr->data[b] = bnnz + mptr->data[b-1];
+                bnnz = 0;
+            }
         }
-        oldi = i;
-        oldz = z;
     }
-    assert(b <= mptr->len);
+    sptAssert(b < mptr->len);
+    sptAssert(mptr->data[mptr->len-1] + bnnz == nnz);
 
     return 0;
 }
 
 /**
- * Pre-process COO sparse tensor by permuting, sorting, and record mode pointers.
+ * Pre-process COO sparse tensor by permuting, sorting, and record pointers to blocked rows.
  * @param tsr    a pointer to a sparse tensor
  * @return      mode pointers
  */
@@ -186,7 +250,7 @@ int sptPreprocessSparseTensor(
     /* Sort tsr only in mode-0 */
     sptSparseTensorSortIndexSingleMode(tsr, 1, 0);
 
-    sptIndex num_mb = (sptIndex)(nnz / sb + 0.5);
+    sptIndex num_mb = (sptIndex)(tsr->ndims[0] / sb + 0.5);
     result = sptNewNnzIndexVector(mptr, num_mb, num_mb);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
     /* Morton order conserves the block-sorted order in mode-0. */
@@ -198,12 +262,13 @@ int sptPreprocessSparseTensor(
     /* Loop for all mode blocks, mptr.len -> nk for OMP code */
     for(sptNnzIndex mb=0; mb<mptr->len; ++mb) {
         mb_begin = mptr->data[mb];
-        mb_end = mb < mptr->len - 1 ? mptr->data[mb+1] : nnz;
+        mb_end = mb < mptr->len - 1 ? mptr->data[mb+1] : nnz;   // exclusive
         sptSparseTensorSortIndexMorton(tsr, 1, mb_begin, mb_end, sb);
     }
 
     return 0;
 }
+
 
 int sptSparseTensorToHiCOO(
     sptSparseTensorHiCOO *hitsr,
@@ -221,9 +286,9 @@ int sptSparseTensorToHiCOO(
 
     sptElementIndex sb_bit = log2((float)sb);
     sptBlockIndex sk_bit = log2((float)sk);
-    assert(pow(2, sb_bit) == (float)sb);
-    assert(pow(2, sk_bit) == (float)sk);
-    printf("%u, %u\n", sb_bit, sk_bit);
+    sptAssert(pow(2, sb_bit) == (float)sb);
+    sptAssert(pow(2, sk_bit) == (float)sk);
+    printf("sb_bit: %u, sk_bit: %u\n", sb_bit, sk_bit);
     fflush(stdout);
 
     /* Set HiCOO parameters, without allocation */
@@ -238,17 +303,14 @@ int sptSparseTensorToHiCOO(
 
     sptNnzIndexVector mptr;
     sptPreprocessSparseTensor(&mptr, tsr, sb);
+    sptDumpNnzIndexVector(&mptr, stdout);
+    sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 
     sptIndex * block_begin = (sptIndex *)malloc(nmodes * sizeof(*block_begin));
     sptIndex * block_end = (sptIndex *)malloc(nmodes * sizeof(*block_end));
     sptIndex * block_begin_next = (sptIndex *)malloc(nmodes * sizeof(*block_begin_next));
-    sptIndex * block_begin_coord = (sptIndex *)malloc(nmodes * sizeof(*block_begin_coord));
-    for(sptIndex m=0; m<nmodes; ++m) 
-        block_begin_coord[m] = tsr->inds[m].data[0];
-    result = sptLocateBlockBegin(block_begin, tsr, block_begin_coord, sb);
-    spt_CheckError(result, "HiSpTns Convert", NULL);
-    for(sptIndex m=0; m<nmodes; ++m)
-        sptAppendBlockIndexVector(&hitsr->binds[m], (sptBlockIndex)block_begin[m]);
+    sptIndex * block_coord = (sptIndex *)malloc(nmodes * sizeof(*block_coord));
+
     sptAppendBlockIndexVector(&hitsr->cptr, 0);
 
     sptNnzIndex mb_begin, mb_end;
@@ -259,21 +321,33 @@ int sptSparseTensorToHiCOO(
     sptNnzIndex ne = 0; // #Nonzeros in a block
     sptIndex eindex = 0;
     sptBlockNnzIndex chunk_size = 0;
+
     /* Loop for all mode blocks, mptr.len -> nk for OMP code */
     for(sptNnzIndex mb=0; mb<mptr.len; ++mb) {
         mb_begin = mptr.data[mb];
-        mb_end = mb < mptr.len - 1 ? mptr.data[mb+1] : nnz;
+        mb_end = mb < mptr.len - 1 ? mptr.data[mb+1] : nnz; // exclusive
 
         /* Find nonzeros in each block */
         for(sptNnzIndex z = mb_begin; z <= mb_end; ) {
+            for(sptIndex m=0; m<nmodes; ++m) 
+                block_coord[m] = tsr->inds[m].data[z];    // first nonzero indices
+
+            result = sptLocateBlockBegin(block_begin, tsr, block_coord, sb);
+            spt_CheckError(result, "HiSpTns Convert", NULL);
+            sptAssert(sptDumpIndexArray(block_begin, nmodes, stdout) == 0);
+
             result = sptBlockEnd(block_end, tsr, block_begin, sb);
             spt_CheckError(result, "HiSpTns Convert", NULL);
+            sptAssert(sptDumpIndexArray(block_end, nmodes, stdout) == 0);
+
+            for(sptIndex m=0; m<nmodes; ++m)
+                sptAppendBlockIndexVector(&hitsr->binds[m], (sptBlockIndex)block_begin[m]);
 
             if (sptCoordinatesInRange(tsr, z, block_begin, block_end) == 1)
             {
                 for(sptIndex m=0; m<nmodes; ++m) {
                     eindex = tsr->inds[m].data[z] - block_begin[m];
-                    assert(eindex < sb);
+                    sptAssert(eindex < sb);
                     sptAppendElementIndexVector(&hitsr->einds[m], (sptElementIndex)eindex);
                 }
                 sptAppendValueVector(&hitsr->values, tsr->values.data[z]);
@@ -308,8 +382,8 @@ int sptSparseTensorToHiCOO(
             }
 
         }
-        assert(nb <= mb_end - mb_begin + 1);
-        assert(nb == hitsr->binds[0].len); 
+        sptAssert(nb <= mb_end - mb_begin + 1);
+        sptAssert(nb == hitsr->binds[0].len); 
     }
 
 

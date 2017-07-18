@@ -317,6 +317,7 @@ int sptDumpBlockIndexVector(sptBlockIndexVector *vec, FILE *fp);
 int sptDumpNnzIndexVector(sptNnzIndexVector *vec, FILE *fp);
 int sptDumpIndexVector(sptIndexVector *vec, FILE *fp);
 int sptDumpValueIndexVector(sptValueVector *vec, FILE *fp);
+int sptDumpIndexArray(sptIndex *array, uint64_t n, FILE *fp);
 
 
 /* Dense matrix */

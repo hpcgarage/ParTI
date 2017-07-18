@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include "hicoo.h"
 
-/* TODO: modify this file */
 /**
  * Save the contents of a HiCOO sparse tensor into a text file
  * @param hitsr         th sparse tensor used to write
@@ -29,28 +28,27 @@
  */
 int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, size_t start_index, FILE *fp) 
 {
-    #if 0
     int iores;
     size_t mode, i;
-    iores = fprintf(fp, "%zu\n", tsr->nmodes);
+    iores = fprintf(fp, "%zu\n", hitsr->nmodes);
     spt_CheckOSError(iores < 0, "SpTns Dump");
-    for(mode = 0; mode < tsr->nmodes; ++mode) {
+    for(mode = 0; mode < hitsr->nmodes; ++mode) {
         if(mode != 0) {
             iores = fputs(" ", fp);
             spt_CheckOSError(iores < 0, "SpTns Dump");
         }
-        iores = fprintf(fp, "%zu", tsr->ndims[mode]);
+        iores = fprintf(fp, "%zu", hitsr->ndims[mode]);
         spt_CheckOSError(iores < 0, "SpTns Dump");
     }
     fputs("\n", fp);
-    for(i = 0; i < tsr->nnz; ++i) {
-        for(mode = 0; mode < tsr->nmodes; ++mode) {
-            iores = fprintf(fp, "%zu\t", tsr->inds[mode].data[i]+start_index);
+    for(i = 0; i < hitsr->nnz; ++i) {
+        for(mode = 0; mode < hitsr->nmodes; ++mode) {
+            iores = fprintf(fp, "%zu\t", hitsr->einds[mode].data[i]+start_index);
             spt_CheckOSError(iores < 0, "SpTns Dump");
         }
-        iores = fprintf(fp, "%lg\n", (double) tsr->values.data[i]);
+        iores = fprintf(fp, "%lg\n", (double) hitsr->values.data[i]);
         spt_CheckOSError(iores < 0, "SpTns Dump");
     }
-    #endif
+
     return 0;
 }
