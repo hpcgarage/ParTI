@@ -91,7 +91,7 @@ int main(int argc, char * const argv[]) {
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
 
-    sptAssert(sptDumpSparseTensorHiCOO(&hitsr, 0, fo) == 0);
+    sptAssert(sptDumpSparseTensorHiCOO(&hitsr, fo) == 0);
     fclose(fo);
 
     sptFreeSparseTensorHiCOO(&hitsr);

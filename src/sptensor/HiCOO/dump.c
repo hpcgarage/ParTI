@@ -26,10 +26,10 @@
  * @param start_index the index of the first element in array. Set to 1 for MATLAB compability, else set to 0
  * @param fp          the file to write into
  */
-int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, size_t start_index, FILE *fp) 
+int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp) 
 {
     int iores;
-    size_t mode, i;
+    sptIndex mode;
     iores = fprintf(fp, "%zu\n", hitsr->nmodes);
     spt_CheckOSError(iores < 0, "SpTns Dump");
     for(mode = 0; mode < hitsr->nmodes; ++mode) {
@@ -41,14 +41,20 @@ int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, size_t start_ind
         spt_CheckOSError(iores < 0, "SpTns Dump");
     }
     fputs("\n", fp);
-    for(i = 0; i < hitsr->nnz; ++i) {
-        for(mode = 0; mode < hitsr->nmodes; ++mode) {
-            iores = fprintf(fp, "%zu\t", hitsr->einds[mode].data[i]+start_index);
-            spt_CheckOSError(iores < 0, "SpTns Dump");
-        }
-        iores = fprintf(fp, "%lg\n", (double) hitsr->values.data[i]);
-        spt_CheckOSError(iores < 0, "SpTns Dump");
+    fprintf(fp, "kptr:\n");
+    sptDumpNnzIndexVector(&hitsr->kptr, fp);
+    fprintf(fp, "cptr:\n");
+    sptDumpBlockIndexVector(&hitsr->cptr, fp);
+    fprintf(fp, "binds:\n");
+    for(mode = 0; mode < hitsr->nmodes; ++mode) {
+        sptDumpBlockIndexVector(&hitsr->binds[mode], fp);
     }
+    fprintf(fp, "einds:\n");
+    for(mode = 0; mode < hitsr->nmodes; ++mode) {
+        sptDumpElementIndexVector(&hitsr->einds[mode], fp);
+    }
+    fprintf(fp, "values:\n");
+    sptDumpValueIndexVector(&hitsr->values, fp);
 
     return 0;
 }
