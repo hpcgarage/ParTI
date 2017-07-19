@@ -84,14 +84,12 @@ int main(int argc, char * const argv[]) {
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
-    sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     sptAssert(sptSparseTensorToHiCOO(&hitsr, &tsr, sb, sk, sc) == 0);
-    sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+    // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
-
-    sptAssert(sptDumpSparseTensorHiCOO(&hitsr, fo) == 0);
+    // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
     fclose(fo);
 
     sptFreeSparseTensorHiCOO(&hitsr);

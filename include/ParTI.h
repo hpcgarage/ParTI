@@ -179,8 +179,9 @@ typedef struct {
     sptBlockNnzIndex    sc;         /// chunk size by blocks
 
     /* Data arrays */
-    sptNnzIndexVector         kptr;      /// Kernel pointers in 1-D array, indexing blocks
+    sptBlockIndexVector       kptr;      /// Kernel pointers in 1-D array, indexing blocks
     sptBlockIndexVector       cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks
+    sptNnzIndexVector         bptr;      /// Block pointers to all nonzeros
     sptBlockIndexVector       *binds;    /// Block indices within each group
     sptElementIndexVector     *einds;    /// Element indices within each block 
     sptValueVector            values;      /// non-zero values, length nnz
@@ -389,14 +390,14 @@ int sptNewSparseTensorHiCOO(
     const sptNnzIndex nnz,
     const sptElementIndex sb,
     const sptBlockIndex sk,
-    const sptBlockNnzIndex sc);
+    const sptBlockIndex sc);
 void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr);
 int sptSparseTensorToHiCOO(
     sptSparseTensorHiCOO *hitsr, 
     sptSparseTensor *tsr, 
     const sptElementIndex sb,
     const sptBlockIndex sk,
-    const sptBlockNnzIndex sc);
+    const sptBlockIndex sc);
 int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp);
 
 

@@ -32,7 +32,7 @@ int sptNewSparseTensorHiCOO(
     const sptNnzIndex nnz,
     const sptElementIndex sb,
     const sptBlockIndex sk,
-    const sptBlockNnzIndex sc)
+    const sptBlockIndex sc)
 {
     sptIndex i;
     int result;
@@ -52,14 +52,16 @@ int sptNewSparseTensorHiCOO(
     hitsr->sk = sk; // kernel size by nnz
     hitsr->sc = sc; // chunk size by blocks
 
-    sptNnzIndex num_all_kernels = 1;
+    sptBlockIndex num_all_kernels = 1;
     for(i = 0; i < nmodes; ++i) {
-        num_all_kernels *= (sptIndex)(ndims[i] + sk - 1) / sk;
+        num_all_kernels *= (sptBlockIndex)(ndims[i] + sk - 1) / sk;
     }
 
-    result = sptNewNnzIndexVector(&hitsr->kptr, num_all_kernels, num_all_kernels);
+    result = sptNewBlockIndexVector(&hitsr->kptr, num_all_kernels, num_all_kernels);
     spt_CheckError(result, "HiSpTns New", NULL);
     result = sptNewBlockIndexVector(&hitsr->cptr, 0, 0);
+    spt_CheckError(result, "HiSpTns New", NULL);
+    result = sptNewNnzIndexVector(&hitsr->bptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
     hitsr->binds = malloc(nmodes * sizeof *hitsr->binds);
     spt_CheckOSError(!hitsr->binds, "HiSpTns New");

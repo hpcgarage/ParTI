@@ -42,9 +42,11 @@ int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp)
     }
     fputs("\n", fp);
     fprintf(fp, "kptr:\n");
-    sptDumpNnzIndexVector(&hitsr->kptr, fp);
+    sptDumpBlockIndexVector(&hitsr->kptr, fp);
     fprintf(fp, "cptr:\n");
     sptDumpBlockIndexVector(&hitsr->cptr, fp);
+    fprintf(fp, "bptr:\n");
+    sptDumpNnzIndexVector(&hitsr->bptr, fp);
     fprintf(fp, "binds:\n");
     for(mode = 0; mode < hitsr->nmodes; ++mode) {
         sptDumpBlockIndexVector(&hitsr->binds[mode], fp);
