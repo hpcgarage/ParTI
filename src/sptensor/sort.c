@@ -23,6 +23,7 @@
 #include "sort.h"
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
+static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptBlockIndex sk);
 static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb);
 static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode);
 
@@ -139,7 +140,7 @@ static const uint32_t morton256_x[256] = {
 };
 
 /**
- * Reorder the elements in a COO sparse tensor lexicographically
+ * Reorder the elements in a COO sparse tensor lexicographically, sorting by Morton-order.
  * @param hitsr  the sparse tensor to operate on
  */
 void sptSparseTensorSortIndexMorton(
@@ -175,7 +176,34 @@ void sptSparseTensorSortIndexMorton(
 
 
 /**
- * Reorder the elements in a sparse tensor lexicographically
+ * Reorder the elements in a COO sparse tensor lexicographically, sorting by Morton-order.
+ * @param hitsr  the sparse tensor to operate on
+ */
+void sptSparseTensorSortIndexRowBlock(
+    sptSparseTensor *tsr, 
+    int force,
+    const sptNnzIndex begin,
+    const sptNnzIndex end,
+    const sptBlockIndex sk) 
+{
+    size_t m;
+    int needsort = 0;
+
+    for(m = 0; m < tsr->nmodes; ++m) {
+        if(tsr->sortorder[m] != m) {
+            tsr->sortorder[m] = m;
+            needsort = 1;
+        }
+    }
+
+    if(needsort || force) {
+        spt_QuickSortIndexRowBlock(tsr, begin, end, sk);
+    }
+}
+
+
+/**
+ * Reorder the elements in a sparse tensor lexicographically, sorting only one mode.
  * @param tsr  the sparse tensor to operate on
  */
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode) {
@@ -283,24 +311,24 @@ int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, 
  * @param loc2 the order of the element in the second sparse tensor whose index is to be compared
  * @return -1 for less, 0 for equal, 1 for greater
  */
-static int spt_SparseTensorCompareIndicesBlocked(
+static int spt_SparseTensorCompareIndicesRowBlock(
     const sptSparseTensor *tsr1, 
     uint64_t loc1, 
     const sptSparseTensor *tsr2, 
     uint64_t loc2,
-    const sptElementIndex sb) 
+    const sptBlockIndex sk) 
 {
     uint64_t i;
     assert(tsr1->nmodes == tsr2->nmodes);
 
-    sptElementIndex sb_bit = log2((float)sb);
-    assert(pow(2, sb_bit) == (float)sb);
+    sptElementIndex sk_bit = log2((float)sk);
+    assert(pow(2, sk_bit) == (float)sk);
 
     for(i = 0; i < tsr1->nmodes; ++i) {
         uint64_t eleind1 = tsr1->inds[i].data[loc1];
         uint64_t eleind2 = tsr2->inds[i].data[loc2];
-        uint64_t blkind1 = eleind1 >> sb_bit;
-        uint64_t blkind2 = eleind2 >> sb_bit;
+        uint64_t blkind1 = eleind1 >> sk_bit;
+        uint64_t blkind2 = eleind2 >> sk_bit;
         // printf("blkind1: %lu, blkind2: %lu\n", blkind1, blkind2);
 
         if(blkind1 < blkind2) {
@@ -414,6 +442,37 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r,
     }
     spt_QuickSortIndexMorton3D(tsr, l, i, sb);
     spt_QuickSortIndexMorton3D(tsr, i, r, sb);
+}
+
+
+static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptBlockIndex sk) {
+
+    uint64_t i, j, p;
+    if(r-l < 2) {
+        return;
+    }
+    p = (l+r) / 2;
+    for(i = l, j = r-1; ; ++i, --j) {
+        while(spt_SparseTensorCompareIndicesRowBlock(tsr, i, tsr, p, sk) < 0) {
+            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesRowBlock(tsr, i, tsr, p, sb));
+            ++i;
+        }
+        while(spt_SparseTensorCompareIndicesRowBlock(tsr, p, tsr, j, sk) < 0) {
+            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesRowBlock(tsr, p, tsr, j, sb));
+            --j;
+        }
+        if(i >= j) {
+            break;
+        }
+        spt_SwapValues(tsr, i, j);
+        if(i == p) {
+            p = j;
+        } else if(j == p) {
+            p = i;
+        }
+    }
+    spt_QuickSortIndexRowBlock(tsr, l, i, sk);
+    spt_QuickSortIndexRowBlock(tsr, i, r, sk);
 }
 
 

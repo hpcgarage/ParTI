@@ -176,11 +176,13 @@ typedef struct {
     /* Parameters */
     sptElementIndex     sb;         /// block size by nnz
     sptBlockIndex       sk;         /// kernel size by nnz
-    sptBlockNnzIndex    sc;         /// chunk size by blocks
+    sptBlockIndex       sc;         /// chunk size by blocks
 
-    /* Data arrays */
+    /* Scheduling information */
+    sptNnzIndexVector       cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks
+
+    /* Index data arrays */
     sptBlockIndexVector       kptr;      /// Kernel pointers in 1-D array, indexing blocks
-    sptBlockIndexVector       cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks
     sptNnzIndexVector         bptr;      /// Block pointers to all nonzeros
     sptBlockIndexVector       *binds;    /// Block indices within each group
     sptElementIndexVector     *einds;    /// Element indices within each block 
@@ -373,6 +375,12 @@ void sptSparseTensorSortIndexMorton(
     const sptNnzIndex begin,
     const sptNnzIndex end,
     const sptElementIndex sb);
+void sptSparseTensorSortIndexRowBlock(
+    sptSparseTensor *tsr, 
+    int force,
+    const sptNnzIndex begin,
+    const sptNnzIndex end,
+    const sptBlockIndex sk);
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
 int spt_ComputeSliceSizes(
