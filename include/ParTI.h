@@ -179,10 +179,10 @@ typedef struct {
     sptElementIndex       sc_bits;         /// chunk size by blocks
 
     /* Scheduling information */
-    sptNnzIndexVector       cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks
+    sptNnzIndexVector         kptr;      /// Nonzero kernel pointers in 1-D array, indexing blocks. sptIndexVector may be enough
+    sptNnzIndexVector         cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks. sptIndexVector may be enough
 
     /* Index data arrays */
-    sptNnzIndexVector       kptr;      /// Kernel pointers in 1-D array, indexing blocks
     sptNnzIndexVector         bptr;      /// Block pointers to all nonzeros
     sptBlockIndexVector       *binds;    /// Block indices within each group
     sptElementIndexVector     *einds;    /// Element indices within each block 

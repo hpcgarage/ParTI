@@ -184,21 +184,20 @@ static int sptBlockEnd(
 
 
 /**
- * Locate the beginning of the block containing the coordinates
+ * Locate the beginning of the block/kernel containing the coordinates
  * @param tsr    a pointer to a sparse tensor
  * @return out_item     the beginning indices of this block
  */
-static int sptLocateBlockBegin(
+static int sptLocateBeginCoord(
     sptIndex * out_item,
     sptSparseTensor *tsr,
     const sptIndex * in_item,
-    const sptElementIndex sb)
+    const sptElementIndex bits)
 {
     sptIndex nmodes = tsr->nmodes;
     
-    // TODO: efficiently use bitwise operation
     for(sptIndex m=0; m<nmodes; ++m) {
-        out_item[m] = in_item[m] - in_item[m] % sb;
+        out_item[m] = in_item[m] >> bits;
     }
 
     return 0;
@@ -231,27 +230,7 @@ static int sptKernelStrides(
 }
 
 
-/**
- * Compute the kernel location in kptr
- * @param tsr    a pointer to a sparse tensor
- * @return out_item     the beginning indices of this block
- */
-static sptIndex sptLocateKernelBegin(
-    sptSparseTensor *tsr,
-    const sptIndex * in_item,
-    const sptIndex * strides,
-    const sptElementIndex sk_bits)
-{
-    sptIndex nmodes = tsr->nmodes;
-    /* Compute using block index, not nonzero index */
-    sptNnzIndex kidx = 0;
-    
-    for(sptIndex m=0; m<nmodes; ++m) {
-        kidx += (in_item[m] >> sk_bits) * strides[m];    // index * stride
-    }
 
-    return kidx;
-}
 
 
 /**
@@ -334,7 +313,7 @@ int sptGetRowBlockPointers(
  * @return      mode pointers
  */
 int sptGetKernelPointers(
-    sptNnzIndexVector *kptr_nnz,
+    sptNnzIndexVector *kptr,
     sptSparseTensor *tsr, 
     const sptElementIndex sk_bits)
 {
@@ -345,41 +324,42 @@ int sptGetKernelPointers(
     sptIndex kindex = 0, kindex_prior = 0;
     sptIndex sk = pow(2, sk_bits);
     int result;
-    result = sptAppendNnzIndexVector(kptr_nnz, 0);
+    result = sptAppendNnzIndexVector(kptr, 0);
     spt_CheckError(result, "HiSpTns Convert", NULL);
-
 
     sptIndex * coord = (sptIndex *)malloc(nmodes * sizeof(*coord));
-    sptIndex * kernel_strides = (sptIndex *)malloc(nmodes * sizeof(*kernel_strides));
+    sptIndex * kernel_coord = (sptIndex *)malloc(nmodes * sizeof(*kernel_coord));
+    sptIndex * kernel_coord_prior = (sptIndex *)malloc(nmodes * sizeof(*kernel_coord_prior));
 
-    result = sptKernelStrides(kernel_strides, tsr, sk);
-    spt_CheckError(result, "HiSpTns Convert", NULL);
-
-    /* Process first nnz to get kindex_prior */
+    /* Process first nnz to get the first kernel_coord_prior */
     for(sptIndex m=0; m<nmodes; ++m) 
         coord[m] = tsr->inds[m].data[0];    // first nonzero indices
-    kindex_prior = sptLocateKernelBegin(tsr, coord, kernel_strides, sk_bits);
+    result = sptLocateBeginCoord(kernel_coord_prior, tsr, coord, sk_bits);
+    spt_CheckError(result, "HiSpTns Convert", NULL);
 
     for(sptNnzIndex z=0; z<nnz; ++z) {
         for(sptIndex m=0; m<nmodes; ++m) 
             coord[m] = tsr->inds[m].data[z];
-        kindex = sptLocateKernelBegin(tsr, coord, kernel_strides, sk_bits);
+        result = sptLocateBeginCoord(kernel_coord, tsr, coord, sk_bits);
+        spt_CheckError(result, "HiSpTns Convert", NULL);
 
-        if(kindex == kindex_prior) {
+        if(sptEqualWithTwoCoordinates(kernel_coord, kernel_coord_prior, nmodes) == 1) {
             ++ knnz;
         } else {
             ++ k;
-            result = sptAppendNnzIndexVector(kptr_nnz, knnz + kptr_nnz->data[k-1]);
+            result = sptAppendNnzIndexVector(kptr, knnz + kptr->data[k-1]);
             spt_CheckError(result, "HiSpTns Convert", NULL);
-            kindex_prior = kindex;
+            for(sptIndex m=0; m<nmodes; ++m) 
+                kernel_coord_prior[m] = kernel_coord[m];
             knnz = 1;
         }
     }
-    sptAssert(k < kptr_nnz->len);
-    sptAssert(kptr_nnz->data[kptr_nnz->len-1] + knnz == nnz);
+    sptAssert(k < kptr->len);
+    sptAssert(kptr->data[kptr->len-1] + knnz == nnz);
 
     free(coord);
-    free(kernel_strides);
+    free(kernel_coord);
+    free(kernel_coord_prior);
 
     return 0;
 }
@@ -391,7 +371,7 @@ int sptGetKernelPointers(
  * @return      mode pointers
  */
 int sptPreprocessSparseTensor(
-    sptNnzIndexVector * kptr_nnz,
+    sptNnzIndexVector * kptr,
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits)
@@ -404,15 +384,15 @@ int sptPreprocessSparseTensor(
 
     /* Sort tsr in a Row-major Block order to get all kernels. Not use Morton-order for kernels: 1. better support for higher-order tensors by limiting kernel size, because Morton key bit <= 128; */
     sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
-    result = sptGetKernelPointers(kptr_nnz, tsr, sk_bits);
+    result = sptGetKernelPointers(kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
 
     /* Sort blocks in each kernel in Morton-order */
     sptNnzIndex k_begin, k_end;
     /* Loop for all kernels, 0-kptr.len for OMP code */
-    for(sptNnzIndex k=0; k<kptr_nnz->len; ++k) {
-        k_begin = kptr_nnz->data[k];
-        k_end = k < kptr_nnz->len - 1 ? kptr_nnz->data[k+1] : nnz;   // exclusive
+    for(sptNnzIndex k=0; k<kptr->len; ++k) {
+        k_begin = kptr->data[k];
+        k_end = k < kptr->len - 1 ? kptr->data[k+1] : nnz;   // exclusive
         /* Sort blocks in each kernel in Morton-order */
         sptSparseTensorSortIndexMorton(tsr, 1, k_begin, k_end, sb_bits);
     }
@@ -437,6 +417,7 @@ int sptSparseTensorToHiCOO(
     sptElementIndex sb = pow(2, sb_bits);
     sptIndex sk = pow(2, sk_bits);
     sptIndex sc = pow(2, sc_bits);
+    printf("sb: %lu, sk: %lu, sc: %lu\n", sb, sk, sc);
 
     /* Set HiCOO parameters, without allocation */
     sptIndex * ndims = malloc(nmodes * sizeof *ndims);
@@ -448,22 +429,18 @@ int sptSparseTensorToHiCOO(
     result = sptNewSparseTensorHiCOO(hitsr, (sptIndex)tsr->nmodes, ndims, (sptNnzIndex)tsr->nnz, sb_bits, sk_bits, sc_bits);
     spt_CheckError(result, "HiSpTns Convert", NULL);
 
-    /* Pre-process tensor to get pointers of kernels, using nnz locations to represent */
-    sptNnzIndexVector kptr_nnz;
-    result = sptNewNnzIndexVector(&kptr_nnz, 0, 0);
-    spt_CheckError(result, "HiSpTns Preprocess", NULL);
-    sptPreprocessSparseTensor(&kptr_nnz, tsr, sb_bits, sk_bits);
+    /* Pre-process tensor to get hitsr->kptr */
+    sptPreprocessSparseTensor(&hitsr->kptr, tsr, sb_bits, sk_bits);
     // printf("Kernels: Row-major, blocks: Morton-order sorted:\n");
     // sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
-    // printf("kptr_nnz:\n");
-    // sptDumpNnzIndexVector(&kptr_nnz, stdout);
+    // printf("hitsr->kptr:\n");
+    // sptDumpNnzIndexVector(&hitsr->kptr, stdout);
 
     /* Temporary storage */
     sptIndex * block_begin = (sptIndex *)malloc(nmodes * sizeof(*block_begin));
     sptIndex * block_end = (sptIndex *)malloc(nmodes * sizeof(*block_end));
     sptIndex * block_begin_prior = (sptIndex *)malloc(nmodes * sizeof(*block_begin_prior));
     sptIndex * block_coord = (sptIndex *)malloc(nmodes * sizeof(*block_coord));
-    sptIndex * kernel_strides = (sptIndex *)malloc(nmodes * sizeof(*kernel_strides));
 
     sptNnzIndex k_begin, k_end;
     sptNnzIndex nk = 0; // #Kernels  
@@ -472,15 +449,7 @@ int sptSparseTensorToHiCOO(
     sptNnzIndex nb_tmp = 0;
     sptNnzIndex ne = 0; // #Nonzeros per block
     sptIndex eindex = 0;
-    sptIndex kindex = 0, kindex_prior = 0;
     sptBlockIndex chunk_size = 0;
-    sptBlockIndex num_all_nnz_kernels = kptr_nnz.len;
-    // printf("num_all_nnz_kernels: %lu\n", num_all_nnz_kernels);
-
-    result = sptKernelStrides(kernel_strides, tsr, sk);
-    spt_CheckError(result, "HiSpTns Convert", NULL);
-    // printf("kernel_strides:\n");
-    // sptAssert(sptDumpIndexArray(kernel_strides, nmodes, stdout) == 0);
 
     /* different appending methods:
      * elements: append every nonzero entry
@@ -491,26 +460,18 @@ int sptSparseTensorToHiCOO(
     /* Process first nnz */
     for(sptIndex m=0; m<nmodes; ++m) 
         block_coord[m] = tsr->inds[m].data[0];    // first nonzero indices
-    result = sptLocateBlockBegin(block_begin_prior, tsr, block_coord, sb);
+    result = sptLocateBeginCoord(block_begin_prior, tsr, block_coord, sb_bits);
     spt_CheckError(result, "HiSpTns Convert", NULL);
     for(sptIndex m=0; m<nmodes; ++m)
         sptAppendBlockIndexVector(&hitsr->binds[m], (sptBlockIndex)block_begin_prior[m]);
     sptAppendNnzIndexVector(&hitsr->bptr, 0);
 
 
-    /* Loop for all kernels, 0 - kptr_nnz.len for OMP code */
-    for(sptNnzIndex k=0; k<kptr_nnz.len; ++k) {
-        k_begin = kptr_nnz.data[k];
-        k_end = k < kptr_nnz.len - 1 ? kptr_nnz.data[k+1] : nnz; // exclusive
+    /* Loop for all kernels, 0 - hitsr->kptr.len for OMP code */
+    for(sptNnzIndex k=0; k<hitsr->kptr.len; ++k) {
+        k_begin = hitsr->kptr.data[k];
+        k_end = k < hitsr->kptr.len - 1 ? hitsr->kptr.data[k+1] : nnz; // exclusive
         nb_tmp = k == 0 ? 0: nb;
-        // printf("k_begin: %lu, k_end: %lu\n", k_begin, k_end);
-
-        for(sptIndex m=0; m<nmodes; ++m) 
-            block_coord[m] = tsr->inds[m].data[k_begin];    // first nonzero in a kernel
-        /* Add a new kernel */
-        kindex = sptLocateKernelBegin(tsr, block_coord, kernel_strides, sk_bits);
-        /* kptr already allocated */
-        hitsr->kptr.data[kindex] = nb_tmp;
         /* Only append a chunk for the new kernel, the last chunk in the old kernel may be larger than sc */
         sptAppendNnzIndexVector(&hitsr->cptr, nb_tmp);
         // printf("cptr 1:\n");
@@ -528,7 +489,7 @@ int sptSparseTensorToHiCOO(
             // printf("block_coord:\n");
             // sptAssert(sptDumpIndexArray(block_coord, nmodes, stdout) == 0);
 
-            result = sptLocateBlockBegin(block_begin, tsr, block_coord, sb);
+            result = sptLocateBeginCoord(block_begin, tsr, block_coord, sb_bits);
             spt_CheckError(result, "HiSpTns Convert", NULL);
             // printf("block_begin_prior:\n");
             // sptAssert(sptDumpIndexArray(block_begin_prior, nmodes, stdout) == 0);
@@ -540,7 +501,7 @@ int sptSparseTensorToHiCOO(
 
             /* Append einds and values */
             for(sptIndex m=0; m<nmodes; ++m) {
-                eindex = tsr->inds[m].data[z] - block_begin[m];
+                eindex = tsr->inds[m].data[z] < (block_begin[m] << sb_bits) ? tsr->inds[m].data[z] : tsr->inds[m].data[z] - (block_begin[m] << sb_bits);
                 sptAssert(eindex < sb);
                 sptAppendElementIndexVector(&hitsr->einds[m], (sptElementIndex)eindex);
             }
@@ -582,15 +543,13 @@ int sptSparseTensorToHiCOO(
     sptAssert(nb <= nnz);
     sptAssert(nb == hitsr->binds[0].len); 
     sptAssert(nc <= nb);
-    sptAssert(nk == num_all_nnz_kernels);
+    sptAssert(nk == hitsr->kptr.len);
 
 
     free(block_begin);
     free(block_end);
     free(block_begin_prior);
     free(block_coord);
-    free(kernel_strides);
-    sptFreeNnzIndexVector(&kptr_nnz);
 
 	return 0;
 }
