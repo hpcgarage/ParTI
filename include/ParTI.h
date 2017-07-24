@@ -174,15 +174,15 @@ typedef struct {
     sptNnzIndex         nnz;         /// # non-zeros
 
     /* Parameters */
-    sptElementIndex     sb;         /// block size by nnz
-    sptBlockIndex       sk;         /// kernel size by nnz
-    sptBlockIndex       sc;         /// chunk size by blocks
+    sptElementIndex       sb_bits;         /// block size by nnz
+    sptElementIndex       sk_bits;         /// kernel size by nnz
+    sptElementIndex       sc_bits;         /// chunk size by blocks
 
     /* Scheduling information */
     sptNnzIndexVector       cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks
 
     /* Index data arrays */
-    sptBlockIndexVector       kptr;      /// Kernel pointers in 1-D array, indexing blocks
+    sptNnzIndexVector       kptr;      /// Kernel pointers in 1-D array, indexing blocks
     sptNnzIndexVector         bptr;      /// Block pointers to all nonzeros
     sptBlockIndexVector       *binds;    /// Block indices within each group
     sptElementIndexVector     *einds;    /// Element indices within each block 
@@ -374,13 +374,13 @@ void sptSparseTensorSortIndexMorton(
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptElementIndex sb);
+    const sptElementIndex sb_bits);
 void sptSparseTensorSortIndexRowBlock(
     sptSparseTensor *tsr, 
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptBlockIndex sk);
+    const sptElementIndex sk_bits);
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
 void sptSparseTensorCalcIndexBounds(size_t inds_low[], size_t inds_high[], const sptSparseTensor *tsr);
 int spt_ComputeSliceSizes(
@@ -396,16 +396,16 @@ int sptNewSparseTensorHiCOO(
     const sptIndex nmodes, 
     const sptIndex ndims[],
     const sptNnzIndex nnz,
-    const sptElementIndex sb,
-    const sptBlockIndex sk,
-    const sptBlockIndex sc);
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits,
+    const sptElementIndex sc_bits);
 void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr);
 int sptSparseTensorToHiCOO(
     sptSparseTensorHiCOO *hitsr, 
     sptSparseTensor *tsr, 
-    const sptElementIndex sb,
-    const sptBlockIndex sk,
-    const sptBlockIndex sc);
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits,
+    const sptElementIndex sc_bits);
 int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp);
 
 

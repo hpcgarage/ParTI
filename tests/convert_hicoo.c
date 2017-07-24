@@ -26,9 +26,9 @@ int main(int argc, char * const argv[]) {
     FILE *fi, *fo;
     sptSparseTensor tsr;
     sptSparseTensorHiCOO hitsr;
-    const sptElementIndex sb;
-    const sptBlockIndex sk;
-    const sptBlockNnzIndex sc;
+    const sptElementIndex sb_bits;
+    const sptElementIndex sk_bits;
+    const sptElementIndex sc_bits;
 
 
     for(;;) {
@@ -57,13 +57,13 @@ int main(int argc, char * const argv[]) {
             sptAssert(fo != NULL);
             break;
         case 'b':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sb);
+            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sb_bits);
             break;
         case 'k':
-            sscanf(optarg, "%"SPT_PF_NNZINDEX, &sk);
+            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sk_bits);
             break;
         case 'c':
-            sscanf(optarg, "%"SPT_PF_BLOCKNNZINDEX, &sc);
+            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sc_bits);
             break;
         default:
             abort();
@@ -74,9 +74,9 @@ int main(int argc, char * const argv[]) {
         printf("Usage: %s\n", argv[0]);
         printf("Options: -i INPUT, --input=INPUT\n");
         printf("         -o OUTPUT, --output=OUTPUT\n");
-        printf("         -b BLOCKSIZE, --blocksize=BLOCKSIZE\n");
-        printf("         -k KERNELSIZE, --kernelsize=KERNELSIZE\n");
-        printf("         -c CHUNKSIZE, --chunksize=CHUNKSIZE\n");
+        printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
+        printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
+        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits)\n");
         printf("\n");
         return 1;
     }
@@ -84,12 +84,12 @@ int main(int argc, char * const argv[]) {
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
-
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &tsr, sb, sk, sc) == 0);
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &tsr, sb_bits, sk_bits, sc_bits) == 0);
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
-    // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
+    sptAssert(sptDumpSparseTensorHiCOO(&hitsr, fo) == 0);
     fclose(fo);
 
     sptFreeSparseTensorHiCOO(&hitsr);

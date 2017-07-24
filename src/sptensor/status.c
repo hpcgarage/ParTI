@@ -43,7 +43,7 @@ void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp)
   fprintf(fp, " NNZ=%"SPT_PF_NNZINDEX, tsr->nnz);
   fprintf(fp, " DENSITY=%e\n" , sptSparseTensorDensity(tsr));
 
-  char * bytestr = sptBytesString(tsr->nnz * (sizeof(SPT_PF_INDEX) * tsr->nmodes + sizeof(SPT_PF_VALUE)));
+  char * bytestr = sptBytesString(tsr->nnz * (sizeof(sptIndex) * tsr->nmodes + sizeof(sptValue)));
   fprintf(fp, "COO-STORAGE=%s\n", bytestr);
   fprintf(fp, "\n");
   free(bytestr);

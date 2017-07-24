@@ -23,8 +23,8 @@
 #include "sort.h"
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
-static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptBlockIndex sk);
-static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb);
+static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sk_bits);
+static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode);
 
 /* Mode order: X -> Y -> Z, x indices are sorted, y and z are Morton order sorted. */
@@ -148,7 +148,7 @@ void sptSparseTensorSortIndexMorton(
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptElementIndex sb) 
+    const sptElementIndex sb_bits) 
 {
     size_t m;
     int needsort = 0;
@@ -164,7 +164,7 @@ void sptSparseTensorSortIndexMorton(
         /* TODO: add support for other order tensors */
         switch(tsr->nmodes) {
             case 3:
-                spt_QuickSortIndexMorton3D(tsr, begin, end, sb);
+                spt_QuickSortIndexMorton3D(tsr, begin, end, sb_bits);
                 break;
             default:
                 fprintf(stderr, "Tensor order hasn't been supported.");
@@ -184,7 +184,7 @@ void sptSparseTensorSortIndexRowBlock(
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptBlockIndex sk) 
+    const sptElementIndex sk_bits) 
 {
     size_t m;
     int needsort = 0;
@@ -197,7 +197,7 @@ void sptSparseTensorSortIndexRowBlock(
     }
 
     if(needsort || force) {
-        spt_QuickSortIndexRowBlock(tsr, begin, end, sk);
+        spt_QuickSortIndexRowBlock(tsr, begin, end, sk_bits);
     }
 }
 
@@ -316,19 +316,16 @@ static int spt_SparseTensorCompareIndicesRowBlock(
     uint64_t loc1, 
     const sptSparseTensor *tsr2, 
     uint64_t loc2,
-    const sptBlockIndex sk) 
+    const sptElementIndex sk_bits) 
 {
     uint64_t i;
     assert(tsr1->nmodes == tsr2->nmodes);
 
-    sptElementIndex sk_bit = log2((float)sk);
-    assert(pow(2, sk_bit) == (float)sk);
-
     for(i = 0; i < tsr1->nmodes; ++i) {
         uint64_t eleind1 = tsr1->inds[i].data[loc1];
         uint64_t eleind2 = tsr2->inds[i].data[loc2];
-        uint64_t blkind1 = eleind1 >> sk_bit;
-        uint64_t blkind2 = eleind2 >> sk_bit;
+        uint64_t blkind1 = eleind1 >> sk_bits;
+        uint64_t blkind2 = eleind2 >> sk_bits;
         // printf("blkind1: %lu, blkind2: %lu\n", blkind1, blkind2);
 
         if(blkind1 < blkind2) {
@@ -355,13 +352,10 @@ static int spt_SparseTensorCompareIndicesMorton3D(
     uint64_t loc1, 
     const sptSparseTensor *tsr2, 
     uint64_t loc2,
-    const sptElementIndex sb) 
+    const sptElementIndex sb_bits) 
 {
     sptMortonIndex mkey1 = 0, mkey2 = 0;
     assert(tsr1->nmodes == tsr2->nmodes);
-
-    sptElementIndex sb_bit = log2((float)sb);
-    assert(pow(2, sb_bit) == (float)sb);
 
     /* TODO: only support 3-D tensors now */
     uint32_t x1 = tsr1->inds[0].data[loc1];
@@ -414,7 +408,7 @@ static int spt_SparseTensorCompareIndicesMorton3D(
 }
 
 
-static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb) {
+static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb_bits) {
 
     uint64_t i, j, p;
     if(r-l < 2) {
@@ -422,12 +416,12 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r,
     }
     p = (l+r) / 2;
     for(i = l, j = r-1; ; ++i, --j) {
-        while(spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p, sb) < 0) {
-            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p, sb));
+        while(spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p, sb_bits) < 0) {
+            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p, sb_bits));
             ++i;
         }
-        while(spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j, sb) < 0) {
-            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j, sb));
+        while(spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j, sb_bits) < 0) {
+            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j, sb_bits));
             --j;
         }
         if(i >= j) {
@@ -440,12 +434,12 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r,
             p = i;
         }
     }
-    spt_QuickSortIndexMorton3D(tsr, l, i, sb);
-    spt_QuickSortIndexMorton3D(tsr, i, r, sb);
+    spt_QuickSortIndexMorton3D(tsr, l, i, sb_bits);
+    spt_QuickSortIndexMorton3D(tsr, i, r, sb_bits);
 }
 
 
-static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptBlockIndex sk) {
+static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sk_bits) {
 
     uint64_t i, j, p;
     if(r-l < 2) {
@@ -453,12 +447,10 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r,
     }
     p = (l+r) / 2;
     for(i = l, j = r-1; ; ++i, --j) {
-        while(spt_SparseTensorCompareIndicesRowBlock(tsr, i, tsr, p, sk) < 0) {
-            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesRowBlock(tsr, i, tsr, p, sb));
+        while(spt_SparseTensorCompareIndicesRowBlock(tsr, i, tsr, p, sk_bits) < 0) {
             ++i;
         }
-        while(spt_SparseTensorCompareIndicesRowBlock(tsr, p, tsr, j, sk) < 0) {
-            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesRowBlock(tsr, p, tsr, j, sb));
+        while(spt_SparseTensorCompareIndicesRowBlock(tsr, p, tsr, j, sk_bits) < 0) {
             --j;
         }
         if(i >= j) {
@@ -471,8 +463,8 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r,
             p = i;
         }
     }
-    spt_QuickSortIndexRowBlock(tsr, l, i, sk);
-    spt_QuickSortIndexRowBlock(tsr, i, r, sk);
+    spt_QuickSortIndexRowBlock(tsr, l, i, sk_bits);
+    spt_QuickSortIndexRowBlock(tsr, i, r, sk_bits);
 }
 
 

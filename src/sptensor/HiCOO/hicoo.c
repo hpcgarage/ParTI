@@ -18,6 +18,7 @@
 
 #include <ParTI.h>
 #include "hicoo.h"
+#include <math.h>
 
 /**
  * Create a new sparse tensor in HiCOO format
@@ -30,9 +31,9 @@ int sptNewSparseTensorHiCOO(
     const sptIndex nmodes, 
     const sptIndex ndims[],
     const sptNnzIndex nnz,
-    const sptElementIndex sb,
-    const sptBlockIndex sk,
-    const sptBlockIndex sc)
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits,
+    const sptElementIndex sc_bits)
 {
     sptIndex i;
     int result;
@@ -48,18 +49,19 @@ int sptNewSparseTensorHiCOO(
     hitsr->nnz = nnz;
 
     /* Parameters */
-    hitsr->sb = sb; // block size by nnz
-    hitsr->sk = sk; // kernel size by nnz
-    hitsr->sc = sc; // chunk size by blocks
+    hitsr->sb_bits = sb_bits; // block size by nnz
+    hitsr->sk_bits = sk_bits; // kernel size by nnz
+    hitsr->sc_bits = sc_bits; // chunk size by blocks
+    sptIndex sk = pow(2, sk_bits);
 
     sptBlockIndex num_all_kernels = 1;
     for(i = 0; i < nmodes; ++i) {
         num_all_kernels *= (sptBlockIndex)(ndims[i] + sk - 1) / sk;
     }
 
-    result = sptNewBlockIndexVector(&hitsr->kptr, num_all_kernels, num_all_kernels);
+    result = sptNewNnzIndexVector(&hitsr->kptr, num_all_kernels, num_all_kernels);
     spt_CheckError(result, "HiSpTns New", NULL);
-    result = sptNewBlockIndexVector(&hitsr->cptr, 0, 0);
+    result = sptNewNnzIndexVector(&hitsr->cptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
     result = sptNewNnzIndexVector(&hitsr->bptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
@@ -96,7 +98,8 @@ void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr)
     free(hitsr->ndims);
 
     sptFreeNnzIndexVector(&hitsr->kptr);
-    sptFreeBlockIndexVector(&hitsr->cptr);
+    sptFreeNnzIndexVector(&hitsr->cptr);
+    sptFreeNnzIndexVector(&hitsr->bptr);
     for(i = 0; i < nmodes; ++i) {
         sptFreeBlockIndexVector(&hitsr->binds[i]);
         sptFreeElementIndexVector(&hitsr->einds[i]);
