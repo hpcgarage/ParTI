@@ -357,6 +357,9 @@ int sptGetKernelPointers(
     sptAssert(k < kptr->len);
     sptAssert(kptr->data[kptr->len-1] + knnz == nnz);
 
+    /* Set the last element for kptr */
+    sptAppendNnzIndexVector(kptr, nnz);
+
     free(coord);
     free(kernel_coord);
     free(kernel_coord_prior);
@@ -390,9 +393,9 @@ int sptPreprocessSparseTensor(
     /* Sort blocks in each kernel in Morton-order */
     sptNnzIndex k_begin, k_end;
     /* Loop for all kernels, 0-kptr.len for OMP code */
-    for(sptNnzIndex k=0; k<kptr->len; ++k) {
+    for(sptNnzIndex k=0; k<kptr->len - 1; ++k) {
         k_begin = kptr->data[k];
-        k_end = k < kptr->len - 1 ? kptr->data[k+1] : nnz;   // exclusive
+        k_end = kptr->data[k+1];   // exclusive
         /* Sort blocks in each kernel in Morton-order */
         sptSparseTensorSortIndexMorton(tsr, 1, k_begin, k_end, sb_bits);
     }
@@ -409,6 +412,9 @@ int sptSparseTensorToHiCOO(
     const sptElementIndex sk_bits,
     const sptElementIndex sc_bits)
 {
+    sptAssert(sk_bits >= sb_bits);
+    sptAssert(sc_bits >= sb_bits);
+
     sptIndex i;
     int result;
     sptIndex nmodes = tsr->nmodes;
@@ -468,17 +474,20 @@ int sptSparseTensorToHiCOO(
 
 
     /* Loop for all kernels, 0 - hitsr->kptr.len for OMP code */
-    for(sptNnzIndex k=0; k<hitsr->kptr.len; ++k) {
+    for(sptNnzIndex k=0; k<hitsr->kptr.len - 1; ++k) {
         k_begin = hitsr->kptr.data[k];
-        k_end = k < hitsr->kptr.len - 1 ? hitsr->kptr.data[k+1] : nnz; // exclusive
+        k_end = hitsr->kptr.data[k+1]; // exclusive
         nb_tmp = k == 0 ? 0: nb;
+        /* Modify kptr pointing to block locations */
+        hitsr->kptr.data[k] = nb_tmp;
+        ++ nk;
+
         /* Only append a chunk for the new kernel, the last chunk in the old kernel may be larger than sc */
         sptAppendNnzIndexVector(&hitsr->cptr, nb_tmp);
         // printf("cptr 1:\n");
         // sptDumpNnzIndexVector(&hitsr->cptr, stdout);
         ++ nc;
         chunk_size = 0;
-        ++ nk;
 
         /* Loop nonzeros in each kernel */
         for(sptNnzIndex z = k_begin; z < k_end; ++z) {
@@ -543,8 +552,12 @@ int sptSparseTensorToHiCOO(
     sptAssert(nb <= nnz);
     sptAssert(nb == hitsr->binds[0].len); 
     sptAssert(nc <= nb);
-    sptAssert(nk == hitsr->kptr.len);
+    sptAssert(nk == hitsr->kptr.len - 1);
 
+    /* Last element for kptr, cptr, bptr */
+    hitsr->kptr.data[hitsr->kptr.len - 1] = hitsr->bptr.len;
+    sptAppendNnzIndexVector(&hitsr->cptr, hitsr->bptr.len);
+    sptAppendNnzIndexVector(&hitsr->bptr, nnz);
 
     free(block_begin);
     free(block_end);
