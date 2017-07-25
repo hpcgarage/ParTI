@@ -18,6 +18,7 @@
 
 #include <ParTI.h>
 #include "sptensor.h"
+#include <math.h>
 
 
 double sptSparseTensorDensity(sptSparseTensor const * const tsr)
@@ -35,7 +36,7 @@ double sptSparseTensorDensity(sptSparseTensor const * const tsr)
 
 void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp)
 {
-  fprintf(fp, "COO Sparse Tensor information ---------\n");
+  fprintf(fp, "COO Sparse Tensor information (use sptIndex, sptValue))---------\n");
   fprintf(fp, "DIMS=%"SPT_PF_INDEX, tsr->ndims[0]);
   for(sptIndex m=1; m < tsr->nmodes; ++m) {
     fprintf(fp, "x%"SPT_PF_INDEX, tsr->ndims[m]);

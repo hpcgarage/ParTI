@@ -425,7 +425,7 @@ int sptSparseTensorToHiCOO(
     sptIndex sc = pow(2, sc_bits);
     printf("sb: %lu, sk: %lu, sc: %lu\n", sb, sk, sc);
 
-    /* Set HiCOO parameters, without allocation */
+    /* Set HiCOO parameters. ndims for type conversion, size_t -> sptIndex */
     sptIndex * ndims = malloc(nmodes * sizeof *ndims);
     spt_CheckOSError(!ndims, "HiSpTns Convert");
     for(i = 0; i < nmodes; ++i) {

@@ -407,6 +407,7 @@ int sptSparseTensorToHiCOO(
     const sptElementIndex sk_bits,
     const sptElementIndex sc_bits);
 int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp);
+void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
 
 
 
@@ -595,8 +596,15 @@ int sptCudaOneMTTKRPAsync(
     size_t const impl_num,
     size_t const cuda_dev_id);
 
-
-
+/**
+ * Matricized tensor times Khatri-Rao product for HiCOO tensors
+ */
+int sptMTTKRPHiCOO(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    sptVector * scratch);
 
 /**
  * CP-ALS
