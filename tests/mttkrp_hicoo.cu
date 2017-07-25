@@ -32,7 +32,7 @@ int main(int argc, char * const argv[]) {
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
     sptElementIndex sc_bits;
-    sptVector scratch;
+    sptValueVector scratch;
 
     sptIndex mode = 0;
     sptIndex R = 16;
@@ -96,8 +96,6 @@ int main(int argc, char * const argv[]) {
         }
     }
 
-    printf("optind: %u\n", optind);
-    printf("argc: %u\n", argc);
     // if(optind > argc) {
     if(argc < 2) {
         printf("Usage: %s [options] \n", argv[0]);
@@ -126,18 +124,18 @@ int main(int argc, char * const argv[]) {
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
-    sptIndex nmodes = tsr.nmodes;
+    sptIndex nmodes = hitsr.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
     for(sptIndex m=0; m<nmodes+1; ++m) {
       U[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
     }
-    size_t max_ndims = 0; // for tsr size_t type
+    sptIndex max_ndims = 0;
     for(sptIndex m=0; m<nmodes; ++m) {
       // sptAssert(sptRandomizeMatrix(U[m], tsr.ndims[m], R) == 0);
-      sptAssert(sptNewMatrix(U[m], tsr.ndims[m], R) == 0);
+      sptAssert(sptNewMatrix(U[m], hitsr.ndims[m], R) == 0);
       sptAssert(sptConstantMatrix(U[m], 1) == 0);
-      if(tsr.ndims[m] > max_ndims)
-        max_ndims = tsr.ndims[m];
+      if(hitsr.ndims[m] > max_ndims)
+        max_ndims = hitsr.ndims[m];
       // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
@@ -150,16 +148,16 @@ int main(int argc, char * const argv[]) {
     mats_order[0] = mode;
     for(sptIndex i=1; i<nmodes; ++i)
         mats_order[i] = (mode+i) % nmodes;
-    printf("mats_order:\n");
-    sptDumpIndexArray(mats_order, nmodes, stdout);
+    // printf("mats_order:\n");
+    // sptDumpIndexArray(mats_order, nmodes, stdout);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
-        sptNewVector(&scratch, R, R);
-        sptConstantVector(&scratch, 0);
+        sptNewValueVector(&scratch, R, R);
+        sptConstantValueVector(&scratch, 0);
         sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode, &scratch) == 0);
-        sptFreeVector(&scratch);
+        sptFreeValueVector(&scratch);
     } /* else if(cuda_dev_id == -1) {
         #pragma omp parallel
         {
@@ -181,7 +179,6 @@ int main(int argc, char * const argv[]) {
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
     }
-    sptFreeSparseTensor(&tsr);
     free(mats_order);
 
     if(fo != NULL) {

@@ -609,6 +609,22 @@ int sptAppendValueVector(sptValueVector *vec, sptValue value) {
     return 0;
 }
 
+
+/**
+ * Fill an existed dense value vector with a specified constant
+ *
+ * @param vec   a valid pointer to an existed sptVector variable,
+ * @param val   a given value constant
+ *
+ * Vector is a type of one-dimentional array with dynamic length
+ */
+int sptConstantValueVector(sptValueVector * const vec, sptValue const val) {
+    for(sptNnzIndex i=0; i<vec->len; ++i)
+        vec->data[i] = val;
+    return 0;
+}
+
+
 /**
  * Release the memory buffer a value vector is holding
  *

@@ -24,7 +24,7 @@
  * Matriced sparse tensor in HiCOO format times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
  * @param[out] mats[nmodes]    the result of MTTKRP, a dense matrix, with size
  * ndims[mode] * R
- * @param[in]  X    the HiCOO sparse tensor input X
+ * @param[in]  hitsr    the HiCOO sparse tensor input
  * @param[in]  mats    (N+1) dense matrices, with mats[nmodes] as temporary
  * @param[in]  mats_order    the order of the Khatri-Rao products
  * @param[in]  mode   the mode on which the MTTKRP is performed
@@ -38,7 +38,7 @@ int sptMTTKRPHiCOO(
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    sptVector * scratch) 
+    sptValueVector * scratch) 
 {
     sptTimer timer;
     sptNewTimer(&timer, 0);

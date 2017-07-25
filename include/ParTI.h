@@ -79,8 +79,8 @@ typedef struct {
  * Dense dynamic array of specified type of scalars
  */
 typedef struct {
-    uint64_t    len;   /// length
-    uint64_t    cap;   /// capacity
+    sptNnzIndex    len;   /// length
+    sptNnzIndex    cap;   /// capacity
     sptValue    *data; /// data
 } sptValueVector;
 
@@ -88,26 +88,26 @@ typedef struct {
  * Dense dynamic array of different types of integers
  */
 typedef struct {
-    uint64_t len;   /// length
-    uint64_t cap;   /// capacity
+    sptNnzIndex len;   /// length
+    sptNnzIndex cap;   /// capacity
     sptElementIndex *data; /// data
 } sptElementIndexVector;
 
 typedef struct {
-    uint64_t len;   /// length
-    uint64_t cap;   /// capacity
+    sptNnzIndex len;   /// length
+    sptNnzIndex cap;   /// capacity
     sptBlockIndex *data; /// data
 } sptBlockIndexVector;
 
 typedef struct {
-    uint64_t len;   /// length
-    uint64_t cap;   /// capacity
+    sptNnzIndex len;   /// length
+    sptNnzIndex cap;   /// capacity
     sptIndex *data; /// data
 } sptIndexVector;
 
 typedef struct {
-    uint64_t len;   /// length
-    uint64_t cap;   /// capacity
+    sptNnzIndex len;   /// length
+    sptNnzIndex cap;   /// capacity
     sptNnzIndex *data; /// data
 } sptNnzIndexVector;
 
@@ -314,6 +314,7 @@ int sptAppendNnzIndexVector(sptNnzIndexVector *vec, sptNnzIndex value);
 void sptFreeNnzIndexVector(sptNnzIndexVector *vec);
 int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap);
 int sptAppendValueVector(sptValueVector *vec, sptValue value);
+int sptConstantValueVector(sptValueVector * const vec, sptValue const val);
 void sptFreeValueVector(sptValueVector *vec);
 int sptDumpElementIndexVector(sptElementIndexVector *vec, FILE *fp);
 int sptDumpBlockIndexVector(sptBlockIndexVector *vec, FILE *fp);
@@ -604,7 +605,7 @@ int sptMTTKRPHiCOO(
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    sptVector * scratch);
+    sptValueVector * scratch);
 
 /**
  * CP-ALS
