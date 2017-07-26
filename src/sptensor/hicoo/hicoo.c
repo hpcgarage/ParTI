@@ -18,7 +18,6 @@
 
 #include <ParTI.h>
 #include "hicoo.h"
-#include <math.h>
 
 /**
  * Create a new sparse tensor in HiCOO format

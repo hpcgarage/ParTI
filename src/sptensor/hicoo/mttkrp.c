@@ -37,8 +37,7 @@ int sptMTTKRPHiCOO(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
-    sptIndex const mode,
-    sptValueVector * scratch) 
+    sptIndex const mode) 
 {
     sptTimer timer;
     sptNewTimer(&timer, 0);
@@ -47,17 +46,11 @@ int sptMTTKRPHiCOO(
     sptIndex const nmodes = hitsr->nmodes;
     sptNnzIndex const nnz = hitsr->nnz;
     sptIndex const * const ndims = hitsr->ndims;
-    sptScalar const * const vals = hitsr->values.data;
+    sptValue const * const vals = hitsr->values.data;
     sptIndex const nmats = nmodes - 1;
     sptIndex const stride = mats[0]->stride;
     int result = 0;
-
-    //  for(size_t m=0; m<nmodes+1; ++m) {
-    //      printf("mats %zu\n", m); fflush(stdout);
-    //      sptDumpMatrix(mats[m], stdout);
-    //  }
-    //  printf("mats_order:\n"); fflush(stdout);
-    //  sptDumpSizeVector(mats_order, stdout);
+    sptValueVector scratch;  // Temporary array
 
     /* Check the mats. */
     for(sptIndex i=0; i<nmodes; ++i) {
@@ -72,19 +65,18 @@ int sptMTTKRPHiCOO(
     sptIndex const tmpI = mats[mode]->nrows;
     sptIndex const R = mats[mode]->ncols;
     sptMatrix * const M = mats[nmodes];
-    sptScalar * const mvals = M->values;
-    memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
+    sptValue * const mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
+    sptNewValueVector(&scratch, R, R);
 
-    sptBlockIndex * block_coord = (sptBlockIndex*)malloc(nmodes * sizeof(*block_coord));
-    sptElementIndex * ele_coord = (sptElementIndex*)malloc(nmodes * sizeof(*ele_coord));
+    sptIndex * block_coord = (sptIndex*)malloc(nmodes * sizeof(*block_coord));
+    sptIndex * ele_coord = (sptIndex*)malloc(nmodes * sizeof(*ele_coord));
 
-    sptNnzIndex kptr_begin, kptr_end;
-    sptNnzIndex bptr_begin, bptr_end;
 
     /* Loop kernels */
     for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
-        kptr_begin = hitsr->kptr.data[k];
-        kptr_end = hitsr->kptr.data[k+1];
+        sptNnzIndex kptr_begin = hitsr->kptr.data[k];
+        sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
 
         /* Loop blocks in a kernel */
         for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
@@ -92,8 +84,8 @@ int sptMTTKRPHiCOO(
             for(sptIndex m=0; m<nmodes; ++m)
                 block_coord[m] = hitsr->binds[m].data[b];
 
-            bptr_begin = hitsr->bptr.data[b];
-            bptr_end = hitsr->bptr.data[b+1];
+            sptNnzIndex bptr_begin = hitsr->bptr.data[b];
+            sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
             /* Loop entries in a block */
             for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
                 /* Element indices */
@@ -104,8 +96,9 @@ int sptMTTKRPHiCOO(
                 sptIndex times_mat_index = mats_order[1];
                 sptMatrix * times_mat = mats[times_mat_index];
                 sptIndex tmp_i = ele_coord[times_mat_index];
+                sptValue const entry = hitsr->values.data[z];
                 for(sptIndex r=0; r<R; ++r) {
-                    scratch->data[r] = times_mat->values[tmp_i * stride + r];
+                    scratch.data[r] = entry * times_mat->values[tmp_i * stride + r];
                 }
                 /* Multiply the rest matrices */
                 for(sptIndex m=2; m<nmodes; ++m) {
@@ -113,23 +106,23 @@ int sptMTTKRPHiCOO(
                     times_mat = mats[times_mat_index];
                     tmp_i = ele_coord[times_mat_index];
                     for(sptIndex r=0; r<R; ++r) {
-                        scratch->data[r] *= times_mat->values[tmp_i * stride + r];
+                        scratch.data[r] *= times_mat->values[tmp_i * stride + r];
                     }
                 }
 
-                sptScalar const entry = hitsr->values.data[z];
                 sptIndex const mode_i = ele_coord[mode];
                 for(sptIndex r=0; r<R; ++r) {
-                    mvals[mode_i * stride + r] += entry * scratch->data[r];
+                    mvals[mode_i * stride + r] += scratch.data[r];
                 }
-            }
-        }
+            }   // End loop entries
+        }   // End loop blocks
 
-    }
+    }   // End loop kernels
 
 
     free(block_coord);
     free(ele_coord);
+    sptFreeValueVector(&scratch);
 
     sptStopTimer(timer);
     sptPrintElapsedTime(timer, "CPU  HiCOO SpTns MTTKRP");

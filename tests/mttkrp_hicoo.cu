@@ -32,7 +32,6 @@ int main(int argc, char * const argv[]) {
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
     sptElementIndex sc_bits;
-    sptValueVector scratch;
 
     sptIndex mode = 0;
     sptIndex R = 16;
@@ -40,6 +39,8 @@ int main(int argc, char * const argv[]) {
     int niters = 5;
     int nthreads;
     int impl_num = 0;
+    int tk = 1;
+    int tb = 1;
 
     for(;;) {
         static struct option long_options[] = {
@@ -52,12 +53,14 @@ int main(int argc, char * const argv[]) {
             {"impl-num", optional_argument, 0, 'p'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
+            {"tk", optional_argument, 0, 't'},
+            {"tb", optional_argument, 0, 'h'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
         // c = getopt_long(argc, argv, "i:o:b:k:c:m:", long_options, &option_index);
-        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:h:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -91,6 +94,12 @@ int main(int argc, char * const argv[]) {
         case 'r':
             sscanf(optarg, "%"SPT_PF_INDEX, &R);
             break;
+        case 't':
+            sscanf(optarg, "%d", &tk);
+            break;
+        case 'h':
+            sscanf(optarg, "%d", &tb);
+            break;
         default:
             abort();
         }
@@ -103,11 +112,13 @@ int main(int argc, char * const argv[]) {
         printf("         -o OUTPUT, --output=OUTPUT\n");
         printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
         printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits)\n");
+        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
         printf("         -m MODE, --mode=MODE\n");
         printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
         printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
         printf("         -r RANK\n");
+        printf("         -t TK, --tk=TK\n");
+        printf("         -h TB, --tb=TB\n");
         printf("\n");
         return 1;
     }
@@ -154,38 +165,25 @@ int main(int argc, char * const argv[]) {
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
-        sptNewValueVector(&scratch, R, R);
-        sptConstantValueVector(&scratch, 0);
-        sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode, &scratch) == 0);
-        sptFreeValueVector(&scratch);
-    } /* else if(cuda_dev_id == -1) {
-        #pragma omp parallel
-        {
-            nthreads = omp_get_num_threads();
-        }
-        printf("nthreads: %d\n", nthreads);
-        sptNewVector(&scratch, X.nnz * stride, X.nnz * stride);
-        sptConstantVector(&scratch, 0);
-        sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, &scratch) == 0);
-        sptFreeVector(&scratch);
+        sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+    } else if(cuda_dev_id == -1) {
+        printf("tk: %d, tb: %d\n", tk, tb);
+        sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
-        sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
-    } */
-
-
-
-    for(size_t m=0; m<nmodes; ++m) {
-        sptFreeMatrix(U[m]);
+        sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
     }
-    free(mats_order);
+
 
     if(fo != NULL) {
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
     }
 
+    for(size_t m=0; m<nmodes; ++m) {
+        sptFreeMatrix(U[m]);
+    }
+    free(mats_order);
     sptFreeMatrix(U[nmodes]);
     free(U);
     sptFreeSparseTensorHiCOO(&hitsr);

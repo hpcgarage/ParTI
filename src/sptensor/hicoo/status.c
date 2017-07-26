@@ -19,7 +19,6 @@
 #include <ParTI.h>
 #include "hicoo.h"
 
-
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
 {
   sptIndex nmodes = hitsr->nmodes;
@@ -30,8 +29,16 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   }
   fprintf(fp, " NNZ=%"SPT_PF_NNZINDEX, hitsr->nnz);
   fprintf(fp, "\n");
+  fprintf(fp, "sb=%"SPT_PF_INDEX, (sptIndex)pow(2, hitsr->sb_bits));
+  fprintf(fp, " sk=%"SPT_PF_INDEX, (sptIndex)pow(2, hitsr->sk_bits));
+  fprintf(fp, " sc=%"SPT_PF_INDEX, (sptIndex)pow(2, hitsr->sc_bits));
+  fprintf(fp, "\n");
+  fprintf(fp, "nb=%"SPT_PF_NNZINDEX, hitsr->bptr.len - 1);
+  fprintf(fp, " nk=%"SPT_PF_NNZINDEX, hitsr->kptr.len - 1);
+  fprintf(fp, " nc=%"SPT_PF_NNZINDEX, hitsr->cptr.len - 1);
+  fprintf(fp, "\n");
 
-  size_t bytes = hitsr->nnz * ( sizeof(sptValue) + nmodes * sizeof(sptElementIndex) );
+  sptNnzIndex bytes = hitsr->nnz * ( sizeof(sptValue) + nmodes * sizeof(sptElementIndex) );
   bytes += hitsr->binds[0].len * nmodes * sizeof(sptBlockIndex);
   bytes += hitsr->bptr.len * sizeof(sptNnzIndex);
   bytes += hitsr->kptr.len * sizeof(sptNnzIndex);

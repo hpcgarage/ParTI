@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -604,8 +605,39 @@ int sptMTTKRPHiCOO(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode);
+int sptOmpMTTKRPHiCOO(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    sptValueVector * scratch);
+    const int tk,
+    const int tb);
+int sptCudaMTTKRPHiCOO(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    sptIndex * const mats_order,    // Correspond to the mode order of X.
+    sptIndex const mode,
+    int const impl_num);
+int sptMTTKRPKernelHiCOO(
+    const sptIndex mode,
+    const sptIndex nmodes,
+    const sptNnzIndex nnz,
+    const sptIndex R,
+    const sptIndex stride,
+    const sptElementIndex sb_bits,
+    const sptElementIndex sc_bits,
+    const int impl_num,
+    const sptNnzIndex kptr_begin,
+    const sptNnzIndex kptr_end,
+    sptIndex * const dev_ndims,
+    sptNnzIndex * const dev_cptr,
+    sptNnzIndex * const dev_bptr,
+    sptBlockIndex ** const dev_binds,
+    sptElementIndex ** const dev_einds,
+    sptValue * const dev_values,
+    sptIndex * const dev_mats_order,
+    sptValue ** const dev_mats);
 
 /**
  * CP-ALS

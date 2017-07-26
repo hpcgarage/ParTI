@@ -16,7 +16,6 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <math.h>
 #include <ParTI.h>
 #include "../sptensor.h"
 #include "hicoo.h"
@@ -423,7 +422,6 @@ int sptSparseTensorToHiCOO(
     sptElementIndex sb = pow(2, sb_bits);
     sptIndex sk = pow(2, sk_bits);
     sptIndex sc = pow(2, sc_bits);
-    printf("sb: %lu, sk: %lu, sc: %lu\n", sb, sk, sc);
 
     /* Set HiCOO parameters. ndims for type conversion, size_t -> sptIndex */
     sptIndex * ndims = malloc(nmodes * sizeof *ndims);

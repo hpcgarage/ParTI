@@ -202,6 +202,149 @@ inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, size_t
 
 
 
+/* `length` as a constant */
+template <class T>
+inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, sptIndex nmemb, sptNnzIndex length, int direction) {
+    int result;
+
+    bool gpu_align = direction == cudaMemcpyHostToDevice;
+    sptNnzIndex head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *), gpu_align);
+    sptNnzIndex total_size = head_size + nmemb * spt_cudaGetAlignedSize(length * sizeof (T), gpu_align);
+
+    T **head;
+    T *body;
+    T **tmp_head;
+
+    switch(direction) {
+    case cudaMemcpyHostToDevice:
+        result = cudaMalloc((void **) &head, total_size);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) ((char *) head + head_size);
+
+        tmp_head = new T*[nmemb];
+
+        for(sptIndex i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, src[i], length * sizeof (T), cudaMemcpyHostToDevice);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            tmp_head[i] = body;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T), gpu_align));
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        result = cudaMemcpy(head, tmp_head, nmemb * sizeof (T *), cudaMemcpyHostToDevice);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        delete[] tmp_head;
+
+        break;
+
+    case cudaMemcpyDeviceToHost:
+        head = (T **) malloc(total_size);
+        spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) ((char *) head + head_size);
+
+        tmp_head = new T*[nmemb];
+        result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        for(sptIndex i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, tmp_head[i], length * sizeof (T), cudaMemcpyDeviceToHost);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            head[i] = body;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length * sizeof (T), gpu_align));
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        delete[] tmp_head;
+
+        break;
+
+    default:
+        spt_CheckError(SPTERR_UNKNOWN, "sptCudaDuplicateMemoryIndirect", "Unknown memory copy kind");
+    }
+
+    *dest = head;
+
+    return 0;
+}
+
+
+
+/* `length` as an array[nmemb] of size_t */
+template <class T>
+inline int sptCudaDuplicateMemoryIndirect(T ***dest, const T *const *src, sptIndex nmemb, const sptIndex length[], int direction) {
+    int result;
+
+    bool gpu_align = direction == cudaMemcpyHostToDevice;
+    sptNnzIndex head_size = spt_cudaGetAlignedSize(nmemb * sizeof (T *), gpu_align);
+    sptNnzIndex total_size = head_size;
+    for(sptIndex i = 0; i < nmemb; ++i) {
+        total_size += spt_cudaGetAlignedSize(length[i] * sizeof (T), gpu_align);
+    }
+
+    T **head;
+    T *body;
+    T **tmp_head;
+
+    switch(direction) {
+    case cudaMemcpyHostToDevice:
+        result = cudaMalloc(&head, total_size);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) ((char *) head + head_size);
+
+        tmp_head = new T*[nmemb];
+
+        for(sptIndex i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, src[i], length[i] * sizeof (T), cudaMemcpyHostToDevice);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            tmp_head[i] = body;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T), gpu_align));
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        result = cudaMemcpy(head, tmp_head, nmemb * sizeof (T *), cudaMemcpyHostToDevice);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        delete[] tmp_head;
+
+        break;
+
+    case cudaMemcpyDeviceToHost:
+        head = (T **) malloc(total_size);
+        spt_CheckOSError(head == NULL, "sptCudaDuplicateMemoryIndirect");
+        body = (T *) ((char *) head + head_size);
+
+        tmp_head = new T*[nmemb];
+        result = cudaMemcpy(tmp_head, src, nmemb * sizeof (T *), cudaMemcpyDeviceToHost);
+        spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+        for(sptIndex i = 0; i < nmemb; ++i) {
+            result = cudaMemcpy(body, tmp_head[i], length[i] * sizeof (T), cudaMemcpyDeviceToHost);
+            spt_CheckCudaError(result != 0, "sptCudaDuplicateMemoryIndirect");
+
+            head[i] = body;
+            body = (T *) ((char *) body + spt_cudaGetAlignedSize(length[i] * sizeof (T), gpu_align));
+        }
+        assert((char *) head + total_size == (char *) body);
+
+        delete[] tmp_head;
+
+        break;
+
+    default:
+        spt_CheckError(SPTERR_UNKNOWN, "sptCudaDuplicateMemoryIndirect", "Unknown memory copy kind");
+    }
+
+    *dest = head;
+
+    return 0;
+}
+
+
+
 /* Async memcpys */
 /* `length` as a constant */
 template <class T>
