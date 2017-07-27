@@ -64,10 +64,6 @@ int sptOmpMTTKRPHiCOO(
     const int tk,
     const int tb)
 {
-    sptTimer timer;
-    sptNewTimer(&timer, 0);
-    sptStartTimer(timer);
-
     if(tk > 1 && tb == 1) {
         sptAssert(sptOmpMTTKRPHiCOOKernels(hitsr, mats, mats_order, mode, tk) == 0);
     } else if(tk == 1 && tb > 1) {
@@ -77,10 +73,6 @@ int sptOmpMTTKRPHiCOO(
     } else if(tk == 1 && tb == 1) {
         printf("Should specify sequetial MTTKRP.\n");
     }
-
-    sptStopTimer(timer);
-    sptPrintElapsedTime(timer, "OMP  HiCOO SpTns MTTKRP");
-    sptFreeTimer(timer);
 
     return 0;
 }

@@ -1,0 +1,75 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/nell2_init.tns
+DIMS=12092x9184x28818 NNZ=76879419 DENSITY=2.402239e-05
+COORD-STORAGE=2.29GB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 3.69GB
+
+  mode 1 0.301s
+  mode 2 0.308s
+  mode 3 0.368s
+    its =   1 (0.976s)
+  mode 1 0.289s
+  mode 2 0.313s
+  mode 3 0.344s
+    its =   2 (0.947s)
+  mode 1 0.291s
+  mode 2 0.322s
+  mode 3 0.341s
+    its =   3 (0.954s)
+  mode 1 0.287s
+  mode 2 0.312s
+  mode 3 0.338s
+    its =   4 (0.937s)
+  mode 1 0.295s
+  mode 2 0.328s
+  mode 3 0.356s
+    its =   5 (0.980s)
+  thd: 0 4.675s
+  thd: 1 4.673s
+  thd: 2 4.743s
+  thd: 3 4.687s
+
+
+
+
+
+** TTBOX **
+  mode 1 5.786s
+  mode 2 5.342s
+  mode 3 5.062s
+    its =   1 (16.190s)
+  mode 1 5.723s
+  mode 2 5.431s
+  mode 3 5.020s
+    its =   2 (16.174s)
+  mode 1 5.809s
+  mode 2 5.468s
+  mode 3 5.475s
+    its =   3 (16.753s)
+  mode 1 6.262s
+  mode 2 5.454s
+  mode 3 4.991s
+    its =   4 (16.707s)
+  mode 1 5.757s
+  mode 2 5.704s
+  mode 3 5.033s
+    its =   5 (16.495s)
+  thd: 0 0.000s
+  thd: 1 0.000s
+  thd: 2 0.000s
+  thd: 3 0.000s
+
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               157.055s
+****************************************************************

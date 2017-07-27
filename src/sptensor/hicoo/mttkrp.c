@@ -39,10 +39,6 @@ int sptMTTKRPHiCOO(
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode) 
 {
-    sptTimer timer;
-    sptNewTimer(&timer, 0);
-    sptStartTimer(timer);
-
     sptIndex const nmodes = hitsr->nmodes;
     sptNnzIndex const nnz = hitsr->nnz;
     sptIndex const * const ndims = hitsr->ndims;
@@ -123,10 +119,6 @@ int sptMTTKRPHiCOO(
     free(block_coord);
     free(ele_coord);
     sptFreeValueVector(&scratch);
-
-    sptStopTimer(timer);
-    sptPrintElapsedTime(timer, "CPU  HiCOO SpTns MTTKRP");
-    sptFreeTimer(timer);
 
     return 0;
 }

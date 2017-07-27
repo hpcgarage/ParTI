@@ -1,0 +1,83 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/choa200k_init.tns
+DIMS=199880x8086x656 NNZ=7598531 DENSITY=7.166758e-06
+COORD-STORAGE=231.89MB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 383.97MB
+
+  mode 1 0.026s
+  mode 2 0.024s
+  mode 3 0.059s
+    its =   1 (0.109s)
+  mode 1 0.024s
+  mode 2 0.018s
+  mode 3 0.051s
+    its =   2 (0.093s)
+  mode 1 0.023s
+  mode 2 0.020s
+  mode 3 0.075s
+    its =   3 (0.119s)
+  mode 1 0.025s
+  mode 2 0.020s
+  mode 3 0.059s
+    its =   4 (0.103s)
+  mode 1 0.023s
+  mode 2 0.020s
+  mode 3 0.065s
+    its =   5 (0.108s)
+  thd: 0 0.271s
+  thd: 1 0.324s
+  thd: 2 0.291s
+  thd: 3 0.275s
+  thd: 4 0.275s
+  thd: 5 0.289s
+  thd: 6 0.389s
+  thd: 7 0.321s
+
+
+
+
+
+** TTBOX **
+  mode 1 0.497s
+  mode 2 0.389s
+  mode 3 0.331s
+    its =   1 (1.217s)
+  mode 1 0.551s
+  mode 2 0.389s
+  mode 3 0.320s
+    its =   2 (1.260s)
+  mode 1 0.550s
+  mode 2 0.392s
+  mode 3 0.327s
+    its =   3 (1.270s)
+  mode 1 0.552s
+  mode 2 0.392s
+  mode 3 0.319s
+    its =   4 (1.263s)
+  mode 1 0.548s
+  mode 2 0.420s
+  mode 3 0.319s
+    its =   5 (1.288s)
+  thd: 0 0.000s
+  thd: 1 0.000s
+  thd: 2 0.000s
+  thd: 3 0.000s
+  thd: 4 0.000s
+  thd: 5 0.000s
+  thd: 6 0.000s
+  thd: 7 0.000s
+
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               14.220s
+****************************************************************

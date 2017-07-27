@@ -63,10 +63,6 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
     sptScalar * const mvals = M->values;
     memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
 
-    sptTimer timer;
-    sptNewTimer(&timer, 0);
-    sptStartTimer(timer);
-
     #pragma omp parallel for
     for(size_t x=0; x<nnz; ++x) {
 
@@ -98,10 +94,6 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
             mvals[mode_i * stride + r] += scratch->data[x * stride + r];
         }
     }
-
-    sptStopTimer(timer);
-    sptPrintElapsedTime(timer, "OMP  SpTns MTTKRP");
-    sptFreeTimer(timer);
 
     return 0;
 }

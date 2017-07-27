@@ -1,0 +1,65 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/1998DARPA_init.tns
+DIMS=22476x22476x23776223 NNZ=28436033 DENSITY=2.367490e-09
+COORD-STORAGE=867.80MB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 1.85GB
+
+  mode 1 0.792s
+  mode 2 0.790s
+  mode 3 1.470s
+    its =   1 (3.052s)
+  mode 1 0.772s
+  mode 2 0.775s
+  mode 3 1.227s
+    its =   2 (2.774s)
+  mode 1 0.790s
+  mode 2 0.784s
+  mode 3 1.549s
+    its =   3 (3.122s)
+  mode 1 0.771s
+  mode 2 0.763s
+  mode 3 1.100s
+    its =   4 (2.634s)
+  mode 1 0.772s
+  mode 2 0.763s
+  mode 3 1.088s
+    its =   5 (2.622s)
+
+
+
+
+** TTBOX **
+  mode 1 5.260s
+  mode 2 5.153s
+  mode 3 4.045s
+    its =   1 (14.459s)
+  mode 1 5.391s
+  mode 2 4.806s
+  mode 3 4.020s
+    its =   2 (14.217s)
+  mode 1 4.888s
+  mode 2 4.942s
+  mode 3 4.171s
+    its =   3 (14.002s)
+  mode 1 4.947s
+  mode 2 5.240s
+  mode 3 4.216s
+    its =   4 (14.403s)
+  mode 1 4.815s
+  mode 2 4.984s
+  mode 3 4.483s
+    its =   5 (14.282s)
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               124.083s
+****************************************************************

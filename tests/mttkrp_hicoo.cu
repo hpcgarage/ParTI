@@ -25,7 +25,7 @@
 #include "../src/sptensor/hicoo/hicoo.h"
 
 int main(int argc, char * const argv[]) {
-    FILE *fi, *fo;
+    FILE *fi, *fo = NULL;
     sptSparseTensor tsr;
     sptMatrix ** U;
     sptSparseTensorHiCOO hitsr;
@@ -174,11 +174,33 @@ int main(int argc, char * const argv[]) {
         sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
     }
 
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
 
+    for(int it=0; it<niters; ++it) {
+        if(cuda_dev_id == -2) {
+            nthreads = 1;
+            sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+        } else if(cuda_dev_id == -1) {
+            printf("tk: %d, tb: %d\n", tk, tb);
+            sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
+        } else {
+            sptCudaSetDevice(cuda_dev_id);
+            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
+        }
+    }
+
+    sptStopTimer(timer);
+    sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
+    sptFreeTimer(timer);
+
+    
     if(fo != NULL) {
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
     }
+
 
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);

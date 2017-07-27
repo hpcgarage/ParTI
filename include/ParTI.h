@@ -275,6 +275,7 @@ int sptStartTimer(sptTimer timer);
 int sptStopTimer(sptTimer timer);
 double sptElapsedTime(const sptTimer timer);
 double sptPrintElapsedTime(const sptTimer timer, const char *name);
+double sptPrintAverageElapsedTime(const sptTimer timer, const int niters, const char *name);
 int sptFreeTimer(sptTimer timer);
 
 /* Base functions */

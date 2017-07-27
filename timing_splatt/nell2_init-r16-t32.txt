@@ -1,0 +1,131 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/nell2_init.tns
+DIMS=12092x9184x28818 NNZ=76879419 DENSITY=2.402239e-05
+COORD-STORAGE=2.29GB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 3.69GB
+
+  mode 1 0.158s
+  mode 2 0.185s
+  mode 3 0.196s
+    its =   1 (0.539s)
+  mode 1 0.155s
+  mode 2 0.181s
+  mode 3 0.172s
+    its =   2 (0.509s)
+  mode 1 0.141s
+  mode 2 0.183s
+  mode 3 0.168s
+    its =   3 (0.491s)
+  mode 1 0.163s
+  mode 2 0.173s
+  mode 3 0.161s
+    its =   4 (0.497s)
+  mode 1 0.135s
+  mode 2 0.172s
+  mode 3 0.162s
+    its =   5 (0.470s)
+  thd: 0 1.971s
+  thd: 1 1.943s
+  thd: 2 1.949s
+  thd: 3 1.968s
+  thd: 4 1.973s
+  thd: 5 1.949s
+  thd: 6 2.062s
+  thd: 7 2.005s
+  thd: 8 2.030s
+  thd: 9 2.048s
+  thd: 10 2.038s
+  thd: 11 2.030s
+  thd: 12 1.984s
+  thd: 13 2.002s
+  thd: 14 2.052s
+  thd: 15 1.981s
+  thd: 16 1.935s
+  thd: 17 1.996s
+  thd: 18 2.017s
+  thd: 19 1.982s
+  thd: 20 1.950s
+  thd: 21 1.988s
+  thd: 22 1.937s
+  thd: 23 2.065s
+  thd: 24 2.003s
+  thd: 25 2.016s
+  thd: 26 1.946s
+  thd: 27 2.054s
+  thd: 28 1.977s
+  thd: 29 2.000s
+  thd: 30 1.991s
+  thd: 31 2.002s
+
+
+
+
+
+** TTBOX **
+  mode 1 5.358s
+  mode 2 5.160s
+  mode 3 5.280s
+    its =   1 (15.798s)
+  mode 1 6.095s
+  mode 2 5.237s
+  mode 3 5.584s
+    its =   2 (16.916s)
+  mode 1 6.027s
+  mode 2 5.648s
+  mode 3 6.309s
+    its =   3 (17.984s)
+  mode 1 5.408s
+  mode 2 5.214s
+  mode 3 5.835s
+    its =   4 (16.458s)
+  mode 1 5.233s
+  mode 2 4.936s
+  mode 3 4.840s
+    its =   5 (15.008s)
+  thd: 0 0.000s
+  thd: 1 0.000s
+  thd: 2 0.000s
+  thd: 3 0.000s
+  thd: 4 0.000s
+  thd: 5 0.000s
+  thd: 6 0.000s
+  thd: 7 0.000s
+  thd: 8 0.000s
+  thd: 9 0.000s
+  thd: 10 0.000s
+  thd: 11 0.000s
+  thd: 12 0.000s
+  thd: 13 0.000s
+  thd: 14 0.000s
+  thd: 15 0.000s
+  thd: 16 0.000s
+  thd: 17 0.000s
+  thd: 18 0.000s
+  thd: 19 0.000s
+  thd: 20 0.000s
+  thd: 21 0.000s
+  thd: 22 0.000s
+  thd: 23 0.000s
+  thd: 24 0.000s
+  thd: 25 0.000s
+  thd: 26 0.000s
+  thd: 27 0.000s
+  thd: 28 0.000s
+  thd: 29 0.000s
+  thd: 30 0.000s
+  thd: 31 0.000s
+
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               155.719s
+****************************************************************

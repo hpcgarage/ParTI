@@ -1,0 +1,12 @@
+COO Sparse Tensor information (use sptIndex, sptValue))---------
+DIMS=712329x9827x767 NNZ=26953732 DENSITY=5.020211e-06
+COO-STORAGE=411.28MB
+
+HiCOO Sparse Tensor information ---------
+DIMS=712329x9827x767 NNZ=26953732
+sb=32 sk=4096 sc=256
+nb=4837407 nk=467 nc=111860
+HiCOO-STORAGE=273.06MB
+
+tk: 4, tb: 1
+[OMP  HiCOO SpTns MTTKRP]: 3.451424821 s

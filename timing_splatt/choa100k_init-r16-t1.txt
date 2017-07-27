@@ -1,0 +1,65 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/choa100k_init.tns
+DIMS=99960x7170x598 NNZ=4142857 DENSITY=9.666146e-06
+COORD-STORAGE=126.43MB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 212.54MB
+
+  mode 1 0.064s
+  mode 2 0.065s
+  mode 3 0.070s
+    its =   1 (0.199s)
+  mode 1 0.056s
+  mode 2 0.071s
+  mode 3 0.078s
+    its =   2 (0.204s)
+  mode 1 0.067s
+  mode 2 0.068s
+  mode 3 0.067s
+    its =   3 (0.202s)
+  mode 1 0.055s
+  mode 2 0.060s
+  mode 3 0.067s
+    its =   4 (0.182s)
+  mode 1 0.055s
+  mode 2 0.061s
+  mode 3 0.067s
+    its =   5 (0.183s)
+
+
+
+
+** TTBOX **
+  mode 1 0.381s
+  mode 2 0.279s
+  mode 3 0.252s
+    its =   1 (0.912s)
+  mode 1 0.357s
+  mode 2 0.274s
+  mode 3 0.249s
+    its =   2 (0.881s)
+  mode 1 0.369s
+  mode 2 0.299s
+  mode 3 0.249s
+    its =   3 (0.917s)
+  mode 1 0.360s
+  mode 2 0.278s
+  mode 3 0.250s
+    its =   4 (0.888s)
+  mode 1 0.380s
+  mode 2 0.281s
+  mode 3 0.250s
+    its =   5 (0.911s)
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               11.287s
+****************************************************************

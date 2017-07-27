@@ -91,6 +91,13 @@ double sptPrintElapsedTime(const sptTimer timer, const char *name) {
     return elapsed_time;
 }
 
+
+double sptPrintAverageElapsedTime(const sptTimer timer, const int niters, const char *name) {
+    double elapsed_time = sptElapsedTime(timer) / niters;
+    fprintf(stdout, "[%s]: %.9lf s\n", name, elapsed_time);
+    return elapsed_time;
+}
+
 int sptFreeTimer(sptTimer timer) {
     if(timer->use_cuda) {
         int result;

@@ -43,8 +43,8 @@ if(USE_MKL)
     link_libraries(${MKL_LIBRARIES})
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp -O3")
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.
@@ -53,6 +53,7 @@ link_libraries("m")
 
 if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
+    # list(REMOVE_ITEM PARTI_SRC "src/sptensor/all_splits.c" "src/sptensor/cpd*.c" "src/sptensor/cpd*.cu" "src/sptensor/finesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/coarsesplit.c" "src/sptensor/mttkrp_cuda_coarse.cu" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/mttkrp_split.c")
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)

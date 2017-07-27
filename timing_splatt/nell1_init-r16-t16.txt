@@ -1,0 +1,99 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/nell1_init.tns
+DIMS=2902330x2143368x25495389 NNZ=143599552 DENSITY=9.054155e-13
+COORD-STORAGE=4.28GB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 8.85GB
+
+  mode 1 1.695s
+  mode 2 1.970s
+  mode 3 3.252s
+    its =   1 (6.916s)
+  mode 1 2.429s
+  mode 2 2.269s
+  mode 3 2.833s
+    its =   2 (7.531s)
+  mode 1 2.357s
+  mode 2 1.676s
+  mode 3 2.989s
+    its =   3 (7.022s)
+  mode 1 1.615s
+  mode 2 1.865s
+  mode 3 3.423s
+    its =   4 (6.903s)
+  mode 1 1.464s
+  mode 2 1.392s
+  mode 3 2.886s
+    its =   5 (5.742s)
+  thd: 0 26.930s
+  thd: 1 27.005s
+  thd: 2 26.999s
+  thd: 3 26.982s
+  thd: 4 27.006s
+  thd: 5 26.997s
+  thd: 6 26.982s
+  thd: 7 26.983s
+  thd: 8 26.993s
+  thd: 9 26.976s
+  thd: 10 26.987s
+  thd: 11 26.970s
+  thd: 12 26.980s
+  thd: 13 26.976s
+  thd: 14 27.001s
+  thd: 15 26.981s
+
+
+
+
+
+** TTBOX **
+  mode 1 23.737s
+  mode 2 27.867s
+  mode 3 50.366s
+    its =   1 (101.971s)
+  mode 1 24.035s
+  mode 2 24.679s
+  mode 3 40.349s
+    its =   2 (89.064s)
+  mode 1 21.103s
+  mode 2 20.617s
+  mode 3 35.521s
+    its =   3 (77.240s)
+  mode 1 24.680s
+  mode 2 23.139s
+  mode 3 46.310s
+    its =   4 (94.128s)
+  mode 1 24.103s
+  mode 2 24.209s
+  mode 3 39.848s
+    its =   5 (88.160s)
+  thd: 0 0.000s
+  thd: 1 0.000s
+  thd: 2 0.000s
+  thd: 3 0.000s
+  thd: 4 0.000s
+  thd: 5 0.000s
+  thd: 6 0.000s
+  thd: 7 0.000s
+  thd: 8 0.000s
+  thd: 9 0.000s
+  thd: 10 0.000s
+  thd: 11 0.000s
+  thd: 12 0.000s
+  thd: 13 0.000s
+  thd: 14 0.000s
+  thd: 15 0.000s
+
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               661.555s
+****************************************************************
