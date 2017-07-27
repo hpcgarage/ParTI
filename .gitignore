@@ -3,7 +3,9 @@ sftp-config.json
 .tags*
 build/
 results/
-timing*/
+timing_*/
+timing/
+timing-*/
 summary/
 build.config
 *.ptx

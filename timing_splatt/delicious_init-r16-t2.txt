@@ -1,0 +1,71 @@
+****************************************************************
+splatt v1.1.1
+
+Tensor information ---------------------------------------------
+FILE=/nethome/jli458/BIGTENSORS/delicious_init.tns
+DIMS=532924x17262471x2480308 NNZ=140126181 DENSITY=6.141090e-12
+COORD-STORAGE=4.18GB
+
+Benchmarking ---------------------------------------------------
+RANK=16 ITS=5
+** SPLATT **
+SPLATT-STORAGE: 8.23GB
+
+  mode 1 2.438s
+  mode 2 3.513s
+  mode 3 3.404s
+    its =   1 (9.355s)
+  mode 1 2.514s
+  mode 2 3.250s
+  mode 3 3.372s
+    its =   2 (9.136s)
+  mode 1 2.433s
+  mode 2 3.179s
+  mode 3 3.344s
+    its =   3 (8.956s)
+  mode 1 2.446s
+  mode 2 3.189s
+  mode 3 3.382s
+    its =   4 (9.017s)
+  mode 1 2.460s
+  mode 2 3.103s
+  mode 3 3.268s
+    its =   5 (8.831s)
+  thd: 0 43.609s
+  thd: 1 43.610s
+
+
+
+
+
+** TTBOX **
+  mode 1 25.930s
+  mode 2 21.639s
+  mode 3 24.245s
+    its =   1 (71.814s)
+  mode 1 23.446s
+  mode 2 20.579s
+  mode 3 18.575s
+    its =   2 (62.600s)
+  mode 1 18.751s
+  mode 2 20.612s
+  mode 3 18.061s
+    its =   3 (57.424s)
+  mode 1 18.674s
+  mode 2 20.953s
+  mode 3 17.903s
+    its =   4 (57.530s)
+  mode 1 18.832s
+  mode 2 20.572s
+  mode 3 18.241s
+    its =   5 (57.645s)
+  thd: 0 0.000s
+  thd: 1 0.000s
+
+
+
+
+
+Timing information ---------------------------------------------
+  TOTAL               526.443s
+****************************************************************
