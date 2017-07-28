@@ -22,8 +22,7 @@
 int sptMTTKRP_3D(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch);
+    size_t const mode);
 
 /**
  * Matriced sparse tensor times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
@@ -33,7 +32,6 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
  * @param[in]  mats    (N+1) dense matrices, with mats[nmodes] as temporary
  * @param[in]  mats_order    the order of the Khatri-Rao products
  * @param[in]  mode   the mode on which the MTTKRP is performed
- * @param[in]  scratch an temporary array to store intermediate results, space assigned before this function
  *
  * This function uses support arbitrary-order sparse tensors with Khatri-Rao
  * products of dense factor matrices, the output is the updated dense matrix for the "mode".
@@ -41,21 +39,21 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
 int sptMTTKRP(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch) {
+    size_t const mode) {
 
     size_t const nmodes = X->nmodes;
 
     if(nmodes == 3) {
-        sptAssert(sptMTTKRP_3D(X, mats, mats_order, mode, scratch) == 0);
+        sptAssert(sptMTTKRP_3D(X, mats, mats_order, mode) == 0);
         return 0;
     }
 
     size_t const nnz = X->nnz;
     size_t const * const ndims = X->ndims;
-    sptScalar const * const vals = X->values.data;
+    sptScalar const * const restrict vals = X->values.data;
     size_t const nmats = nmodes - 1;
     size_t const stride = mats[0]->stride;
+    sptVector scratch;  // Temporary array
 
     /* Check the mats. */
     for(size_t i=0; i<nmodes; ++i) {
@@ -73,6 +71,8 @@ int sptMTTKRP(sptSparseTensor const * const X,
     sptMatrix * const restrict M = mats[nmodes];
     sptScalar * const restrict mvals = M->values;
     memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
+    sptNewVector(&scratch, R, R);
+    sptConstantVector(&scratch, 0);
 
 
     for(size_t x=0; x<nnz; ++x) {
@@ -82,7 +82,7 @@ int sptMTTKRP(sptSparseTensor const * const X,
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
         for(size_t r=0; r<R; ++r) {
-            scratch->data[r] = times_mat->values[tmp_i * stride + r];
+            scratch.data[r] = times_mat->values[tmp_i * stride + r];
         }
 
         for(size_t i=2; i<nmodes; ++i) {
@@ -92,16 +92,18 @@ int sptMTTKRP(sptSparseTensor const * const X,
             tmp_i = times_inds[x];
 
             for(size_t r=0; r<R; ++r) {
-                scratch->data[r] *= times_mat->values[tmp_i * stride + r];
+                scratch.data[r] *= times_mat->values[tmp_i * stride + r];
             }
         }
 
         sptScalar const entry = vals[x];
         size_t const mode_i = mode_ind[x];
         for(size_t r=0; r<R; ++r) {
-            mvals[mode_i * stride + r] += entry * scratch->data[r];
+            mvals[mode_i * stride + r] += entry * scratch.data[r];
         }
     }
+
+    sptFreeVector(&scratch);
 
     return 0;
 }
@@ -110,13 +112,12 @@ int sptMTTKRP(sptSparseTensor const * const X,
 int sptMTTKRP_3D(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch) 
+    size_t const mode) 
 {
     size_t const nmodes = X->nmodes;
     size_t const nnz = X->nnz;
     size_t const * const ndims = X->ndims;
-    sptScalar const * const vals = X->values.data;
+    sptScalar const * const restrict vals = X->values.data;
     size_t const nmats = nmodes - 1;
     size_t const stride = mats[0]->stride;
 
@@ -155,11 +156,7 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
         entry = vals[x];
 
         for(size_t r=0; r<R; ++r) {
-            scratch->data[r] = entry * times_mat_1->values[tmp_i_1 * stride + r] * times_mat_2->values[tmp_i_2 * stride + r];
-        }
- 
-        for(size_t r=0; r<R; ++r) {
-            mvals[mode_i * stride + r] += scratch->data[r];
+            mvals[mode_i * stride + r] += entry * times_mat_1->values[tmp_i_1 * stride + r] * times_mat_2->values[tmp_i_2 * stride + r];
         }
     }
 

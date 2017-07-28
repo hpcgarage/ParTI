@@ -59,8 +59,6 @@ double CpdAlsStep(
   // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
 
   /* For MttkrpHyperTensor with size rank. */
-  sptVector scratch;
-  sptNewVector (&scratch, rank, rank);
   size_t nmats = nmodes - 1;
   sptSizeVector mats_order;
   sptNewSizeVector(&mats_order, nmats, nmats);
@@ -91,7 +89,7 @@ double CpdAlsStep(
       assert (j == nmats);
       // sptDumpSizeVector(&mats_order, stdout);
 
-      assert (sptMTTKRP(spten, mats, mats_order.data, m, &scratch) == 0);
+      assert (sptMTTKRP(spten, mats, mats_order.data, m) == 0);
       // printf("sptMTTKRP:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
@@ -164,7 +162,6 @@ double CpdAlsStep(
   //   sptFreeMatrix(ata[m]);
   // }
   // free(ata);
-  // sptFreeVector(&scratch);
   // sptFreeSizeVector(&mats_order);
   // sptFreeMatrix(unitMat);
   // free(unitMat);

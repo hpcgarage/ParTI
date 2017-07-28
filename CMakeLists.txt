@@ -53,7 +53,7 @@ link_libraries("m")
 
 if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
-    # list(REMOVE_ITEM PARTI_SRC "src/sptensor/all_splits.c" "src/sptensor/cpd*.c" "src/sptensor/cpd*.cu" "src/sptensor/finesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/coarsesplit.c" "src/sptensor/mttkrp_cuda_coarse.cu" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/mttkrp_split.c")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c")
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)

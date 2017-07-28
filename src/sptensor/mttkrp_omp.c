@@ -36,15 +36,24 @@
 int sptOmpMTTKRP(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch) {
+    size_t const mode) 
+{
 
     size_t const nmodes = X->nmodes;
+
+    // if(nmodes == 3) {
+    //     sptAssert(sptOmpMTTKRP_3D(X, mats, mats_order, mode, scratch) == 0);
+    //     return 0;
+    // }
+
     size_t const nnz = X->nnz;
     size_t const * const ndims = X->ndims;
     sptScalar const * const vals = X->values.data;
     size_t const nmats = nmodes - 1;
     size_t const stride = mats[0]->stride;
+    sptVector scratch;  // Temporary array
+    sptNewVector(&scratch, nnz * stride, nnz * stride);
+    sptConstantVector(&scratch, 0);
 
     /* Check the mats. */
     for(size_t i=0; i<nmodes; ++i) {
@@ -72,7 +81,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
         size_t tmp_i = times_inds[x];
         sptScalar const entry = vals[x];
         for(size_t r=0; r<R; ++r) {
-            scratch->data[x * stride + r] = entry * times_mat->values[tmp_i * stride + r];
+            scratch.data[x * stride + r] = entry * times_mat->values[tmp_i * stride + r];
         }
 
         for(size_t i=2; i<nmodes; ++i) {
@@ -82,7 +91,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
             tmp_i = times_inds[x];
 
             for(size_t r=0; r<R; ++r) {
-                scratch->data[x * stride + r] *= times_mat->values[tmp_i * stride + r];
+                scratch.data[x * stride + r] *= times_mat->values[tmp_i * stride + r];
             }
         }
 
@@ -91,9 +100,11 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
     for(size_t x=0; x<nnz; ++x) {
         size_t const mode_i = mode_ind[x];
         for(size_t r=0; r<R; ++r) {
-            mvals[mode_i * stride + r] += scratch->data[x * stride + r];
+            mvals[mode_i * stride + r] += scratch.data[x * stride + r];
         }
     }
+
+    sptFreeVector(&scratch);
 
     return 0;
 }

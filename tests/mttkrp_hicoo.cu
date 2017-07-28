@@ -41,6 +41,7 @@ int main(int argc, char * const argv[]) {
     int impl_num = 0;
     int tk = 1;
     int tb = 1;
+    printf("niters: %d\n", niters);
 
     for(;;) {
         static struct option long_options[] = {
@@ -165,7 +166,8 @@ int main(int argc, char * const argv[]) {
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
-        sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+        // sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+        sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
     } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
         sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
@@ -181,7 +183,8 @@ int main(int argc, char * const argv[]) {
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
             nthreads = 1;
-            sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+            // sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+            sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
             printf("tk: %d, tb: %d\n", tk, tb);
             sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
@@ -195,7 +198,7 @@ int main(int argc, char * const argv[]) {
     sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
     sptFreeTimer(timer);
 
-    
+
     if(fo != NULL) {
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);

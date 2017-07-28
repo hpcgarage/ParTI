@@ -49,7 +49,7 @@ typedef float sptValue;
 typedef unsigned __int128 sptMortonIndex;
 
 
-#define SPT_PF_ELEMENTINDEX PRIu8
+#define SPT_PF_ELEMENTINDEX PRIu16
 #define SPT_PF_BLOCKINDEX PRIu32
 #define SPT_PF_BLOCKNNZINDEX SPT_PF_BLOCKINDEX
 #define SPT_PF_INDEX PRIu32
@@ -481,14 +481,12 @@ int sptMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch);
+    size_t const mode);
 int sptOmpMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode,
-    sptVector * scratch);
+    size_t const mode);
 int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -603,6 +601,11 @@ int sptCudaOneMTTKRPAsync(
  * Matricized tensor times Khatri-Rao product for HiCOO tensors
  */
 int sptMTTKRPHiCOO(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode);
+int sptMTTKRPHiCOO_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
