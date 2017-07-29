@@ -29,17 +29,18 @@ tb=1
 # for R in 8 16 32 64
 for R in 16
 do
-		for tsr_name in "${s3tsrs[@]}"
+		for sb in "7" "8" "9" "10" "11" "12" "13" "14" "15"
 		do
-			
-				# Sequetial code
-				dev_id=-2
-				for mode in ${modes[@]}
-				do
-					for sb in {"7" "8" "9" "10" "11" "12" "13" "14" "15"}
+			for tsr_name in "${s3tsrs[@]}"
+			do
+					for mode in ${modes[@]}
 					do
+
+						# Sequetial code
+						dev_id=-2
 						echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
-						# ./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+						./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+
 					done
 				done
 
@@ -56,17 +57,6 @@ do
 				# 			# ./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
 				# 		done
 				# 	done
-				# done
-
-				# for nblocks in 16000
-				# do
-					# Single GPU code
-					# dev_id=3
-					# for mode in ${modes[@]}
-					# do
-					# 	echo "./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${dev_id} ${R} > timing/${tsr_name}-m${mode}-i${impl_num}-r${R}-g${dev_id}.txt"
-					# 	./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns ${mode} ${impl_num} ${dev_id} ${R} > timing/${tsr_name}-m${mode}-i${impl_num}-r${R}-g${dev_id}.txt
-					# done
 				# done
 
 	done

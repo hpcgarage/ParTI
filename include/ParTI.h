@@ -40,7 +40,7 @@ typedef float sptScalar;
 /**
  * Re-Define types, TODO: check the bit size of them, add branch for different settings
  */
-typedef uint8_t sptElementIndex;
+typedef uint16_t sptElementIndex;
 typedef uint32_t sptBlockIndex;
 typedef sptBlockIndex sptBlockNnzIndex;
 typedef uint32_t sptIndex;
@@ -123,6 +123,18 @@ typedef struct {
     size_t    stride;  /// ncols rounded up to 8
     sptScalar *values; /// values, length cap*stride
 } sptMatrix;
+
+
+/**
+ * Dense matrix type, ncols = small rank (<= 256)
+ */
+typedef struct {
+    sptIndex    nrows;   /// # rows
+    sptElementIndex    ncols;   /// # columns, <= 256
+    sptIndex    cap;     /// # of allocated rows
+    sptElementIndex    stride;  /// ncols rounded up to 8, <= 256
+    sptValue *values; /// values, length cap*stride
+} sptRankMatrix;
 
 /**
  * Sparse matrix type, COO format

@@ -259,8 +259,8 @@ int sptMTTKRPHiCOO_MatrixTiling(
         for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
             /* Block indices */
             for(sptIndex m=0; m<nmodes; ++m)
-                blocked_times_mat[m] = mats[m]->values + hitsr->binds[m].data[b] * stride;
-            sptValue * blocked_mvals = mvals + hitsr->binds[mode].data[b] * stride;
+                blocked_times_mat[m] = mats[m]->values + (hitsr->binds[m].data[b] << hitsr->sb_bits) * stride;
+            sptValue * blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
 
             sptNnzIndex bptr_begin = hitsr->bptr.data[b];
             sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
@@ -332,8 +332,6 @@ int sptMTTKRPHiCOO_3D_MatrixTiling(
     sptIndex times_mat_index_2 = mats_order[2];
     sptMatrix * restrict times_mat_2 = mats[times_mat_index_2];
 
-    /* No need to store block_coord for blocked matrix implementation, or  ele_coord for 3D tensors */
-
     sptElementIndex mode_i;
     sptElementIndex tmp_i_1, tmp_i_2;
     sptValue entry;
@@ -349,9 +347,9 @@ int sptMTTKRPHiCOO_3D_MatrixTiling(
         /* Loop blocks in a kernel */
         for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
 
-            blocked_mvals = mvals + hitsr->binds[mode].data[b] * stride;
-            blocked_times_mat_1 = times_mat_1->values + hitsr->binds[times_mat_index_1].data[b] * stride;
-            blocked_times_mat_2 = times_mat_2->values + hitsr->binds[times_mat_index_2].data[b] * stride;
+            blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_1 = times_mat_1->values + (hitsr->binds[times_mat_index_1].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_2 = times_mat_2->values + (hitsr->binds[times_mat_index_2].data[b] << hitsr->sb_bits) * stride;
 
             sptNnzIndex bptr_begin = hitsr->bptr.data[b];
             sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
