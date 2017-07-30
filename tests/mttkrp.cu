@@ -24,7 +24,7 @@
 #include "../src/sptensor/sptensor.h"
 
 int main(int argc, char const *argv[]) {
-    FILE *fX, *fo = NULL;
+    FILE *fX = NULL, *fo = NULL;
     sptSparseTensor X;
     sptMatrix ** U;
     size_t mode = 0;

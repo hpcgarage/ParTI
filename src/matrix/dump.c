@@ -48,3 +48,29 @@ int sptDumpMatrix(sptMatrix *mtx, FILE *fp) {
     iores = fprintf(fp, "\n");
     return 0;
 }
+
+
+/**
+ * Dum a dense rank matrix to file
+ *
+ * @param mtx   a valid pointer to a sptMatrix variable
+ * @param fp a file pointer
+ *
+ */
+int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp) {
+    int iores;
+    sptIndex nrows = mtx->nrows;
+    sptElementIndex ncols = mtx->ncols;
+    sptElementIndex stride = mtx->stride;
+    iores = fprintf(fp, "%u x %u matrix\n", nrows, ncols);
+    spt_CheckOSError(iores < 0, "SpMtx Dump");
+    for(sptIndex i=0; i < nrows; ++i) {
+      for(sptElementIndex j=0; j < ncols; ++j) {
+          iores = fprintf(fp, "%.2lf\t", mtx->values[i * stride + j]);
+          spt_CheckOSError(iores < 0, "SpMtx Dump");
+      }
+      iores = fprintf(fp, "\n");
+    }
+    iores = fprintf(fp, "\n");
+    return 0;
+}

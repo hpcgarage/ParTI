@@ -40,7 +40,8 @@ typedef float sptScalar;
 /**
  * Re-Define types, TODO: check the bit size of them, add branch for different settings
  */
-typedef uint16_t sptElementIndex;
+typedef uint8_t sptElementIndex;
+typedef uint16_t sptBlockMatrixIndex;
 typedef uint32_t sptBlockIndex;
 typedef sptBlockIndex sptBlockNnzIndex;
 typedef uint32_t sptIndex;
@@ -343,15 +344,19 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptIdentityMatrix(sptMatrix *mtx);
 int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
+int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
+int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
+int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val);
+void sptFreeRankMatrix(sptRankMatrix *mtx);
+int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp);
 static inline size_t sptGetMatrixLength(const sptMatrix *mtx) {
     return mtx->nrows * mtx->stride;
 }
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
-int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
 int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
@@ -619,7 +624,7 @@ int sptMTTKRPHiCOO(
     sptIndex const mode);
 int sptMTTKRPHiCOO_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
-    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode);
 int sptOmpMTTKRPHiCOO(

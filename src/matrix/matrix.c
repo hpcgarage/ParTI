@@ -214,6 +214,67 @@ void sptFreeMatrix(sptMatrix *mtx) {
 
 
 
+/**
+ * Initialize a new dense rank matrix
+ *
+ * @param mtx   a valid pointer to an uninitialized sptMatrix variable
+ * @param nrows the number of rows
+ * @param ncols the number of columns
+ *
+ * The memory layout of this dense matrix is a flat 2D array, with `ncols`
+ * rounded up to multiples of 8
+ */
+int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols) {
+    mtx->nrows = nrows;
+    mtx->ncols = ncols;
+    mtx->cap = nrows != 0 ? nrows : 1;
+    mtx->stride = ((ncols-1)/8+1)*8;
+#ifdef _ISOC11_SOURCE
+    mtx->values = aligned_alloc(8 * sizeof (sptValue), mtx->cap * mtx->stride * sizeof (sptValue));
+#elif _POSIX_C_SOURCE >= 200112L
+    {
+        int result = posix_memalign((void **) &mtx->values, 8 * sizeof (sptValue), mtx->cap * mtx->stride * sizeof (sptValue));
+        if(result != 0) {
+            mtx->values = NULL;
+        }
+    }
+#else
+    mtx->values = malloc(mtx->cap * mtx->stride * sizeof (sptValue));
+#endif
+    spt_CheckOSError(!mtx->values, "Mtx New");
+    return 0;
+}
+
+/**
+ * Fill an existed dense rank matrix with a specified constant
+ *
+ * @param mtx   a pointer to a valid matrix
+ * @param val   a given value constant
+ *
+ */
+int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val) {
+  for(sptIndex i=0; i<mtx->nrows; ++i)
+    for(sptElementIndex j=0; j<mtx->ncols; ++j)
+      mtx->values[i * mtx->stride + j] = val;
+  return 0;
+}
+
+
+/**
+ * Release the memory buffer a dense rank matrix is holding
+ *
+ * @param mtx a pointer to a valid matrix
+ *
+ * By using `sptFreeMatrix`, a valid matrix would become uninitialized and
+ * should not be used anymore prior to another initialization
+ */
+void sptFreeRankMatrix(sptRankMatrix *mtx) {
+    free(mtx->values);
+}
+
+
+
+
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C)
 {
     size_t nrows = A->nrows;
