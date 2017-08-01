@@ -5,11 +5,11 @@ declare -a s3tsrs=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2" "nell1" 
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d", "flickr-4d" "enron-4d" "nips-4d")
 declare -a test_tsr_names=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2")
-declare -a threads=("1" "2" "4" "8" "16" "32")
+declare -a threads=("2" "4" "8" "16" "32")
 
 tsr_path="/nethome/jli458/BIGTENSORS"
 out_path="timing_parti/coo"
-nthreads=32
+nt=32
 nmodes=3
 modes="$(seq -s ' ' 0 $((nmodes-1)))"
 impl_num=25
@@ -24,31 +24,26 @@ nstreams=8
 # for R in 8 16 32 64
 for R in 16
 do
-		for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${s3tsrs[@]}"
+	do
+		for mode in ${modes[@]}
 		do
-			
-				# Sequetial code
-				dev_id=-2
-				for mode in ${modes[@]}
-				do
-					echo "./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-seq.txt"
-					./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-seq.txt
-				done
+
+			# # Sequetial code
+			# dev_id=-2
+			# echo "./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-seq.txt"
+			# ./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-seq.txt
 
 
-				# OpenMP code
-				# for tk in ${threads[@]}
-				# do
-				# 	dev_id=-1
-				# 	for ((tb=1; tb <= ((${nthreads}/${tk})) ; tb=tb*2))
-				# 	do
-				# 		for mode in ${modes[@]}
-				# 		do
-				# 			echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt"
-				# 			# ./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
-				# 		done
-				# 	done
-				# done
+			# OpenMP code
+			dev_id=-1
+			for nt in ${threads[@]}
+			do
+				export OMP_NUM_THREADS=${nt}
+				echo "./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-t${nt}.txt"
+				./build/tests/mttkrp ${tsr_path}/${tsr_name}.tns -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-t${nt}.txt
+			done
 
+		done
 	done
 done

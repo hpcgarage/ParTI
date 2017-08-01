@@ -81,8 +81,9 @@ int sptMTTKRP(sptSparseTensor const * const X,
         sptMatrix * times_mat = mats[times_mat_index];
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
+        sptScalar const entry = vals[x];
         for(size_t r=0; r<R; ++r) {
-            scratch.data[r] = times_mat->values[tmp_i * stride + r];
+            scratch.data[r] = entry * times_mat->values[tmp_i * stride + r];
         }
 
         for(size_t i=2; i<nmodes; ++i) {
@@ -96,7 +97,6 @@ int sptMTTKRP(sptSparseTensor const * const X,
             }
         }
 
-        sptScalar const entry = vals[x];
         size_t const mode_i = mode_ind[x];
         for(size_t r=0; r<R; ++r) {
             mvals[mode_i * stride + r] += entry * scratch.data[r];

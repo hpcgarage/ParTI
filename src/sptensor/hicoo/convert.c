@@ -307,11 +307,11 @@ int sptGetRowBlockPointers(
 
 /**
  * Record mode pointers for kernel rows, from a sorted tensor.
- * @param mptr  a vector of pointers as a dense array
+ * @param kptr  a vector of kernel pointers
  * @param tsr    a pointer to a sparse tensor
  * @return      mode pointers
  */
-int sptGetKernelPointers(
+int sptSetKernelPointers(
     sptNnzIndexVector *kptr,
     sptSparseTensor *tsr, 
     const sptElementIndex sk_bits)
@@ -321,8 +321,7 @@ int sptGetKernelPointers(
     sptNnzIndex k = 0;  // count kernels
     sptNnzIndex knnz = 0;   // #Nonzeros per kernel
     sptIndex kindex = 0, kindex_prior = 0;
-    sptIndex sk = pow(2, sk_bits);
-    int result;
+    int result = 0;
     result = sptAppendNnzIndexVector(kptr, 0);
     spt_CheckError(result, "HiSpTns Convert", NULL);
 
@@ -357,11 +356,63 @@ int sptGetKernelPointers(
     sptAssert(kptr->data[kptr->len-1] + knnz == nnz);
 
     /* Set the last element for kptr */
-    sptAppendNnzIndexVector(kptr, nnz);
+    sptAppendNnzIndexVector(kptr, nnz); 
 
     free(coord);
     free(kernel_coord);
     free(kernel_coord_prior);
+
+    return 0;
+}
+
+
+/**
+ * Set scheduler for kernels.
+ * @param kschr  nmodes kernel schedulers.
+ * @param tsr    a pointer to a sparse tensor
+ * @return      mode pointers
+ */
+int sptSetKernelScheduler(
+    sptIndexVector **kschr,
+    sptIndex *nkiters,
+    sptNnzIndexVector * const kptr,
+    sptSparseTensor *tsr, 
+    const sptElementIndex sk_bits)
+{
+    sptIndex nmodes = tsr->nmodes;
+    sptNnzIndex * ndims = tsr->ndims; // todo: tsr->ndims is size_t type
+    int result = 0;
+
+    sptIndex * coord = (sptIndex *)malloc(nmodes * sizeof(*coord));
+    sptIndex * kernel_coord = (sptIndex *)malloc(nmodes * sizeof(*kernel_coord));
+
+    for(sptNnzIndex k=0; k<kptr->len - 1; ++k) {
+        sptNnzIndex z = kptr->data[k];
+        for(sptIndex m=0; m<nmodes; ++m) 
+            coord[m] = tsr->inds[m].data[z];
+        result = sptLocateBeginCoord(kernel_coord, tsr, coord, sk_bits);
+        spt_CheckError(result, "HiSpTns Convert", NULL);
+
+        for(sptIndex m=0; m<nmodes; ++m) {
+            result = sptAppendIndexVector(&(kschr[m][kernel_coord[m]]), k);
+            spt_CheckError(result, "HiSpTns Convert", NULL);
+        }
+    }
+
+    free(coord);
+    free(kernel_coord);
+
+    sptIndex sk = (sptIndex)pow(2, sk_bits);
+    sptIndex tmp;
+    for(sptIndex m=0; m<nmodes; ++m) {
+        tmp = 0;
+        sptIndex kernel_ndim = ((sptIndex)ndims[m] + sk - 1) / sk;
+        for(sptIndex i=0; i<kernel_ndim; ++i) {
+            if(tmp < kschr[m][i].len)
+                tmp = kschr[m][i].len;
+        }
+        nkiters[m] = tmp;
+    }
 
     return 0;
 }
@@ -374,6 +425,8 @@ int sptGetKernelPointers(
  */
 int sptPreprocessSparseTensor(
     sptNnzIndexVector * kptr,
+    sptIndexVector **kschr,
+    sptIndex *nkiters,
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits)
@@ -386,7 +439,9 @@ int sptPreprocessSparseTensor(
 
     /* Sort tsr in a Row-major Block order to get all kernels. Not use Morton-order for kernels: 1. better support for higher-order tensors by limiting kernel size, because Morton key bit <= 128; */
     sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
-    result = sptGetKernelPointers(kptr, tsr, sk_bits);
+    result = sptSetKernelPointers(kptr, tsr, sk_bits);
+    spt_CheckError(result, "HiSpTns Preprocess", NULL);
+    result = sptSetKernelScheduler(kschr, nkiters, kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
 
     /* Sort blocks in each kernel in Morton-order */
@@ -420,7 +475,6 @@ int sptSparseTensorToHiCOO(
     sptNnzIndex nnz = tsr->nnz;
 
     sptElementIndex sb = pow(2, sb_bits);
-    sptIndex sk = pow(2, sk_bits);
     sptIndex sc = pow(2, sc_bits);
 
     /* Set HiCOO parameters. ndims for type conversion, size_t -> sptIndex */
@@ -434,7 +488,7 @@ int sptSparseTensorToHiCOO(
     spt_CheckError(result, "HiSpTns Convert", NULL);
 
     /* Pre-process tensor to get hitsr->kptr */
-    sptPreprocessSparseTensor(&hitsr->kptr, tsr, sb_bits, sk_bits);
+    sptPreprocessSparseTensor(&hitsr->kptr, hitsr->kschr, hitsr->nkiters, tsr, sb_bits, sk_bits);
     // printf("Kernels: Row-major, blocks: Morton-order sorted:\n");
     // sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
     // printf("hitsr->kptr:\n");

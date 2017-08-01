@@ -23,8 +23,8 @@
 #include "sort.h"
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
-static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sk_bits);
-static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb_bits);
+static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
+static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode);
 
 /* Mode order: X -> Y -> Z, x indices are sorted, y and z are Morton order sorted. */
@@ -195,7 +195,6 @@ void sptSparseTensorSortIndexRowBlock(
             needsort = 1;
         }
     }
-
     if(needsort || force) {
         spt_QuickSortIndexRowBlock(tsr, begin, end, sk_bits);
     }
@@ -408,7 +407,7 @@ static int spt_SparseTensorCompareIndicesMorton3D(
 }
 
 
-static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sb_bits) {
+static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
 
     uint64_t i, j, p;
     if(r-l < 2) {
@@ -439,9 +438,9 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, size_t l, size_t r,
 }
 
 
-static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, size_t l, size_t r, const sptElementIndex sk_bits) {
+static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits) {
 
-    uint64_t i, j, p;
+    sptNnzIndex i, j, p;
     if(r-l < 2) {
         return;
     }

@@ -40,8 +40,8 @@ typedef float sptScalar;
 /**
  * Re-Define types, TODO: check the bit size of them, add branch for different settings
  */
-typedef uint8_t sptElementIndex;
-typedef uint16_t sptBlockMatrixIndex;
+typedef uint_fast8_t sptElementIndex;
+typedef uint_fast16_t sptBlockMatrixIndex;
 typedef uint32_t sptBlockIndex;
 typedef sptBlockIndex sptBlockNnzIndex;
 typedef uint32_t sptIndex;
@@ -177,6 +177,7 @@ typedef struct {
 
 
 
+
 /**
  * Sparse tensor type, Hierarchical COO format (HiCOO)
  */
@@ -194,6 +195,8 @@ typedef struct {
 
     /* Scheduling information */
     sptNnzIndexVector         kptr;      /// Nonzero kernel pointers in 1-D array, indexing blocks. sptIndexVector may be enough
+    sptIndexVector            **kschr;    /// Kernel scheduler
+    sptIndex                  *nkiters;
     sptNnzIndexVector         cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks. sptIndexVector may be enough
 
     /* Index data arrays */
@@ -202,7 +205,6 @@ typedef struct {
     sptElementIndexVector     *einds;    /// Element indices within each block 
     sptValueVector            values;      /// non-zero values, length nnz
 } sptSparseTensorHiCOO;
-
 
 
 
@@ -630,6 +632,20 @@ int sptMTTKRPHiCOO_MatrixTiling(
 int sptOmpMTTKRPHiCOO(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk,
+    const int tb);
+int sptOmpMTTKRPHiCOO_MatrixTiling(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk,
+    const int tb);
+int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
     const int tk,

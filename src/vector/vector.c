@@ -313,7 +313,7 @@ void sptFreeSizeVector(sptSizeVector *vec) {
  * Vector is a type of one-dimentional array with dynamic length
  */
 
-int sptNewElementIndexVector(sptElementIndexVector *vec, uint64_t len, uint64_t cap) {
+int sptNewElementIndexVector(sptElementIndexVector *vec, sptNnzIndex len, sptNnzIndex cap) {
     if(cap < len) {
         cap = len;
     }
@@ -377,7 +377,7 @@ void sptFreeElementIndexVector(sptElementIndexVector *vec) {
  * Vector is a type of one-dimentional array with dynamic length
  */
 
-int sptNewBlockIndexVector(sptBlockIndexVector *vec, uint64_t len, uint64_t cap) {
+int sptNewBlockIndexVector(sptBlockIndexVector *vec, sptNnzIndex len, sptNnzIndex cap) {
     if(cap < len) {
         cap = len;
     }
@@ -441,7 +441,7 @@ void sptFreeBlockIndexVector(sptBlockIndexVector *vec) {
  * Vector is a type of one-dimentional array with dynamic length
  */
 
-int sptNewIndexVector(sptIndexVector *vec, uint64_t len, uint64_t cap) {
+int sptNewIndexVector(sptIndexVector *vec, sptNnzIndex len, sptNnzIndex cap) {
     if(cap < len) {
         cap = len;
     }
@@ -506,7 +506,7 @@ void sptFreeIndexVector(sptIndexVector *vec) {
  * Vector is a type of one-dimentional array with dynamic length
  */
 
-int sptNewNnzIndexVector(sptNnzIndexVector *vec, uint64_t len, uint64_t cap) {
+int sptNewNnzIndexVector(sptNnzIndexVector *vec, sptNnzIndex len, sptNnzIndex cap) {
     if(cap < len) {
         cap = len;
     }
@@ -569,7 +569,7 @@ void sptFreeNnzIndexVector(sptNnzIndexVector *vec) {
  *
  * Vector is a type of one-dimentional array with dynamic length
  */
-int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap) {
+int sptNewValueVector(sptValueVector *vec, sptNnzIndex len, sptNnzIndex cap) {
     if(cap < len) {
         cap = len;
     }
@@ -636,3 +636,4 @@ void sptFreeValueVector(sptValueVector *vec) {
     vec->cap = 0;
     free(vec->data);
 }
+

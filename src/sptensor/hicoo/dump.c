@@ -30,6 +30,8 @@ int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp)
 {
     int iores;
     sptIndex mode;
+    sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
+
     iores = fprintf(fp, "%zu\n", hitsr->nmodes);
     spt_CheckOSError(iores < 0, "SpTns Dump");
     for(mode = 0; mode < hitsr->nmodes; ++mode) {
@@ -41,6 +43,15 @@ int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp)
         spt_CheckOSError(iores < 0, "SpTns Dump");
     }
     fputs("\n", fp);
+    fprintf(fp, "nkiters:\n");
+    sptDumpIndexArray(hitsr->nkiters, hitsr->nmodes, fp);
+    fprintf(fp, "kschr:\n");
+    for(mode = 0; mode < hitsr->nmodes; ++mode) {
+        fprintf(fp, "mode %u\n", mode);
+        for(sptIndex i=0; i<(hitsr->ndims[mode] + sk - 1)/sk; ++i) {
+            sptDumpIndexVector(&hitsr->kschr[mode][i], fp);
+        }
+    }
     fprintf(fp, "kptr:\n");
     sptDumpNnzIndexVector(&hitsr->kptr, fp);
     fprintf(fp, "cptr:\n");

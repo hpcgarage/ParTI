@@ -5,7 +5,8 @@ declare -a s3tsrs=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2" "nell1" 
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d", "flickr-4d" "enron-4d" "nips-4d")
 declare -a test_tsr_names=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2")
-declare -a threads=("1" "2" "4" "8" "16" "32")
+declare -a threads=("2" "4" "8" "16" "32")
+declare -a sk_range=("14" "16" "18" "20")
 
 tsr_path="/nethome/jli458/BIGTENSORS"
 out_path="timing_parti/hicoo/uint8"
@@ -20,11 +21,11 @@ smem_size=12000
 max_nstreams=4
 nstreams=8
 sb=7
-sk=20
-sc=16
-tk=32
+sc=12
 tb=1
 
+sk=10
+tk=8
 
 # for R in 8 16 32 64
 for R in 16
@@ -34,27 +35,28 @@ do
 		for mode in ${modes[@]}
 		do
 
-			# Sequetial code
-			dev_id=-2
-			echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
-			./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+			# # Sequetial code
+			# dev_id=-2
+			# echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
+			# ./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+
+			# Sequetial code with matrix tiling
+			# dev_id=-2
+			# echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
+			# ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+
+			# OpenMP code
+			dev_id=-1
+			for sk in ${sk_range[@]}
+			do
+				for tk in ${threads[@]}
+				do
+					echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt"
+					./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
+				done
+			done
+		# for ((tb=1; tb <= ((${nthreads}/${tk})) ; tb=tb*2))
 
 		done
 	done
-
-
-	# OpenMP code
-	# for tk in ${threads[@]}
-	# do
-	# 	dev_id=-1
-	# 	for ((tb=1; tb <= ((${nthreads}/${tk})) ; tb=tb*2))
-	# 	do
-	# 		for mode in ${modes[@]}
-	# 		do
-	# 			echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt"
-	# 			# ./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
-	# 		done
-	# 	done
-	# done
-
 done

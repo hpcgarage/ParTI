@@ -167,10 +167,11 @@ int main(int argc, char * const argv[]) {
     if(cuda_dev_id == -2) {
         nthreads = 1;
         sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
-    } /* else if(cuda_dev_id == -1) {
+    } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
-        sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-    } else {
+        // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
+        sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
+    } /* else {
         sptCudaSetDevice(cuda_dev_id);
         sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
     } */
@@ -183,10 +184,10 @@ int main(int argc, char * const argv[]) {
         if(cuda_dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
-        } /* else if(cuda_dev_id == -1) {
-            printf("tk: %d, tb: %d\n", tk, tb);
-            sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        } else {
+        } else if(cuda_dev_id == -1) {
+            // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
+            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
+        } /* else {
             sptCudaSetDevice(cuda_dev_id);
             sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
         } */

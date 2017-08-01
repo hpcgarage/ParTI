@@ -51,6 +51,20 @@ int sptNewSparseTensorHiCOO(
     hitsr->sb_bits = sb_bits; // block size by nnz
     hitsr->sk_bits = sk_bits; // kernel size by nnz
     hitsr->sc_bits = sc_bits; // chunk size by blocks
+    sptIndex sk = (sptIndex)pow(2, sk_bits);
+
+    hitsr->kschr = (sptIndexVector**)malloc(nmodes * sizeof *hitsr->kschr);
+    spt_CheckOSError(!hitsr->kschr, "HiSpTns New");
+    for(sptIndex m = 0; m < nmodes; ++m) {
+        sptIndex kernel_ndim = (ndims[m] + sk - 1)/sk;
+        hitsr->kschr[m] = (sptIndexVector*)malloc(kernel_ndim * sizeof(*(hitsr->kschr[m])));
+        spt_CheckOSError(!hitsr->kschr[m], "HiSpTns New");
+        for(sptIndex i = 0; i < kernel_ndim; ++i) {
+            result = sptNewIndexVector(&(hitsr->kschr[m][i]), 0, 0);
+            spt_CheckError(result, "HiSpTns New", NULL);
+        }
+    }
+    hitsr->nkiters = (sptIndex*)malloc(nmodes * sizeof *hitsr->nkiters);
 
     result = sptNewNnzIndexVector(&hitsr->kptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
@@ -87,9 +101,17 @@ void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr)
 {
     sptIndex i;
     sptIndex nmodes = hitsr->nmodes;
+    sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
 
-    free(hitsr->sortorder);
-    free(hitsr->ndims);
+    for(sptIndex m = 0; m < nmodes; ++m) {
+        sptIndex kernel_ndim = (hitsr->ndims[m] + sk - 1)/sk;
+        for(i = 0; i < kernel_ndim; ++i) {
+            sptFreeIndexVector(&(hitsr->kschr[m][i]));
+        }
+        free(hitsr->kschr[m]);
+    }
+    free(hitsr->kschr);
+    free(hitsr->nkiters);
 
     sptFreeNnzIndexVector(&hitsr->kptr);
     sptFreeNnzIndexVector(&hitsr->cptr);
@@ -108,4 +130,7 @@ void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr)
     hitsr->sb_bits = 0;
     hitsr->sk_bits = 0;
     hitsr->sc_bits = 0;
+
+    free(hitsr->sortorder);
+    free(hitsr->ndims);
 }

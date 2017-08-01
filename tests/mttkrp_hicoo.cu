@@ -184,7 +184,6 @@ int main(int argc, char * const argv[]) {
             nthreads = 1;
             sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
-            printf("tk: %d, tb: %d\n", tk, tb);
             sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
         } else {
             sptCudaSetDevice(cuda_dev_id);

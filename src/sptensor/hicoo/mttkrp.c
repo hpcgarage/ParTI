@@ -57,8 +57,8 @@ int sptMTTKRPHiCOO(
     sptIndex const nmodes = hitsr->nmodes;
 
     if(nmodes == 3) {
-        // sptAssert(sptMTTKRPHiCOO_3D(hitsr, mats, mats_order, mode) == 0);
-        sptAssert(sptMTTKRPHiCOO_3D_MatrixTiling_init(hitsr, mats, mats_order, mode) == 0);
+        sptAssert(sptMTTKRPHiCOO_3D(hitsr, mats, mats_order, mode) == 0);
+        // sptAssert(sptMTTKRPHiCOO_3D_MatrixTiling_init(hitsr, mats, mats_order, mode) == 0);
         return 0;
     }
 
@@ -284,13 +284,13 @@ int sptMTTKRPHiCOO_MatrixTiling(
                 for(sptIndex m=2; m<nmodes; ++m) {
                     times_mat_index = mats_order[m];
                     tmp_i = hitsr->einds[times_mat_index].data[z];
-                    for(sptIndex r=0; r<R; ++r) {
+                    for(sptElementIndex r=0; r<R; ++r) {
                         scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                     }
                 }
 
                 sptElementIndex const mode_i = hitsr->einds[mode].data[z];
-                for(sptIndex r=0; r<R; ++r) {
+                for(sptElementIndex r=0; r<R; ++r) {
                     blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
                 }
             }   // End loop entries

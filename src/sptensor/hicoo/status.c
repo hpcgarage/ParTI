@@ -46,6 +46,12 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
 
   char * bytestr = sptBytesString(bytes);
   fprintf(fp, "HiCOO-STORAGE=%s\n", bytestr);
+
+  fprintf(fp, "SCHEDULE INFO: %"SPT_PF_INDEX, hitsr->nkiters[0]);
+  for(sptIndex m=1; m < nmodes; ++m) {
+    fprintf(fp, ", %"SPT_PF_INDEX, hitsr->nkiters[m]);
+  }
+  fprintf(fp, " [KERNEL]\n");
   fprintf(fp, "\n");
   free(bytestr);
 }
