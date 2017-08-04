@@ -8,7 +8,7 @@ declare -a test_tsr_names=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2")
 declare -a threads=("1" "2" "4" "8" "16" "32")
 
 tsr_path="/nethome/jli458/BIGTENSORS"
-out_path="./timing_splatt"
+out_path="./timing_splatt/double"
 nmodes=3
 modes="$(seq -s ' ' 1 ${nmodes})"
 

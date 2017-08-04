@@ -86,6 +86,20 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled(
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
     const int tk);
+int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk);
+int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk);
 int sptOmpMTTKRPHiCOOBlocks_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -183,6 +197,26 @@ int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(
 {
     if(tk > 1 && tb == 1) {
         sptAssert(sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled(hitsr, mats, mats_order, mode, tk) == 0);
+    } else {
+        printf("Haven't support block parallelism.\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+
+int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk,
+    const int tb)
+{
+    if(tk > 1 && tb == 1) {
+        sptAssert(sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(hitsr, mats, copy_mats, mats_order, mode, tk) == 0);
     } else {
         printf("Haven't support block parallelism.\n");
         return -1;
@@ -712,6 +746,225 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled(
 
         }   // End loop kernels
     }   // End loop iterations
+
+    return 0;
+}
+
+
+
+int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk) 
+{
+    sptIndex const nmodes = hitsr->nmodes;
+
+    if(nmodes == 3) {
+        sptAssert(sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce(hitsr, mats, copy_mats, mats_order, mode, tk) == 0);
+        return 0;
+    }
+
+    sptIndex const * const ndims = hitsr->ndims;
+    sptValue const * const restrict vals = hitsr->values.data;
+    sptElementIndex const stride = mats[0]->stride;
+
+    /* Check the mats. */
+    for(sptIndex i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP  HiCOO SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP  HiCOO SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
+
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptElementIndex const R = mats[mode]->ncols;
+    sptRankMatrix * const restrict M = mats[nmodes];
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
+    for(int t=0; t<tk; ++t) {
+        memset(copy_mats[t]->values, 0, ndims[mode]*stride*sizeof(*(copy_mats[t]->values)));
+    }
+
+    sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
+    sptIndex num_kernel_dim = (ndims[mode] + sk - 1) / sk;
+    sptIndexVector * restrict kschr_mode = hitsr->kschr[mode];
+
+    /* Loop parallel iterations */
+    #pragma omp parallel for num_threads(tk)
+    for(sptIndex i=0; i<hitsr->nkiters[mode]; ++i) {
+        int tid = omp_get_thread_num();
+
+        /* Loop kernels */
+        for(sptIndex k=0; k<num_kernel_dim; ++k) {
+
+            if(i >= kschr_mode[k].len) continue;
+            sptIndex kptr_loc = kschr_mode[k].data[i];
+            sptNnzIndex kptr_begin = hitsr->kptr.data[kptr_loc];
+            sptNnzIndex kptr_end = hitsr->kptr.data[kptr_loc+1];
+
+            /* Allocate thread-private data */
+            sptValue ** blocked_times_mat = (sptValue**)malloc(nmodes * sizeof(*blocked_times_mat));
+            sptValueVector scratch; // Temporary array
+            sptNewValueVector(&scratch, R, R);       
+
+            /* Loop blocks in a kernel */
+            for(sptNnzIndex b=kptr_begin; b<kptr_end; ++b) {
+                /* Blocked matrices */
+                for(sptIndex m=0; m<nmodes; ++m)
+                    blocked_times_mat[m] = mats[m]->values + (hitsr->binds[m].data[b] << hitsr->sb_bits) * stride;
+                sptValue * blocked_mvals = copy_mats[tid]->values + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
+
+                sptNnzIndex bptr_begin = hitsr->bptr.data[b];
+                sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
+                /* Loop entries in a block */
+                for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
+
+                    /* Multiply the 1st matrix */
+                    sptIndex times_mat_index = mats_order[1];
+                    sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
+                    sptValue const entry = vals[z];
+                    for(sptElementIndex r=0; r<R; ++r) {
+                        scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
+                    }
+                    /* Multiply the rest matrices */
+                    for(sptIndex m=2; m<nmodes; ++m) {
+                        times_mat_index = mats_order[m];
+                        tmp_i = hitsr->einds[times_mat_index].data[z];
+                        for(sptElementIndex r=0; r<R; ++r) {
+                            scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
+                        }
+                    }
+
+                    sptElementIndex const mode_i = hitsr->einds[mode].data[z];
+                    for(sptElementIndex r=0; r<R; ++r) {
+                        blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
+                    }
+                }   // End loop entries
+            }   // End loop blocks
+
+            /* Free thread-private space */
+            free(blocked_times_mat);
+            sptFreeValueVector(&scratch);
+        }   // End loop kernels
+    }   // End loop iterations
+
+    /* Reduction */
+    #pragma omp parallel for num_threads(tk)
+    for(sptIndex i=0; i<ndims[mode]; ++i) {
+        for(int t=0; t<tk; ++t) {
+            for(sptElementIndex r=0; r<R; ++r) {
+                mvals[i * stride + r] += copy_mats[t]->values[i * stride + r];
+            }    
+        }    
+    }    
+
+    return 0;
+}
+
+
+
+int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk)
+{
+    sptIndex const nmodes = hitsr->nmodes;
+    sptIndex const * const ndims = hitsr->ndims;
+    sptValue const * const restrict vals = hitsr->values.data;
+    sptElementIndex const stride = mats[0]->stride;
+
+    /* Check the mats. */
+    sptAssert(nmodes ==3);
+    for(sptIndex i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
+
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptElementIndex const R = mats[mode]->ncols;
+    sptRankMatrix * const restrict M = mats[nmodes];
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
+    for(int t=0; t<tk; ++t) {
+        memset(copy_mats[t]->values, 0, ndims[mode]*stride*sizeof(*(copy_mats[t]->values)));
+    }
+
+    sptIndex times_mat_index_1 = mats_order[1];
+    sptRankMatrix * restrict times_mat_1 = mats[times_mat_index_1];
+    sptIndex times_mat_index_2 = mats_order[2];
+    sptRankMatrix * restrict times_mat_2 = mats[times_mat_index_2];
+
+    sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
+    sptIndex num_kernel_dim = (ndims[mode] + sk - 1) / sk;
+    sptIndexVector * restrict kschr_mode = hitsr->kschr[mode];
+
+
+    /* Loop parallel iterations */
+    #pragma omp parallel for num_threads(tk)
+    for(sptIndex i=0; i<hitsr->nkiters[mode]; ++i) {
+        int tid = omp_get_thread_num();
+
+        /* Loop kernels */
+        for(sptIndex k=0; k<num_kernel_dim; ++k) {
+            if(i >= kschr_mode[k].len) {
+                // printf("i: %u, k: %u\n", i, k);
+                continue;
+            }
+            sptIndex kptr_loc = kschr_mode[k].data[i];
+            sptNnzIndex kptr_begin = hitsr->kptr.data[kptr_loc];
+            sptNnzIndex kptr_end = hitsr->kptr.data[kptr_loc+1];
+
+            /* Loop blocks in a kernel */
+            for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
+
+                /* use copy_mats to store each thread's output */
+                sptValue * blocked_mvals = copy_mats[tid]->values + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
+                sptValue * blocked_times_mat_1 = times_mat_1->values + (hitsr->binds[times_mat_index_1].data[b] << hitsr->sb_bits) * stride;
+                sptValue * blocked_times_mat_2 = times_mat_2->values + (hitsr->binds[times_mat_index_2].data[b] << hitsr->sb_bits) * stride;
+
+                sptNnzIndex bptr_begin = hitsr->bptr.data[b];
+                sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
+                /* Loop entries in a block */
+                for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
+                    
+                    sptElementIndex mode_i = hitsr->einds[mode].data[z];
+                    sptElementIndex tmp_i_1 = hitsr->einds[times_mat_index_1].data[z];
+                    sptElementIndex tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
+                    sptValue entry = vals[z];
+
+                    for(sptElementIndex r=0; r<R; ++r) {
+                        blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += entry * 
+                            blocked_times_mat_1[(sptBlockMatrixIndex)tmp_i_1 * stride + r] * 
+                            blocked_times_mat_2[(sptBlockMatrixIndex)tmp_i_2 * stride + r];
+                    }
+                    
+                }   // End loop entries
+            }   // End loop blocks
+
+        }   // End loop kernels
+    }   // End loop iterations
+
+    /* Reduction */
+    #pragma omp parallel for num_threads(tk)
+    for(sptIndex i=0; i<ndims[mode]; ++i) {
+        for(int t=0; t<tk; ++t) {
+            for(sptElementIndex r=0; r<R; ++r) {
+                mvals[i * stride + r] += copy_mats[t]->values[i * stride + r];
+            }
+        }
+    }
 
     return 0;
 }

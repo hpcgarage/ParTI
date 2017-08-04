@@ -650,6 +650,14 @@ int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(
     sptIndex const mode,
     const int tk,
     const int tb);
+int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk,
+    const int tb);
 int sptCudaMTTKRPHiCOO(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix ** const mats,     // mats[nmodes] as temporary space.

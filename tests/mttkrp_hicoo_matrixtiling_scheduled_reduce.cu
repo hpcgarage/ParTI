@@ -42,7 +42,6 @@ int main(int argc, char * const argv[]) {
     int impl_num = 0;
     int tk = 1;
     int tb = 1;
-    int par_iters = 0;
     printf("niters: %d\n", niters);
 
     for(;;) {
@@ -157,25 +156,12 @@ int main(int argc, char * const argv[]) {
     sptIndex stride = U[0]->stride;
     // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
 
-    /* determine niters or num_kernel_dim to be parallelized */
-    sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
-    sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
-    if(num_kernel_dim <= 100 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
-        par_iters = 1;
-    }
-
     /* Set zeros for temporary copy_U, for mode-"mode" */
-    char * bytestr;
-    if(par_iters == 1) {
-        copy_U = (sptRankMatrix **)malloc(tk * sizeof(sptRankMatrix*));
-        for(int t=0; t<tk; ++t) {
-            copy_U[t] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-            sptAssert(sptNewRankMatrix(copy_U[t], hitsr.ndims[mode], R) == 0);
-            sptAssert(sptConstantRankMatrix(copy_U[t], 0) == 0);
-        }
-        sptNnzIndex bytes = tk * hitsr.ndims[mode] * R * sizeof(sptValue);
-        bytestr = sptBytesString(bytes);
-        printf("MODE MATRIX COPY=%s\n\n", bytestr);
+    copy_U = (sptRankMatrix **)malloc(tk * sizeof(sptRankMatrix*));
+    for(int t=0; t<tk; ++t) {
+        copy_U[t] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
+        sptAssert(sptNewRankMatrix(copy_U[t], hitsr.ndims[mode], R) == 0);
+        sptAssert(sptConstantRankMatrix(copy_U[t], 0) == 0);
     }
 
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
@@ -191,14 +177,7 @@ int main(int argc, char * const argv[]) {
         sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
     } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
-        // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        if(par_iters == 0) {
-            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled\n");
-            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        } else {
-            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce\n");
-            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
-        }
+        sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
     } /* else {
         sptCudaSetDevice(cuda_dev_id);
         sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
@@ -213,12 +192,7 @@ int main(int argc, char * const argv[]) {
             nthreads = 1;
             sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
-            // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
-            if(par_iters == 0) {
-                sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
-            } else {
-                sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
-            }
+            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
         } /* else {
             sptCudaSetDevice(cuda_dev_id);
             sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
@@ -234,13 +208,11 @@ int main(int argc, char * const argv[]) {
         fclose(fo);
     }
 
-    if(par_iters == 1) {
-        for(int t=0; t<tk; ++t) {
-            sptFreeRankMatrix(copy_U[t]);
-        }
-        free(copy_U);
-        free(bytestr);
+
+    for(int t=0; t<tk; ++t) {
+        sptFreeRankMatrix(copy_U[t]);
     }
+    free(copy_U);
     for(sptIndex m=0; m<nmodes; ++m) {
         sptFreeRankMatrix(U[m]);
     }
