@@ -418,8 +418,9 @@ int sptSetKernelScheduler(
 }
 
 
+
 /**
- * Pre-process COO sparse tensor by permuting, sorting, and record pointers to blocked rows.
+ * Pre-process COO sparse tensor by permuting, sorting, and record pointers to blocked rows. Kernels in Row-major order, blocks and elements are in Z-Morton order.
  * @param tsr    a pointer to a sparse tensor
  * @return      mode pointers
  */
@@ -457,6 +458,43 @@ int sptPreprocessSparseTensor(
     return 0;
 }
 
+
+/**
+ * Pre-process COO sparse tensor by permuting, sorting, and record pointers to blocked rows for TTM. Kernels, blocks are both in row-major order, elements in a block is in an arbitrary order.
+ * @param tsr    a pointer to a sparse tensor
+ * @return      mode pointers
+ */
+int sptPreprocessSparseTensor_RowBlock(
+    sptNnzIndexVector * kptr,
+    sptIndexVector **kschr,
+    sptIndex *nkiters,
+    sptIndex *nfibs,
+    sptSparseTensor *tsr, 
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits)
+{
+    sptIndex nmodes = tsr->nmodes;
+    sptNnzIndex nnz = tsr->nnz;
+    int result;
+
+    /* Sort tsr in a Row-major Block order to get all kernels. */
+    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+    result = sptSetKernelPointers(kptr, tsr, sk_bits);
+    spt_CheckError(result, "HiSpTns Preprocess", NULL);
+    // result = sptSetKernelScheduler(kschr, nkiters, kptr, tsr, sk_bits);
+    // spt_CheckError(result, "HiSpTns Preprocess", NULL);
+
+    /* Sort blocks in each kernel in Row-major block order. */
+    sptNnzIndex k_begin, k_end;
+    /* Loop for all kernels, 0-kptr.len for OMP code */
+    for(sptNnzIndex k=0; k<kptr->len - 1; ++k) {
+        k_begin = kptr->data[k];
+        k_end = kptr->data[k+1];   // exclusive
+        sptSparseTensorSortIndexRowBlock(tsr, 1, k_begin, k_end, sb_bits);
+    }
+
+    return 0;
+}
 
 
 int sptSparseTensorToHiCOO(

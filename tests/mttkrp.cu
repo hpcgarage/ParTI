@@ -27,12 +27,15 @@ int main(int argc, char const *argv[]) {
     FILE *fX = NULL, *fo = NULL;
     sptSparseTensor X;
     sptMatrix ** U;
+    sptMatrix ** copy_U;
     size_t mode = 0;
     size_t R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
     int nthreads;
     int impl_num = 0;
+    int use_reduce = 1; // todo: determine two omp parallel cases
+    int nt = 1;
     printf("niters: %d\n", niters);
 
     for(;;) {
@@ -40,11 +43,12 @@ int main(int argc, char const *argv[]) {
             {"mode", required_argument, 0, 'm'},
             {"impl-num", required_argument, 0, 'i'},
             {"cuda-dev-id", required_argument, 0, 'd'},
+            {"nt", optional_argument, 0, 't'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c;
-        c = getopt_long(argc, const_cast<char *const *>(argv), "m:i:d:r:y:", long_options, &option_index);
+        c = getopt_long(argc, const_cast<char *const *>(argv), "m:i:d:r:y:t:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -65,6 +69,9 @@ int main(int argc, char const *argv[]) {
             fo = fopen(optarg, "w");
             sptAssert(fo != NULL);
             break;
+        case 't':
+            sscanf(optarg, "%d", &nt);
+            break;
         default:
             abort();
         }
@@ -77,6 +84,7 @@ int main(int argc, char const *argv[]) {
         printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
         printf("         -r R\n");
         printf("         -y Y\n");
+        printf("         -t NTHREADS, --nt=NT\n");
         printf("\n");
         return 1;
     }
@@ -84,14 +92,9 @@ int main(int argc, char const *argv[]) {
     fX = fopen(argv[optind], "r");
     sptAssert(fX != NULL);
     printf("input file: %s\n", argv[optind]); fflush(stdout);
-    sptLoadSparseTensor(&X, 1, fX);
-    // sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
+    sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
-
-
-    printf("Tensor ndims:\n");
-    spt_DumpArray(X.ndims, X.nmodes, 0, stdout);
-    printf("Tensor NNZ: %zu\n", X.nnz);
+    sptSparseTensorStatus(&X, stdout);
 
     size_t nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -110,25 +113,40 @@ int main(int argc, char const *argv[]) {
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     size_t stride = U[0]->stride;
 
+    /* Set zeros for temporary copy_U, for mode-"mode" */
+    char * bytestr;
+    if(cuda_dev_id == -1 && use_reduce == 1) {
+        copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
+        for(int t=0; t<nt; ++t) {
+            copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
+            sptAssert(sptNewMatrix(copy_U[t], X.ndims[mode], R) == 0);
+            sptAssert(sptConstantMatrix(copy_U[t], 0) == 0);
+        }
+        size_t bytes = nt * X.ndims[mode] * R * sizeof(sptScalar);
+        bytestr = sptBytesString(bytes);
+        printf("MODE MATRIX COPY=%s\n\n", bytestr);
+    }
 
     size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
     mats_order[0] = mode;
     for(size_t i=1; i<nmodes; ++i)
         mats_order[i] = (mode+i) % nmodes;
-    printf("mats_order:\n");
-    spt_DumpArray(mats_order, nmodes, 0, stdout);
+    // printf("mats_order:\n");
+    // spt_DumpArray(mats_order, nmodes, 0, stdout);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
         sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
     } else if(cuda_dev_id == -1) {
-        #pragma omp parallel
-        {
-            nthreads = omp_get_num_threads();
+        printf("nt: %d\n", nt);
+        if(use_reduce == 1) {
+            printf("sptOmpMTTKRP_Reduce:\n");
+            sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
+        } else {
+            printf("sptOmpMTTKRP:\n");
+            sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
         }
-        printf("nthreads: %d\n", nthreads);
-        sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
         // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
@@ -145,12 +163,11 @@ int main(int argc, char const *argv[]) {
             nthreads = 1;
             sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
-            #pragma omp parallel
-            {
-                nthreads = omp_get_num_threads();
+            if(use_reduce == 1) {
+                sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
+            } else {
+                sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
             }
-            printf("nthreads: %d\n", nthreads);
-            sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode) == 0);
         } else {
             #if 0
            switch(ncudas) {
@@ -178,6 +195,13 @@ int main(int argc, char const *argv[]) {
     sptFreeTimer(timer);
 
 
+    if(cuda_dev_id == -1 && use_reduce == 1) {
+        for(int t=0; t<nt; ++t) {
+            sptFreeMatrix(copy_U[t]);
+        }
+        free(copy_U);
+        free(bytestr);
+    }
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
     }

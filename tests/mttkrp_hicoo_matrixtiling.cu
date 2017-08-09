@@ -166,7 +166,7 @@ int main(int argc, char * const argv[]) {
 
     /* Set zeros for temporary copy_U, for mode-"mode" */
     char * bytestr;
-    if(par_iters == 1) {
+    if(cuda_dev_id == -1 && par_iters == 1) {
         copy_U = (sptRankMatrix **)malloc(tk * sizeof(sptRankMatrix*));
         for(int t=0; t<tk; ++t) {
             copy_U[t] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
@@ -193,10 +193,10 @@ int main(int argc, char * const argv[]) {
         printf("tk: %d, tb: %d\n", tk, tb);
         // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
         if(par_iters == 0) {
-            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled\n");
+            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled:\n");
             sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
         } else {
-            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce\n");
+            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce:\n");
             sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
         }
     } /* else {

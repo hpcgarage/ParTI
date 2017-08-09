@@ -176,8 +176,8 @@ void sptSparseTensorSortIndexMorton(
 
 
 /**
- * Reorder the elements in a COO sparse tensor lexicographically, sorting by Morton-order.
- * @param hitsr  the sparse tensor to operate on
+ * Reorder the elements in a COO sparse tensor lexicographically, sorting by row major order.
+ * @param tsr  the sparse tensor to operate on
  */
 void sptSparseTensorSortIndexRowBlock(
     sptSparseTensor *tsr, 

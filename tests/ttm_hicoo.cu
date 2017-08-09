@@ -27,9 +27,8 @@
 int main(int argc, char * const argv[]) {
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
-    sptRankMatrix ** U;
-    sptRankMatrix ** copy_U;
-    sptSparseTensorHiCOO hitsr;
+    sptRankMatrix U;
+    sptSparseTensorHiCOO X, Y;
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
     sptElementIndex sc_bits;
@@ -41,7 +40,6 @@ int main(int argc, char * const argv[]) {
     int nthreads;
     int impl_num = 0;
     int tk = 1;
-    int tb = 1;
     printf("niters: %d\n", niters);
 
     for(;;) {
@@ -56,13 +54,11 @@ int main(int argc, char * const argv[]) {
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
-            {"tb", optional_argument, 0, 'h'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
-        // c = getopt_long(argc, argv, "i:o:b:k:c:m:", long_options, &option_index);
-        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:h:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -99,9 +95,6 @@ int main(int argc, char * const argv[]) {
         case 't':
             sscanf(optarg, "%d", &tk);
             break;
-        case 'h':
-            sscanf(optarg, "%d", &tb);
-            break;
         default:
             abort();
         }
@@ -120,11 +113,9 @@ int main(int argc, char * const argv[]) {
         printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
         printf("         -r RANK\n");
         printf("         -t TK, --tk=TK\n");
-        printf("         -h TB, --tb=TB\n");
         printf("\n");
         return 1;
     }
-
 
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
@@ -132,53 +123,31 @@ int main(int argc, char * const argv[]) {
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     /* Convert to HiCOO tensor */
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&X, &tsr, sb_bits, sk_bits, sc_bits) == 0);
     sptFreeSparseTensor(&tsr);
-    sptSparseTensorStatusHiCOO(&hitsr, stdout);
-    // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
+    sptSparseTensorStatusHiCOO(&X, stdout);
+    // sptAssert(sptDumpSparseTensorHiCOO(&X, stdout) == 0);
 
-    sptIndex nmodes = hitsr.nmodes;
-    U = (sptRankMatrix **)malloc((nmodes+1) * sizeof(sptRankMatrix*));
-    for(sptIndex m=0; m<nmodes+1; ++m) {
-      U[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-    }
-    sptIndex max_ndims = 0;
-    for(sptIndex m=0; m<nmodes; ++m) {
-      // sptAssert(sptRandomizeMatrix(U[m], tsr.ndims[m], R) == 0);
-      sptAssert(sptNewRankMatrix(U[m], hitsr.ndims[m], R) == 0);
-      sptAssert(sptConstantRankMatrix(U[m], 1) == 0);
-      if(hitsr.ndims[m] > max_ndims)
-        max_ndims = hitsr.ndims[m];
-      // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
-    }
-    sptAssert(sptNewRankMatrix(U[nmodes], max_ndims, R) == 0);
-    sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
-    sptIndex stride = U[0]->stride;
-    // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
+    sptIndex nmodes = X.nmodes;
+    sptIndex * ndims = (sptIndex*)malloc(nmodes * sizeof(*ndims));
+    ndims[mode] = R;
+    sptAssert(sptNewSparseTensorHiCOO_NoNnz(&Y, nmodes, ndims, sb_bits, sk_bits, sc_bits) == 0);
+    free(ndims);
 
-    /* Set zeros for temporary copy_U, for mode-"mode" */
-    copy_U = (sptRankMatrix **)malloc(tk * sizeof(sptRankMatrix*));
-    for(int t=0; t<tk; ++t) {
-        copy_U[t] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-        sptAssert(sptNewRankMatrix(copy_U[t], hitsr.ndims[mode], R) == 0);
-        sptAssert(sptConstantRankMatrix(copy_U[t], 0) == 0);
-    }
 
-    sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
-    mats_order[0] = mode;
-    for(sptIndex i=1; i<nmodes; ++i)
-        mats_order[i] = (mode+i) % nmodes;
-    // printf("mats_order:\n");
-    // sptDumpIndexArray(mats_order, nmodes, stdout);
+    sptAssert(sptNewRankMatrix(&U, X.ndims[mode], R) == 0);
+    sptAssert(sptConstantRankMatrix(&U, 0) == 0);
+    sptIndex stride = U.stride;
+    // sptAssert(sptDumpMatrix(&U, stdout) == 0);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
-        sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
-    } else if(cuda_dev_id == -1) {
-        printf("tk: %d, tb: %d\n", tk, tb);
-        sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
-    } /* else {
+        sptAssert(sptTTMHiCOO_MatrixTiling(&Y, &X, &U, mode) == 0);
+    } /* else if(cuda_dev_id == -1) {
+        printf("tk: %d\n", tk);
+        sptAssert(sptOmpTTMHiCOO_MatrixTiling(&Y, &X, &U, mode, tk) == 0);
+    } else {
         sptCudaSetDevice(cuda_dev_id);
         sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
     } */
@@ -190,36 +159,28 @@ int main(int argc, char * const argv[]) {
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
             nthreads = 1;
-            sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
-        } else if(cuda_dev_id == -1) {
-            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
-        } /* else {
+            sptAssert(sptTTMHiCOO_MatrixTiling(&Y, &X, &U, mode) == 0);
+        } /* else if(cuda_dev_id == -1) {
+            printf("tk: %d\n", tk);
+            sptAssert(sptOmpTTMHiCOO_MatrixTiling(&Y, &X, &U, mode, tk) == 0);
+        } else {
             sptCudaSetDevice(cuda_dev_id);
             sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
         } */
     }
 
     sptStopTimer(timer);
-    sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
+    sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns TTM");
     sptFreeTimer(timer);
 
     if(fo != NULL) {
-        sptAssert(sptDumpRankMatrix(U[nmodes], fo) == 0);
+        sptAssert(sptDumpSparseTensorHiCOO(&Y, fo) == 0);
         fclose(fo);
     }
 
-
-    for(int t=0; t<tk; ++t) {
-        sptFreeRankMatrix(copy_U[t]);
-    }
-    free(copy_U);
-    for(sptIndex m=0; m<nmodes; ++m) {
-        sptFreeRankMatrix(U[m]);
-    }
-    sptFreeRankMatrix(U[nmodes]);
-    free(U);
-    free(mats_order);
-    sptFreeSparseTensorHiCOO(&hitsr);
+    sptFreeRankMatrix(&U);
+    sptFreeSparseTensorHiCOO(&X);
+    sptFreeSparseTensorHiCOO(&Y);
 
     return 0;
 }

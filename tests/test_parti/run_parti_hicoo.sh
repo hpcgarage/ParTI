@@ -1,16 +1,17 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("choa100k" "choa200k" "choa700k" "1998DARPA" "nell2" "nell1" "delicious")
+declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d" "flickr-4d" "enron-4d" "nips-4d")
-declare -a test_tsr_names=("patents")
-# declare -a threads=("2" "4" "8" "16" "32")
-declare -a threads=("2" "4" "8" "16")
-declare -a sk_range=("8" "10" "12" "14" "16")
+declare -a test_tsr_names=("choa100k" "choa200k")
+declare -a threads=("2" "4" "8" "16" "24" "32")
+# declare -a threads=("32" "40" "48")
+declare -a sk_range=("16" "18" "20")
 
-tsr_path="/nethome/jli458/BIGTENSORS"
-out_path="timing_parti/hicoo/uint8"
+tsr_path="/scratch/jli458/BIGTENSORS"
+# out_path="timing_parti/hicoo/uint8"
+out_path="timing_parti/hicoo/uint16"
 nthreads=32
 nmodes=3
 modes="$(seq -s ' ' 0 $((nmodes-1)))"
@@ -21,11 +22,12 @@ impl_num=25
 smem_size=12000
 max_nstreams=4
 nstreams=8
-sb=7
-sc=12
 tb=1
 
-sk=10
+sb=15
+sc=16
+
+sk=20
 tk=8
 
 # for R in 8 16 32 64
@@ -53,7 +55,7 @@ do
 				for tk in ${threads[@]}
 				do
 					echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt"
-					# ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
+					./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
 				done
 			done
 		# for ((tb=1; tb <= ((${nthreads}/${tk})) ; tb=tb*2))

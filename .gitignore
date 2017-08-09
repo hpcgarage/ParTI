@@ -2,7 +2,7 @@ sftp-config.json
 *.DS_Store
 .tags*
 build/
-results/
+results/*.out
 timing_*/
 timing/
 timing-*/

@@ -6,7 +6,7 @@ if(USE_CUDA)
 else()
     file(GLOB_RECURSE TEST_SRCS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.c")
 endif()
-    list(REMOVE_ITEM TEST_SRCS "tests/mttkrp_dist*.cu" )
+    list(REMOVE_ITEM TEST_SRCS "cpd.cu" )
 
 
 foreach(TEST_SRC IN LISTS TEST_SRCS)

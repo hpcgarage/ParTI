@@ -40,8 +40,12 @@ typedef float sptScalar;
 /**
  * Re-Define types, TODO: check the bit size of them, add branch for different settings
  */
+// typedef uint16_t sptElementIndex;
+// typedef uint32_t sptBlockMatrixIndex;
 typedef uint_fast8_t sptElementIndex;
 typedef uint_fast16_t sptBlockMatrixIndex;
+// typedef uint8_t sptElementIndex;
+// typedef uint16_t sptBlockMatrixIndex;
 typedef uint32_t sptBlockIndex;
 typedef sptBlockIndex sptBlockNnzIndex;
 typedef uint32_t sptIndex;
@@ -421,6 +425,13 @@ int sptNewSparseTensorHiCOO(
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
     const sptElementIndex sc_bits);
+int sptNewSparseTensorHiCOO_NoNnz(
+    sptSparseTensorHiCOO *hitsr, 
+    const sptIndex nmodes, 
+    const sptIndex ndims[],
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits,
+    const sptElementIndex sc_bits);
 void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr);
 int sptSparseTensorToHiCOO(
     sptSparseTensorHiCOO *hitsr, 
@@ -505,7 +516,14 @@ int sptOmpMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode);
+    size_t const mode,
+    const int tk);
+int sptOmpMTTKRP_Reduce(sptSparseTensor const * const X,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptMatrix * copy_mats[],    // temporary matrices for reduction
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    const int tk);
 int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -683,6 +701,11 @@ int sptMTTKRPKernelHiCOO(
     sptValue * const dev_values,
     sptIndex * const dev_mats_order,
     sptValue ** const dev_mats);
+int sptTTMHiCOO_MatrixTiling(
+    sptSparseTensorHiCOO * const Y,
+    sptSparseTensorHiCOO const * const X,
+    sptRankMatrix * U,     // mats[nmodes] as temporary space.
+    sptIndex const mode);
 
 /**
  * CP-ALS
