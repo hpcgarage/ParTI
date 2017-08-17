@@ -8,8 +8,8 @@ declare -a test_tsr_names=("choa100k_init" "choa200k_init")
 declare -a threads=("1" "2" "4" "8" "16" "24" "32")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
-splatt_path="/nethome/jli458/Software/Install/splatt-git-twomode-32bit"
-out_path="./timing_git_splatt/32bit-twomode"
+splatt_path="/nethome/jli458/Software/Install/splatt-git-onemode-64bit"
+out_path="./timing_git_splatt/64bit-onemode"
 nmodes=3
 modes="$(seq -s ' ' 1 ${nmodes})"
 

@@ -5,10 +5,11 @@ declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d" "flickr-4d" "enron-4d" "nips-4d")
 declare -a test_tsr_names=("choa100k" "choa200k")
-declare -a sk_range=("8" "10" "12" "14" "16" "18")
+declare -a sk_range=("8" "10" "12" "14" "16" "18" "20")
+declare -a sb_range=("4" "5" "6" "7")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
-out_path="timing_parti/hicoo/uint8"
+out_path="timing_parti/hicoo/uint_fast8"
 nthreads=32
 nmodes=3
 modes="$(seq -s ' ' 0 $((nmodes-1)))"
@@ -37,8 +38,11 @@ do
 			dev_id=-2
 			for sk in ${sk_range[@]}
 			do
-				echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
-				./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+				for sb in ${sb_range[@]}
+				do
+					echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
+					./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
+				done
 			done
 
 			# OpenMP code

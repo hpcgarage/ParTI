@@ -44,11 +44,12 @@ int main(int argc, char const *argv[]) {
             {"impl-num", required_argument, 0, 'i'},
             {"cuda-dev-id", required_argument, 0, 'd'},
             {"nt", optional_argument, 0, 't'},
+            {"use-reduce", optional_argument, 0, 'u'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c;
-        c = getopt_long(argc, const_cast<char *const *>(argv), "m:i:d:r:y:t:", long_options, &option_index);
+        c = getopt_long(argc, const_cast<char *const *>(argv), "m:i:d:r:y:t:u:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -64,6 +65,9 @@ int main(int argc, char const *argv[]) {
             break;
         case 'r':
             sscanf(optarg, "%zu", &R);
+            break;
+        case 'u':
+            sscanf(optarg, "%d", &use_reduce);
             break;
         case 'y':
             fo = fopen(optarg, "w");
@@ -85,6 +89,7 @@ int main(int argc, char const *argv[]) {
         printf("         -r R\n");
         printf("         -y Y\n");
         printf("         -t NTHREADS, --nt=NT\n");
+        printf("         -u use_reduce, --ur=use_reduce\n");
         printf("\n");
         return 1;
     }
@@ -134,6 +139,12 @@ int main(int argc, char const *argv[]) {
     // printf("mats_order:\n");
     // spt_DumpArray(mats_order, nmodes, 0, stdout);
 
+    /* Initialize locks */
+    sptMutexPool * lock_pool = NULL;
+    if(cuda_dev_id == -1 && use_reduce == 0) {
+        lock_pool = sptMutexAlloc();
+    }
+
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
@@ -146,6 +157,8 @@ int main(int argc, char const *argv[]) {
         } else {
             printf("sptOmpMTTKRP:\n");
             sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+            // printf("sptOmpMTTKRP_Lock:\n");
+            // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
         }
     } else {
         sptCudaSetDevice(cuda_dev_id);
@@ -167,6 +180,7 @@ int main(int argc, char const *argv[]) {
                 sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
             } else {
                 sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
             }
         } else {
             #if 0
@@ -195,12 +209,17 @@ int main(int argc, char const *argv[]) {
     sptFreeTimer(timer);
 
 
-    if(cuda_dev_id == -1 && use_reduce == 1) {
-        for(int t=0; t<nt; ++t) {
-            sptFreeMatrix(copy_U[t]);
+    if(cuda_dev_id == -1) {
+        if (use_reduce == 1) {
+            for(int t=0; t<nt; ++t) {
+                sptFreeMatrix(copy_U[t]);
+            }
+            free(copy_U);
+            free(bytestr);
         }
-        free(copy_U);
-        free(bytestr);
+        if(lock_pool != NULL) {
+            sptMutexFree(lock_pool);
+        }
     }
     for(size_t m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);

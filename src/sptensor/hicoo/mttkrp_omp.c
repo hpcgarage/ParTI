@@ -474,9 +474,10 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling(
                 }
 
                 sptElementIndex const mode_i = hitsr->einds[mode].data[z];
+                sptValue * const restrict bmvals_row = blocked_mvals + mode_i * stride;
                 for(sptElementIndex r=0; r<R; ++r) {
                     #pragma omp atomic update
-                    blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
+                    bmvals_row[r] += scratch.data[r];
                 }
             }   // End loop entries
         }   // End loop blocks
@@ -547,10 +548,11 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling(
                 sptElementIndex tmp_i_1 = hitsr->einds[times_mat_index_1].data[z];
                 sptElementIndex tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
                 sptValue entry = vals[z];
+                sptValue * const restrict bmvals_row = blocked_mvals + mode_i * stride;
 
                 for(sptElementIndex r=0; r<R; ++r) {
                     #pragma omp atomic update
-                    blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += entry * 
+                    bmvals_row[r] += entry * 
                         blocked_times_mat_1[(sptBlockMatrixIndex)tmp_i_1 * stride + r] * 
                         blocked_times_mat_2[(sptBlockMatrixIndex)tmp_i_2 * stride + r];
                 }

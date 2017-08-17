@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <math.h>
+#include <stdbool.h>
+#include <omp.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -257,6 +259,25 @@ typedef struct {
   sptMatrix ** factors;
 } sptKruskalTensor;
 
+
+/**
+ * OpenMP lock pool.
+ */
+typedef struct
+{
+  bool initialized;
+  sptIndex nlocks;
+  sptIndex padsize;
+  omp_lock_t * locks;
+} sptMutexPool;
+
+#ifndef PARTI_DEFAULT_NLOCKS
+#define PARTI_DEFAULT_NLOCKS 1024
+#endif
+
+#ifndef PARTI_DEFAULT_LOCK_PAD_SIZE
+#define PARTI_DEFAULT_LOCK_PAD_SIZE 16
+#endif
 
 /**
  * An opaque data type to store a specific time point, using either CPU or GPU clock.
@@ -524,6 +545,12 @@ int sptOmpMTTKRP_Reduce(sptSparseTensor const * const X,
     size_t const mats_order[],    // Correspond to the mode order of X.
     size_t const mode,
     const int tk);
+int sptOmpMTTKRP_Lock(sptSparseTensor const * const X,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    const int tk,
+    sptMutexPool * lock_pool);
 int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -736,6 +763,38 @@ int sptCudaCpdAls(
 int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
 int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads);
 
+/**
+ * OMP Lock functions
+ */
+sptMutexPool * sptMutexAlloc();
+sptMutexPool * SptMutexAllocCustom(
+    sptIndex const num_locks,
+    sptIndex const pad_size);
+void sptMutexFree(sptMutexPool * pool);
+
+static inline sptIndex sptMutexTranslateId(
+    sptIndex const id,
+    sptIndex const num_locks,
+    sptIndex const pad_size)
+{
+  return (id % num_locks) * pad_size;
+}
+
+static inline void sptMutexSetLock(
+    sptMutexPool * const pool,
+    sptIndex const id)
+{
+  sptIndex const lock_id = sptMutexTranslateId(id, pool->nlocks, pool->padsize);
+  omp_set_lock(pool->locks + lock_id);
+}
+
+static inline void sptMutexUnsetLock(
+    sptMutexPool * const pool,
+    sptIndex const id)
+{
+  sptIndex const lock_id = sptMutexTranslateId(id, pool->nlocks, pool->padsize);
+  omp_unset_lock(pool->locks + lock_id);
+}
 
 #ifdef __cplusplus
 }

@@ -191,6 +191,7 @@ int main(int argc, char * const argv[]) {
         sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
     } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
+        // printf("sptOmpMTTKRPHiCOO_MatrixTiling:\n");
         // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
         if(par_iters == 0) {
             printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled:\n");
@@ -234,7 +235,7 @@ int main(int argc, char * const argv[]) {
         fclose(fo);
     }
 
-    if(par_iters == 1) {
+    if(cuda_dev_id == -1 && par_iters == 1) {
         for(int t=0; t<tk; ++t) {
             sptFreeRankMatrix(copy_U[t]);
         }

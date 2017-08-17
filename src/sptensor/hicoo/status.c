@@ -43,6 +43,7 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   bytes += hitsr->bptr.len * sizeof(sptNnzIndex);
   bytes += hitsr->kptr.len * sizeof(sptNnzIndex);
   bytes += hitsr->cptr.len * sizeof(sptNnzIndex);
+  // TODO: add nkiters
 
   char * bytestr = sptBytesString(bytes);
   fprintf(fp, "HiCOO-STORAGE=%s\n", bytestr);
