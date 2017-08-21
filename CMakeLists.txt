@@ -9,6 +9,9 @@ option(USE_OpenBLAS "Use OpenBLAS library" OFF)
 option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
 
+# set(CMAKE_C_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc")
+# set(CMAKE_CXX_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icpc")
+
 if(USE_CUDA)
     find_package(CUDA REQUIRED)
     add_definitions(-DPARTI_USE_CUDA)
@@ -43,8 +46,12 @@ if(USE_MKL)
     link_libraries(${MKL_LIBRARIES})
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -fopenmp -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fopenmp -O3")
+
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -qopenmp -O3")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -qopenmp -O3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3")
+# -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3")
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.
@@ -53,7 +60,7 @@ link_libraries("m")
 
 if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/sptensor/cpd_cuda.cu")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/hicoo/mttkrp_cuda_kernels.cu" "src/sptensor/hicoo/mttkrp_cuda.cu")
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)

@@ -19,7 +19,8 @@ sb = sys.argv[1]
 sk = sys.argv[2]
 tk = sys.argv[3]
 
-out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
+# out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
+out_str = 'parti-hicoo-uint_fast8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 

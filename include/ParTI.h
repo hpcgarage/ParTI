@@ -48,6 +48,8 @@ typedef uint_fast8_t sptElementIndex;
 typedef uint_fast16_t sptBlockMatrixIndex;
 // typedef uint8_t sptElementIndex;
 // typedef uint16_t sptBlockMatrixIndex;
+// typedef uint32_t sptElementIndex;
+// typedef uint32_t sptBlockMatrixIndex;
 typedef uint32_t sptBlockIndex;
 typedef sptBlockIndex sptBlockNnzIndex;
 typedef uint32_t sptIndex;
@@ -460,7 +462,7 @@ int sptSparseTensorToHiCOO(
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
     const sptElementIndex sc_bits);
-int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp);
+int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp);
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
 
 

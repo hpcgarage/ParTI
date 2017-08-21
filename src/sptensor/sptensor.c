@@ -170,12 +170,12 @@ int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, size_t const n
         const spt_SplitResult *split_i = splits + i;
         printf("Printing split #%zu of %zu:\n", i + 1, nsplits);
         printf("Index: \n");
-        spt_DumpArray(split_i->inds_low, split_i->tensor.nmodes, 0, stdout);
+        spt_DumpArray(split_i->inds_low, split_i->tensor.nmodes, 0, fp);
         printf(" .. \n");
-        spt_DumpArray(split_i->inds_high, split_i->tensor.nmodes, 0, stdout);
-        sptDumpSparseTensor(&split_i->tensor, 0, stdout);
+        spt_DumpArray(split_i->inds_high, split_i->tensor.nmodes, 0, fp);
+        sptDumpSparseTensor(&split_i->tensor, 0, fp);
         printf("\n");
-        fflush(stdout);
+        fflush(fp);
         // ++ i;
         // split_i = split_i->next;
     }

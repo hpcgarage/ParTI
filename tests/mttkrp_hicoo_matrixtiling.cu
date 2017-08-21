@@ -154,13 +154,13 @@ int main(int argc, char * const argv[]) {
     }
     sptAssert(sptNewRankMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
-    sptIndex stride = U[0]->stride;
     // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
 
     /* determine niters or num_kernel_dim to be parallelized */
     sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
     sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
-    if(num_kernel_dim <= 100 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
+    printf("num_kernel_dim: %u, hitsr.nkiters[mode] / num_kernel_dim: %u\n", num_kernel_dim, hitsr.nkiters[mode]/num_kernel_dim);
+    if(num_kernel_dim <= 20 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
         par_iters = 1;
     }
 

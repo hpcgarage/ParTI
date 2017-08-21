@@ -17,6 +17,7 @@
 */
 
 #include <ParTI.h>
+#include <stdio.h>
 
 size_t sptMaxSizeArray(
   size_t const * const indices,
@@ -44,7 +45,7 @@ char * sptBytesString(size_t const bytes)
   }
   char * ret = NULL;
   if(asprintf(&ret, "%0.2f%s", size, suffix[suff]) == -1) {
-    fprintf(stderr, "SPT: asprintf failed with%"SPT_PF_INDEX" bytes.\n", bytes);
+    fprintf(stderr, "SPT: asprintf failed with%zu bytes.\n", bytes);
     ret = NULL;
   }
   return ret;

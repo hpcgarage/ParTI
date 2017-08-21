@@ -30,6 +30,12 @@ int sptOmpMTTKRP_3D_Reduce(sptSparseTensor const * const X,
     size_t const mats_order[],    // Correspond to the mode order of X.
     size_t const mode,
     const int tk);
+int sptOmpMTTKRP_3D_Lock(sptSparseTensor const * const X,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    size_t const mats_order[],    // Correspond to the mode order of X.
+    size_t const mode,
+    const int tk,
+    sptMutexPool * lock_pool);
 
 /**
  * OpenMP parallelized Matriced sparse tensor times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
@@ -150,7 +156,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
     sptScalar * const restrict mvals = mats[nmodes]->values;
     memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
 
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t x=0; x<nnz; ++x) {
         sptVector scratch;  // Temporary array
         sptNewVector(&scratch, R, R);
@@ -161,6 +167,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
         sptScalar const entry = vals[x];
+        #pragma omp simd
         for(size_t r=0; r<R; ++r) {
             scratch.data[r] = entry * times_mat->values[tmp_i * stride + r];
         }
@@ -171,6 +178,7 @@ int sptOmpMTTKRP(sptSparseTensor const * const X,
             times_inds = X->inds[times_mat_index].data;
             tmp_i = times_inds[x];
 
+            #pragma omp simd
             for(size_t r=0; r<R; ++r) {
                 scratch.data[r] *= times_mat->values[tmp_i * stride + r];
             }
@@ -226,7 +234,7 @@ int sptOmpMTTKRP_3D(sptSparseTensor const * const X,
     sptMatrix * restrict times_mat_2 = mats[times_mat_index_2];
     size_t * restrict times_inds_2 = X->inds[times_mat_index_2].data;
 
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t x=0; x<nnz; ++x) {
         size_t mode_i = mode_ind[x];
         sptScalar * const restrict mvals_row = mvals + mode_i * stride;
@@ -279,7 +287,7 @@ int sptOmpMTTKRP_Lock(sptSparseTensor const * const X,
     sptScalar * const mvals = mats[nmodes]->values;
     memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
 
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t x=0; x<nnz; ++x) {
         sptVector scratch;  // Temporary array
         sptNewVector(&scratch, R, R);
@@ -359,7 +367,7 @@ int sptOmpMTTKRP_3D_Lock(sptSparseTensor const * const X,
     sptMatrix * restrict times_mat_2 = mats[times_mat_index_2];
     size_t * restrict times_inds_2 = X->inds[times_mat_index_2].data;
 
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t x=0; x<nnz; ++x) {
         sptVector scratch;  // Temporary array
         sptNewVector(&scratch, R, R);
@@ -429,7 +437,7 @@ int sptOmpMTTKRP_Reduce(sptSparseTensor const * const X,
         memset(copy_mats[t]->values, 0, ndims[mode]*stride*sizeof(*(copy_mats[t]->values)));
     }
 
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t x=0; x<nnz; ++x) {
         int tid = omp_get_thread_num();
 
@@ -442,6 +450,7 @@ int sptOmpMTTKRP_Reduce(sptSparseTensor const * const X,
         size_t * times_inds = X->inds[times_mat_index].data;
         size_t tmp_i = times_inds[x];
         sptScalar const entry = vals[x];
+        #pragma omp simd
         for(size_t r=0; r<R; ++r) {
             scratch.data[r] = entry * times_mat->values[tmp_i * stride + r];
         }
@@ -452,12 +461,14 @@ int sptOmpMTTKRP_Reduce(sptSparseTensor const * const X,
             times_inds = X->inds[times_mat_index].data;
             tmp_i = times_inds[x];
 
+            #pragma omp simd
             for(size_t r=0; r<R; ++r) {
                 scratch.data[r] *= times_mat->values[tmp_i * stride + r];
             }
         }
 
         size_t const mode_i = mode_ind[x];
+        #pragma omp simd
         for(size_t r=0; r<R; ++r) {
             copy_mats[tid]->values[mode_i * stride + r] += scratch.data[r];
         }
@@ -466,9 +477,10 @@ int sptOmpMTTKRP_Reduce(sptSparseTensor const * const X,
     }   // End loop nnzs
 
     /* Reduction */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t i=0; i<ndims[mode]; ++i) {
         for(int t=0; t<tk; ++t) {
+            #pragma omp simd
             for(size_t r=0; r<R; ++r) {
                 mvals[i * stride + r] += copy_mats[t]->values[i * stride + r];
             }
@@ -521,7 +533,7 @@ int sptOmpMTTKRP_3D_Reduce(sptSparseTensor const * const X,
     sptMatrix * restrict times_mat_2 = mats[times_mat_index_2];
     size_t * restrict times_inds_2 = X->inds[times_mat_index_2].data;
 
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t x=0; x<nnz; ++x) {
         int tid = omp_get_thread_num();
 
@@ -530,15 +542,17 @@ int sptOmpMTTKRP_3D_Reduce(sptSparseTensor const * const X,
         size_t tmp_i_2 = times_inds_2[x];
         sptScalar entry = vals[x];
 
+        #pragma omp simd
         for(size_t r=0; r<R; ++r) {
             copy_mats[tid]->values[mode_i * stride + r] += entry * times_mat_1->values[tmp_i_1 * stride + r] * times_mat_2->values[tmp_i_2 * stride + r];
         }
     }
 
     /* Reduction */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(size_t i=0; i<ndims[mode]; ++i) {
         for(int t=0; t<tk; ++t) {
+            #pragma omp simd
             for(size_t r=0; r<R; ++r) {
                 mvals[i * stride + r] += copy_mats[t]->values[i * stride + r];
             }

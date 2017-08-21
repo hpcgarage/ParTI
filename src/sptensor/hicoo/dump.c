@@ -26,20 +26,20 @@
  * @param start_index the index of the first element in array. Set to 1 for MATLAB compability, else set to 0
  * @param fp          the file to write into
  */
-int sptDumpSparseTensorHiCOO(const sptSparseTensorHiCOO *hitsr, FILE *fp) 
+int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp) 
 {
     int iores;
     sptIndex mode;
     sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
 
-    iores = fprintf(fp, "%zu\n", hitsr->nmodes);
+    iores = fprintf(fp, "%u\n", hitsr->nmodes);
     spt_CheckOSError(iores < 0, "SpTns Dump");
     for(mode = 0; mode < hitsr->nmodes; ++mode) {
         if(mode != 0) {
             iores = fputs(" ", fp);
             spt_CheckOSError(iores < 0, "SpTns Dump");
         }
-        iores = fprintf(fp, "%zu", hitsr->ndims[mode]);
+        iores = fprintf(fp, "%u", hitsr->ndims[mode]);
         spt_CheckOSError(iores < 0, "SpTns Dump");
     }
     fputs("\n", fp);

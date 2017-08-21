@@ -5,12 +5,12 @@ declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d" "flickr-4d" "enron-4d" "nips-4d")
 declare -a test_tsr_names=("choa100k" "choa200k")
-declare -a threads=("2" "4" "8" "16" "24" "32")
-# declare -a threads=("32" "40" "48")
-declare -a sk_range=("16")
+# declare -a threads=("8" "16" "24" "32")
+declare -a threads=("24")
+declare -a sk_range=("8" "10" "12" "14" "16" "18" "20")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
-out_path="timing_parti/hicoo/uint8"
+out_path="timing_parti/hicoo/uint-fast8-simd"
 # out_path="timing_parti/hicoo/uint16"
 nthreads=32
 nmodes=3
@@ -27,7 +27,7 @@ tb=1
 # sb=15
 # sc=16
 sb=7
-sc=12
+sc=14
 
 sk=20
 tk=8
@@ -35,7 +35,7 @@ tk=8
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${l3tsrs[@]}"
+	for tsr_name in "${s3tsrs[@]}"
 	do
 		for mode in ${modes[@]}
 		do

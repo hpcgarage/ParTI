@@ -18,6 +18,7 @@
 
 #include <ParTI.h>
 #include "hicoo.h"
+#include <assert.h>
 
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
 {
@@ -43,10 +44,22 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   bytes += hitsr->bptr.len * sizeof(sptNnzIndex);
   bytes += hitsr->kptr.len * sizeof(sptNnzIndex);
   bytes += hitsr->cptr.len * sizeof(sptNnzIndex);
-  // TODO: add nkiters
+  /* add kschr */
+  sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
+  for(sptIndex m=0; m < nmodes; ++m) {
+    sptIndex kernel_ndim = (hitsr->ndims[m] + sk - 1)/sk;
+    for(sptIndex i=0; i < kernel_ndim; ++i) {
+      bytes += hitsr->kschr[m][i].len * sizeof(sptIndex);
+    }
+    bytes += kernel_ndim * sizeof(sptIndexVector *);
+  }
+  bytes += nmodes * sizeof(sptIndexVector **);
+  /* add nkiters  */
+  bytes += nmodes * sizeof(sptIndex);
 
   char * bytestr = sptBytesString(bytes);
   fprintf(fp, "HiCOO-STORAGE=%s\n", bytestr);
+  free(bytestr);
 
   fprintf(fp, "SCHEDULE INFO: %"SPT_PF_INDEX, hitsr->nkiters[0]);
   for(sptIndex m=1; m < nmodes; ++m) {
@@ -54,5 +67,36 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   }
   fprintf(fp, " [KERNEL]\n");
   fprintf(fp, "\n");
-  free(bytestr);
+
+  // fprintf(fp, "SCHEDULE DETAILS (kschr): \n");
+  // for(sptIndex m=0; m < nmodes; ++m) {
+  //   printf("Mode %u\n", m);
+  //   sptIndex kernel_ndim = (hitsr->ndims[m] + sk - 1)/sk;
+  //   for(sptIndex i=0; i < kernel_ndim; ++i) {
+  //     sptDumpIndexVector(&hitsr->kschr[m][i], fp);
+  //   }
+  //   fprintf(fp, "\n");
+  // }
+  // fprintf(fp, "\n");
+  
+  sptNnzIndex max_nnzb = hitsr->bptr.data[1] - hitsr->bptr.data[0];
+  sptNnzIndex min_nnzb = hitsr->bptr.data[1] - hitsr->bptr.data[0];
+  sptNnzIndex sum_nnzb = 0;
+  fprintf(fp, "block nnzs:\n");
+  for(sptIndex i=0; i < hitsr->bptr.len - 1; ++i) {
+    sptNnzIndex nnzb = hitsr->bptr.data[i+1] - hitsr->bptr.data[i];
+    // fprintf(fp, "%lu, ", nnzb);
+    sum_nnzb += nnzb;
+    if(max_nnzb < nnzb) {
+      max_nnzb = nnzb;
+    }
+    if(min_nnzb > nnzb) {
+      min_nnzb = nnzb;
+    }
+  }
+  assert(sum_nnzb == hitsr->nnz);
+  sptNnzIndex aver_nnzb = (sptNnzIndex)sum_nnzb / (hitsr->bptr.len - 1);
+  // fprintf(fp, "\n");
+  fprintf(fp, "Nnzb: Max=%lu, Min=%lu, Aver=%lu\n", max_nnzb, min_nnzb, aver_nnzb);
+
 }

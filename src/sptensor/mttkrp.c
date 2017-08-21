@@ -51,7 +51,6 @@ int sptMTTKRP(sptSparseTensor const * const X,
     size_t const nnz = X->nnz;
     size_t const * const ndims = X->ndims;
     sptScalar const * const restrict vals = X->values.data;
-    size_t const nmats = nmodes - 1;
     size_t const stride = mats[0]->stride;
     sptVector scratch;  // Temporary array
 
@@ -118,7 +117,6 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
     size_t const nnz = X->nnz;
     size_t const * const ndims = X->ndims;
     sptScalar const * const restrict vals = X->values.data;
-    size_t const nmats = nmodes - 1;
     size_t const stride = mats[0]->stride;
 
     /* Check the mats. */

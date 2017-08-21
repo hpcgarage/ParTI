@@ -320,7 +320,6 @@ int sptSetKernelPointers(
     sptNnzIndex nnz = tsr->nnz;
     sptNnzIndex k = 0;  // count kernels
     sptNnzIndex knnz = 0;   // #Nonzeros per kernel
-    sptIndex kindex = 0, kindex_prior = 0;
     int result = 0;
     result = sptAppendNnzIndexVector(kptr, 0);
     spt_CheckError(result, "HiSpTns Convert", NULL);
@@ -432,7 +431,6 @@ int sptPreprocessSparseTensor(
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits)
 {
-    sptIndex nmodes = tsr->nmodes;
     sptNnzIndex nnz = tsr->nnz;
     int result;
 
@@ -473,7 +471,6 @@ int sptPreprocessSparseTensor_RowBlock(
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits)
 {
-    sptIndex nmodes = tsr->nmodes;
     sptNnzIndex nnz = tsr->nnz;
     int result;
 

@@ -20,7 +20,7 @@
 #include "hicoo.h"
 #include <omp.h>
 
-// TODO: add a no atomic version function
+#define CHUNKSIZE 1
 
 int sptOmpMTTKRPHiCOOKernels(
     sptSparseTensorHiCOO const * const hitsr,
@@ -119,7 +119,7 @@ int sptOmpMTTKRPHiCOOKernelsBlocks_MatrixTiling(
     sptIndex const mode,
     const int tk,
     const int tb);
-int sptOmpMTTKRPHiCOOKernesBlocks_3D_MatrixTiling(
+int sptOmpMTTKRPHiCOOKernelsBlocks_3D_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
@@ -435,7 +435,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling(
     memset(mvals, 0, tmpI*stride*sizeof(*mvals));
 
     /* Loop kernels */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk)
     for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
         /* Allocate thread-private data */
         sptValue ** blocked_times_mat = (sptValue**)malloc(nmodes * sizeof(*blocked_times_mat));
@@ -461,6 +461,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling(
                 sptIndex times_mat_index = mats_order[1];
                 sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
                 sptValue const entry = vals[z];
+                #pragma omp simd
                 for(sptElementIndex r=0; r<R; ++r) {
                     scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                 }
@@ -468,6 +469,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling(
                 for(sptIndex m=2; m<nmodes; ++m) {
                     times_mat_index = mats_order[m];
                     tmp_i = hitsr->einds[times_mat_index].data[z];
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                     }
@@ -527,7 +529,7 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling(
 
 
     /* Loop kernels */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk)
     for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
         sptNnzIndex kptr_begin = hitsr->kptr.data[k];
         sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
@@ -608,7 +610,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled(
     /* Loop parallel iterations */
     for(sptIndex i=0; i<hitsr->nkiters[mode]; ++i) {
         /* Loop kernels */
-        #pragma omp parallel for num_threads(tk)
+        #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk)
         for(sptIndex k=0; k<num_kernel_dim; ++k) {
 
             if(i >= kschr_mode[k].len) continue;
@@ -637,6 +639,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled(
                     sptIndex times_mat_index = mats_order[1];
                     sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
                     sptValue const entry = vals[z];
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                     }
@@ -644,12 +647,14 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled(
                     for(sptIndex m=2; m<nmodes; ++m) {
                         times_mat_index = mats_order[m];
                         tmp_i = hitsr->einds[times_mat_index].data[z];
+                        #pragma omp simd
                         for(sptElementIndex r=0; r<R; ++r) {
                             scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                         }
                     }
 
                     sptElementIndex const mode_i = hitsr->einds[mode].data[z];
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
                     }
@@ -710,7 +715,7 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled(
     /* Loop parallel iterations */
     for(sptIndex i=0; i<hitsr->nkiters[mode]; ++i) {
         /* Loop kernels */
-        #pragma omp parallel for num_threads(tk)
+        #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk)
         for(sptIndex k=0; k<num_kernel_dim; ++k) {
             if(i >= kschr_mode[k].len) {
                 // printf("i: %u, k: %u\n", i, k);
@@ -737,6 +742,7 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled(
                     sptElementIndex tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
                     sptValue entry = vals[z];
 
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += entry * 
                             blocked_times_mat_1[(sptBlockMatrixIndex)tmp_i_1 * stride + r] * 
@@ -797,7 +803,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(
     sptIndexVector * restrict kschr_mode = hitsr->kschr[mode];
 
     /* Loop parallel iterations */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk)
     for(sptIndex i=0; i<hitsr->nkiters[mode]; ++i) {
         int tid = omp_get_thread_num();
 
@@ -830,6 +836,7 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(
                     sptIndex times_mat_index = mats_order[1];
                     sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
                     sptValue const entry = vals[z];
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                     }
@@ -837,12 +844,14 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(
                     for(sptIndex m=2; m<nmodes; ++m) {
                         times_mat_index = mats_order[m];
                         tmp_i = hitsr->einds[times_mat_index].data[z];
+                        #pragma omp simd
                         for(sptElementIndex r=0; r<R; ++r) {
                             scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                         }
                     }
 
                     sptElementIndex const mode_i = hitsr->einds[mode].data[z];
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
                     }
@@ -856,9 +865,10 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce(
     }   // End loop iterations
 
     /* Reduction */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(sptIndex i=0; i<ndims[mode]; ++i) {
         for(int t=0; t<tk; ++t) {
+            #pragma omp simd
             for(sptElementIndex r=0; r<R; ++r) {
                 mvals[i * stride + r] += copy_mats[t]->values[i * stride + r];
             }    
@@ -914,7 +924,7 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce(
 
 
     /* Loop parallel iterations */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk)
     for(sptIndex i=0; i<hitsr->nkiters[mode]; ++i) {
         int tid = omp_get_thread_num();
 
@@ -946,6 +956,7 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce(
                     sptElementIndex tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
                     sptValue entry = vals[z];
 
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += entry * 
                             blocked_times_mat_1[(sptBlockMatrixIndex)tmp_i_1 * stride + r] * 
@@ -959,9 +970,10 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce(
     }   // End loop iterations
 
     /* Reduction */
-    #pragma omp parallel for num_threads(tk)
+    #pragma omp parallel for schedule(static) num_threads(tk)
     for(sptIndex i=0; i<ndims[mode]; ++i) {
         for(int t=0; t<tk; ++t) {
+            #pragma omp simd
             for(sptElementIndex r=0; r<R; ++r) {
                 mvals[i * stride + r] += copy_mats[t]->values[i * stride + r];
             }

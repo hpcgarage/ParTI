@@ -16,6 +16,7 @@
     If not, see <http://www.gnu.org/licenses/>.
 */
 #include <ParTI.h>
+#include <stdlib.h>
     
 sptMutexPool * SptMutexAllocCustom(
     sptIndex const num_locks,

@@ -277,6 +277,7 @@ int sptMTTKRPHiCOO_MatrixTiling(
                 sptIndex times_mat_index = mats_order[1];
                 sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
                 sptValue const entry = vals[z];
+                #pragma omp simd
                 for(sptElementIndex r=0; r<R; ++r) {
                     scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                 }
@@ -284,12 +285,14 @@ int sptMTTKRPHiCOO_MatrixTiling(
                 for(sptIndex m=2; m<nmodes; ++m) {
                     times_mat_index = mats_order[m];
                     tmp_i = hitsr->einds[times_mat_index].data[z];
+                    #pragma omp simd
                     for(sptElementIndex r=0; r<R; ++r) {
                         scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
                     }
                 }
 
                 sptElementIndex const mode_i = hitsr->einds[mode].data[z];
+                #pragma omp simd
                 for(sptElementIndex r=0; r<R; ++r) {
                     blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
                 }
@@ -341,9 +344,9 @@ int sptMTTKRPHiCOO_3D_MatrixTiling(
     sptElementIndex mode_i;
     sptElementIndex tmp_i_1, tmp_i_2;
     sptValue entry;
-    sptValue * blocked_mvals;
-    sptValue * blocked_times_mat_1;
-    sptValue * blocked_times_mat_2;
+    sptValue * restrict blocked_mvals;
+    sptValue * restrict blocked_times_mat_1;
+    sptValue * restrict blocked_times_mat_2;
 
     /* Loop kernels */
     for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
@@ -367,6 +370,7 @@ int sptMTTKRPHiCOO_3D_MatrixTiling(
                 tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
                 entry = vals[z];
 
+                #pragma omp simd
                 for(sptElementIndex r=0; r<R; ++r) {
                     blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += entry * 
                         blocked_times_mat_1[(sptBlockMatrixIndex)tmp_i_1 * stride + r] * 
