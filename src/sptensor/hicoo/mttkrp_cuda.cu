@@ -202,7 +202,7 @@ int sptCudaMTTKRPHiCOO(
             dev_mats_order,
             dev_mats) == 0 );
     }   // End loop kernels
-
+    printf("test1\n");
     sptStopTimer(timer);
     time_exe = sptElapsedTime(timer);
     gflops_exe = dev_flops / time_exe / 1e9;

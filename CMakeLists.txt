@@ -60,7 +60,7 @@ link_libraries("m")
 
 if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/hicoo/mttkrp_cuda_kernels.cu" "src/sptensor/hicoo/mttkrp_cuda.cu")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu")
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)

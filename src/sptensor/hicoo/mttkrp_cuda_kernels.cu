@@ -124,7 +124,7 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
 {
     extern __shared__ sptIndex mempool[];
     sptIndex * block_coord = mempool;
-    sptIndex * ele_coord = mempool + nmodes;
+    //sptIndex * ele_coord = mempool + nmodes;
 
     sptNnzIndex all_nblocks = kptr_end - kptr_begin;
     const sptIndex tidx = threadIdx.x;
@@ -137,15 +137,15 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     sptValue * times_mat_2 = dev_mats[times_mat_index_2];
 
     sptNnzIndex num_loops_blocks = 1;
-    if(all_nblocks > gridDim.x) {
+    /*if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
-    }
-
+    }*/
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
-        sptNnzIndex b = blockIdx.x + nb * gridDim.x + kptr_begin;
+        sptNnzIndex b = blockIdx.x + nb * gridDim.x;
         /* Block indices */
         for(sptIndex m=0; m<nmodes; ++m)
             block_coord[m] = dev_binds[m][b];
+
         sptNnzIndex bptr_begin = dev_bptr[b];
         sptNnzIndex bptr_end = dev_bptr[b+1];
         __syncthreads();
@@ -153,18 +153,21 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
         z = tidx + bptr_begin;
         if(z < bptr_end) {
             /* Element indices */
-            for(sptIndex m=0; m<nmodes; ++m)
-                ele_coord[m] = (block_coord[m] << sb_bits) + dev_einds[m][z];
-            __syncthreads();
+            //for(sptIndex m=0; m<nmodes; ++m)
+            //    ele_coord[m] = (block_coord[m] << sb_bits) + dev_einds[m][z];
             
             sptValue const entry = dev_values[z];
-            sptIndex const mode_i = ele_coord[mode];
-            sptIndex const tmp_i_1 = ele_coord[times_mat_index_1];
-            sptIndex const tmp_i_2 = ele_coord[times_mat_index_2];
+            //sptElementIndex const mode_i = ele_coord[mode];
+            sptElementIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
+            //sptElementIndex const tmp_i_1 = ele_coord[times_mat_index_1];
+            sptElementIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
+            //sptElementIndex const tmp_i_2 = ele_coord[times_mat_index_2];
+            sptElementIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
+
             sptValue tmp_val = 0;
             for(sptIndex r=0; r<R; ++r) {
                 tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-                atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+                atomicAdd(&mvals[mode_i * stride + r], tmp_val);
             }
 
         }   // End loop entries
