@@ -253,13 +253,14 @@ typedef struct {
  * Kruskal tensor type, for CP decomposition result
  */
 typedef struct {
-  size_t nmodes;
-  size_t rank;
-  size_t * ndims;
-  sptScalar * lambda;
+  sptIndex nmodes;
+  sptIndex rank;
+  sptIndex * ndims;
+  sptValue * lambda;
   double fit;
   sptMatrix ** factors;
 } sptKruskalTensor;
+
 
 
 /**
@@ -413,6 +414,7 @@ void sptFreeSparseMatrix(sptSparseMatrix *mtx);
 int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]);
 int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
+double SparseTensorFrobeniusNormSquared(sptSparseTensor const * const spten);
 int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp);
 int sptDumpSparseTensor(const sptSparseTensor *tsr, size_t start_index, FILE *fp);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
@@ -489,9 +491,24 @@ int sptSemiSparseTensorSetIndices(sptSemiSparseTensor *dest, sptSizeVector *fibe
 
 
 /* Kruskal tensor */
-int sptNewKruskalTensor(sptKruskalTensor *ktsr, size_t nmodes, const size_t ndims[], size_t rank);
+int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const size_t ndims[], sptIndex rank);  // "size_t" is preserved for old coo tensor format
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
-int sptDumpKruskalTensor(sptKruskalTensor *ktsr, size_t start_index, FILE *fp);
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp);
+double KruskalTensorFit(
+  sptSparseTensor const * const spten,
+  sptValue const * const __restrict lambda,
+  sptMatrix ** mats,
+  sptMatrix const * const tmp_mat,
+  sptMatrix ** ata);
+double KruskalTensorFrobeniusNormSquared(
+  sptIndex const nmodes,
+  sptValue const * const __restrict lambda,
+  sptMatrix ** ata);
+double SparseKruskalTensorInnerProduct(
+  sptIndex const nmodes,
+  sptValue const * const __restrict lambda,
+  sptMatrix ** mats,
+  sptMatrix const * const tmp_mat);
 
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
@@ -698,6 +715,14 @@ int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(
     const int tk,
     const int tb);
 int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode,
+    const int tk,
+    const int tb);
+int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce_Two(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptRankMatrix * copy_mats[],    // temporary matrices for reduction

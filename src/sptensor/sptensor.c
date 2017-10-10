@@ -92,6 +92,17 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
 }
 
 
+double SparseTensorFrobeniusNormSquared(sptSparseTensor const * const spten) 
+{
+  double norm = 0;
+  sptScalar const * const restrict vals = spten->values.data;
+  for(size_t n=0; n < spten->nnz; ++n) {
+    norm += vals[n] * vals[n];
+  }
+  return norm;
+}
+
+
 int spt_DistSparseTensor(sptSparseTensor * tsr,
     int const nthreads,
     size_t * const dist_nnzs,

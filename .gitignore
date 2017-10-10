@@ -13,3 +13,5 @@ build.config
 docs/latex
 tmp*
 out*
+
+CMakeLists.txt

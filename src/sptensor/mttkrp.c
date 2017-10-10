@@ -129,6 +129,7 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
         }
     }
+    
 
     size_t const tmpI = mats[mode]->nrows;
     size_t const R = mats[mode]->ncols;

@@ -205,8 +205,11 @@ int main(int argc, char const *argv[]) {
     }
 
     sptStopTimer(timer);
-    sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
+    double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
     sptFreeTimer(timer);
+    double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
+    double gbw = (double)(nmodes * sizeof(size_t) + sizeof(sptScalar) + nmodes * R * sizeof(sptScalar)) * X.nnz / aver_time / 1e9;
+    printf("Performance: %.2lf GFlops, Bandwidth: %.2lf GB/s\n", gflops, gbw);
 
 
     if(cuda_dev_id == -1) {

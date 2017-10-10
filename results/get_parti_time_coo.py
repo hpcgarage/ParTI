@@ -2,7 +2,7 @@
 
 import sys 
 
-intput_path = '/nethome/jli458/ParTI-dev/timing_parti/coo/'
+intput_path = '/nethome/jli458/ParTI-dev/timing_parti/coo-simd/'
 # s3tsrs = ['choa100k', 'choa200k', 'choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
 s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']

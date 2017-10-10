@@ -21,7 +21,36 @@
 #include <string.h>
 #include "../error/error.h"
 
-int sptDumpKruskalTensor(sptKruskalTensor *ktsr, size_t start_index, FILE *fp)
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 {
-    // TODO
+    int iores;
+    size_t mode, i;
+
+    iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
+    spt_CheckOSError(iores < 0, "KruskalTns Dump");
+    for(mode = 0; mode < ktsr->nmodes; ++mode) {
+        if(mode != 0) {
+            iores = fputs(" ", fp);
+            spt_CheckOSError(iores < 0, "KruskalTns Dump");
+        }
+        iores = fprintf(fp, "%u", ktsr->ndims[mode]);
+        spt_CheckOSError(iores < 0, "KruskalTns Dump");
+    }
+    fputs("\n", fp);
+    iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
+    spt_CheckOSError(iores < 0, "KruskalTns Dump");
+
+    iores = fprintf(fp, "fit: %lf\n", ktsr->fit);
+    fprintf(fp, "lambda:\n");    
+    for(mode = 0; mode < ktsr->nmodes; ++mode) {
+        iores = fprintf(fp, "%lf ", ktsr->lambda[mode]);
+        spt_CheckOSError(iores != 0, "KruskalTns Dump");
+    }
+
+    fprintf(fp, "Factor matrices:\n");
+    for(mode=0; mode < ktsr->nmodes+1; ++mode) {
+        iores = sptDumpMatrix(ktsr->factors[mode], fp);
+        spt_CheckOSError(iores != 0, "KruskalTns Dump");
+    }
+    return 0;
 }

@@ -2,7 +2,7 @@
 
 import sys 
 
-intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint8/'
+intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint-fast8-simd/'
 # intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint16/'
 # s3tsrs = ['choa100k', 'choa200k', 'choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
 s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
@@ -20,7 +20,7 @@ sk = sys.argv[2]
 tk = sys.argv[3]
 
 # out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
-out_str = 'parti-hicoo-uint_fast8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
+out_str = 'parti-hicoo-uint-fast8-simd-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
@@ -28,10 +28,10 @@ for tsr in s3tsrs:
 	for m in modes:
 
 		## omp hicoo
-		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
 
 		## sequential hicoo
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
+		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
 		# print(input_str)
 
 		fi = open(input_str, 'r')

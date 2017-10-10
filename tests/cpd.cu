@@ -58,7 +58,7 @@ int main(int argc, char const *argv[]) {
     if(cuda_dev_id == -2) {
         nthreads = 1;
         sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } else if(cuda_dev_id == -1) {
+    } /* else if(cuda_dev_id == -1) {
         #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
@@ -68,7 +68,7 @@ int main(int argc, char const *argv[]) {
     } else {
          sptCudaSetDevice(cuda_dev_id);
          sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    }
+    } */
 
     // for(int it=0; it<nloops; ++it) {
     //     if(cuda_dev_id == -2) {
@@ -92,6 +92,9 @@ int main(int argc, char const *argv[]) {
 
     if(argc >= 5) {
         // Dump ktensor to files
+        fo = fopen(argv[4], "w");
+        sptAssert( sptDumpKruskalTensor(&ktensor, 0, fo) == 0 );
+        fclose(fo);
     }
 
     return 0;

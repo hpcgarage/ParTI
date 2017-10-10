@@ -315,7 +315,6 @@ int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats
 
     for(size_t m=1; m < nmodes; ++m) {
         size_t const pm = (mode + m) % nmodes;
-        // printf("pm: %lu\n", pm);
         sptScalar const * vals = mats[pm]->values;
         for(size_t i=0; i < nrows; ++i) {
             for(size_t j=0; j < ncols; ++j) {
