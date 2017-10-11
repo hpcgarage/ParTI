@@ -90,7 +90,7 @@ if(USE_CUDA)
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)
-        target_link_libraries(ParTI magma) # not linking mkl libraries
+        # target_link_libraries(ParTI magma) # not linking mkl libraries
     endif()
     if(BUILD_STATIC)
         cuda_add_library(ParTI_s STATIC ${PARTI_SRC})
