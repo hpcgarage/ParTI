@@ -389,6 +389,7 @@ static inline size_t sptGetMatrixLength(const sptMatrix *mtx) {
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
 int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
+int sptMatrixDotMulSeqCol(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptCudaMatrixDotMulSeq(
     size_t const mode,

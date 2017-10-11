@@ -73,9 +73,9 @@ endif()
 
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -qopenmp -O3")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -qopenmp -O3")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
 # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.
@@ -86,6 +86,7 @@ if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
     list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/mttkrp_cuda_sm.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/cpd_magma.c" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/hicoo/cpd.c")
     list(REMOVE_ITEM PARTI_SRC "src/sptensor/cpd.c")
+
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)
@@ -94,7 +95,7 @@ if(USE_CUDA)
     if(BUILD_STATIC)
         cuda_add_library(ParTI_s STATIC ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI_s)
-        target_link_libraries(ParTI_s libmagma.a) # not linking mkl libraries
+        # target_link_libraries(ParTI_s libmagma.a) # not linking mkl libraries
     endif()
 else()
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h" "include/*.h")

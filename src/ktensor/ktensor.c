@@ -56,13 +56,16 @@ double KruskalTensorFit(
   sptIndex const nmodes = spten->nmodes;
 
   double spten_normsq = SparseTensorFrobeniusNormSquared(spten);
-  // printf("spten_normsq: %lf\n", spten_normsq);
+  printf("spten_normsq: %lf\n", spten_normsq);
   double const norm_mats = KruskalTensorFrobeniusNormSquared(nmodes, lambda, ata);
-  // printf("norm_mats: %lf\n", norm_mats);
+  printf("norm_mats: %lf\n", norm_mats);
   double const inner = SparseKruskalTensorInnerProduct(nmodes, lambda, mats, tmp_mat);
-  // printf("inner: %lf\n", inner);
-  double const residual = sqrt(spten_normsq + norm_mats - (2 * inner));
-  // printf("residual: %lf\n", residual);
+  printf("inner: %lf\n", inner);
+  double residual = spten_normsq + norm_mats - 2 * inner;
+  if (residual > 0.0) {
+    residual = sqrt(residual);
+  }
+  printf("residual: %lf\n", residual);
   double fit = 1 - (residual / sqrt(spten_normsq));
 
   return fit;
@@ -72,39 +75,44 @@ double KruskalTensorFit(
 double KruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
-  sptMatrix ** ata) 
+  sptMatrix ** ata) // ata: column-major
 {
   sptIndex const rank = ata[0]->ncols;
-  sptValue * const __restrict tmp_atavals = ata[nmodes]->values;
+  sptIndex const stride = ata[0]->stride;
+  sptValue * const __restrict tmp_atavals = ata[nmodes]->values;    // Column-major
   double norm_mats = 0;
 
-  for(sptIndex x=0; x < rank*rank; ++x) {
+  for(sptIndex x=0; x < rank*stride; ++x) {
     tmp_atavals[x] = 1.;
   }
 
   for(sptIndex m=0; m < nmodes; ++m) {
     sptValue const * const __restrict atavals = ata[m]->values;
-    for(sptIndex x=0; x < rank*rank; ++x) {
-      tmp_atavals[x] *= atavals[x];
+    for(size_t i=0; i < rank; ++i) {
+        for(size_t j=0; j < rank; ++j) {
+            tmp_atavals[j * stride + i] *= atavals[j * stride + i];
+        }
     }
   }
 
   for(sptIndex i=0; i < rank; ++i) {
     for(sptIndex j=0; j < rank; ++j) {
-      norm_mats += tmp_atavals[j+(i*rank)] * lambda[i] * lambda[j];
+      norm_mats += tmp_atavals[i+(j*stride)] * lambda[i] * lambda[j];
     }
   }
 
   return fabs(norm_mats);
 }
 
+
 double SparseKruskalTensorInnerProduct(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
-  sptMatrix ** mats,
+  sptMatrix ** mats,    // row-major
   sptMatrix const * const tmp_mat) 
 {
   sptIndex const rank = mats[0]->ncols;
+  sptIndex const stride = mats[0]->stride;
   sptIndex const last_mode = nmodes - 1;
   sptIndex const I = tmp_mat->nrows;
 
@@ -121,7 +129,7 @@ double SparseKruskalTensorInnerProduct(
 
   for(sptIndex i=0; i < I; ++i) {
     for(sptIndex r=0; r < rank; ++r) {
-      accum[r] += last_vals[r+(i*rank)] * tmp_vals[r+(i*rank)];
+      accum[r] += last_vals[r+(i*stride)] * tmp_vals[r+(i*stride)];
     }
   }
 

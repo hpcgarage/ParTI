@@ -327,6 +327,39 @@ int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats
 }
 
 
+int sptMatrixDotMulSeqCol(size_t const mode, size_t const nmodes, sptMatrix ** mats)
+{
+    size_t const nrows = mats[0]->nrows;
+    size_t const ncols = mats[0]->ncols;
+    size_t const stride = mats[0]->stride;
+    // printf("stride: %lu\n", stride);
+    for(size_t m=1; m<nmodes+1; ++m) {
+        assert(mats[m]->ncols == ncols);
+        assert(mats[m]->nrows == nrows);
+        assert(mats[m]->stride == stride);
+    }
+
+    sptScalar * ovals = mats[nmodes]->values;
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            ovals[j * stride + i] = 1;
+        }
+    }
+
+    for(size_t m=1; m < nmodes; ++m) {
+        size_t const pm = (mode + m) % nmodes;
+        sptScalar const * vals = mats[pm]->values;
+        for(size_t i=0; i < nrows; ++i) {
+            for(size_t j=0; j < ncols; ++j) {
+                ovals[j * stride + i] *= vals[j * stride + i];
+            }
+        }
+    }
+    
+    return 0;
+}
+
+
 
 int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats)
 {
