@@ -8,6 +8,7 @@ option(USE_CUDA "Use NVIDIA CUDA library" ON)
 option(USE_OpenBLAS "Use OpenBLAS library" OFF)
 option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
+option(USE_LAPACK "Use LAPACK library" OFF)
 
 # set(CMAKE_C_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc")
 # set(CMAKE_CXX_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icpc")
@@ -57,6 +58,17 @@ if(USE_MKL)
     include_directories("${MKL_DIR}/include")
     link_directories("${MKL_DIR}/lib")
 endif()
+if(USE_LAPACK)
+    find_library(
+        LAPACK_LIBRARIES
+        NAMES lapack
+        PATHS ${LAPACK_DIR}
+        NO_DEFAULT_PATH
+    )
+    add_definitions(-DPARTI_USE_LAPACK)
+    include_directories("${LAPACK_DIR}/LAPACKE/include" "${LAPACK_DIR}/CBLAS/include")
+    link_libraries("${LAPACK_DIR}/libcblas.a" "${LAPACK_DIR}/liblapack.a" "${LAPACK_DIR}/liblapacke.a" "${LAPACK_DIR}/librefblas.a" "${LAPACK_DIR}/libtmglib.a")
+endif()
 
 
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -qopenmp -O3")
@@ -72,16 +84,17 @@ link_libraries("m")
 
 if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/mttkrp_cuda_sm.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/hicoo/cpd.c")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/mttkrp_cuda_sm.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/cpd_magma.c" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/hicoo/cpd.c")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/cpd.c")
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI)
-        target_link_libraries(ParTI magma)
+        target_link_libraries(ParTI magma) # not linking mkl libraries
     endif()
     if(BUILD_STATIC)
         cuda_add_library(ParTI_s STATIC ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI_s)
-        target_link_libraries(ParTI_s libmagma.a) # use shared mkl libraries
+        target_link_libraries(ParTI_s libmagma.a) # not linking mkl libraries
     endif()
 else()
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h" "include/*.h")
