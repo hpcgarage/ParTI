@@ -14,5 +14,3 @@ tmp*
 out*
 
 build.config
-CMakeLists.txt
-tests/CMakeLists.txt

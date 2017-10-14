@@ -405,6 +405,7 @@ int sptCudaMatrix2Norm(
     size_t const stride,
     sptScalar * const dev_vals,
     sptScalar * const dev_lambda);
+int sptMatrixMaxNorm(sptMatrix * const A, sptScalar * const lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -500,7 +501,6 @@ double KruskalTensorFit(
   sptSparseTensor const * const spten,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats,
-  sptMatrix const * const tmp_mat,
   sptMatrix ** ata);
 double KruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
@@ -509,8 +509,7 @@ double KruskalTensorFrobeniusNormSquared(
 double SparseKruskalTensorInnerProduct(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
-  sptMatrix ** mats,
-  sptMatrix const * const tmp_mat);
+  sptMatrix ** mats);
 
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);

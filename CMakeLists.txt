@@ -85,8 +85,11 @@ link_libraries("m")
 
 if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/mttkrp_split.c" "src/sptensor/cpd_omp.c" "src/sptensor/hicoo/ttm.c" "src/sptensor/finesplit.c" "src/ssptensor/nvecs.cu" "src/sptensor/mttkrp_cuda_one_async.cu" "src/sptensor/mttkrp_cuda_sm.cu" "src/sptensor/cpd_cuda.cu" "src/sptensor/cpd_magma.c" "src/sptensor/all_splits.c" "src/sptensor/coarsesplit.c" "src/sptensor/mediumsplit.c" "src/sptensor/mttkrp_cuda_dist.cu" "src/sptensor/hicoo/cpd.c")
+    file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
+    list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c")
     list(REMOVE_ITEM PARTI_SRC "src/sptensor/cpd.c")
+    # MESSAGE( STATUS "PARTI_SRC:         " ${PARTI_SRC} )
 
     if(BUILD_SHARED)
         cuda_add_library(ParTI SHARED ${PARTI_SRC})

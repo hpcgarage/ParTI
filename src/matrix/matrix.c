@@ -398,13 +398,17 @@ int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** m
 
 
 
-
+// Row-major
 int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
 {
     size_t const nrows = A->nrows;
     size_t const ncols = A->ncols;
     size_t const stride = A->stride;
     sptScalar * const vals = A->values;
+
+    for(size_t j=0; j < ncols; ++j) {
+        lambda[j] = 0.0;
+    }
 
     for(size_t i=0; i < nrows; ++i) {
         for(size_t j=0; j < ncols; ++j) {
@@ -432,6 +436,10 @@ int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
     size_t const ncols = A->ncols;
     size_t const stride = A->stride;
     sptScalar * const vals = A->values;
+
+    for(size_t j=0; j < ncols; ++j) {
+        lambda[j] = 0.0;
+    }
 
     #pragma omp parallel
     {
@@ -469,6 +477,39 @@ int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda)
         }
 
     }   /* end parallel pragma */
+
+    return 0;
+}
+
+
+// Row-major
+int sptMatrixMaxNorm(sptMatrix * const A, sptScalar * const lambda)
+{
+    size_t const nrows = A->nrows;
+    size_t const ncols = A->ncols;
+    size_t const stride = A->stride;
+    sptScalar * const vals = A->values;
+
+    for(size_t j=0; j < ncols; ++j) {
+        lambda[j] = 0.0;
+    }
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            if(vals[i*stride + j] > lambda[j])
+                lambda[j] = vals[i*stride + j];
+        }
+    }
+    for(size_t j=0; j < ncols; ++j) {
+        if(lambda[j] < 1)
+            lambda[j] = 1;
+    }
+
+    for(size_t i=0; i < nrows; ++i) {
+        for(size_t j=0; j < ncols; ++j) {
+            vals[i*stride + j] /= lambda[j];
+        }
+    }
 
     return 0;
 }

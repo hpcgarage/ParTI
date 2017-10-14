@@ -6,7 +6,8 @@ if(USE_CUDA)
 else()
     file(GLOB_RECURSE TEST_SRCS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.c")
 endif()
-    list(REMOVE_ITEM TEST_SRCS "ttm_hicoo.cu" "mttkrp_one_fine.cu" "mttkrp_dist_fine.cu" "mttkrp_dist_medium.cu" "split_balanced.c" "mttkrp_one_coarse.cu" "split_idx.c" "mttkrp_one_medium.cu" "split_all.c" "mttkrp_dist_coarse.cu" "mttkrp_dist.cu")
+    file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "backup/*.c" "backup/*.cu")
+    list(REMOVE_ITEM TEST_SRCS ${IGNORED_FILES})
     list(REMOVE_ITEM TEST_SRCS "cpd.cu")
 
 

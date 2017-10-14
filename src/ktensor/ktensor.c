@@ -50,7 +50,6 @@ double KruskalTensorFit(
   sptSparseTensor const * const spten,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats,
-  sptMatrix const * const tmp_mat,
   sptMatrix ** ata) 
 {
   sptIndex const nmodes = spten->nmodes;
@@ -59,7 +58,7 @@ double KruskalTensorFit(
   printf("spten_normsq: %lf\n", spten_normsq);
   double const norm_mats = KruskalTensorFrobeniusNormSquared(nmodes, lambda, ata);
   printf("norm_mats: %lf\n", norm_mats);
-  double const inner = SparseKruskalTensorInnerProduct(nmodes, lambda, mats, tmp_mat);
+  double const inner = SparseKruskalTensorInnerProduct(nmodes, lambda, mats);
   printf("inner: %lf\n", inner);
   double residual = spten_normsq + norm_mats - 2 * inner;
   if (residual > 0.0) {
@@ -72,7 +71,8 @@ double KruskalTensorFit(
 }
 
 
-// Column-major
+// Column-major. 
+/* Compute a Kruskal tensor's norm is compute on "ata"s. Check Tammy's sparse  */
 double KruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
@@ -87,6 +87,7 @@ double KruskalTensorFrobeniusNormSquared(
     tmp_atavals[x] = 1.;
   }
 
+  /* Compute Hadamard product for all "ata"s */
   for(sptIndex m=0; m < nmodes; ++m) {
     sptValue const * const __restrict atavals = ata[m]->values;
     for(size_t i=0; i < rank; ++i) {
@@ -96,29 +97,35 @@ double KruskalTensorFrobeniusNormSquared(
     }
   }
 
+  /* compute lambda^T * aTa[MAX_NMODES] * lambda, only compute a half of them because of its symmetric */
   for(sptIndex i=0; i < rank; ++i) {
-    for(sptIndex j=0; j < rank; ++j) {
-      norm_mats += tmp_atavals[i+(j*stride)] * lambda[i] * lambda[j];
+    norm_mats += tmp_atavals[i+(i*stride)] * lambda[i] * lambda[i];
+    for(sptIndex j=i+1; j < rank; ++j) {
+      norm_mats += tmp_atavals[i+(j*stride)] * lambda[i] * lambda[j] * 2;
     }
   }
 
   return fabs(norm_mats);
 }
 
-
+// Row-major, compute via MTTKRP result (mats[nmodes]) and mats[nmodes-1].
 double SparseKruskalTensorInnerProduct(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
-  sptMatrix ** mats,    // row-major
-  sptMatrix const * const tmp_mat) 
+  sptMatrix ** mats) 
 {
   sptIndex const rank = mats[0]->ncols;
   sptIndex const stride = mats[0]->stride;
   sptIndex const last_mode = nmodes - 1;
-  sptIndex const I = tmp_mat->nrows;
+  sptIndex const I = mats[last_mode]->nrows;
 
+  printf("mats[nmodes-1]:\n");
+  sptDumpMatrix(mats[nmodes-1], stdout);
+  printf("mats[nmodes]:\n");
+  sptDumpMatrix(mats[nmodes], stdout);
+  
   sptValue const * const last_vals = mats[last_mode]->values;
-  sptValue const * const tmp_vals = tmp_mat->values;
+  sptValue const * const tmp_vals = mats[nmodes]->values;
 
   double inner = 0;
 

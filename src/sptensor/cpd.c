@@ -53,19 +53,18 @@ double CpdAlsStep(
     sptNewMatrix(ata[m], rank, rank);
   }
 
-  printf("rank: %d\n", *((magma_int_t*)&rank));
   for(size_t m=0; m < nmodes; ++m) {
     /* ata[m] = mats[m]^T * mats[m]) */
     // cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
     blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
       mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
   }
-  printf("Initial mats:\n");
-  for(size_t m=0; m < nmodes+1; ++m)
-    sptDumpMatrix(mats[m], stdout);
-  printf("Initial ata:\n");
-  for(size_t m=0; m < nmodes+1; ++m)
-    sptDumpMatrix(ata[m], stdout);
+  // printf("Initial mats:\n");
+  // for(size_t m=0; m < nmodes+1; ++m)
+  //   sptDumpMatrix(mats[m], stdout);
+  // printf("Initial ata:\n");
+  // for(size_t m=0; m < nmodes+1; ++m)
+  //   sptDumpMatrix(ata[m], stdout);
 
 
   double oldfit = 0;
@@ -98,13 +97,13 @@ double CpdAlsStep(
 
       // mats[nmodes]: row-major
       assert (sptMTTKRP(spten, mats, mats_order.data, m) == 0);
-      printf("sptMTTKRP mats[nmodes]:\n");
-      sptDumpMatrix(mats[nmodes], stdout);
+      // printf("sptMTTKRP mats[nmodes]:\n");
+      // sptDumpMatrix(mats[nmodes], stdout);
 
       // Column-major calculation
       sptMatrixDotMulSeqCol(m, nmodes, ata);
-      printf("sptMatrixDotMulSeqCol ata[nmodes]:\n");
-      sptDumpMatrix(ata[nmodes], stdout);
+      // printf("sptMatrixDotMulSeqCol ata[nmodes]:\n");
+      // sptDumpMatrix(ata[nmodes], stdout);
 
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride);
@@ -119,11 +118,15 @@ double CpdAlsStep(
       //   1.0, tmp_mat->values, tmp_mat->stride,
       //   unitMat->values, unitMat->stride,
       //   0.0, mats[m]->values, mats[m]->stride);
-      printf("Update mats[m]:\n");
-      sptDumpMatrix(mats[m], stdout);
+      // printf("Update mats[m]:\n");
+      // sptDumpMatrix(mats[m], stdout);
 
-      /* Normalized mats[m], store the norms in lambda */
-      sptMatrix2Norm(mats[m], lambda);
+      /* Normalized mats[m], store the norms in lambda. Use different norms to avoid precision explosion. */
+      if (it == 0 ) {
+        sptMatrix2Norm(mats[m], lambda);
+      } else {
+        sptMatrixMaxNorm(mats[m], lambda);
+      }
       printf("Normalize mats[m]:\n");
       sptDumpMatrix(mats[m], stdout);
       printf("lambda:\n");
@@ -142,7 +145,7 @@ double CpdAlsStep(
     } // Loop nmodes
 
     // PrintDenseValueVector(lambda, rank, "lambda", "debug.txt");
-    fit = KruskalTensorFit(spten, lambda, mats, tmp_mat, ata);
+    fit = KruskalTensorFit(spten, lambda, mats, ata);
 
     sptStopTimer(timer);
     sptPrintElapsedTime(timer, "Iteration");
