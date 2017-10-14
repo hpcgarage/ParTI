@@ -53,6 +53,7 @@ double CpdAlsStep(
     sptNewMatrix(ata[m], rank, rank);
   }
 
+  /* Compute all "ata"s */
   for(size_t m=0; m < nmodes; ++m) {
     /* ata[m] = mats[m]^T * mats[m]) */
     // cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
@@ -105,13 +106,14 @@ double CpdAlsStep(
       // printf("sptMatrixDotMulSeqCol ata[nmodes]:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
+      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride);
-      magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride, &info);
-      printf("Inverse mats[nmodes]:\n");
-      sptDumpMatrix(tmp_mat, stdout);
+      magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, mats[m]->values, mats[m]->stride, &info);
+      // printf("Inverse mats[m]:\n");
+      // sptDumpMatrix(mats[m], stdout);
 
-      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
+
       /* sptMatrixMultiply(tmp_mat, ata[nmodes], mats[m]); */
       // cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
       //   tmp_mat->nrows, rank, mats[m]->ncols,
@@ -127,18 +129,18 @@ double CpdAlsStep(
       } else {
         sptMatrixMaxNorm(mats[m], lambda);
       }
-      printf("Normalize mats[m]:\n");
-      sptDumpMatrix(mats[m], stdout);
-      printf("lambda:\n");
-      for(size_t i=0; i<rank; ++i)
-        printf("%lf  ", lambda[i]);
-      printf("\n\n");
+      // printf("Normalize mats[m]:\n");
+      // sptDumpMatrix(mats[m], stdout);
+      // printf("lambda:\n");
+      // for(size_t i=0; i<rank; ++i)
+      //   printf("%lf  ", lambda[i]);
+      // printf("\n\n");
 
       /* ata[m] = mats[m]^T * mats[m]) */
       // cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
       blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha, mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
-      printf("Update ata[m]:\n");
-      sptDumpMatrix(ata[m], stdout);
+      // printf("Update ata[m]:\n");
+      // sptDumpMatrix(ata[m], stdout);
 
       // timer_stop(&modetime[m]);
 
@@ -165,7 +167,7 @@ double CpdAlsStep(
 
   } // Loop niters
 
-  // GetFinalLambda(rank, nmodes, mats, lambda);
+  GetFinalLambda(rank, nmodes, mats, lambda);
 
   for(size_t m=0; m < nmodes+1; ++m) {
     sptFreeMatrix(ata[m]);

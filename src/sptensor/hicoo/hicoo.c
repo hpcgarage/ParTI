@@ -209,3 +209,14 @@ void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr)
     free(hitsr->sortorder);
     free(hitsr->ndims);
 }
+
+
+double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr) 
+{
+  double norm = 0;
+  sptValue const * const restrict vals = hitsr->values.data;
+  for(size_t n=0; n < hitsr->nnz; ++n) {
+    norm += vals[n] * vals[n];
+  }
+  return norm;
+}

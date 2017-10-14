@@ -406,6 +406,11 @@ int sptCudaMatrix2Norm(
     sptScalar * const dev_vals,
     sptScalar * const dev_lambda);
 int sptMatrixMaxNorm(sptMatrix * const A, sptScalar * const lambda);
+void GetFinalLambda(
+  size_t const rank,
+  size_t const nmodes,
+  sptMatrix ** mats,
+  sptScalar * const lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -469,7 +474,7 @@ int sptSparseTensorToHiCOO(
     const sptElementIndex sc_bits);
 int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp);
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
-
+double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr);
 
 
 /**
@@ -499,6 +504,11 @@ void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
 int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp);
 double KruskalTensorFit(
   sptSparseTensor const * const spten,
+  sptValue const * const __restrict lambda,
+  sptMatrix ** mats,
+  sptMatrix ** ata);
+double KruskalTensorFitHiCOO(
+  sptSparseTensorHiCOO const * const hitsr,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats,
   sptMatrix ** ata);
@@ -783,7 +793,12 @@ int sptCudaCpdAls(
   size_t const niters,
   double const tol,
   sptKruskalTensor * ktensor);
-
+int sptCpdAlsHiCOO(
+  sptSparseTensorHiCOO const * const hitsr,
+  sptIndex const rank,
+  sptIndex const niters,
+  double const tol,
+  sptKruskalTensor * ktensor);
 
 /**
  * OMP functions

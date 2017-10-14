@@ -513,3 +513,22 @@ int sptMatrixMaxNorm(sptMatrix * const A, sptScalar * const lambda)
 
     return 0;
 }
+
+
+void GetFinalLambda(
+  size_t const rank,
+  size_t const nmodes,
+  sptMatrix ** mats,
+  sptScalar * const lambda)
+{
+  sptScalar * tmp_lambda =  (sptScalar *) malloc(rank * sizeof(*tmp_lambda));
+
+  for(size_t m=0; m < nmodes; ++m) {
+    sptMatrix2Norm(mats[m], tmp_lambda);
+    for(size_t r=0; r < rank; ++r) {
+      lambda[r] *= tmp_lambda[r];
+    }
+  }
+
+  free(tmp_lambda);
+}
