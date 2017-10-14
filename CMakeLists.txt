@@ -95,7 +95,6 @@ if(USE_CUDA)
     if(BUILD_STATIC)
         cuda_add_library(ParTI_s STATIC ${PARTI_SRC})
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI_s)
-        # target_link_libraries(ParTI_s libmagma.a) # not linking mkl libraries
     endif()
 else()
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h" "include/*.h")

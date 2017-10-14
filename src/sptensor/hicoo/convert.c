@@ -496,6 +496,7 @@ int sptPreprocessSparseTensor_RowBlock(
 
 int sptSparseTensorToHiCOO(
     sptSparseTensorHiCOO *hitsr,
+    sptNnzIndex *max_nnzb,
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
@@ -650,6 +651,18 @@ int sptSparseTensorToHiCOO(
     free(block_end);
     free(block_begin_prior);
     free(block_coord);
+
+
+    *max_nnzb = hitsr->bptr.data[1] - hitsr->bptr.data[0];
+    sptNnzIndex sum_nnzb = 0;
+    for(sptIndex i=0; i < hitsr->bptr.len - 1; ++i) {
+        sptNnzIndex nnzb = hitsr->bptr.data[i+1] - hitsr->bptr.data[i];
+        sum_nnzb += nnzb;
+        if(*max_nnzb < nnzb) {
+          *max_nnzb = nnzb;
+        }
+    }
+    sptAssert(sum_nnzb == hitsr->nnz);
 
 	return 0;
 }

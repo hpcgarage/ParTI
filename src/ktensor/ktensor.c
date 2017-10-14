@@ -72,6 +72,7 @@ double KruskalTensorFit(
 }
 
 
+// Column-major
 double KruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,

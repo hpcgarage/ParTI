@@ -7,11 +7,12 @@ timing_*/
 timing/
 timing-*/
 summary/
-build.config
 *.ptx
 *.mex*
 docs/latex
 tmp*
 out*
 
+build.config
 CMakeLists.txt
+tests/CMakeLists.txt

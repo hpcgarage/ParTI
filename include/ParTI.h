@@ -461,6 +461,7 @@ int sptNewSparseTensorHiCOO_NoNnz(
 void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr);
 int sptSparseTensorToHiCOO(
     sptSparseTensorHiCOO *hitsr, 
+    sptNnzIndex *max_nnzb,
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
