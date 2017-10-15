@@ -87,7 +87,7 @@ if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
     list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
-    # list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/cpd.c")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/cpd.c")
     # MESSAGE( STATUS "PARTI_SRC:         " ${PARTI_SRC} )
 
     if(BUILD_SHARED)
