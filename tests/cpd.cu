@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
     sptSparseTensor X;
     size_t R = 8;
     int niters = 50;
-    double tol = 1e-5;
+    double tol = 1e-4;
     sptKruskalTensor ktensor;
     int nloops = 5;
     int cuda_dev_id = -2;

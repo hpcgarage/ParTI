@@ -24,7 +24,9 @@
 #include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
-#include <omp.h>
+#ifdef PARTI_USE_OPENMP
+    #include <omp.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

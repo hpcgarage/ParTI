@@ -9,6 +9,7 @@ option(USE_OpenBLAS "Use OpenBLAS library" OFF)
 option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
 option(USE_LAPACK "Use LAPACK library" OFF)
+option(USE_OPENMP "Use OPENMP" ON)
 
 # set(CMAKE_C_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc")
 # set(CMAKE_CXX_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icpc")
@@ -74,9 +75,15 @@ endif()
 
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -qopenmp -O3")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -qopenmp -O3")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
-# -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+if(USE_OPENMP)
+    add_definitions(-DPARTI_USE_OPENMP)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+    # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+endif()
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.
@@ -87,7 +94,7 @@ if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
     list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/cpd.c")
+    list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c")
     # MESSAGE( STATUS "PARTI_SRC:         " ${PARTI_SRC} )
 
     if(BUILD_SHARED)

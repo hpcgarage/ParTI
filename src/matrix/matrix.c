@@ -22,7 +22,6 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include <omp.h>
 #include "../error/error.h"
 
 /**

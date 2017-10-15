@@ -39,12 +39,10 @@ double CpdAlsStep(
   for(size_t m=0; m < nmodes; ++m) {
     assert(spten->ndims[m] == mats[m]->nrows);
     assert(mats[m]->ncols == rank);
-    assert(mats[m]->stride == rank);  // for correct column-major magma functions
+    // assert(mats[m]->stride == rank);  // for correct column-major magma functions
   }
 
-  magma_init();
   sptScalar alpha = 1.0, beta = 0.0;
-
 
   sptMatrix * tmp_mat = mats[nmodes];
   sptMatrix ** ata = (sptMatrix **)malloc((nmodes+1) * sizeof(*ata)); // symmetric matrices, but in column-major
@@ -97,7 +95,7 @@ double CpdAlsStep(
       // sptDumpSizeVector(&mats_order, stdout);
 
       // mats[nmodes]: row-major
-      assert (sptMTTKRP(spten, mats, mats_order.data, m) == 0);
+      sptAssert (sptMTTKRP(spten, mats, mats_order.data, m) == 0);
       // printf("sptMTTKRP mats[nmodes]:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
@@ -110,6 +108,7 @@ double CpdAlsStep(
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride);
       magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, mats[m]->values, mats[m]->stride, &info);
+      sptAssert ( info == 0 );
       // printf("Inverse mats[m]:\n");
       // sptDumpMatrix(mats[m], stdout);
 
@@ -150,11 +149,11 @@ double CpdAlsStep(
     fit = KruskalTensorFit(spten, lambda, mats, ata);
 
     sptStopTimer(timer);
-    sptPrintElapsedTime(timer, "Iteration");
+    double its_time = sptElapsedTime(timer);
     sptFreeTimer(timer);
 
-    printf("  its = %3lu  fit = %0.5f  delta = %+0.4e\n",
-        it+1, fit, fit - oldfit);
+    printf("  its = %3lu ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
+        it+1, its_time, fit, fit - oldfit);
     // for(IndexType m=0; m < nmodes; ++m) {
     //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
     //       modetime[m].seconds);
@@ -177,8 +176,6 @@ double CpdAlsStep(
   free(ipiv);
   // free(modetime);
 
-  magma_finalize();
-
   return fit;
 }
 
@@ -191,6 +188,7 @@ int sptCpdAls(
   sptKruskalTensor * ktensor)
 {
   size_t nmodes = spten->nmodes;
+  magma_init();
 
   /* Initialize factor matrices */
   size_t max_dim = sptMaxSizeArray(spten->ndims, nmodes);
@@ -205,6 +203,7 @@ int sptCpdAls(
   }
   sptNewMatrix(mats[nmodes], max_dim, rank);
 
+
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
@@ -217,6 +216,7 @@ int sptCpdAls(
 
   ktensor->factors = mats;
 
+  magma_finalize();
   sptFreeMatrix(mats[nmodes]);
 
   return 0;

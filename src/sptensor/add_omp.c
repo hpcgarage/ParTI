@@ -18,7 +18,6 @@
 
 #include <ParTI.h>
 #include "sptensor.h"
-#include <omp.h>
 
 
 /* TODO: bug. */
