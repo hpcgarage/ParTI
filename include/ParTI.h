@@ -376,15 +376,11 @@ int sptNewMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols);
 int sptIdentityMatrix(sptMatrix *mtx);
 int sptConstantMatrix(sptMatrix * const mtx, sptScalar const val);
-int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 void sptFreeMatrix(sptMatrix *mtx);
 int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 int sptAppendMatrix(sptMatrix *mtx, const sptScalar values[]);
 int sptResizeMatrix(sptMatrix *mtx, size_t newsize);
-int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val);
-void sptFreeRankMatrix(sptRankMatrix *mtx);
-int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp);
 static inline size_t sptGetMatrixLength(const sptMatrix *mtx) {
     return mtx->nrows * mtx->stride;
 }
@@ -392,7 +388,6 @@ int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
 int sptMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptMatrixDotMulSeqCol(size_t const mode, size_t const nmodes, sptMatrix ** mats);
-int sptOmpMatrixDotMulSeq(size_t const mode, size_t const nmodes, sptMatrix ** mats);
 int sptCudaMatrixDotMulSeq(
     size_t const mode,
     size_t const nmodes,
@@ -400,7 +395,6 @@ int sptCudaMatrixDotMulSeq(
     const size_t stride,
     sptScalar ** dev_ata);
 int sptMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
-int sptOmpMatrix2Norm(sptMatrix * const A, sptScalar * const lambda);
 int sptCudaMatrix2Norm(
     size_t const nrows,
     size_t const ncols,
@@ -408,6 +402,22 @@ int sptCudaMatrix2Norm(
     sptScalar * const dev_vals,
     sptScalar * const dev_lambda);
 int sptMatrixMaxNorm(sptMatrix * const A, sptScalar * const lambda);
+void GetFinalLambda(
+  size_t const rank,
+  size_t const nmodes,
+  sptMatrix ** mats,
+  sptScalar * const lambda);
+
+
+/* Dense Rank matrix, ncols = small rank (<= 256) */
+int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols);
+int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols);
+int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val);
+void sptFreeRankMatrix(sptRankMatrix *mtx);
+int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp);
+int sptRankMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats);
+int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda);
+int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda);
 void GetFinalLambda(
   size_t const rank,
   size_t const nmodes,
@@ -512,16 +522,24 @@ double KruskalTensorFit(
 double KruskalTensorFitHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptValue const * const __restrict lambda,
-  sptMatrix ** mats,
-  sptMatrix ** ata);
+  sptRankMatrix ** mats,
+  sptRankMatrix ** ata);
 double KruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptMatrix ** ata);
+double KruskalTensorFrobeniusNormSquaredRank(
+  sptIndex const nmodes,
+  sptValue const * const __restrict lambda,
+  sptRankMatrix ** ata);
 double SparseKruskalTensorInnerProduct(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats);
+double SparseKruskalTensorInnerProductRank(
+  sptIndex const nmodes,
+  sptValue const * const __restrict lambda,
+  sptRankMatrix ** mats);
 
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
@@ -788,6 +806,8 @@ int sptOmpCpdAls(
   size_t const rank,
   size_t const niters,
   double const tol,
+  const int tk,
+  const int use_reduce,
   sptKruskalTensor * ktensor);
 int sptCudaCpdAls(
   sptSparseTensor const * const spten,
@@ -796,6 +816,12 @@ int sptCudaCpdAls(
   double const tol,
   sptKruskalTensor * ktensor);
 int sptCpdAlsHiCOO(
+  sptSparseTensorHiCOO const * const hitsr,
+  sptIndex const rank,
+  sptIndex const niters,
+  double const tol,
+  sptKruskalTensor * ktensor);
+int sptOmpCpdAlsHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
   sptIndex const niters,

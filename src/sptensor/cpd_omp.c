@@ -30,11 +30,15 @@ double OmpCpdAlsStep(
   size_t const rank,
   size_t const niters,
   double const tol,
+  const int tk,
+  const int use_reduce,
   sptMatrix ** mats,  // Row-major
+  sptMatrix ** copy_mats, 
   sptScalar * const lambda)
 {
   size_t const nmodes = spten->nmodes;
   double fit = 0;
+  omp_set_num_threads(tk);
 
   for(size_t m=0; m < nmodes; ++m) {
     assert(spten->ndims[m] == mats[m]->nrows);
@@ -95,7 +99,11 @@ double OmpCpdAlsStep(
       // sptDumpSizeVector(&mats_order, stdout);
 
       // mats[nmodes]: row-major
-      sptAssert (sptMTTKRP(spten, mats, mats_order.data, m) == 0);
+      if(use_reduce == 1) {
+        sptAssert (sptOmpMTTKRP(spten, mats, mats_order.data, m, tk) == 0);
+      } else {
+        sptAssert (sptOmpMTTKRP_Reduce(spten, mats, copy_mats, mats_order.data, m, tk) == 0);
+      }
       // printf("sptMTTKRP mats[nmodes]:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
@@ -104,7 +112,17 @@ double OmpCpdAlsStep(
       // printf("sptMatrixDotMulSeqCol ata[nmodes]:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
-      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
+      // memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
+      // Row-major
+#ifdef PARTI_USE_OPENMP
+    #pragma omp parallel for
+#endif
+      for(size_t i=0; i<mats[m]->nrows; ++i) {
+        for(size_t j=0; j<mats[m]->ncols; ++j) {
+          mats[m]->values[i * mats[m]->stride + j] = tmp_mat->values[i * mats[m]->stride + j];
+        } 
+      }
+
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride);
       magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, mats[m]->values, mats[m]->stride, &info);
@@ -185,6 +203,8 @@ int sptOmpCpdAls(
   size_t const rank,
   size_t const niters,
   double const tol,
+  const int tk,
+  const int use_reduce,
   sptKruskalTensor * ktensor)
 {
   size_t nmodes = spten->nmodes;
@@ -197,18 +217,28 @@ int sptOmpCpdAls(
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
   for(size_t m=0; m < nmodes; ++m) {
-    // assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
-    // assert(sptConstantMatrix(mats[m], 1) == 0);
-    assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
+    // sptAssert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
+    // sptAssert(sptConstantMatrix(mats[m], 1) == 0);
+    sptAssert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
   }
   sptNewMatrix(mats[nmodes], max_dim, rank);
+  sptAssert(sptConstantMatrix(mats[nmodes], 0) == 0);
 
+  sptMatrix ** copy_mats;
+  if(use_reduce == 1) {
+    copy_mats = (sptMatrix **)malloc(tk * sizeof(*copy_mats));
+    for(int t=0; t<tk; ++t) {
+      copy_mats[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
+      sptAssert(sptNewMatrix(copy_mats[t], max_dim, rank) == 0);
+      sptAssert(sptConstantRankMatrix(copy_mats[t], 0) == 0);
+    }
+  }
 
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = OmpCpdAlsStep(spten, rank, niters, tol, mats, ktensor->lambda);
+  ktensor->fit = OmpCpdAlsStep(spten, rank, niters, tol, tk, use_reduce, mats, copy_mats, ktensor->lambda);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  SpTns CPD-ALS");
@@ -218,6 +248,13 @@ int sptOmpCpdAls(
 
   magma_finalize();
   sptFreeMatrix(mats[nmodes]);
+  if(use_reduce == 1) {
+    for(int t=0; t<tk; ++t) {
+      sptFreeMatrix(copy_mats[t]);
+      free(copy_mats[t]);
+    }
+    free(copy_mats);
+  }
 
   return 0;
 }

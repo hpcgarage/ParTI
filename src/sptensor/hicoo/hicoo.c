@@ -215,6 +215,10 @@ double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const 
 {
   double norm = 0;
   sptValue const * const restrict vals = hitsr->values.data;
+
+#ifdef PARTI_USE_OPENMP
+  #pragma omp parallel for reduction(+:norm)
+#endif
   for(size_t n=0; n < hitsr->nnz; ++n) {
     norm += vals[n] * vals[n];
   }

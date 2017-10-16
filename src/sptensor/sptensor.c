@@ -96,6 +96,10 @@ double SparseTensorFrobeniusNormSquared(sptSparseTensor const * const spten)
 {
   double norm = 0;
   sptScalar const * const restrict vals = spten->values.data;
+  
+#ifdef PARTI_USE_OPENMP
+  #pragma omp parallel for reduction(+:norm)
+#endif
   for(size_t n=0; n < spten->nnz; ++n) {
     norm += vals[n] * vals[n];
   }

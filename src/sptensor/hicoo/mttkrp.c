@@ -58,7 +58,6 @@ int sptMTTKRPHiCOO(
 
     if(nmodes == 3) {
         sptAssert(sptMTTKRPHiCOO_3D(hitsr, mats, mats_order, mode) == 0);
-        // sptAssert(sptMTTKRPHiCOO_3D_MatrixTiling_init(hitsr, mats, mats_order, mode) == 0);
         return 0;
     }
 

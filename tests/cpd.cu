@@ -31,9 +31,10 @@ int main(int argc, char const *argv[]) {
     int nloops = 5;
     int cuda_dev_id = -2;
     int nthreads;
+    int use_reduce;
 
     if(argc < 2) {
-        printf("Usage: %s X [cuda_dev_id, R, ktensor]\n\n", argv[0]);
+        printf("Usage: %s X [cuda_dev_id, nthreads, R, use_reduce, ktensor]\n\n", argv[0]);
         return 1;
     }
 
@@ -58,14 +59,16 @@ int main(int argc, char const *argv[]) {
     if(cuda_dev_id == -2) {
         nthreads = 1;
         sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } /* else if(cuda_dev_id == -1) {
+    } else if(cuda_dev_id == -1) {
+        use_reduce = 1;
         #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
         }
         printf("nthreads: %d\n", nthreads);
-        sptAssert(sptOmpCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } else {
+        printf("use_reduce: %d\n", use_reduce);
+        sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
+    } /* else {
          sptCudaSetDevice(cuda_dev_id);
          sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
     } */

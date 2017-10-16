@@ -24,7 +24,7 @@
 #include "hicoo.h"
 
 
-double CpdAlsStepHiCOO(
+double OmpCpdAlsStepHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
   sptIndex const niters,
@@ -164,7 +164,7 @@ printf("OK-2\n"); fflush(stdout);
 }
 
 
-int sptCpdAlsHiCOO(
+int sptOmpCpdAlsHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
   sptIndex const niters,
@@ -191,7 +191,7 @@ int sptCpdAlsHiCOO(
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = CpdAlsStepHiCOO(hitsr, rank, niters, tol, mats, ktensor->lambda);
+  ktensor->fit = OmpCpdAlsStepHiCOO(hitsr, rank, niters, tol, mats, ktensor->lambda);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  HiCOO SpTns CPD-ALS");
