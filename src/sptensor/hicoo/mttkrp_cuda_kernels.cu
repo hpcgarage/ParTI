@@ -87,6 +87,17 @@ int sptMTTKRPKernelHiCOO(
             }
             shr_size = 2 * nmodes * sizeof(sptIndex);
             break;
+        case 4:
+            nthreadsx = R;
+            nthreadsy = (sptIndex)pow(2, sc_bits);
+            if(all_nblocks < max_nblocks) {
+                nblocks = all_nblocks;
+            } else {
+                nblocks = max_nblocks;
+            }
+            shr_size = 2 * nmodes * sizeof(sptIndex);
+            break;
+
         }
         dim3 dimBlock(nthreadsx, nthreadsy);
         switch(impl_num) {
@@ -137,6 +148,28 @@ int sptMTTKRPKernelHiCOO(
             printf("Execute spt_MTTKRPKernelRankNnz3DOneKernel (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
 
             spt_MTTKRPKernelRankSplitHiCOO_3D_naive<<<nblocks, dimBlock, shr_size>>>(
+                mode,
+                nmodes,
+                nnz,
+                R,
+                stride,
+                sb_bits,
+                sc_bits,
+                kptr_begin,
+                kptr_end,
+                dev_ndims,
+                dev_cptr,
+                dev_bptr,
+                dev_binds,
+                dev_einds,
+                dev_values,
+                dev_mats_order,
+                dev_mats);
+            break;
+        case 4:
+            printf("Execute spt_MTTKRPKernelRankNnz3DOneKernel (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
+
+            spt_MTTKRPKernelRankSplitHiCOORB_3D_naive<<<nblocks, dimBlock, shr_size>>>(
                 mode,
                 nmodes,
                 nnz,
@@ -430,6 +463,9 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
     /*if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
     }*/
+    sptIndex r = 0;
+    r = tidx;
+
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
         sptNnzIndex b = blockIdx.x + nb * gridDim.y;
         /* Block indices */
@@ -439,8 +475,6 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
         sptNnzIndex bptr_begin = dev_bptr[b];
         sptNnzIndex bptr_end = dev_bptr[b+1];
         __syncthreads();
-        sptIndex r = 0;
-        r = tidx;
 
         z = tidy + bptr_begin;
         if(z < bptr_end) {
