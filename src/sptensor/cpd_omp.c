@@ -100,9 +100,9 @@ double OmpCpdAlsStep(
 
       // mats[nmodes]: row-major
       if(use_reduce == 1) {
-        sptAssert (sptOmpMTTKRP(spten, mats, mats_order.data, m, tk) == 0);
-      } else {
         sptAssert (sptOmpMTTKRP_Reduce(spten, mats, copy_mats, mats_order.data, m, tk) == 0);
+      } else {
+        sptAssert (sptOmpMTTKRP(spten, mats, mats_order.data, m, tk) == 0);
       }
       // printf("sptMTTKRP mats[nmodes]:\n");
       // sptDumpMatrix(mats[nmodes], stdout);

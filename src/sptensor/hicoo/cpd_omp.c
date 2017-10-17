@@ -29,16 +29,22 @@ double OmpCpdAlsStepHiCOO(
   sptIndex const rank,
   sptIndex const niters,
   double const tol,
+  const int tk,
+  const int tb,
+  const int * par_iters,
   sptRankMatrix ** mats,
+  sptRankMatrix *** copy_mats,
   sptValue * const lambda)
 {
   sptIndex const nmodes = hitsr->nmodes;
+  sptIndex const stride = mats[0]->stride;
   double fit = 0;
+  omp_set_num_threads(tk);
 
+  // sptAssert(stride == rank);  // for correct column-major magma functions
   for(sptIndex m=0; m < nmodes; ++m) {
-    assert(hitsr->ndims[m] == mats[m]->nrows);
-    assert(mats[m]->ncols == rank);
-    // assert(mats[m]->stride == rank);  // for correct column-major magma functions
+    sptAssert(hitsr->ndims[m] == mats[m]->nrows);
+    sptAssert(mats[m]->ncols == rank);
   }
 
   sptValue alpha = 1.0, beta = 0.0;
@@ -48,20 +54,21 @@ double OmpCpdAlsStepHiCOO(
   for(sptIndex m=0; m < nmodes+1; ++m) {
     ata[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
     sptNewRankMatrix(ata[m], rank, rank);
+    sptAssert(mats[m]->stride == ata[m]->stride);
   }
 
   /* Compute all "ata"s */
   for(sptIndex m=0; m < nmodes; ++m) {
     /* ata[m] = mats[m]^T * mats[m]) */
     blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
-      mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
+      mats[m]->values, (magma_int_t*)&stride, mats[m]->values, (magma_int_t*)&stride, &beta, ata[m]->values, (magma_int_t*)&stride);
   }
   // printf("Initial mats:\n");
   // for(size_t m=0; m < nmodes+1; ++m)
-  //   sptDumpMatrix(mats[m], stdout);
+  //   sptDumpRankMatrix(mats[m], stdout);
   // printf("Initial ata:\n");
   // for(sptIndex m=0; m < nmodes+1; ++m)
-  //   sptDumpMatrix(ata[m], stdout);
+  //   sptDumpRankMatrix(ata[m], stdout);
 
   double oldfit = 0;
 
@@ -90,23 +97,26 @@ double OmpCpdAlsStepHiCOO(
       for(sptIndex i=1; i<nmodes; ++i)
           mats_order[i] = (m+i) % nmodes;     
 
-      sptAssert (sptMTTKRPHiCOO_MatrixTiling(hitsr, mats, mats_order, m) == 0);  
-      printf("sptMTTKRPHiCOO_MatrixTiling mats[nmodes]:\n");
-      sptDumpMatrix(mats[nmodes], stdout);
+      // sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling(hitsr, mats, mats_order, m) == 0);  
+      if(par_iters[m] == 1) {
+        sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(hitsr, mats, copy_mats[m], mats_order, m, tk, tb) == 0);
+      } else {
+        sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(hitsr, mats, mats_order, m, tk, tb) == 0);
+      }
+      // printf("sptMTTKRPHiCOO_MatrixTiling mats[nmodes]:\n");
+      // sptDumpRankMatrix(mats[nmodes], stdout);
 
       // Column-major calculation
       sptRankMatrixDotMulSeqCol(m, nmodes, ata);
       // printf("sptRankMatrixDotMulSeqCol ata[nmodes]:\n");
-      // sptDumpMatrix(ata[nmodes], stdout);
+      // sptDumpRankMatrix(ata[nmodes], stdout);
 
-      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptValue));
-printf("OK-1\n"); fflush(stdout);
+      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * stride * sizeof(sptValue));
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
-      magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, mats[m]->values, mats[m]->stride, &info);
+      magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, stride, ipiv, mats[m]->values, stride, &info);
       sptAssert ( info == 0 );
-printf("OK-2\n"); fflush(stdout);
       // printf("Inverse mats[m]:\n");
-      // sptDumpMatrix(mats[m], stdout);
+      // sptDumpRankMatrix(mats[m], stdout);
 
       /* Normalized mats[m], store the norms in lambda. Use different norms to avoid precision explosion. */
       if (it == 0 ) {
@@ -115,16 +125,16 @@ printf("OK-2\n"); fflush(stdout);
         sptRankMatrixMaxNorm(mats[m], lambda);
       }
       // printf("Normalize mats[m]:\n");
-      // sptDumpMatrix(mats[m], stdout);
+      // sptDumpRankMatrix(mats[m], stdout);
       // printf("lambda:\n");
       // for(size_t i=0; i<rank; ++i)
       //   printf("%lf  ", lambda[i]);
       // printf("\n\n");
 
       /* ata[m] = mats[m]^T * mats[m]) */
-      blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha, mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
+      blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha, mats[m]->values, (magma_int_t*)&stride, mats[m]->values, (magma_int_t*)&stride, &beta, ata[m]->values, (magma_int_t*)&stride);
       // printf("Update ata[m]:\n");
-      // sptDumpMatrix(ata[m], stdout);
+      // sptDumpRankMatrix(ata[m], stdout);
 
       // timer_stop(&modetime[m]);
 
@@ -137,7 +147,7 @@ printf("OK-2\n"); fflush(stdout);
     double its_time = sptElapsedTime(timer);
     sptFreeTimer(timer);
 
-    printf("  its = %3lu ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
+    printf("  its = %3u ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
         it+1, its_time, fit, fit - oldfit);
     // for(IndexType m=0; m < nmodes; ++m) {
     //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
@@ -169,13 +179,18 @@ int sptOmpCpdAlsHiCOO(
   sptIndex const rank,
   sptIndex const niters,
   double const tol,
-  sptKruskalTensor * ktensor)
+  const int tk,
+  const int tb,
+  sptRankKruskalTensor * ktensor)
 {
   sptIndex nmodes = hitsr->nmodes;
   magma_init();
 
   /* Initialize factor matrices */
-  sptIndex max_dim = sptMaxSizeArray(hitsr->ndims, nmodes);
+  sptIndex max_dim = 0;
+  for(sptIndex m=0; m < nmodes; ++m) {
+    max_dim = (hitsr->ndims[m] > max_dim) ? hitsr->ndims[m] : max_dim;
+  }
   sptRankMatrix ** mats = (sptRankMatrix **)malloc((nmodes+1) * sizeof(*mats));
   for(sptIndex m=0; m < nmodes+1; ++m) {
     mats[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
@@ -186,12 +201,42 @@ int sptOmpCpdAlsHiCOO(
     assert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
   }
   sptNewRankMatrix(mats[nmodes], max_dim, rank);
+  sptAssert(sptConstantRankMatrix(mats[nmodes], 0) == 0);
+
+  /* determine niters or num_kernel_dim to be parallelized */
+  int * par_iters = (int *)malloc(nmodes * sizeof(*par_iters));
+  sptIndex sk = (sptIndex)pow(2, hitsr->sk_bits);
+  for(sptIndex m=0; m < nmodes; ++m) {
+    par_iters[m] = 0;
+    sptIndex num_kernel_dim = (hitsr->ndims[m] + sk - 1) / sk;
+    // printf("num_kernel_dim: %u, hitsr->nkiters[m] / num_kernel_dim: %u\n", num_kernel_dim, hitsr->nkiters[m]/num_kernel_dim);
+    if(num_kernel_dim <= 24 && hitsr->nkiters[m] / num_kernel_dim >= 20) {
+        par_iters[m] = 1;
+    }
+  }
+  printf("par_iters:\n");
+  for(sptIndex m=0; m < nmodes; ++m) {
+    printf("%d, ", par_iters[m]);
+  }
+  printf("\n");
+
+  sptRankMatrix *** copy_mats = (sptRankMatrix ***)malloc(nmodes * sizeof(*copy_mats));
+  for(sptIndex m=0; m < nmodes; ++m) {
+    if (par_iters[m] == 1) {
+      copy_mats[m] = (sptRankMatrix **)malloc(tk * sizeof(sptRankMatrix*));
+      for(int t=0; t<tk; ++t) {
+        copy_mats[m][t] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
+        sptAssert(sptNewRankMatrix(copy_mats[m][t], hitsr->ndims[m], rank) == 0);
+        sptAssert(sptConstantRankMatrix(copy_mats[m][t], 0) == 0);
+      }
+    }
+  }
 
   sptTimer timer;
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = OmpCpdAlsStepHiCOO(hitsr, rank, niters, tol, mats, ktensor->lambda);
+  ktensor->fit = OmpCpdAlsStepHiCOO(hitsr, rank, niters, tol, tk, tb, par_iters,  mats, copy_mats, ktensor->lambda);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  HiCOO SpTns CPD-ALS");
@@ -201,6 +246,16 @@ int sptOmpCpdAlsHiCOO(
 
   magma_finalize();
   sptFreeRankMatrix(mats[nmodes]);
+  for(sptIndex m=0; m < nmodes; ++m) {
+    if(par_iters[m] == 1) {
+      for(int t=0; t<tk; ++t) {
+        sptFreeRankMatrix(copy_mats[m][t]);
+        free(copy_mats[m][t]);
+      }
+      free(copy_mats[m]);
+    }
+  }
+  free(copy_mats);
 
   return 0;
 }

@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]) {
     int nloops = 5;
     int cuda_dev_id = -2;
     int nthreads;
-    int use_reduce;
+    int use_reduce = 1;
 
     if(argc < 2) {
         printf("Usage: %s X [cuda_dev_id, nthreads, R, use_reduce, ktensor]\n\n", argv[0]);
@@ -42,17 +42,23 @@ int main(int argc, char const *argv[]) {
     sptAssert(fX != NULL);
     sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
+    sptSparseTensorStatus(&X, stdout);
     // sptDumpSparseTensor(&X, 0, stdout);
 
     if(argc >= 3) {
         sscanf(argv[2], "%d", &cuda_dev_id);
     }
     if(argc >= 4) {
-        sscanf(argv[3], "%zu", &R);
+        sscanf(argv[3], "%d", &nthreads);
+    }
+    if(argc >= 5) {
+        sscanf(argv[4], "%zu", &R);
+    }
+    if(argc >= 6) {
+        sscanf(argv[5], "%d", &use_reduce);
     }
 
     size_t nmodes = X.nmodes;
-
     sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
 
     /* For warm-up caches, timing not included */
@@ -60,7 +66,7 @@ int main(int argc, char const *argv[]) {
         nthreads = 1;
         sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
     } else if(cuda_dev_id == -1) {
-        use_reduce = 1;
+        omp_set_num_threads(nthreads);
         #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
@@ -93,9 +99,9 @@ int main(int argc, char const *argv[]) {
     sptFreeSparseTensor(&X);
     sptFreeKruskalTensor(&ktensor);
 
-    if(argc >= 5) {
+    if(argc >= 7) {
         // Dump ktensor to files
-        fo = fopen(argv[4], "w");
+        fo = fopen(argv[6], "w");
         sptAssert( sptDumpKruskalTensor(&ktensor, 0, fo) == 0 );
         fclose(fo);
     }

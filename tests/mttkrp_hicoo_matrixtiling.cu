@@ -161,7 +161,7 @@ int main(int argc, char * const argv[]) {
     sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
     sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
     printf("num_kernel_dim: %u, hitsr.nkiters[mode] / num_kernel_dim: %u\n", num_kernel_dim, hitsr.nkiters[mode]/num_kernel_dim);
-    if(num_kernel_dim <= 20 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
+    if(num_kernel_dim <= 24 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
         par_iters = 1;
     }
 

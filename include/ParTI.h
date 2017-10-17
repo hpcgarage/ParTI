@@ -264,6 +264,19 @@ typedef struct {
 } sptKruskalTensor;
 
 
+/**
+ * Kruskal tensor type, for CP decomposition result. 
+ * ncols = small rank (<= 256)
+ */
+typedef struct {
+  sptIndex nmodes;
+  sptElementIndex rank;
+  sptIndex * ndims;
+  sptValue * lambda;
+  double fit;
+  sptRankMatrix ** factors;
+} sptRankKruskalTensor;
+
 
 /**
  * OpenMP lock pool.
@@ -418,11 +431,11 @@ int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp);
 int sptRankMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats);
 int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda);
 int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda);
-void GetFinalLambda(
-  size_t const rank,
-  size_t const nmodes,
-  sptMatrix ** mats,
-  sptScalar * const lambda);
+void GetRankFinalLambda(
+  sptElementIndex const rank,
+  sptIndex const nmodes,
+  sptRankMatrix ** mats,
+  sptValue * const lambda);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);
@@ -519,27 +532,34 @@ double KruskalTensorFit(
   sptValue const * const __restrict lambda,
   sptMatrix ** mats,
   sptMatrix ** ata);
+double KruskalTensorFrobeniusNormSquared(
+  sptIndex const nmodes,
+  sptValue const * const __restrict lambda,
+  sptMatrix ** ata);
+double SparseKruskalTensorInnerProduct(
+  sptIndex const nmodes,
+  sptValue const * const __restrict lambda,
+  sptMatrix ** mats);
+
+
+/* Rank Kruskal tensor, ncols = small rank (<= 256)  */
+int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const size_t ndims[], sptElementIndex rank);
+void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr);
+int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex start_index, FILE *fp);
 double KruskalTensorFitHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** mats,
   sptRankMatrix ** ata);
-double KruskalTensorFrobeniusNormSquared(
-  sptIndex const nmodes,
-  sptValue const * const __restrict lambda,
-  sptMatrix ** ata);
 double KruskalTensorFrobeniusNormSquaredRank(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** ata);
-double SparseKruskalTensorInnerProduct(
-  sptIndex const nmodes,
-  sptValue const * const __restrict lambda,
-  sptMatrix ** mats);
 double SparseKruskalTensorInnerProductRank(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** mats);
+
 
 /* Sparse tensor unary operations */
 int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a);
@@ -820,13 +840,15 @@ int sptCpdAlsHiCOO(
   sptIndex const rank,
   sptIndex const niters,
   double const tol,
-  sptKruskalTensor * ktensor);
+  sptRankKruskalTensor * ktensor);
 int sptOmpCpdAlsHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
   sptIndex const niters,
   double const tol,
-  sptKruskalTensor * ktensor);
+  const int tk,
+  const int tb,
+  sptRankKruskalTensor * ktensor);
 
 /**
  * OMP functions

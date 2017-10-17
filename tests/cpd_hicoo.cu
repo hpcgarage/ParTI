@@ -28,7 +28,7 @@ int main(int argc, char * const argv[]) {
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
     sptSparseTensorHiCOO hitsr;
-    sptKruskalTensor ktensor;
+    sptRankKruskalTensor ktensor;
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
     sptElementIndex sc_bits;
@@ -38,7 +38,6 @@ int main(int argc, char * const argv[]) {
     int nloops = 1; // 5
     int niters = 50; // 50
     double tol = 1e-4;
-    int nthreads;
     int impl_num = 0;
     int tk = 1;
     int tb = 1;
@@ -130,50 +129,37 @@ int main(int argc, char * const argv[]) {
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
     sptIndex nmodes = hitsr.nmodes;
-    sptNewKruskalTensor(&ktensor, nmodes, tsr.ndims, R);
+    sptNewRankKruskalTensor(&ktensor, nmodes, tsr.ndims, R);
     sptFreeSparseTensor(&tsr);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
-        nthreads = 1;
+        tk = 1;
         sptAssert(sptCpdAlsHiCOO(&hitsr, R, niters, tol, &ktensor) == 0);
     } else if(cuda_dev_id == -1) {
+        omp_set_num_threads(tk);
         #pragma omp parallel
         {
-            nthreads = omp_get_num_threads();
+            tk = omp_get_num_threads();
         }
-        printf("nthreads: %d\n", nthreads);
-        sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, &ktensor) == 0);
+        printf("tk: %d, tb: %d\n", tk, tb);
+        sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, tk, tb, &ktensor) == 0);
     } /* else {
          sptCudaSetDevice(cuda_dev_id);
          sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
     } */
 
     // for(int it=0; it<nloops; ++it) {
-    //     if(cuda_dev_id == -2) {
-    //         nthreads = 1;
-    //         sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    //     } else if(cuda_dev_id == -1) {
-    //         #pragma omp parallel
-    //         {
-    //             nthreads = omp_get_num_threads();
-    //         }
-    //         printf("nthreads: %d\n", nthreads);
-    //         sptAssert(sptOmpCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    //     } else {
-    //          sptCudaSetDevice(cuda_dev_id);
-    //          // sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    //     }
     // }
 
     if(fo != NULL) {
         // Dump ktensor to files
-        sptAssert( sptDumpKruskalTensor(&ktensor, 0, fo) == 0 );
+        sptAssert( sptDumpRankKruskalTensor(&ktensor, 0, fo) == 0 );
         fclose(fo);
     }
 
     sptFreeSparseTensorHiCOO(&hitsr);
-    sptFreeKruskalTensor(&ktensor);
+    sptFreeRankKruskalTensor(&ktensor);
 
     return 0;
 }
