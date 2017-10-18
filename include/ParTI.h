@@ -786,6 +786,7 @@ int sptCudaMTTKRPHiCOO(
     sptMatrix ** const mats,     // mats[nmodes] as temporary space.
     sptIndex * const mats_order,    // Correspond to the mode order of X.
     sptIndex const mode,
+    sptNnzIndex const max_nnzb,
     int const impl_num);
 int sptMTTKRPKernelHiCOO(
     const sptIndex mode,

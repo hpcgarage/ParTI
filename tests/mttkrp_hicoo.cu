@@ -187,7 +187,7 @@ int main(int argc, char * const argv[]) {
             sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
         } else {
             sptCudaSetDevice(cuda_dev_id);
-            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
+            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
         }
     }
 
