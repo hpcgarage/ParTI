@@ -5,8 +5,8 @@ declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d" "flickr-4d" "enron-4d" "nips-4d")
 declare -a test_tsr_names=("choa100k" "choa200k")
-declare -a threads=("2" "4" "8" "16")
-# declare -a threads=("24")
+# declare -a threads=("2" "4" "8" "16")
+declare -a threads=("16" "24")
 declare -a sk_range=("10" "12" "14" "16" "18" "20")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
