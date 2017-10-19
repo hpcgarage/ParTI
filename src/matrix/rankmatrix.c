@@ -23,7 +23,7 @@
 #include <time.h>
 #include <math.h>
 #include "../error/error.h"
-#include "magma_lapack.h"
+// #include "magma_lapack.h"
 
 
 /**
@@ -372,7 +372,7 @@ int sptRankMatrixSolveNormals(
   // lapackf77_spotrf(&uplo, &rank, neqs, &stride, &info);
   spotrf_(&uplo, &rank, neqs, &stride, &info);
   if(info) {
-    printf("Gram matrix is not SPD. Trying `magma_sgesv`.\n");
+    printf("Gram matrix is not SPD. Trying `gesv`.\n");
     is_spd = false;
   }
 
@@ -391,7 +391,8 @@ int sptRankMatrixSolveNormals(
     /* restore gram matrix */
     sptRankMatrixDotMulSeqTriangle(mode, nmodes, aTa);
 
-    lapackf77_sgesv(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
+    sgesv_(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
+    // lapackf77_sgesv(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
     // magma_sgesv(rank, nrhs, neqs, stride, ipiv, rhs->values, stride, &info);
     if(info) {
       printf("magma_sgesv returned %d\n", info);
