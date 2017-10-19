@@ -23,6 +23,7 @@
 #include <time.h>
 #include <math.h>
 #include "../error/error.h"
+#include "magma_lapack.h"
 
 
 /**
@@ -74,7 +75,7 @@ int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex n
   srand(time(NULL));
   for(sptIndex i=0; i<nrows; ++i)
     for(sptElementIndex j=0; j<ncols; ++j) {
-      mtx->values[i * mtx->stride + j] = (sptValue) rand() / (sptValue) RAND_MAX;
+      mtx->values[i * mtx->stride + j] = sptRandomValue();
     }
   return 0;
 }
@@ -106,26 +107,25 @@ void sptFreeRankMatrix(sptRankMatrix *mtx) {
     free(mtx->values);
 }
 
-
-int sptRankMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats)
+/* mats (aTa) only stores upper triangle elements. */
+int sptRankMatrixDotMulSeqTriangle(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats)
 {
     sptIndex const nrows = mats[0]->nrows;
     sptElementIndex const ncols = mats[0]->ncols;
     sptElementIndex const stride = mats[0]->stride;
-    // printf("stride: %lu\n", stride);
     for(sptIndex m=1; m<nmodes+1; ++m) {
         assert(mats[m]->ncols == ncols);
         assert(mats[m]->nrows == nrows);
-        assert(mats[m]->stride == stride);
+        // assert(mats[m]->stride == stride);
     }
 
     sptValue * ovals = mats[nmodes]->values;
 #ifdef PARTI_USE_OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
 #endif
     for(sptIndex i=0; i < nrows; ++i) {
         for(sptElementIndex j=0; j < ncols; ++j) {
-            ovals[j * stride + i] = 1;
+            ovals[j * stride + i] = 1.0;
         }
     }
 
@@ -134,12 +134,22 @@ int sptRankMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptRan
         sptIndex const pm = (mode + m) % nmodes;
         sptValue const * vals = mats[pm]->values;
 #ifdef PARTI_USE_OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
 #endif
         for(sptIndex i=0; i < nrows; ++i) {
-            for(sptElementIndex j=0; j < ncols; ++j) {
-                ovals[j * stride + i] *= vals[j * stride + i];
+            for(sptElementIndex j=i; j < ncols; ++j) {
+                ovals[i * stride + j] *= vals[i * stride + j];
             }
+        }
+    }
+
+    /* Copy upper triangle to lower part */
+#ifdef PARTI_USE_OPENMP
+    #pragma omp parallel for schedule(static)
+#endif
+    for(sptIndex i=0; i < nrows; ++i) {
+        for(sptElementIndex j=0; j < i; ++j) {
+            ovals[i * stride + j] = ovals[j * stride + i];
         }
     }
     
@@ -155,9 +165,10 @@ int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda)
     sptElementIndex const stride = A->stride;
     sptValue * const vals = A->values;
     sptValue * buffer_lambda;
+    int nthreads = 1;
 
 #ifdef PARTI_USE_OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
 #endif
     for(sptElementIndex j=0; j < ncols; ++j) {
         lambda[j] = 0.0;
@@ -166,17 +177,19 @@ int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda)
 #ifdef PARTI_USE_OPENMP
     #pragma omp parallel
     {
-        int const nthreads = omp_get_num_threads();
-        #pragma omp master
-        {
-            buffer_lambda = (sptValue *)malloc(nthreads * ncols * sizeof(sptValue));
-            for(sptIndex j=0; j < nthreads * ncols; ++j)
-                buffer_lambda[j] = 0.0;
-        }
+        nthreads = omp_get_num_threads();
     }
+    buffer_lambda = (sptValue *)malloc(nthreads * ncols * sizeof(sptValue));
+#endif
 
+
+#ifdef PARTI_USE_OPENMP
     #pragma omp parallel
     {
+        #pragma omp for schedule(static)
+        for(sptIndex j=0; j < (sptIndex)nthreads * ncols; ++j)
+                buffer_lambda[j] = 0.0;
+
         int const tid = omp_get_thread_num();
         int const nthreads = omp_get_num_threads();
         sptValue * loc_lambda = buffer_lambda + tid * ncols;
@@ -188,9 +201,9 @@ int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda)
             }
         }
 
-        #pragma omp for
+        #pragma omp for schedule(static)
         for(sptElementIndex j=0; j < ncols; ++j) {
-            for(sptIndex i=0; i < nthreads; ++i) {
+            for(sptIndex i=0; i < (sptIndex)nthreads; ++i) {
                 lambda[j] += buffer_lambda[i*ncols + j];
             }
         }
@@ -207,7 +220,7 @@ int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda)
 #endif
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp for schedule(static)
 #endif
         for(sptElementIndex j=0; j < ncols; ++j) {
             lambda[j] = sqrt(lambda[j]);
@@ -239,9 +252,10 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
     sptElementIndex const stride = A->stride;
     sptValue * const vals = A->values;
     sptValue * buffer_lambda;
+    int nthreads = 1;
 
 #ifdef PARTI_USE_OPENMP
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
 #endif
     for(sptElementIndex j=0; j < ncols; ++j) {
         lambda[j] = 0.0;
@@ -250,17 +264,19 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
 #ifdef PARTI_USE_OPENMP
     #pragma omp parallel
     {
-        int const nthreads = omp_get_num_threads();
-        #pragma omp master
-        {
-            buffer_lambda = (sptValue *)malloc(nthreads * ncols * sizeof(sptValue));
-            for(sptIndex j=0; j < nthreads * ncols; ++j)
-                buffer_lambda[j] = 0.0;
-        }
+        nthreads = omp_get_num_threads();
     }
+    buffer_lambda = (sptValue *)malloc(nthreads * ncols * sizeof(sptValue));
+#endif
 
+
+#ifdef PARTI_USE_OPENMP
     #pragma omp parallel
     {
+        #pragma omp for schedule(static)
+        for(sptIndex j=0; j < (sptIndex)nthreads * ncols; ++j)
+            buffer_lambda[j] = 0.0;
+
         int const tid = omp_get_thread_num();
         int const nthreads = omp_get_num_threads();
         sptValue * loc_lambda = buffer_lambda + tid * ncols;
@@ -273,9 +289,9 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
             }
         }
 
-        #pragma omp for
+        #pragma omp for schedule(static)
         for(sptElementIndex j=0; j < ncols; ++j) {
-            for(sptIndex i=0; i < nthreads; ++i) {
+            for(sptIndex i=0; i < (sptIndex)nthreads; ++i) {
                 if(buffer_lambda[i*ncols + j] > lambda[j])
                     lambda[j] = buffer_lambda[i*ncols + j];
             }
@@ -292,7 +308,7 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
 #endif
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp for schedule(static)
 #endif
         for(sptElementIndex j=0; j < ncols; ++j) {
             if(lambda[j] < 1)
@@ -332,4 +348,57 @@ void GetRankFinalLambda(
   }
 
   free(tmp_lambda);
+}
+
+
+int sptRankMatrixSolveNormals(
+  sptIndex const mode,
+  sptIndex const nmodes,
+  sptRankMatrix ** aTa,
+  sptRankMatrix * rhs)
+{
+  int rank = (int)(aTa[0]->ncols);
+  int stride = (int)(aTa[0]->stride);
+
+  sptRankMatrixDotMulSeqTriangle(mode, nmodes, aTa);
+
+  int info;
+  char uplo = 'L';
+  int nrhs = (int) rhs->nrows;
+  sptValue * const neqs = aTa[nmodes]->values;
+
+  /* Cholesky factorization */
+  bool is_spd = true;
+  // lapackf77_spotrf(&uplo, &rank, neqs, &stride, &info);
+  spotrf_(&uplo, &rank, neqs, &stride, &info);
+  if(info) {
+    printf("Gram matrix is not SPD. Trying `magma_sgesv`.\n");
+    is_spd = false;
+  }
+
+  /* Continue with Cholesky */
+  if(is_spd) {
+    /* Solve against rhs */
+    // lapackf77_spotrs(&uplo, &rank, &nrhs, neqs, &stride, rhs->values, &stride, &info);
+    spotrs_(&uplo, &rank, &nrhs, neqs, &stride, rhs->values, &stride, &info);
+    if(info) {
+      printf("DPOTRS returned %d\n", info);
+    }
+  } 
+  else {
+    int * ipiv = (int*)malloc(rank * sizeof(int));  
+
+    /* restore gram matrix */
+    sptRankMatrixDotMulSeqTriangle(mode, nmodes, aTa);
+
+    lapackf77_sgesv(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
+    // magma_sgesv(rank, nrhs, neqs, stride, ipiv, rhs->values, stride, &info);
+    if(info) {
+      printf("magma_sgesv returned %d\n", info);
+    }
+
+    free(ipiv);
+  }
+
+  return 0;
 }

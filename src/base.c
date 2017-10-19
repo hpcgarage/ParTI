@@ -18,6 +18,9 @@
 
 #include <ParTI.h>
 #include <stdio.h>
+#include <stddef.h>
+#include <stdlib.h>
+    
 
 size_t sptMaxSizeArray(
   size_t const * const indices,
@@ -49,4 +52,14 @@ char * sptBytesString(size_t const bytes)
     ret = NULL;
   }
   return ret;
+}
+
+
+sptValue sptRandomValue(void)
+{
+  sptValue v =  3.0 * ((sptValue) rand() / (sptValue) RAND_MAX);
+  if(rand() % 2 == 0) {
+    v *= -1;
+  }
+  return v;
 }

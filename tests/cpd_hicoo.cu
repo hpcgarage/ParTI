@@ -36,12 +36,11 @@ int main(int argc, char * const argv[]) {
     sptIndex R = 16;
     int cuda_dev_id = -2;
     int nloops = 1; // 5
-    int niters = 50; // 50
-    double tol = 1e-4;
+    int niters = 2; // 50
+    double tol = 1e-5;
     int impl_num = 0;
     int tk = 1;
     int tb = 1;
-    int par_iters = 0;
 
     for(;;) {
         static struct option long_options[] = {

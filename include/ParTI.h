@@ -339,6 +339,7 @@ int sptFreeTimer(sptTimer timer);
 /* Base functions */
 size_t sptMaxSizeArray(size_t const * const indices, size_t const size);
 char * sptBytesString(size_t const bytes);
+sptValue sptRandomValue(void);
 
 /* Dense vector, aka variable length array */
 int sptNewVector(sptVector *vec, size_t len, size_t cap);
@@ -428,7 +429,7 @@ int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex n
 int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val);
 void sptFreeRankMatrix(sptRankMatrix *mtx);
 int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp);
-int sptRankMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats);
+int sptRankMatrixDotMulSeqTriangle(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats);
 int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda);
 int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda);
 void GetRankFinalLambda(
@@ -436,6 +437,11 @@ void GetRankFinalLambda(
   sptIndex const nmodes,
   sptRankMatrix ** mats,
   sptValue * const lambda);
+int sptRankMatrixSolveNormals(
+  sptIndex const mode,
+  sptIndex const nmodes,
+  sptRankMatrix ** aTa,
+  sptRankMatrix * rhs);
 
 /* Sparse matrix */
 int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols);

@@ -71,7 +71,7 @@ int sptRandomizeMatrix(sptMatrix *mtx, size_t nrows, size_t ncols) {
   srand(time(NULL));
   for(size_t i=0; i<nrows; ++i)
     for(size_t j=0; j<ncols; ++j) {
-      mtx->values[i * mtx->stride + j] = (sptScalar) rand() / (sptScalar) RAND_MAX;
+      mtx->values[i * mtx->stride + j] = sptRandomValue();
     }
   return 0;
 }

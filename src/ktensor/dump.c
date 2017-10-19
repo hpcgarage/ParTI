@@ -24,7 +24,7 @@
 int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 {
     int iores;
-    size_t mode, i;
+    size_t mode;
 
     iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
     spt_CheckOSError(iores < 0, "KruskalTns Dump");
@@ -59,7 +59,7 @@ int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 {
     int iores;
-    sptIndex mode, i;
+    sptIndex mode;
 
     iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
     spt_CheckOSError(iores < 0, "KruskalTns Dump");

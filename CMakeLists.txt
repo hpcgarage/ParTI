@@ -5,11 +5,14 @@ option(BUILD_STATIC "Build static library" OFF)
 option(BUILD_SHARED "Build shared library" ON)
 
 option(USE_CUDA "Use NVIDIA CUDA library" ON)
+option(USE_OPENMP "Use OPENMP" ON)
+
+option(USE_LAPACK "Use LAPACK library" OFF)
+option(USE_BLAS "Use LAPACK library" OFF)
 option(USE_OpenBLAS "Use OpenBLAS library" OFF)
 option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
-option(USE_LAPACK "Use LAPACK library" OFF)
-option(USE_OPENMP "Use OPENMP" ON)
+
 
 # set(CMAKE_C_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc")
 # set(CMAKE_CXX_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icpc")
@@ -21,14 +24,50 @@ if(USE_CUDA)
     link_libraries(${CUDA_cusolver_LIBRARY})
 endif()
 
-# A bug in FindCUDA module forces us to put "link_libraries" before "cuda_add_library".
-# So we cannot use "target_link_libraries" for target-wise library tracking.
-if(USE_OpenBLAS)
-    find_package(OpenBLAS REQUIRED)
-    add_definitions(-DPARTI_USE_OpenBLAS)
-    include_directories(${OpenBLAS_INCLUDE_DIRS})
-    link_libraries(${OpenBLAS_LIBRARIES})
+if(USE_OPENMP)
+    add_definitions(-DPARTI_USE_OPENMP)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+    # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
 endif()
+
+if(USE_BLAS)
+    find_package(BLAS)
+    add_definitions(-DPARTI_USE_BLAS)
+    include_directories(${BLAS_INCLUDE_DIRS})
+    link_libraries(${BLAS_LIBRARIES})
+    if(${BLAS_FOUND})
+      message("FOUND BLAS LIBS: " ${BLAS_LIBRARIES})
+    else()
+      message(FATAL_ERROR "Could not find BLAS library. Set path in build.config.")
+    endif()
+endif()
+
+if(USE_LAPACK)
+    find_package(LAPACK)
+    add_definitions(-DPARTI_USE_LAPACK)
+    include_directories(${LAPACK_INCLUDE_DIRS})
+    link_libraries(${LAPACK_LIBRARIES})
+    if(${LAPACK_FOUND})
+      message("FOUND LAPACK LIBS: " ${LAPACK_LIBRARIES})
+    else()
+      message(FATAL_ERROR "Could not find LAPACK library. Set path in build.config.")
+    endif()
+    # find_library(
+    #     LAPACK_LIBRARIES
+    #     NAMES lapack
+    #     PATHS ${LAPACK_DIR}
+    #     NO_DEFAULT_PATH
+    # )
+    # add_definitions(-DPARTI_USE_LAPACK)
+    # include_directories("${LAPACK_DIR}/LAPACKE/include" "${LAPACK_DIR}/CBLAS/include")
+    # link_libraries("${LAPACK_DIR}/libcblas.a" "${LAPACK_DIR}/liblapack.a" "${LAPACK_DIR}/liblapacke.a" "${LAPACK_DIR}/librefblas.a" "${LAPACK_DIR}/libtmglib.a")
+    # link_libraries(lapack blas)
+endif()
+
 if(USE_MAGMA)
     find_library(
         MAGMA_LIBRARIES
@@ -45,6 +84,14 @@ if(USE_MAGMA)
     link_directories("${MAGMA_DIR}/lib")
     link_libraries(magma) # not linking mkl libraries
 endif()
+
+if(USE_OpenBLAS)
+    find_package(OpenBLAS REQUIRED)
+    add_definitions(-DPARTI_USE_OpenBLAS)
+    include_directories(${OpenBLAS_INCLUDE_DIRS})
+    link_libraries(${OpenBLAS_LIBRARIES})
+endif()
+
 if(USE_MKL)
     # find_package(MKL REQUIRED)
     find_library(
@@ -60,30 +107,8 @@ if(USE_MKL)
     include_directories("${MKL_DIR}/include")
     link_directories("${MKL_DIR}/lib")
 endif()
-if(USE_LAPACK)
-    find_library(
-        LAPACK_LIBRARIES
-        NAMES lapack
-        PATHS ${LAPACK_DIR}
-        NO_DEFAULT_PATH
-    )
-    add_definitions(-DPARTI_USE_LAPACK)
-    include_directories("${LAPACK_DIR}/LAPACKE/include" "${LAPACK_DIR}/CBLAS/include")
-    link_libraries("${LAPACK_DIR}/libcblas.a" "${LAPACK_DIR}/liblapack.a" "${LAPACK_DIR}/liblapacke.a" "${LAPACK_DIR}/librefblas.a" "${LAPACK_DIR}/libtmglib.a")
-endif()
 
 
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -qopenmp -O3")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -qopenmp -O3")
-if(USE_OPENMP)
-    add_definitions(-DPARTI_USE_OPENMP)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
-    # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
-else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
-endif()
 
 # A bug in FindCUDA module forces us to put "include_directories" before "cuda_add_library".
 # So we cannot use "target_include_directories" for target-wise include tracking.

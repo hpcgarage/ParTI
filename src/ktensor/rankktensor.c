@@ -86,7 +86,7 @@ double KruskalTensorFrobeniusNormSquaredRank(
   double norm_mats = 0;
 
 #ifdef PARTI_USE_OPENMP
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
 #endif
   for(sptIndex x=0; x < rank*stride; ++x) {
     tmp_atavals[x] = 1.;
@@ -96,10 +96,10 @@ double KruskalTensorFrobeniusNormSquaredRank(
   for(sptIndex m=0; m < nmodes; ++m) {
     sptValue const * const __restrict atavals = ata[m]->values;
 #ifdef PARTI_USE_OPENMP
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
 #endif
     for(sptElementIndex i=0; i < rank; ++i) {
-        for(sptElementIndex j=0; j < rank; ++j) {
+        for(sptElementIndex j=i; j < rank; ++j) {
             tmp_atavals[j * stride + i] *= atavals[j * stride + i];
         }
     }
@@ -107,7 +107,7 @@ double KruskalTensorFrobeniusNormSquaredRank(
 
   /* compute lambda^T * aTa[MAX_NMODES] * lambda, only compute a half of them because of its symmetric */
 #ifdef PARTI_USE_OPENMP
-  #pragma omp parallel for reduction(+:norm_mats)
+  #pragma omp parallel for schedule(static) reduction(+:norm_mats)
 #endif
   for(sptElementIndex i=0; i < rank; ++i) {
     norm_mats += tmp_atavals[i+(i*stride)] * lambda[i] * lambda[i];
@@ -146,7 +146,7 @@ double SparseKruskalTensorInnerProductRank(
   double * const __restrict accum = (double *) malloc(rank*sizeof(*accum));
 
 #ifdef PARTI_USE_OPENMP
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
 #endif
   for(sptElementIndex r=0; r < rank; ++r) {
     accum[r] = 0.0; 
@@ -159,7 +159,7 @@ double SparseKruskalTensorInnerProductRank(
     #pragma omp master
     {
       buffer_accum = (sptValue *)malloc(nthreads * rank * sizeof(sptValue));
-      for(sptIndex j=0; j < nthreads * rank; ++j)
+      for(sptIndex j=0; j < (sptIndex)nthreads * rank; ++j)
           buffer_accum[j] = 0.0;
     }
   }
@@ -179,9 +179,9 @@ double SparseKruskalTensorInnerProductRank(
       }
     }
 
-    #pragma omp for
+    #pragma omp for schedule(static)
     for(sptElementIndex j=0; j < rank; ++j) {
-      for(sptIndex i=0; i < nthreads; ++i) {
+      for(sptIndex i=0; i < (sptIndex)nthreads; ++i) {
         accum[j] += buffer_accum[i*rank + j];
       }
     }
@@ -199,7 +199,7 @@ double SparseKruskalTensorInnerProductRank(
 #endif
 
 #ifdef PARTI_USE_OPENMP
-  #pragma omp parallel for reduction(+:inner)
+  #pragma omp parallel for schedule(static) reduction(+:inner)
 #endif
   for(sptElementIndex r=0; r < rank; ++r) {
     inner += accum[r] * lambda[r];

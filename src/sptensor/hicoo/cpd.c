@@ -43,6 +43,11 @@ double CpdAlsStepHiCOO(
   }
 
   sptValue alpha = 1.0, beta = 0.0;
+  char const notrans = 'N';
+  char const trans = 'T';
+  char const uplo = 'L';
+  int blas_rank = (int) rank;
+  int blas_stride = (int) stride;
 
   sptRankMatrix * tmp_mat = mats[nmodes];
   sptRankMatrix ** ata = (sptRankMatrix **)malloc((nmodes+1) * sizeof(*ata));
@@ -54,9 +59,10 @@ double CpdAlsStepHiCOO(
 
   /* Compute all "ata"s */
   for(sptIndex m=0; m < nmodes; ++m) {
-    /* ata[m] = mats[m]^T * mats[m]) */
-    blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
-      mats[m]->values, (magma_int_t*)&stride, mats[m]->values, (magma_int_t*)&stride, &beta, ata[m]->values, (magma_int_t*)&stride);
+    /* ata[m] = mats[m]^T * mats[m]), actually do A * A' due to row-major mats, and output an upper triangular matrix. */
+    int blas_nrows = (int)(mats[m]->nrows);
+    ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
+      mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
   }
   // printf("Initial mats:\n");
   // for(size_t m=0; m < nmodes+1; ++m)
@@ -73,9 +79,6 @@ double CpdAlsStepHiCOO(
 
   /* For MttkrpHyperTensor with size rank. */
   sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
-  int * ipiv = (int*)malloc(rank * sizeof(int));
-  int info;
-
 
   for(sptIndex it=0; it < niters; ++it) {
     // printf("  its = %3lu\n", it+1);
@@ -96,15 +99,9 @@ double CpdAlsStepHiCOO(
       // printf("sptMTTKRPHiCOO_MatrixTiling mats[nmodes]:\n");
       // sptDumpRankMatrix(mats[nmodes], stdout);
 
-      // Column-major calculation
-      sptRankMatrixDotMulSeqCol(m, nmodes, ata);
-      // printf("sptRankMatrixDotMulSeqCol ata[nmodes]:\n");
-      // sptDumpRankMatrix(ata[nmodes], stdout);
-
       memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * stride * sizeof(sptValue));
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
-      magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, stride, ipiv, mats[m]->values, stride, &info);
-      sptAssert ( info == 0 );
+      sptAssert ( sptRankMatrixSolveNormals(m, nmodes, ata, mats[m]) == 0 );
       // printf("Inverse mats[m]:\n");
       // sptDumpRankMatrix(mats[m], stdout);
 
@@ -122,7 +119,9 @@ double CpdAlsStepHiCOO(
       // printf("\n\n");
 
       /* ata[m] = mats[m]^T * mats[m]) */
-      blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha, mats[m]->values, (magma_int_t*)&stride, mats[m]->values, (magma_int_t*)&stride, &beta, ata[m]->values, (magma_int_t*)&stride);
+      int blas_nrows = (int)(mats[m]->nrows);
+      ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
+      mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
       // printf("Update ata[m]:\n");
       // sptDumpRankMatrix(ata[m], stdout);
 
@@ -157,8 +156,8 @@ double CpdAlsStepHiCOO(
   }
   free(ata);
   free(mats_order);
-  free(ipiv);
   // free(modetime);
+
 
   return fit;
 }
