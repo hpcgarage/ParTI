@@ -188,7 +188,7 @@ int main(int argc, char * const argv[]) {
         } else {
             sptCudaSetDevice(cuda_dev_id);
             sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
-        }
+        } 
     }
 
     sptStopTimer(timer);
