@@ -1,13 +1,14 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
+# declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
+declare -a s3tsrs=("delicious" "nell1")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d" "flickr-4d" "enron-4d" "nips-4d")
-declare -a test_tsr_names=("choa100k" "choa200k")
+declare -a test_tsr_names=("freebase_sampled" "freebase_music")
 # declare -a threads=("2" "4" "8" "16")
-declare -a threads=("16" "24")
-declare -a sk_range=("10" "12" "14" "16" "18" "20")
+declare -a threads=("24")
+declare -a sk_range=("18")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
 out_path="timing_parti/cpd-hicoo/uint-fast8-simd"
@@ -37,18 +38,18 @@ tk=8
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${test_tsr_names[@]}"
 	do
 
-			if [ ${tsr_name} = "choa700k" ] || [ ${tsr_name} = "nell2" ]; then
-				sk=10
-			fi
-			if [ ${tsr_name} = "1998DARPA" ] || [ ${tsr_name} = "delicious" ]; then
-				sk=14
-			fi
-			if [ ${tsr_name} = "nell1" ]; then
-				sk=20
-			fi
+			# if [ ${tsr_name} = "choa700k" ] || [ ${tsr_name} = "nell2" ]; then
+			# 	sk=10
+			# fi
+			# if [ ${tsr_name} = "1998DARPA" ] || [ ${tsr_name} = "delicious" ]; then
+			# 	sk=14
+			# fi
+			# if [ ${tsr_name} = "nell1" ]; then
+			# 	sk=20
+			# fi
 
 # 		# Sequetial code with matrix tiling
 # 		# dev_id=-2
@@ -58,14 +59,14 @@ do
 		# OpenMP code
 		dev_id=-1
 
-		# for sk in ${sk_range[@]}
-		# do
+		for sk in ${sk_range[@]}
+		do
 			for tk in ${threads[@]}
 			do
 				echo "./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt"
 				./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt
 			done
-		# done
+		done
 
 	done
 done

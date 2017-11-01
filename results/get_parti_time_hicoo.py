@@ -7,11 +7,13 @@ intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint-fast8-simd/'
 # s3tsrs = ['choa100k', 'choa200k', 'choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
 s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
-modes = ['0', '1', '2']
+test_tsrs = ['freebase_music', 'freebase_sampled']
+# modes = ['0', '1', '2']
+modes = ['2']
 r = 16
 tb = 1
 
-sc = 12
+sc = 14
 # sc = 16
 
 # input parameters
@@ -24,7 +26,7 @@ out_str = 'parti-hicoo-uint-fast8-simd-sb' + str(sb) + '-sk' + str(sk) + '-tk' +
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in test_tsrs:
 	for m in modes:
 
 		## omp hicoo
@@ -42,6 +44,7 @@ for tsr in s3tsrs:
 			elif(line_array[3] == 'MTTKRP]:'):
 				time_num = line_array[4]
 				fo.write(time_num+'\n')
+				print(time_num)
 		fi.close()
 
 fo.close()

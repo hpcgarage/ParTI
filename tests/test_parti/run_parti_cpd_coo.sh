@@ -5,8 +5,8 @@ declare -a s3tsrs=("delicious")
 # declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d", "flickr-4d" "enron-4d" "nips-4d")
-declare -a test_tsr_names=("choa100k" "choa200k")
-declare -a threads=("2" "4" "8" "16" "24")
+declare -a test_tsr_names=("freebase_sampled" "freebase_music")
+declare -a threads=("16" "24")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
 out_path="timing_parti/cpd-coo"
@@ -26,14 +26,14 @@ nstreams=8
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${test_tsr_names[@]}"
 	do
 
 			# Sequetial code
-			dev_id=-2
-			nt=1
-			echo "./build/tests/cpd ${tsr_path}/${tsr_name}.tns ${dev_id} ${nt} ${R} ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt"
-			./build/tests/cpd ${tsr_path}/${tsr_name}.tns ${dev_id} ${nt} ${R} ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt
+			# dev_id=-2
+			# nt=1
+			# echo "./build/tests/cpd ${tsr_path}/${tsr_name}.tns ${dev_id} ${nt} ${R} ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt"
+			# ./build/tests/cpd ${tsr_path}/${tsr_name}.tns ${dev_id} ${nt} ${R} ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt
 
 
 			# OpenMP code
