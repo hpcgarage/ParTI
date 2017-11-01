@@ -170,10 +170,10 @@ int main(int argc, char * const argv[]) {
     } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
         sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-    } else {
+    } /* else {
         sptCudaSetDevice(cuda_dev_id);
         //sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
-    }
+    } */
 
     sptTimer timer;
     sptNewTimer(&timer, 0);
@@ -185,10 +185,10 @@ int main(int argc, char * const argv[]) {
             sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
             sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        } else {
+        } /* else {
             sptCudaSetDevice(cuda_dev_id);
             sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
-        } 
+        } */
     }
 
     sptStopTimer(timer);
