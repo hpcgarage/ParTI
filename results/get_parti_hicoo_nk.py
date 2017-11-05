@@ -23,7 +23,7 @@ tk = sys.argv[3]
 # out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
 out_str = 'parti-hicoo-uint-fast8-simd-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
 print("output file: " + "\"" + out_str + "\"")
-fo = open(out_str, 'w')
+# fo = open(out_str, 'w')
 
 for tsr in s3tsrs:
 	for m in modes:
@@ -36,17 +36,39 @@ for tsr in s3tsrs:
 		# print(input_str)
 
 		fi = open(input_str, 'r')
+		schr = ''
 		for line in fi:
 			line_array = line.rstrip().split(" ")
-			if(len(line_array) < 4):
-				continue;
-			elif(line_array[3] == 'MTTKRP]:'):
-				time_num = line_array[4]
-				fo.write(time_num+'\n')
-				print(time_num)
-		fi.close()
 
-fo.close()
+			# if(len(line_array) < 1):
+			# 	continue;
+			# elif(line_array[0] == 'num_kernel_dim:'):
+			# 	nLi_tmp = line_array[1]
+			# 	nLi = nLi_tmp.rstrip().split(",")[0]
+			# 	# fo.write(time_num+'\n')
+			# 	print(nLi)
+
+			# if(len(line_array) < 2):
+			# 	continue;
+			# elif(line_array[0] == 'SCHEDULE'):
+			# 	nLj_tmp = line_array[int(m)+2]
+			# 	if(m == '2'):
+			# 		nLj = nLj_tmp
+			# 	else:
+			# 		nLj = nLj_tmp.rstrip().split(",")[0]
+			# 	print(nLj)
+
+			if(len(line_array) < 1):
+				continue;
+			# elif(line_array[0] == 'sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled:'):
+			# 	schr = 'N'
+			elif(line_array[0] == 'sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce:'):
+				schr = 'R'
+
+		fi.close()
+		print(schr)
+
+# fo.close()
 
 
 

@@ -1,18 +1,20 @@
 sftp-config.json
 *.DS_Store
-.tags*
 build/
+docs/latex
+build.config
+.tags*
+*.ptx
+*.mex*
+
 results/*.out
 timing_*/
 timing/
 timing-*/
 summary/
-*.ptx
-*.mex*
-docs/latex
+
 tmp*
 out*
 
-build.config
 CMakeLists.txt
 tests/CMakeLists.txt
