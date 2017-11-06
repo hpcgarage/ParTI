@@ -25,7 +25,7 @@ int main(int argc, char const *argv[]) {
     sptSparseTensor spX, spU, spY;
     sptSemiSparseTensor X, Y;
     sptMatrix U;
-    size_t mode = 0;
+    sptIndex mode = 0;
     int cuda_dev_id = -1;
 
     if(argc < 5) {

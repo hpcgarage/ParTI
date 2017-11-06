@@ -21,13 +21,13 @@
 #include <string.h>
 #include "../error/error.h"
 
-int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const size_t ndims[], sptElementIndex rank)
+int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptElementIndex rank)
 {
     ktsr->nmodes = nmodes;
     ktsr->rank = rank;
     ktsr->ndims = (sptIndex*)malloc(nmodes*sizeof(sptIndex));
     for(sptIndex i=0; i<nmodes; ++i)
-        ktsr->ndims[i] = (sptIndex) ndims[i];
+        ktsr->ndims[i] = ndims[i];
     ktsr->lambda = (sptValue*)malloc(rank*sizeof(sptValue));
     ktsr->fit = 0.0;
     
@@ -40,7 +40,7 @@ void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr)
 	ktsr->fit = 0.0;
 	free(ktsr->ndims);
 	free(ktsr->lambda);
-	for(size_t i=0; i<ktsr->nmodes; ++i)
+	for(sptIndex i=0; i<ktsr->nmodes; ++i)
 		sptFreeRankMatrix(ktsr->factors[i]);
     free(ktsr->factors);
 	ktsr->nmodes = 0;

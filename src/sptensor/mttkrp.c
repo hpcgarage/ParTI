@@ -21,8 +21,8 @@
 
 int sptMTTKRP_3D(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
-    size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode);
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode);
 
 /**
  * Matriced sparse tensor times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
@@ -38,24 +38,24 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
  */
 int sptMTTKRP(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
-    size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode) {
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode) {
 
-    size_t const nmodes = X->nmodes;
+    sptIndex const nmodes = X->nmodes;
 
     if(nmodes == 3) {
         sptAssert(sptMTTKRP_3D(X, mats, mats_order, mode) == 0);
         return 0;
     }
 
-    size_t const nnz = X->nnz;
-    size_t const * const ndims = X->ndims;
-    sptScalar const * const restrict vals = X->values.data;
-    size_t const stride = mats[0]->stride;
-    sptVector scratch;  // Temporary array
+    sptNnzIndex const nnz = X->nnz;
+    sptIndex const * const ndims = X->ndims;
+    sptValue const * const restrict vals = X->values.data;
+    sptIndex const stride = mats[0]->stride;
+    sptValueVector scratch;  // Temporary array
 
     /* Check the mats. */
-    for(size_t i=0; i<nmodes; ++i) {
+    for(sptIndex i=0; i<nmodes; ++i) {
         if(mats[i]->ncols != mats[nmodes]->ncols) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
@@ -64,45 +64,45 @@ int sptMTTKRP(sptSparseTensor const * const X,
         }
     }
 
-    size_t const tmpI = mats[mode]->nrows;
-    size_t const R = mats[mode]->ncols;
-    size_t const * const restrict mode_ind = X->inds[mode].data;
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptIndex const R = mats[mode]->ncols;
+    sptIndex const * const restrict mode_ind = X->inds[mode].data;
     sptMatrix * const restrict M = mats[nmodes];
-    sptScalar * const restrict mvals = M->values;
-    memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
-    sptNewVector(&scratch, R, R);
-    sptConstantVector(&scratch, 0);
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(sptValue));
+    sptNewValueVector(&scratch, R, R);
+    sptConstantValueVector(&scratch, 0);
 
 
-    for(size_t x=0; x<nnz; ++x) {
+    for(sptNnzIndex x=0; x<nnz; ++x) {
 
-        size_t times_mat_index = mats_order[1];
+        sptIndex times_mat_index = mats_order[1];
         sptMatrix * times_mat = mats[times_mat_index];
-        size_t * times_inds = X->inds[times_mat_index].data;
-        size_t tmp_i = times_inds[x];
-        sptScalar const entry = vals[x];
-        for(size_t r=0; r<R; ++r) {
+        sptIndex * times_inds = X->inds[times_mat_index].data;
+        sptIndex tmp_i = times_inds[x];
+        sptValue const entry = vals[x];
+        for(sptIndex r=0; r<R; ++r) {
             scratch.data[r] = entry * times_mat->values[tmp_i * stride + r];
         }
 
-        for(size_t i=2; i<nmodes; ++i) {
+        for(sptIndex i=2; i<nmodes; ++i) {
             times_mat_index = mats_order[i];
             times_mat = mats[times_mat_index];
             times_inds = X->inds[times_mat_index].data;
             tmp_i = times_inds[x];
 
-            for(size_t r=0; r<R; ++r) {
+            for(sptIndex r=0; r<R; ++r) {
                 scratch.data[r] *= times_mat->values[tmp_i * stride + r];
             }
         }
 
-        size_t const mode_i = mode_ind[x];
-        for(size_t r=0; r<R; ++r) {
+        sptIndex const mode_i = mode_ind[x];
+        for(sptIndex r=0; r<R; ++r) {
             mvals[mode_i * stride + r] += entry * scratch.data[r];
         }
     }
 
-    sptFreeVector(&scratch);
+    sptFreeValueVector(&scratch);
 
     return 0;
 }
@@ -110,18 +110,18 @@ int sptMTTKRP(sptSparseTensor const * const X,
 
 int sptMTTKRP_3D(sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
-    size_t const mats_order[],    // Correspond to the mode order of X.
-    size_t const mode) 
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode) 
 {
-    size_t const nmodes = X->nmodes;
-    size_t const nnz = X->nnz;
-    size_t const * const ndims = X->ndims;
-    sptScalar const * const restrict vals = X->values.data;
-    size_t const stride = mats[0]->stride;
+    sptIndex const nmodes = X->nmodes;
+    sptNnzIndex const nnz = X->nnz;
+    sptIndex const * const ndims = X->ndims;
+    sptValue const * const restrict vals = X->values.data;
+    sptIndex const stride = mats[0]->stride;
 
     /* Check the mats. */
     sptAssert(nmodes ==3);
-    for(size_t i=0; i<nmodes; ++i) {
+    for(sptIndex i=0; i<nmodes; ++i) {
         if(mats[i]->ncols != mats[nmodes]->ncols) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
@@ -131,30 +131,30 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
     }
     
 
-    size_t const tmpI = mats[mode]->nrows;
-    size_t const R = mats[mode]->ncols;
-    size_t const * const restrict mode_ind = X->inds[mode].data;
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptIndex const R = mats[mode]->ncols;
+    sptIndex const * const restrict mode_ind = X->inds[mode].data;
     sptMatrix * const restrict M = mats[nmodes];
-    sptScalar * const restrict mvals = M->values;
-    memset(mvals, 0, tmpI*stride*sizeof(sptScalar));
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(sptValue));
 
-    size_t times_mat_index_1 = mats_order[1];
+    sptIndex times_mat_index_1 = mats_order[1];
     sptMatrix * restrict times_mat_1 = mats[times_mat_index_1];
-    size_t * restrict times_inds_1 = X->inds[times_mat_index_1].data;
-    size_t times_mat_index_2 = mats_order[2];
+    sptIndex * restrict times_inds_1 = X->inds[times_mat_index_1].data;
+    sptIndex times_mat_index_2 = mats_order[2];
     sptMatrix * restrict times_mat_2 = mats[times_mat_index_2];
-    size_t * restrict times_inds_2 = X->inds[times_mat_index_2].data;
+    sptIndex * restrict times_inds_2 = X->inds[times_mat_index_2].data;
 
-    size_t mode_i;
-    size_t tmp_i_1, tmp_i_2;
-    sptScalar entry;
-    for(size_t x=0; x<nnz; ++x) {
+    sptIndex mode_i;
+    sptIndex tmp_i_1, tmp_i_2;
+    sptValue entry;
+    for(sptNnzIndex x=0; x<nnz; ++x) {
         mode_i = mode_ind[x];
         tmp_i_1 = times_inds_1[x];
         tmp_i_2 = times_inds_2[x];
         entry = vals[x];
 
-        for(size_t r=0; r<R; ++r) {
+        for(sptIndex r=0; r<R; ++r) {
             mvals[mode_i * stride + r] += entry * times_mat_1->values[tmp_i_1 * stride + r] * times_mat_2->values[tmp_i_2 * stride + r];
         }
     }

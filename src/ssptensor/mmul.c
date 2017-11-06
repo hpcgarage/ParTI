@@ -31,11 +31,12 @@ int sptSemiSparseTensorMulMatrix(
     sptSemiSparseTensor *Y,
     const sptSemiSparseTensor *X,
     const sptMatrix *U,
-    size_t mode
+    sptIndex mode
 ) {
     int result;
-    size_t *ind_buf;
-    size_t m, i;
+    sptIndex *ind_buf;
+    sptIndex m;
+    sptNnzIndex i;
     if(mode >= X->nmodes) {
         return -1;
     }
@@ -59,8 +60,8 @@ int sptSemiSparseTensorMulMatrix(
     }
     for(m = 0; m < Y->nmodes; ++m) {
         if(m != mode) {
-            sptFreeSizeVector(&Y->inds[m]);
-            result = sptCopySizeVector(&Y->inds[m], &X->inds[m]);
+            sptFreeIndexVector(&Y->inds[m]);
+            result = sptCopyIndexVector(&Y->inds[m], &X->inds[m]);
             if(result != 0) {
                 return result;
             }
@@ -71,9 +72,9 @@ int sptSemiSparseTensorMulMatrix(
         return result;
     }
     Y->nnz = X->nnz;
-    memset(Y->values.values, 0, Y->nnz * Y->stride * sizeof (sptScalar));
+    memset(Y->values.values, 0, Y->nnz * Y->stride * sizeof (sptValue));
     for(i = 0; i < X->nnz; ++i) {
-        size_t r, k;
+        sptIndex r, k;
         for(k = 0; k < U->ncols; ++k) {
             for(r = 0; r < U->nrows; ++r) {
                 Y->values.values[i*Y->stride + k] += X->values.values[i*X->stride + r] * U->values[r*U->stride + k];

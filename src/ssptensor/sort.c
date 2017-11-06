@@ -21,23 +21,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, size_t l, size_t r, sptScalar buffer[]);
-static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]);
+static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptValue buffer[]);
+static void spt_SwapValues(sptSemiSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2, sptValue buffer[]);
 
 /**
  * Reorder the elements in a semi sparse tensor lexicographically
  * @param tsr  the semi sparse tensor to operate on
  */
 int sptSemiSparseTensorSortIndex(sptSemiSparseTensor *tsr) {
-    sptScalar *buffer = malloc(tsr->stride * sizeof (sptScalar));
+    sptNnzIndex *buffer = malloc(tsr->stride * sizeof (sptNnzIndex));
     spt_CheckOSError(!buffer, "SspTns SortIndex");
     spt_QuickSortIndex(tsr, 0, tsr->nnz, buffer);
     free(buffer);
     return 0;
 }
 
-static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, size_t l, size_t r, sptScalar buffer[]) {
-    size_t i, j, p;
+static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptValue buffer[]) {
+    sptNnzIndex i, j, p;
     if(r-l < 2) {
         return;
     }
@@ -63,19 +63,19 @@ static void spt_QuickSortIndex(sptSemiSparseTensor *tsr, size_t l, size_t r, spt
     spt_QuickSortIndex(tsr, i, r, buffer);
 }
 
-static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]) {
-    size_t i;
+static void spt_SwapValues(sptSemiSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2, sptValue buffer[]) {
+    sptIndex i;
     for(i = 0; i < tsr->nmodes; ++i) {
         if(i != tsr->mode) {
-            size_t eleind1 = tsr->inds[i].data[ind1];
-            size_t eleind2 = tsr->inds[i].data[ind2];
+            sptIndex eleind1 = tsr->inds[i].data[ind1];
+            sptIndex eleind2 = tsr->inds[i].data[ind2];
             tsr->inds[i].data[ind1] = eleind2;
             tsr->inds[i].data[ind2] = eleind1;
         }
     }
     if(ind1 != ind2) {
-        memcpy(buffer, &tsr->values.values[ind1*tsr->stride], tsr->stride * sizeof (sptScalar));
-        memcpy(&tsr->values.values[ind1*tsr->stride], &tsr->values.values[ind2*tsr->stride], tsr->stride * sizeof (sptScalar));
-        memcpy(&tsr->values.values[ind2*tsr->stride], buffer, tsr->stride * sizeof (sptScalar));
+        memcpy(buffer, &tsr->values.values[ind1*tsr->stride], tsr->stride * sizeof (sptNnzIndex));
+        memcpy(&tsr->values.values[ind1*tsr->stride], &tsr->values.values[ind2*tsr->stride], tsr->stride * sizeof (sptNnzIndex));
+        memcpy(&tsr->values.values[ind2*tsr->stride], buffer, tsr->stride * sizeof (sptNnzIndex));
     }
 }

@@ -28,7 +28,7 @@
  * The name "DotDiv" comes from the MATLAB operator "./".
  */
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
-    size_t i, j;
+    sptNnzIndex i, j;
     int result;
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
@@ -53,11 +53,11 @@ int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sp
         } else if(compare < 0) {
             ++i;
         } else {
-            for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i] * Y->inds[mode].data[j]);
+            for(sptIndex mode = 0; mode < X->nmodes; ++mode) {
+                result = sptAppendIndexVector(&Z->inds[mode], X->inds[mode].data[i] * Y->inds[mode].data[j]);
                 spt_CheckError(result, "SpTns DotDiv", NULL);
             }
-            result = sptAppendVector(&Z->values, X->values.data[i] / Y->values.data[j]);
+            result = sptAppendValueVector(&Z->values, X->values.data[i] / Y->values.data[j]);
             spt_CheckError(result, "SpTns DotDiv", NULL);
 
             ++Z->nnz;

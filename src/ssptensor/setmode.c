@@ -23,7 +23,7 @@
 int spt_SemiSparseTensorSetMode(
     sptSemiSparseTensor       *dest,
     const sptSemiSparseTensor *src,
-    size_t                    newmode
+    sptIndex                    newmode
 ) {
     int result = 0;
     /* Something like this, but better */

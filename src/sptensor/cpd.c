@@ -27,32 +27,31 @@
 
 double CpdAlsStep(
   sptSparseTensor const * const spten,
-  size_t const rank,
-  size_t const niters,
+  sptIndex const rank,
+  sptIndex const niters,
   double const tol,
   sptMatrix ** mats,  // Row-major
-  sptScalar * const lambda)
+  sptValue * const lambda)
 {
-  size_t const nmodes = spten->nmodes;
+  sptIndex const nmodes = spten->nmodes;
   double fit = 0;
 
-  for(size_t m=0; m < nmodes; ++m) {
+  for(sptIndex m=0; m < nmodes; ++m) {
     assert(spten->ndims[m] == mats[m]->nrows);
     assert(mats[m]->ncols == rank);
-    // assert(mats[m]->stride == rank);  // for correct column-major magma functions
   }
 
-  sptScalar alpha = 1.0, beta = 0.0;
+  sptValue alpha = 1.0, beta = 0.0;
 
   sptMatrix * tmp_mat = mats[nmodes];
   sptMatrix ** ata = (sptMatrix **)malloc((nmodes+1) * sizeof(*ata)); // symmetric matrices, but in column-major
-  for(size_t m=0; m < nmodes+1; ++m) {
+  for(sptIndex m=0; m < nmodes+1; ++m) {
     ata[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
     sptNewMatrix(ata[m], rank, rank);
   }
 
   /* Compute all "ata"s */
-  for(size_t m=0; m < nmodes; ++m) {
+  for(sptIndex m=0; m < nmodes; ++m) {
     /* ata[m] = mats[m]^T * mats[m]) */
     // cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
     blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
@@ -72,25 +71,25 @@ double CpdAlsStep(
   // Timer itertime;
   // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
 
-  sptSizeVector mats_order;
-  sptNewSizeVector(&mats_order, nmodes, nmodes);
+  sptIndexVector mats_order;
+  sptNewIndexVector(&mats_order, nmodes, nmodes);
   int * ipiv = (int*)malloc(rank * sizeof(int));
   int info;
 
 
-  for(size_t it=0; it < niters; ++it) {
+  for(sptIndex it=0; it < niters; ++it) {
     // printf("  its = %3lu\n", it+1);
     sptTimer timer;
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    for(size_t m=0; m < nmodes; ++m) {
+    for(sptIndex m=0; m < nmodes; ++m) {
       // printf("\nmode %lu \n", m);
       tmp_mat->nrows = mats[m]->nrows;
 
       /* Factor Matrices order */
       mats_order.data[0] = m;
-      for(size_t i=1; i<nmodes; ++i)
+      for(sptIndex i=1; i<nmodes; ++i)
           mats_order.data[i] = (m+i) % nmodes;
       // sptDumpSizeVector(&mats_order, stdout);
 
@@ -104,7 +103,7 @@ double CpdAlsStep(
       // printf("sptMatrixDotMulSeqCol ata[nmodes]:\n");
       // sptDumpMatrix(ata[nmodes], stdout);
 
-      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptScalar));
+      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptValue));
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride);
       magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, mats[m]->values, mats[m]->stride, &info);
@@ -168,11 +167,11 @@ double CpdAlsStep(
 
   GetFinalLambda(rank, nmodes, mats, lambda);
 
-  for(size_t m=0; m < nmodes+1; ++m) {
+  for(sptIndex m=0; m < nmodes+1; ++m) {
     sptFreeMatrix(ata[m]);
   }
   free(ata);
-  sptFreeSizeVector(&mats_order);
+  sptFreeIndexVector(&mats_order);
   free(ipiv);
   // free(modetime);
 
@@ -182,21 +181,21 @@ double CpdAlsStep(
 
 int sptCpdAls(
   sptSparseTensor const * const spten,
-  size_t const rank,
-  size_t const niters,
+  sptIndex const rank,
+  sptIndex const niters,
   double const tol,
   sptKruskalTensor * ktensor)
 {
-  size_t nmodes = spten->nmodes;
+  sptIndex nmodes = spten->nmodes;
   magma_init();
 
   /* Initialize factor matrices */
-  size_t max_dim = sptMaxSizeArray(spten->ndims, nmodes);
+  sptIndex max_dim = sptMaxSizeArray(spten->ndims, nmodes);
   sptMatrix ** mats = (sptMatrix **)malloc((nmodes+1) * sizeof(*mats));
-  for(size_t m=0; m < nmodes+1; ++m) {
+  for(sptIndex m=0; m < nmodes+1; ++m) {
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
-  for(size_t m=0; m < nmodes; ++m) {
+  for(sptIndex m=0; m < nmodes; ++m) {
     // assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
     // assert(sptConstantMatrix(mats[m], 1) == 0);
     assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);

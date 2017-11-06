@@ -31,7 +31,7 @@ int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
     if(Y->nmodes != X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Sub", "shape mismatch");
     }
-    for(size_t i = 0; i < X->nmodes; ++i) {
+    for(sptIndex i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Sub", "shape mismatch");
         }
@@ -40,38 +40,38 @@ int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
     sptNewSparseTensor(Z, X->nmodes, X->ndims);
 
     /* Add elements one by one, assume indices are ordered */
-    size_t i, j;
+    sptNnzIndex i, j;
     int result;
     i = 0;
     j = 0;
     while(i < X->nnz && j < Y->nnz) {
         int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
         if(compare > 0) {
-            for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+            for(sptIndex mode = 0; mode < X->nmodes; ++mode) {
+                result = sptAppendIndexVector(&Z->inds[mode], Y->inds[mode].data[j]);
                 spt_CheckError(result, "SpTns Sub", NULL);
             }
-            result = sptAppendVector(&Z->values, -Y->values.data[j]);
+            result = sptAppendValueVector(&Z->values, -Y->values.data[j]);
             spt_CheckError(result, "SpTns Sub", NULL);
 
             ++Z->nnz;
             ++j;
         } else if(compare < 0) {
-            for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
+            for(sptIndex mode = 0; mode < X->nmodes; ++mode) {
+                result = sptAppendIndexVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns Sub", NULL);
             }
-            result = sptAppendVector(&Z->values, X->values.data[i]);
+            result = sptAppendValueVector(&Z->values, X->values.data[i]);
             spt_CheckError(result, "SpTns Sub", NULL);
 
             ++Z->nnz;
             ++i;
         } else {
-            for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
+            for(sptIndex mode = 0; mode < X->nmodes; ++mode) {
+                result = sptAppendIndexVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns Sub", NULL);
             }
-            result = sptAppendVector(&Z->values, X->values.data[i] - Y->values.data[j]);
+            result = sptAppendValueVector(&Z->values, X->values.data[i] - Y->values.data[j]);
             spt_CheckError(result, "SpTns Sub", NULL);
 
             ++Z->nnz;
@@ -81,22 +81,22 @@ int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
     }
     /* Append remaining elements of X to Z */
     while(i < X->nnz) {
-        for(size_t mode = 0; mode < X->nmodes; ++mode) {
-            result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
+        for(sptIndex mode = 0; mode < X->nmodes; ++mode) {
+            result = sptAppendIndexVector(&Z->inds[mode], X->inds[mode].data[i]);
             spt_CheckError(result, "SpTns Sub", NULL);
         }
-        result = sptAppendVector(&Z->values, X->values.data[i]);
+        result = sptAppendValueVector(&Z->values, X->values.data[i]);
         spt_CheckError(result, "SpTns Sub", NULL);
         ++Z->nnz;
         ++i;
     }
     /* Append remaining elements of Y to Z */
     while(i < X->nnz) {
-        for(size_t mode = 0; mode < Y->nmodes; ++mode) {
-            result = sptAppendSizeVector(&Z->inds[mode], Y->inds[mode].data[j]);
+        for(sptIndex mode = 0; mode < Y->nmodes; ++mode) {
+            result = sptAppendIndexVector(&Z->inds[mode], Y->inds[mode].data[j]);
             spt_CheckError(result, "SpTns Sub", NULL);
         }
-        result = sptAppendVector(&Z->values, -Y->values.data[j]);
+        result = sptAppendValueVector(&Z->values, -Y->values.data[j]);
         spt_CheckError(result, "SpTns Sub", NULL);
         ++Z->nnz;
         ++j;
@@ -107,5 +107,6 @@ int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
     sptSparseTensorSortIndex(Z, 1);
+    
     return 0;
 }

@@ -19,10 +19,10 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
-__global__ static void spt_DotMulKernel(size_t nnz, sptScalar *Z_val, sptScalar *X_val, sptScalar *Y_val)
+__global__ static void spt_DotMulKernel(size_t nnz, sptValue *Z_val, sptValue *X_val, sptValue *Y_val)
 {
-    const size_t tidx = threadIdx.x;
-    const size_t i = blockIdx.x * blockDim.x + tidx;
+    const sptNnzIndex tidx = threadIdx.x;
+    const sptNnzIndex i = (sptNnzIndex) (blockIdx.x * blockDim.x + tidx);
 
     if(i < nnz) {
         Z_val[i] = X_val[i] * Y_val[i];
@@ -40,13 +40,12 @@ __global__ static void spt_DotMulKernel(size_t nnz, sptScalar *Z_val, sptScalar 
  * @param[in]  Y the input Y
  */
 int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
-    size_t i;
     int result;
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns DotMul", "shape mismatch");
     }
-    for(i = 0; i < X->nmodes; ++i) {
+    for(sptIndex i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "CUDA SpTns DotMul", "shape mismatch");
         }
@@ -55,30 +54,30 @@ int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, co
     if(Y->nnz != X->nnz) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns DotMul", "nonzero distribution mismatch");
     }
-    size_t nnz = X->nnz;
+    sptNnzIndex nnz = X->nnz;
 
     sptCopySparseTensor(Z, X);
 
-    sptScalar *X_val = NULL;
-    result = cudaMalloc((void **) &X_val, X->nnz * sizeof (sptScalar));
+    sptValue *X_val = NULL;
+    result = cudaMalloc((void **) &X_val, X->nnz * sizeof (sptValue));
     spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
-    result = cudaMemcpy(X_val, X->values.data, X->nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
-    spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
-
-    sptScalar *Y_val = NULL;
-    result = cudaMalloc((void **) &Y_val, Y->nnz * sizeof (sptScalar));
-    spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
-    result = cudaMemcpy(Y_val, Y->values.data, Y->nnz * sizeof (sptScalar), cudaMemcpyHostToDevice);
+    result = cudaMemcpy(X_val, X->values.data, X->nnz * sizeof (sptValue), cudaMemcpyHostToDevice);
     spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
 
-    sptScalar *Z_val = NULL;
-    result = cudaMalloc((void **) &Z_val, X->nnz * sizeof (sptScalar));
+    sptValue *Y_val = NULL;
+    result = cudaMalloc((void **) &Y_val, Y->nnz * sizeof (sptValue));
     spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
-    result = cudaMemset(Z_val, 0, X->nnz * sizeof (sptScalar));
+    result = cudaMemcpy(Y_val, Y->values.data, Y->nnz * sizeof (sptValue), cudaMemcpyHostToDevice);
     spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
 
-    size_t nthreads = 128;
-    size_t nblocks = (nnz + nthreads -1)/ nthreads;
+    sptValue *Z_val = NULL;
+    result = cudaMalloc((void **) &Z_val, X->nnz * sizeof (sptValue));
+    spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
+    result = cudaMemset(Z_val, 0, X->nnz * sizeof (sptValue));
+    spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
+
+    sptNnzIndex nthreads = 128;
+    sptNnzIndex nblocks = (nnz + nthreads -1)/ nthreads;
 
     sptTimer timer;
     sptNewTimer(&timer, 0);
@@ -91,7 +90,7 @@ int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, co
     sptPrintElapsedTime(timer, "CUDA  SpTns DotMul");
     sptFreeTimer(timer);
 
-    cudaMemcpy(Z->values.data, Z_val, Z->nnz * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+    cudaMemcpy(Z->values.data, Z_val, Z->nnz * sizeof (sptValue), cudaMemcpyDeviceToHost);
 
     result = cudaFree(X_val);
     spt_CheckCudaError(result != 0, "CUDA SpTns DotMul");
@@ -106,5 +105,6 @@ int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, co
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
     sptSparseTensorSortIndex(Z, 1);
+
     return 0;
 }

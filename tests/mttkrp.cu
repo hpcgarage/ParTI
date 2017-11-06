@@ -28,8 +28,8 @@ int main(int argc, char const *argv[]) {
     sptSparseTensor X;
     sptMatrix ** U;
     sptMatrix ** copy_U;
-    size_t mode = 0;
-    size_t R = 16;
+    sptIndex mode = 0;
+    sptIndex R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
     int nthreads;
@@ -101,13 +101,13 @@ int main(int argc, char const *argv[]) {
     fclose(fX);
     sptSparseTensorStatus(&X, stdout);
 
-    size_t nmodes = X.nmodes;
+    sptIndex nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
-    for(size_t m=0; m<nmodes+1; ++m) {
+    for(sptIndex m=0; m<nmodes+1; ++m) {
       U[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
     }
-    size_t max_ndims = 0;
-    for(size_t m=0; m<nmodes; ++m) {
+    sptIndex max_ndims = 0;
+    for(sptIndex m=0; m<nmodes; ++m) {
       // sptAssert(sptRandomizeMatrix(U[m], X.ndims[m], R) == 0);
       sptAssert(sptNewMatrix(U[m], X.ndims[m], R) == 0);
       sptAssert(sptConstantMatrix(U[m], 1) == 0);
@@ -116,7 +116,7 @@ int main(int argc, char const *argv[]) {
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-    size_t stride = U[0]->stride;
+    sptIndex stride = U[0]->stride;
 
     /* Set zeros for temporary copy_U, for mode-"mode" */
     char * bytestr;
@@ -127,17 +127,17 @@ int main(int argc, char const *argv[]) {
             sptAssert(sptNewMatrix(copy_U[t], X.ndims[mode], R) == 0);
             sptAssert(sptConstantMatrix(copy_U[t], 0) == 0);
         }
-        size_t bytes = nt * X.ndims[mode] * R * sizeof(sptScalar);
+        sptNnzIndex bytes = nt * X.ndims[mode] * R * sizeof(sptValue);
         bytestr = sptBytesString(bytes);
         printf("MODE MATRIX COPY=%s\n\n", bytestr);
     }
 
-    size_t * mats_order = (size_t*)malloc(nmodes * sizeof(size_t));
+    sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
     mats_order[0] = mode;
-    for(size_t i=1; i<nmodes; ++i)
+    for(sptIndex i=1; i<nmodes; ++i)
         mats_order[i] = (mode+i) % nmodes;
     // printf("mats_order:\n");
-    // spt_DumpArray(mats_order, nmodes, 0, stdout);
+    // sptDumpIndexArray(mats_order, nmodes, stdout);
 
     /* Initialize locks */
     sptMutexPool * lock_pool = NULL;
@@ -208,7 +208,7 @@ int main(int argc, char const *argv[]) {
     double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
     sptFreeTimer(timer);
     double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
-    double gbw = (double)(nmodes * sizeof(size_t) + sizeof(sptScalar) + nmodes * R * sizeof(sptScalar)) * X.nnz / aver_time / 1e9;
+    double gbw = (double)(nmodes * sizeof(sptIndex) + sizeof(sptValue) + nmodes * R * sizeof(sptValue)) * X.nnz / aver_time / 1e9;
     printf("Performance: %.2lf GFlops, Bandwidth: %.2lf GB/s\n", gflops, gbw);
 
 
@@ -224,7 +224,7 @@ int main(int argc, char const *argv[]) {
             sptMutexFree(lock_pool);
         }
     }
-    for(size_t m=0; m<nmodes; ++m) {
+    for(sptIndex m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
     }
     sptFreeSparseTensor(&X);

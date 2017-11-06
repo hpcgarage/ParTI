@@ -29,7 +29,7 @@
  * for "inner product" or "outer product".
  */
 int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
-    size_t i, j;
+    sptNnzIndex i, j;
     int result;
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
@@ -58,11 +58,11 @@ int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sp
         } else if(compare < 0) {
             ++i;
         } else {
-            for(size_t mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&Z->inds[mode], X->inds[mode].data[i]);
+            for(sptIndex mode = 0; mode < X->nmodes; ++mode) {
+                result = sptAppendIndexVector(&Z->inds[mode], X->inds[mode].data[i]);
                 spt_CheckError(result, "SpTns DotMul", NULL);
             }
-            result = sptAppendVector(&Z->values, X->values.data[i] * Y->values.data[j]);
+            result = sptAppendValueVector(&Z->values, X->values.data[i] * Y->values.data[j]);
             spt_CheckError(result, "SpTns DotMul", NULL);
 
             ++Z->nnz;
@@ -81,5 +81,6 @@ int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sp
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
     sptSparseTensorSortIndex(Z, 1);
+    
     return 0;
 }

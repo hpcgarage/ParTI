@@ -27,9 +27,9 @@
  * Orders are not kept, call sptSparseTensorSortIndex after this.
  */
 void spt_SparseTensorCollectZeros(sptSparseTensor *tsr) {
-    size_t i =  0;
-    size_t nnz = tsr->nnz;
-    size_t mode;
+    sptNnzIndex i =  0;
+    sptNnzIndex nnz = tsr->nnz;
+    sptIndex mode;
     while(i < nnz) {
         if(tsr->values.data[i] == 0) {
             for(mode = 0; mode < tsr->nmodes; ++mode) {

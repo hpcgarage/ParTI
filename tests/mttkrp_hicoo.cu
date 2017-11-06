@@ -202,7 +202,7 @@ int main(int argc, char * const argv[]) {
     }
 
 
-    for(size_t m=0; m<nmodes; ++m) {
+    for(sptIndex m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
     }
     free(mats_order);

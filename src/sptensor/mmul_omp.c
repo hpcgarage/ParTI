@@ -20,11 +20,12 @@
 #include <stdlib.h>
 #include "sptensor.h"
 
-int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode) {
+int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode) {
     int result;
-    size_t *ind_buf;
-    size_t m, i;
-    sptSizeVector fiberidx;
+    sptIndex *ind_buf;
+    sptIndex m;
+    sptNnzIndex i;
+    sptNnzIndexVector fiberidx;
     if(mode >= X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP  SpTns * Mtx", "shape mismatch");
     }
@@ -51,13 +52,12 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
 
     #pragma omp parallel for
     for(i = 0; i < Y->nnz; ++i) {
-        size_t inz_begin = fiberidx.data[i];
-        size_t inz_end = fiberidx.data[i+1];
-        size_t j, k;
+        sptNnzIndex inz_begin = fiberidx.data[i];
+        sptNnzIndex inz_end = fiberidx.data[i+1];
         // jli: exchange two loops
-        for(j = inz_begin; j < inz_end; ++j) {
-            size_t r = X->inds[mode].data[j];
-            for(k = 0; k < U->ncols; ++k) {
+        for(sptNnzIndex j = inz_begin; j < inz_end; ++j) {
+            sptIndex r = X->inds[mode].data[j];
+            for(sptIndex k = 0; k < U->ncols; ++k) {
                 Y->values.values[i*Y->stride + k] += X->values.data[j] * U->values[r*U->stride + k];
             }
         }
@@ -67,6 +67,6 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     sptPrintElapsedTime(timer, "OMP  SpTns * Mtx");
     sptFreeTimer(timer);
 
-    sptFreeSizeVector(&fiberidx);
+    sptFreeNnzIndexVector(&fiberidx);
     return 0;
 }

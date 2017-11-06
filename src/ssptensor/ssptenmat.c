@@ -30,9 +30,9 @@
  * @parameter[out] csrColInd  preallocated length = tsr->nnz * tsr->ndims[tsr->mode]
  */
 int spt_SemiSparseTensorToSparseMatrixCSR(
-    sptScalar                  *csrVal,
-    int                        *csrRowPtr,
-    int                        *csrColInd,
+    sptValue                  *csrVal,
+    sptNnzIndex                        *csrRowPtr,
+    sptIndex                        *csrColInd,
     const sptSemiSparseTensor  *tsr
 ) {
     /*
@@ -41,20 +41,20 @@ int spt_SemiSparseTensorToSparseMatrixCSR(
         where [a, b, c] will map to [a * X + c, b].
     */
 
-    const size_t stride = tsr->stride;
-    const size_t ncols = tsr->ndims[tsr->mode];
-    for(size_t row = 0; row < tsr->nnz; ++row) {
-        for(size_t col = 0; col < ncols; ++col) {
+    const sptIndex stride = tsr->stride;
+    const sptIndex ncols = tsr->ndims[tsr->mode];
+    for(sptNnzIndex row = 0; row < tsr->nnz; ++row) {
+        for(sptIndex col = 0; col < ncols; ++col) {
             csrVal[row * ncols + col] = tsr->values.values[row * stride + col];
         }
     }
 
-    for(size_t row = 0; row <= tsr->nnz; ++row) {
+    for(sptNnzIndex row = 0; row <= tsr->nnz; ++row) {
         csrRowPtr[row] = row * ncols;
     }
 
-    for(size_t row = 0; row < tsr->nnz; ++row) {
-        for(size_t col = 0; col < ncols; ++col) {
+    for(sptNnzIndex row = 0; row < tsr->nnz; ++row) {
+        for(sptIndex col = 0; col < ncols; ++col) {
             csrColInd[row * ncols + col] = col;
         }
     }

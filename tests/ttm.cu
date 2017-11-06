@@ -25,8 +25,8 @@ int main(int argc, char const *argv[]) {
     sptSparseTensor X, spY;
     sptSemiSparseTensor Y;
     sptMatrix U;
-    size_t mode = 0;
-    size_t R = 16;
+    sptIndex mode = 0;
+    sptIndex R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
 
@@ -41,10 +41,10 @@ int main(int argc, char const *argv[]) {
     fclose(fX);
 
     sscanf(argv[2], "%zu", &mode);
-    size_t impl_num = 0;
-    sscanf(argv[3], "%zu", &impl_num);
-    size_t smem_size = 0;
-    sscanf(argv[4], "%zu", &smem_size);
+    sptIndex impl_num = 0;
+    sscanf(argv[3], "%u", &impl_num);
+    sptNnzIndex smem_size = 0;
+    sscanf(argv[4], "%lu", &smem_size);
 
     if(argc > 5) {
         sscanf(argv[5], "%d", &cuda_dev_id);

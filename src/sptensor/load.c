@@ -28,33 +28,33 @@
  * @param start_index the index of the first element in array. Set to 1 for MATLAB compability, else set to 0
  * @param fp          the file to read from
  */
-int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
+int sptLoadSparseTensor(sptSparseTensor *tsr, sptIndex start_index, FILE *fp) {
     int iores, retval;
-    size_t mode;
-    iores = fscanf(fp, "%zu", &tsr->nmodes);
+    sptIndex mode;
+    iores = fscanf(fp, "%u", &tsr->nmodes);
     spt_CheckOSError(iores < 0, "SpTns Load");
     tsr->sortorder = malloc(tsr->nmodes * sizeof tsr->sortorder[0]);
     spt_CheckOSError(!tsr->sortorder, "SpTns Load");
     tsr->ndims = malloc(tsr->nmodes * sizeof *tsr->ndims);
     spt_CheckOSError(!tsr->ndims, "SpTns Load");
     for(mode = 0; mode < tsr->nmodes; ++mode) {
-        iores = fscanf(fp, "%zu", &tsr->ndims[mode]);
+        iores = fscanf(fp, "%u", &tsr->ndims[mode]);
         spt_CheckOSError(iores != 1, "SpTns Load");
     }
     tsr->nnz = 0;
     tsr->inds = malloc(tsr->nmodes * sizeof *tsr->inds);
     spt_CheckOSError(!tsr->inds, "SpTns Load");
     for(mode = 0; mode < tsr->nmodes; ++mode) {
-        retval = sptNewSizeVector(&tsr->inds[mode], 0, 0);
+        retval = sptNewIndexVector(&tsr->inds[mode], 0, 0);
         spt_CheckError(retval, "SpTns Load", NULL);
     }
-    retval = sptNewVector(&tsr->values, 0, 0);
+    retval = sptNewValueVector(&tsr->values, 0, 0);
     spt_CheckError(retval, "SpTns Load", NULL);
     while(retval == 0) {
         double value;
         for(mode = 0; mode < tsr->nmodes; ++mode) {
-            size_t index;
-            iores = fscanf(fp, "%zu", &index);
+            sptIndex index;
+            iores = fscanf(fp, "%u", &index);
             if(iores != 1) {
                 retval = -1;
                 break;
@@ -62,7 +62,7 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
             if(index < start_index) {
                 spt_CheckError(SPTERR_VALUE_ERROR, "SpTns Load", "index < start_index");
             }
-            sptAppendSizeVector(&tsr->inds[mode], index-start_index);
+            sptAppendIndexVector(&tsr->inds[mode], index-start_index);
         }
         if(retval == 0) {
             iores = fscanf(fp, "%lf", &value);
@@ -70,7 +70,7 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
                 retval = -1;
                 break;
             }
-            sptAppendVector(&tsr->values, value);
+            sptAppendValueVector(&tsr->values, value);
             ++tsr->nnz;
         }
     }
@@ -79,5 +79,6 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, size_t start_index, FILE *fp) {
     }
     spt_SparseTensorCollectZeros(tsr);
     sptSparseTensorSortIndex(tsr, 1);
+    
     return 0;
 }

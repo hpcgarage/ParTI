@@ -21,13 +21,13 @@
 #include <string.h>
 #include "../error/error.h"
 
-int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const size_t ndims[], sptIndex rank)
+int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptIndex rank)
 {
     ktsr->nmodes = nmodes;
     ktsr->rank = rank;
     ktsr->ndims = (sptIndex*)malloc(nmodes*sizeof(sptIndex));
     for(sptIndex i=0; i<nmodes; ++i)
-        ktsr->ndims[i] = (sptIndex) ndims[i];
+        ktsr->ndims[i] = ndims[i];
     ktsr->lambda = (sptValue*)malloc(rank*sizeof(sptValue));
     ktsr->fit = 0.0;
     
@@ -40,7 +40,7 @@ void sptFreeKruskalTensor(sptKruskalTensor *ktsr)
 	ktsr->fit = 0.0;
 	free(ktsr->ndims);
 	free(ktsr->lambda);
-	for(size_t i=0; i<ktsr->nmodes; ++i)
+	for(sptIndex i=0; i<ktsr->nmodes; ++i)
 		sptFreeMatrix(ktsr->factors[i]);
     free(ktsr->factors);
 	ktsr->nmodes = 0;
@@ -98,8 +98,8 @@ double KruskalTensorFrobeniusNormSquared(
 #ifdef PARTI_USE_OPENMP
   #pragma omp parallel for
 #endif
-    for(size_t i=0; i < rank; ++i) {
-        for(size_t j=0; j < rank; ++j) {
+    for(sptIndex i=0; i < rank; ++i) {
+        for(sptIndex j=0; j < rank; ++j) {
             tmp_atavals[j * stride + i] *= atavals[j * stride + i];
         }
     }
@@ -159,7 +159,7 @@ double SparseKruskalTensorInnerProduct(
     #pragma omp master
     {
       buffer_accum = (sptValue *)malloc(nthreads * rank * sizeof(sptValue));
-      for(size_t j=0; j < nthreads * rank; ++j)
+      for(sptIndex j=0; j < nthreads * rank; ++j)
           buffer_accum[j] = 0.0;
     }
   }
@@ -180,7 +180,7 @@ double SparseKruskalTensorInnerProduct(
     }
 
     #pragma omp for
-    for(size_t j=0; j < rank; ++j) {
+    for(sptIndex j=0; j < rank; ++j) {
       for(int i=0; i < nthreads; ++i) {
         accum[j] += buffer_accum[i*rank + j];
       }

@@ -27,7 +27,7 @@
  * @param[in]  Y the input Y
  */
 int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y) {
-    size_t i;
+    sptNnzIndex i;
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns DotMul", "shape mismatch");
@@ -41,7 +41,7 @@ int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const 
     if(Y->nnz != X->nnz) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns DotMul", "nonzero distribution mismatch");
     }
-    size_t nnz = X->nnz;
+    sptNnzIndex nnz = X->nnz;
 
     sptCopySparseTensor(Z, X);
 
@@ -62,5 +62,6 @@ int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const 
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
     sptSparseTensorSortIndex(Z, 1);
+    
     return 0;
 }

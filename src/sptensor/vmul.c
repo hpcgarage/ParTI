@@ -23,11 +23,10 @@
 /**
  * Sparse tensor times a vector (SpTTV)
  */
-int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptVector *V, size_t mode) {
+int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptValueVector *V, sptIndex const mode) {
     int result;
-    size_t *ind_buf;
-    size_t m, i;
-    sptSizeVector fiberidx;
+    sptIndex *ind_buf;
+    sptNnzIndexVector fiberidx;
     if(mode >= X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns * Vec", "shape mismatch");
     }
@@ -38,7 +37,7 @@ int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     spt_CheckOSError(!ind_buf, "CPU  SpTns * Vec");
-    for(m = 0; m < X->nmodes; ++m) {
+    for(sptIndex m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }
     ind_buf[mode] = 1;
@@ -52,13 +51,13 @@ int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    for(i = 0; i < Y->nnz; ++i) {
-        size_t inz_begin = fiberidx.data[i];
-        size_t inz_end = fiberidx.data[i+1];
-        size_t j;
+    for(sptNnzIndex i = 0; i < Y->nnz; ++i) {
+        sptNnzIndex inz_begin = fiberidx.data[i];
+        sptNnzIndex inz_end = fiberidx.data[i+1];
+        sptNnzIndex j;
         // jli: exchange the two loops
         for(j = inz_begin; j < inz_end; ++j) {
-            size_t r = X->inds[mode].data[j];
+            sptIndex r = X->inds[mode].data[j];
             Y->values.values[i*Y->stride] += X->values.data[j] * V->data[r];
         }
     }
@@ -67,6 +66,6 @@ int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     sptPrintElapsedTime(timer, "CPU  SpTns * Vec");
     sptFreeTimer(timer);
 
-    sptFreeSizeVector(&fiberidx);
+    sptFreeNnzIndexVector(&fiberidx);
     return 0;
 }

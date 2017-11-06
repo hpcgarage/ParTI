@@ -21,7 +21,7 @@
 #include "ssptensor.h"
 #include "../sptensor/sptensor.h"
 
-static int spt_SparseTensorCompareExceptMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode);
+static int spt_SparseTensorCompareExceptMode(const sptSparseTensor *tsr1, sptNnzIndex ind1, const sptSparseTensor *tsr2, sptNnzIndex ind2, sptIndex mode);
 
 /**
  * Convert a sparse tensor into a semi sparse tensor, but only set the indices
@@ -32,46 +32,47 @@ static int spt_SparseTensorCompareExceptMode(const sptSparseTensor *tsr1, size_t
  */
 int sptSemiSparseTensorSetIndices(
     sptSemiSparseTensor *dest,
-    sptSizeVector *fiberidx,
+    sptNnzIndexVector *fiberidx,
     sptSparseTensor *ref
 ) {
-    size_t lastidx = ref->nnz;
-    size_t i, m;
+    sptNnzIndex lastidx = ref->nnz;
+    sptNnzIndex i;
+    sptIndex m;
     int result;
     assert(dest->nmodes == ref->nmodes);
     sptSparseTensorSortIndexAtMode(ref, dest->mode, 0);
-    result = sptNewSizeVector(fiberidx, 0, 0);
+    result = sptNewNnzIndexVector(fiberidx, 0, 0);
     spt_CheckError(result, "SspTns SetIndices", NULL);
     dest->nnz = 0;
     for(i = 0; i < ref->nnz; ++i) {
         if(lastidx == ref->nnz || spt_SparseTensorCompareExceptMode(ref, lastidx, ref, i, dest->mode) != 0) {
             for(m = 0; m < dest->nmodes; ++m) {
                 if(m != dest->mode) {
-                    result = sptAppendSizeVector(&dest->inds[m], ref->inds[m].data[i]);
+                    result = sptAppendIndexVector(&dest->inds[m], ref->inds[m].data[i]);
                     spt_CheckError(result, "SspTns SetIndices", NULL);
                 }
             }
             lastidx = i;
             ++dest->nnz;
             if(fiberidx != NULL) {
-                result = sptAppendSizeVector(fiberidx, i);
+                result = sptAppendNnzIndexVector(fiberidx, i);
                 spt_CheckError(result, "SspTns SetIndices", NULL);
             }
         }
     }
     if(fiberidx != NULL) {
-        result = sptAppendSizeVector(fiberidx, ref->nnz);
+        result = sptAppendNnzIndexVector(fiberidx, ref->nnz);
         spt_CheckError(result, "SspTns SetIndices", NULL);
     }
     result = sptResizeMatrix(&dest->values, dest->nnz);
     spt_CheckError(result, "SspTns SetIndices", NULL);
-    memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptScalar));
+    memset(dest->values.values, 0, dest->nnz * dest->stride * sizeof (sptValue));
     return 0;
 }
 
-static int spt_SparseTensorCompareExceptMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode) {
-    size_t i;
-    size_t eleind1, eleind2;
+static int spt_SparseTensorCompareExceptMode(const sptSparseTensor *tsr1, sptNnzIndex ind1, const sptSparseTensor *tsr2, sptNnzIndex ind2, sptIndex mode) {
+    sptIndex i;
+    sptIndex eleind1, eleind2;
     assert(tsr1->nmodes == tsr2->nmodes);
     for(i = 0; i < tsr1->nmodes; ++i) {
         if(i != mode) {

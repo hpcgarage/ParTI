@@ -24,7 +24,7 @@
 int main(int argc, char const *argv[]) {
     FILE *fX, *fo;
     sptSparseTensor X;
-    size_t R = 16;
+    sptIndex R = 16;
     int niters = 2; // 50
     double tol = 1e-5;
     sptKruskalTensor ktensor;
@@ -52,13 +52,13 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[3], "%d", &nthreads);
     }
     if(argc >= 5) {
-        sscanf(argv[4], "%zu", &R);
+        sscanf(argv[4], "%lu", &R);
     }
     if(argc >= 6) {
         sscanf(argv[5], "%d", &use_reduce);
     }
 
-    size_t nmodes = X.nmodes;
+    sptIndex nmodes = X.nmodes;
     sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
 
     /* For warm-up caches, timing not included */

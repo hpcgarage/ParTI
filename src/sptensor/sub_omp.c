@@ -20,80 +20,80 @@
 #include "sptensor.h"
 
 /* TODO: bug. */
-int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const nthreads) {
+int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthreads) {
     /* Ensure X and Y are in same shape */
     if(Y->nmodes != X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP SpTns Sub", "shape mismatch");
     }
-    for(size_t i = 0; i < X->nmodes; ++i) {
+    for(sptIndex i = 0; i < X->nmodes; ++i) {
         if(Y->ndims[i] != X->ndims[i]) {
             spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP SpTns Sub", "shape mismatch");
         }
     }
 
     /* Determine partationing strategy. */
-    size_t * dist_nnzs_X = (size_t*)malloc(nthreads*sizeof(size_t));
-    size_t * dist_nnzs_Y = (size_t*)malloc(nthreads*sizeof(size_t));
-    size_t * dist_nrows_Y = (size_t*)malloc(nthreads*sizeof(size_t));
+    sptNnzIndex * dist_nnzs_X = (sptNnzIndex*)malloc(nthreads*sizeof(sptNnzIndex));
+    sptNnzIndex * dist_nnzs_Y = (sptNnzIndex*)malloc(nthreads*sizeof(sptNnzIndex));
+    sptIndex * dist_nrows_Y = (sptIndex*)malloc(nthreads*sizeof(sptIndex));
 
     spt_DistSparseTensor(Y, nthreads, dist_nnzs_Y, dist_nrows_Y);
     spt_DistSparseTensorFixed(X, nthreads, dist_nnzs_X, dist_nnzs_Y);
     free(dist_nrows_Y);
 
     printf("dist_nnzs_Y:\n");
-    for(size_t i=0; i<nthreads; ++i) {
-        printf("%zu ", dist_nnzs_Y[i]);
+    for(int i=0; i<nthreads; ++i) {
+        printf("%lu ", dist_nnzs_Y[i]);
     }
     printf("\n");
     printf("dist_nnzs_X:\n");
-    for(size_t i=0; i<nthreads; ++i) {
-        printf("%zu ", dist_nnzs_X[i]);
+    for(int i=0; i<nthreads; ++i) {
+        printf("%lu ", dist_nnzs_X[i]);
     }
     printf("\n");
     fflush(stdout);
 
 
     /* Build a private arrays to append values. */
-    size_t nnz_gap = llabs((long long) Y->nnz - (long long) X->nnz);
-    size_t increase_size = 0;
+    sptNnzIndex nnz_gap = llabs((long long) Y->nnz - (long long) X->nnz);
+    sptNnzIndex increase_size = 0;
     if(nnz_gap == 0) increase_size = 10;
     else increase_size = nnz_gap;
 
-    sptSizeVector **local_inds = (sptSizeVector**)malloc(nthreads* sizeof *local_inds);
-    for(size_t k=0; k<nthreads; ++k) {
-        local_inds[k] = (sptSizeVector*)malloc(Y->nmodes* sizeof *(local_inds[k]));
-        for(size_t m=0; m<Y->nmodes; ++m) {
-            sptNewSizeVector(&(local_inds[k][m]), 0, increase_size);
+    sptIndexVector **local_inds = (sptIndexVector**)malloc(nthreads* sizeof *local_inds);
+    for(int k=0; k<nthreads; ++k) {
+        local_inds[k] = (sptIndexVector*)malloc(Y->nmodes* sizeof *(local_inds[k]));
+        for(sptIndex m=0; m<Y->nmodes; ++m) {
+            sptNewIndexVector(&(local_inds[k][m]), 0, increase_size);
         }
     }
 
-    sptVector *local_vals = (sptVector*)malloc(nthreads* sizeof *local_vals);
-    for(size_t k=0; k<nthreads; ++k) {
-        sptNewVector(&(local_vals[k]), 0, increase_size);
+    sptValueVector *local_vals = (sptValueVector*)malloc(nthreads* sizeof *local_vals);
+    for(int k=0; k<nthreads; ++k) {
+        sptNewValueVector(&(local_vals[k]), 0, increase_size);
     }
 
 
     /* Add elements one by one, assume indices are ordered */
-    size_t Ynnz = 0;
+    sptNnzIndex Ynnz = 0;
     omp_set_dynamic(0);
     omp_set_num_threads(nthreads);
     #pragma omp parallel reduction(+:Ynnz)
     {
         int tid = omp_get_thread_num();
-        size_t i=0, j=0;
+        sptNnzIndex i=0, j=0;
         Ynnz = dist_nnzs_Y[tid];
         while(i < dist_nnzs_X[tid] && j < dist_nnzs_Y[tid]) {
             int compare = spt_SparseTensorCompareIndices(X, i, Y, j);
             if(compare > 0) {
                 ++j;
             } else if(compare < 0) {
-                size_t mode;
+                sptIndex mode;
                 int result;
                 for(mode = 0; mode < X->nmodes; ++mode) {
-                    result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
+                    result = sptAppendIndexVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
                     spt_CheckOmpError(result, "OMP SpTns Sub", NULL);
                 }
-                result = sptAppendVector(&(local_vals[tid]), -X->values.data[i]);
+                result = sptAppendValueVector(&(local_vals[tid]), -X->values.data[i]);
                 spt_CheckOmpError(result, "OMP SpTns Sub", NULL);
                 ++Ynnz;
                 ++i;
@@ -105,13 +105,13 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
         }
         /* Append remaining elements of X to Y */
         while(i < dist_nnzs_X[tid]) {
-            size_t mode;
+            sptIndex mode;
             int result;
             for(mode = 0; mode < X->nmodes; ++mode) {
-                result = sptAppendSizeVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
+                result = sptAppendIndexVector(&(local_inds[tid][mode]), X->inds[mode].data[i]);
                 spt_CheckOmpError(result, "OMP SpTns Sub", NULL);
             }
-            result = sptAppendVector(&(local_vals[tid]), -X->values.data[i]);
+            result = sptAppendValueVector(&(local_vals[tid]), -X->values.data[i]);
             spt_CheckOmpError(result, "OMP SpTns Sub", NULL);
             ++Ynnz;
             ++i;
@@ -120,19 +120,19 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
     }
 
     /* Append all the local arrays to Y. */
-    for(size_t k=0; k<nthreads; ++k) {
-        for(size_t m=0; m<Y->nmodes; ++m) {
-            sptAppendSizeVectorWithVector(&(Y->inds[m]), &(local_inds[k][m]));
+    for(int k=0; k<nthreads; ++k) {
+        for(sptIndex m=0; m<Y->nmodes; ++m) {
+            sptAppendIndexVectorWithVector(&(Y->inds[m]), &(local_inds[k][m]));
         }
-        sptAppendVectorWithVector(&(Y->values), &(local_vals[k]));
+        sptAppendValueVectorWithVector(&(Y->values), &(local_vals[k]));
     }
 
-    for(size_t k=0; k<nthreads; ++k) {
-        for(size_t m=0; m<Y->nmodes; ++m) {
-            sptFreeSizeVector(&(local_inds[k][m]));
+    for(int k=0; k<nthreads; ++k) {
+        for(sptIndex m=0; m<Y->nmodes; ++m) {
+            sptFreeIndexVector(&(local_inds[k][m]));
         }
         free(local_inds[k]);
-        sptFreeVector(&(local_vals[k]));
+        sptFreeValueVector(&(local_vals[k]));
     }
     free(local_inds);
     free(local_vals);
@@ -145,5 +145,6 @@ int sptSparseTensorSubOMP(sptSparseTensor *Y, sptSparseTensor *X, size_t const n
     spt_SparseTensorCollectZeros(Y);
     /* Sort the indices */
     sptSparseTensorSortIndex(Y, 1);
+
     return 0;
 }

@@ -26,8 +26,8 @@ extern "C" {
 #include <ParTI.h>
 #include "../error/error.h"
 
-int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[], sptScalar value);
-int spt_SemiSparseTensorCompareIndices(const sptSemiSparseTensor *tsr1, size_t ind1, const sptSemiSparseTensor *tsr2, size_t ind2);
+int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const sptIndex indices[], sptValue value);
+int spt_SemiSparseTensorCompareIndices(const sptSemiSparseTensor *tsr1, sptNnzIndex ind1, const sptSemiSparseTensor *tsr2, sptNnzIndex ind2);
 int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr);
 
 double spt_SemiSparseTensorNorm(const sptSemiSparseTensor *X);
@@ -35,12 +35,12 @@ double spt_SemiSparseTensorNorm(const sptSemiSparseTensor *X);
 int spt_SemiSparseTensorSetMode(
     sptSemiSparseTensor       *dest,
     const sptSemiSparseTensor *src,
-    size_t                    newmode
+    sptIndex                    newmode
 );
 int spt_SemiSparseTensorToSparseMatrixCSR(
-    sptScalar                  *csrVal,
-    int                        *csrRowPtr,
-    int                        *csrColInd,
+    sptValue                  *csrVal,
+    sptNnzIndex                        *csrRowPtr,
+    sptIndex                        *csrColInd,
     const sptSemiSparseTensor  *tsr
 );
 

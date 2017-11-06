@@ -18,9 +18,9 @@
 
 #include <ParTI.h>
 
-int sptSparseTensorMulScalar(sptSparseTensor *X, sptScalar a) {
+int sptSparseTensorMulScalar(sptSparseTensor *X, sptValue const a) {
     if(a != 0) {
-        size_t i;
+        sptNnzIndex i;
         #pragma omp parallel for schedule(static)
         for(i = 0; i < X->nnz; ++i) {
             X->values.data[i] *= a;

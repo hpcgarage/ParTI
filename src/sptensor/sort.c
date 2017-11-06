@@ -20,7 +20,6 @@
 #include <math.h>
 #include <ParTI.h>
 #include "sptensor.h"
-#include "sort.h"
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
@@ -206,7 +205,7 @@ void sptSparseTensorSortIndexRowBlock(
  * @param tsr  the sparse tensor to operate on
  */
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode) {
-    size_t m;
+    sptIndex m;
     int needsort = 0;
 
     for(m = 0; m < tsr->nmodes; ++m) {
@@ -227,7 +226,7 @@ void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptInde
  * @param tsr  the sparse tensor to operate on
  */
 void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force) {
-    size_t m;
+    sptIndex m;
     int needsort = 0;
 
     for(m = 0; m < tsr->nmodes; ++m) {
@@ -243,12 +242,12 @@ void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force) {
 }
 
 
-void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
-    size_t i;
-    sptScalar val1, val2;
+void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2) {
+    sptIndex i;
+    sptValue val1, val2;
     for(i = 0; i < tsr->nmodes; ++i) {
-        size_t eleind1 = tsr->inds[i].data[ind1];
-        size_t eleind2 = tsr->inds[i].data[ind2];
+        sptIndex eleind1 = tsr->inds[i].data[ind1];
+        sptIndex eleind2 = tsr->inds[i].data[ind2];
         tsr->inds[i].data[ind1] = eleind2;
         tsr->inds[i].data[ind2] = eleind1;
     }
@@ -267,12 +266,12 @@ void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2) {
  * @param loc2 the order of the element in the second sparse tensor whose index is to be compared
  * @return -1 for less, 0 for equal, 1 for greater
  */
-int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t loc1, const sptSparseTensor *tsr2, size_t loc2) {
-    size_t i;
+int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2) {
+    sptIndex i;
     assert(tsr1->nmodes == tsr2->nmodes);
     for(i = 0; i < tsr1->nmodes; ++i) {
-        size_t eleind1 = tsr1->inds[i].data[loc1];
-        size_t eleind2 = tsr2->inds[i].data[loc2];
+        sptIndex eleind1 = tsr1->inds[i].data[loc1];
+        sptIndex eleind2 = tsr2->inds[i].data[loc2];
         if(eleind1 < eleind2) {
             return -1;
         } else if(eleind1 > eleind2) {
@@ -289,11 +288,11 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t loc1, con
  * @param len the length of both inds1 and inds2
  * @return 1 for in the range; otherwise return -1.
  */
-int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, size_t * const inds1, size_t * const inds2) {
+int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, sptNnzIndex loc, sptIndex * const inds1, sptIndex * const inds2) {
 
-    size_t i;
+    sptIndex i;
     for(i = 0; i < tsr->nmodes; ++i) {
-        size_t eleind = tsr->inds[i].data[loc];
+        sptIndex eleind = tsr->inds[i].data[loc];
         if(eleind < inds1[i] || eleind >= inds2[i]) {
             return -1;
         }
@@ -312,19 +311,19 @@ int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, 
  */
 static int spt_SparseTensorCompareIndicesRowBlock(
     const sptSparseTensor *tsr1, 
-    uint64_t loc1, 
+    sptNnzIndex loc1, 
     const sptSparseTensor *tsr2, 
-    uint64_t loc2,
+    sptNnzIndex loc2,
     const sptElementIndex sk_bits) 
 {
-    uint64_t i;
+    sptIndex i;
     assert(tsr1->nmodes == tsr2->nmodes);
 
     for(i = 0; i < tsr1->nmodes; ++i) {
-        uint64_t eleind1 = tsr1->inds[i].data[loc1];
-        uint64_t eleind2 = tsr2->inds[i].data[loc2];
-        uint64_t blkind1 = eleind1 >> sk_bits;
-        uint64_t blkind2 = eleind2 >> sk_bits;
+        sptIndex eleind1 = tsr1->inds[i].data[loc1];
+        sptIndex eleind2 = tsr2->inds[i].data[loc2];
+        sptIndex blkind1 = eleind1 >> sk_bits;
+        sptIndex blkind2 = eleind2 >> sk_bits;
         // printf("blkind1: %lu, blkind2: %lu\n", blkind1, blkind2);
 
         if(blkind1 < blkind2) {
@@ -355,7 +354,7 @@ static int spt_SparseTensorCompareIndicesMorton3D(
     sptMortonIndex mkey1 = 0, mkey2 = 0;
     assert(tsr1->nmodes == tsr2->nmodes);
 
-    /* TODO: only support 3-D tensors now */
+    /* TODO: only support 3-D tensors now, with 32-bit indices. */
     uint32_t x1 = tsr1->inds[0].data[loc1];
     uint32_t y1 = tsr1->inds[1].data[loc1];
     uint32_t z1 = tsr1->inds[2].data[loc1];
@@ -466,9 +465,9 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptN
 }
 
 
-static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode) 
+static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptIndex mode) 
 {
-    size_t i, j, p;
+    sptNnzIndex i, j, p;
     if(r-l < 2) {
         return;
     }
@@ -494,8 +493,8 @@ static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t 
     spt_QuickSortIndexSingleMode(tsr, i, r, mode);
 }
 
-static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r) {
-    size_t i, j, p;
+static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r) {
+    sptNnzIndex i, j, p;
     if(r-l < 2) {
         return;
     }

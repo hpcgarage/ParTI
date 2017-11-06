@@ -22,9 +22,9 @@
 
 double spt_SemiSparseTensorNorm(const sptSemiSparseTensor *X) {
     double sqnorm = 0;
-    size_t i;
+    sptNnzIndex i;
     for(i = 0; i < X->nnz; ++i) {
-        size_t j;
+        sptIndex j;
         for(j = 0; j < X->values.ncols; ++j) {
             double cell_value = X->values.values[i * X->stride + j];
             sqnorm += cell_value * cell_value;

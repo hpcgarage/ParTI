@@ -22,12 +22,12 @@
 #include <stdlib.h>
     
 
-size_t sptMaxSizeArray(
-  size_t const * const indices,
-  size_t const size)
+sptNnzIndex sptMaxNnzIndexArray(
+  sptNnzIndex const * const indices,
+  sptNnzIndex const size)
 {
-  size_t max = indices[0];
-  for(size_t i=1; i < size; ++i) {
+  sptNnzIndex max = indices[0];
+  for(sptNnzIndex i=1; i < size; ++i) {
     if(indices[i] > max) {
       max = indices[i];
     }
@@ -36,8 +36,21 @@ size_t sptMaxSizeArray(
 }
 
 
-/* TODO: copied from SPLATT, to modify */
-char * sptBytesString(size_t const bytes)
+sptIndex sptMaxIndexArray(
+  sptIndex const * const indices,
+  sptNnzIndex const size)
+{
+  sptIndex max = indices[0];
+  for(sptNnzIndex i=1; i < size; ++i) {
+    if(indices[i] > max) {
+      max = indices[i];
+    }
+  }
+  return max;
+}
+
+
+char * sptBytesString(uint64_t const bytes)
 {
   double size = (double)bytes;
   int suff = 0;

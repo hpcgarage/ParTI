@@ -35,7 +35,7 @@
  * The memory layout of this dense matrix is a flat 2D array, with `ncols`
  * rounded up to multiples of 8
  */
-int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols) {
+int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex const nrows, sptElementIndex const ncols) {
     mtx->nrows = nrows;
     mtx->ncols = ncols;
     mtx->cap = nrows != 0 ? nrows : 1;
@@ -52,7 +52,7 @@ int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols) 
 #else
     mtx->values = malloc(mtx->cap * mtx->stride * sizeof (sptValue));
 #endif
-    spt_CheckOSError(!mtx->values, "Mtx New");
+    spt_CheckOSError(!mtx->values, "RankMtx New");
     return 0;
 }
 
@@ -67,10 +67,10 @@ int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols) 
  * The matrix is filled with uniform distributed pseudorandom number in [0, 1]
  * The random number will have a precision of 31 bits out of 51 bits
  */
-int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex nrows, sptElementIndex ncols) 
+int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex const nrows, sptElementIndex const ncols) 
 {
   int result = sptNewRankMatrix(mtx, nrows, ncols);
-  spt_CheckError(result, "Mtx Randomize", NULL);
+  spt_CheckError(result, "RankMtx Randomize", NULL);
   srand(time(NULL));
   for(sptIndex i=0; i<nrows; ++i)
     for(sptElementIndex j=0; j<ncols; ++j) {
@@ -104,6 +104,10 @@ int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val) {
  */
 void sptFreeRankMatrix(sptRankMatrix *mtx) {
     free(mtx->values);
+    mtx->nrows = 0;
+    mtx->ncols = 0;
+    mtx->cap = 0;
+    mtx->stride = 0;
 }
 
 /* mats (aTa) only stores upper triangle elements. */
@@ -115,7 +119,6 @@ int sptRankMatrixDotMulSeqTriangle(sptIndex const mode, sptIndex const nmodes, s
     for(sptIndex m=1; m<nmodes+1; ++m) {
         assert(mats[m]->ncols == ncols);
         assert(mats[m]->nrows == nrows);
-        // assert(mats[m]->stride == stride);
     }
 
     sptValue * ovals = mats[nmodes]->values;
@@ -186,7 +189,7 @@ int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda)
     #pragma omp parallel
     {
         #pragma omp for schedule(static)
-        for(sptIndex j=0; j < (sptIndex)nthreads * ncols; ++j)
+        for(sptNnzIndex j=0; j < (sptNnzIndex)nthreads * ncols; ++j)
                 buffer_lambda[j] = 0.0;
 
         int const tid = omp_get_thread_num();
@@ -273,7 +276,7 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
     #pragma omp parallel
     {
         #pragma omp for schedule(static)
-        for(sptIndex j=0; j < (sptIndex)nthreads * ncols; ++j)
+        for(sptNnzIndex j=0; j < (sptNnzIndex)nthreads * ncols; ++j)
             buffer_lambda[j] = 0.0;
 
         int const tid = omp_get_thread_num();

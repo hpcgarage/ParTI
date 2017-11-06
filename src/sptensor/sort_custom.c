@@ -19,12 +19,12 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
-void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const size_t keymodes[], int force) {
-    size_t nmodes = tsr->nmodes;
-    size_t m;
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const sptIndex keymodes[], int force) {
+    sptIndex nmodes = tsr->nmodes;
+    sptIndex m;
     sptSparseTensor tsr_temp;
 
-    if(!force && memcmp(tsr->sortorder, keymodes, nmodes * sizeof (size_t)) == 0) {
+    if(!force && memcmp(tsr->sortorder, keymodes, nmodes * sizeof (sptIndex)) == 0) {
         return;
     }
 

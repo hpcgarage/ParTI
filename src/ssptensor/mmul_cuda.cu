@@ -19,13 +19,13 @@
 #include <ParTI.h>
 
 __global__ static void spt_TTMKernel(
-    sptScalar *Y_val,
-    const sptScalar *X_val,
-    size_t XY_stride,
-    size_t XY_nnz,
-    const sptScalar *U_val,
-    size_t U_nrows, size_t U_ncols, size_t U_stride,
-    size_t mode
+    sptValue *Y_val,
+    const sptValue *X_val,
+    sptIndex XY_stride,
+    sptNnzIndex XY_nnz,
+    const sptValue *U_val,
+    sptIndex U_nrows, sptIndex U_ncols, sptIndex U_stride,
+    sptIndex mode
 ) {
     size_t tid = blockIdx.x * blockDim.x + threadIdx.x;
     if(tid < XY_nnz) {
@@ -39,7 +39,7 @@ __global__ static void spt_TTMKernel(
     }
 }
 
-static size_t spt_GetBlockCount(size_t threads) {
+static sptNnzIndex spt_GetBlockCount(sptNnzIndex threads) {
     return (threads / 256) + ((threads & 255) != 0);
 }
 
@@ -47,18 +47,18 @@ int sptCudaSemiSparseTensorMulMatrix(
     sptSemiSparseTensor *Y,
     const sptSemiSparseTensor *X,
     const sptMatrix *U,
-    size_t mode
+    sptIndex mode
 ) {
     int result;
-    size_t *ind_buf;
-    size_t m;
+    sptIndex *ind_buf;
+    sptIndex m;
     if(mode >= X->nmodes) {
         return -1;
     }
     if(X->ndims[mode] != U->nrows) {
         return -1;
     }
-    ind_buf = new size_t[X->nmodes * sizeof *ind_buf];
+    ind_buf = new sptIndex[X->nmodes * sizeof *ind_buf];
     if(!ind_buf) {
         return -1;
     }
@@ -73,8 +73,8 @@ int sptCudaSemiSparseTensorMulMatrix(
     }
     for(m = 0; m < Y->nmodes; ++m) {
         if(m != mode) {
-            sptFreeSizeVector(&Y->inds[m]);
-            result = sptCopySizeVector(&Y->inds[m], &X->inds[m]);
+            sptFreeIndexVector(&Y->inds[m]);
+            result = sptCopyIndexVector(&Y->inds[m], &X->inds[m]);
             if(result != 0) {
                 return result;
             }
@@ -86,25 +86,25 @@ int sptCudaSemiSparseTensorMulMatrix(
     }
     Y->nnz = X->nnz;
 
-    size_t blocks_count = spt_GetBlockCount(Y->nnz);
-    size_t threads_count = blocks_count * 256;
-    sptScalar *Y_val = NULL;
-    result = cudaMalloc((void **) &Y_val, threads_count * Y->stride * sizeof (sptScalar));
+    sptNnzIndex blocks_count = spt_GetBlockCount(Y->nnz);
+    sptNnzIndex threads_count = blocks_count * 256;
+    sptValue *Y_val = NULL;
+    result = cudaMalloc((void **) &Y_val, threads_count * Y->stride * sizeof (sptValue));
     if(result != 0) {
         return result; // TODO: map error code?
     }
-    sptScalar *X_val = NULL;
-    result = cudaMalloc((void **) &X_val, threads_count * X->stride * sizeof (sptScalar));
+    sptValue *X_val = NULL;
+    result = cudaMalloc((void **) &X_val, threads_count * X->stride * sizeof (sptValue));
     if(result != 0) {
         return result; // TODO: map error code?
     }
-    cudaMemcpy(X_val, X->values.values, X->nnz * X->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
-    sptScalar *U_val = NULL;
-    result = cudaMalloc((void **) &U_val, U->nrows * U->stride * sizeof (sptScalar));
+    cudaMemcpy(X_val, X->values.values, X->nnz * X->stride * sizeof (sptValue), cudaMemcpyHostToDevice);
+    sptValue *U_val = NULL;
+    result = cudaMalloc((void **) &U_val, U->nrows * U->stride * sizeof (sptValue));
     if(result != 0) {
         return result;
     }
-    cudaMemcpy(U_val, U->values, U->nrows * U->stride * sizeof (sptScalar), cudaMemcpyHostToDevice);
+    cudaMemcpy(U_val, U->values, U->nrows * U->stride * sizeof (sptValue), cudaMemcpyHostToDevice);
 
     spt_TTMKernel<<<blocks_count, 256>>>(Y_val, X_val, Y->stride, Y->nnz, U_val, U->nrows, U->ncols, U->stride, mode);
     result = cudaGetLastError();
@@ -112,7 +112,7 @@ int sptCudaSemiSparseTensorMulMatrix(
         return result;
     }
 
-    cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptScalar), cudaMemcpyDeviceToHost);
+    cudaMemcpy(Y->values.values, Y_val, Y->nnz * Y->stride * sizeof (sptValue), cudaMemcpyDeviceToHost);
     cudaFree(U_val); cudaFree(X_val); cudaFree(Y_val);
 
     return 0;

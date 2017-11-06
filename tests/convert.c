@@ -22,7 +22,7 @@
 
 int main(int argc, char const *argv[]) {
     FILE *fi, *fo;
-    size_t mode = 0;
+    sptIndex mode = 0;
     sptSparseTensor a;
     sptSemiSparseTensor b;
     sptSparseTensor c;

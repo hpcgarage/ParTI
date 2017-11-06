@@ -22,7 +22,7 @@
 
 double spt_SparseTensorNorm(const sptSparseTensor *X) {
     double sqnorm = 0;
-    size_t i;
+    sptNnzIndex i;
     for(i = 0; i < X->nnz; ++i) {
         double cell_value = X->values.data[i];
         sqnorm += cell_value * cell_value;

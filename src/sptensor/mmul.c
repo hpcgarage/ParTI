@@ -33,11 +33,12 @@
  * Anyway, you do not have to take this side-effect into consideration if you
  * do not need to access raw data.
  */
-int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode) {
+int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode) {
     int result;
-    size_t *ind_buf;
-    size_t m, i;
-    sptSizeVector fiberidx;
+    sptIndex *ind_buf;
+    sptIndex m;
+    sptNnzIndex i;
+    sptNnzIndexVector fiberidx;
     if(mode >= X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns * Mtx", "shape mismatch");
     }
@@ -63,12 +64,13 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     sptStartTimer(timer);
 
     for(i = 0; i < Y->nnz; ++i) {
-        size_t inz_begin = fiberidx.data[i];
-        size_t inz_end = fiberidx.data[i+1];
-        size_t j, k;
+        sptNnzIndex inz_begin = fiberidx.data[i];
+        sptNnzIndex inz_end = fiberidx.data[i+1];
+        sptNnzIndex j;
+        sptIndex k;
         // jli: exchange the two loops
         for(j = inz_begin; j < inz_end; ++j) {
-            size_t r = X->inds[mode].data[j];
+            sptIndex r = X->inds[mode].data[j];
             for(k = 0; k < U->ncols; ++k) {
                 Y->values.values[i*Y->stride + k] += X->values.data[j] * U->values[r*U->stride + k];
             }
@@ -79,6 +81,6 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     sptPrintElapsedTime(timer, "CPU  SpTns * Mtx");
     sptFreeTimer(timer);
 
-    sptFreeSizeVector(&fiberidx);
+    sptFreeNnzIndexVector(&fiberidx);
     return 0;
 }

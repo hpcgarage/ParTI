@@ -28,23 +28,23 @@ extern "C" {
 
 double spt_SparseTensorNorm(const sptSparseTensor *X);
 
-int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2);
-int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, size_t loc, size_t * const inds1, size_t * const inds2);
-void spt_SwapValues(sptSparseTensor *tsr, size_t ind1, size_t ind2);
+int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex ind1, const sptSparseTensor *tsr2, sptNnzIndex ind2);
+int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, sptNnzIndex loc, sptIndex * const inds1, sptIndex * const inds2);
+void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2);
 
 void spt_SparseTensorCollectZeros(sptSparseTensor *tsr);
 
 int spt_DistSparseTensor(sptSparseTensor * tsr,
     int const nthreads,
-    size_t * const dist_nnzs,
-    size_t * dist_nrows);
+    sptNnzIndex * const dist_nnzs,
+    sptIndex * dist_nrows);
 
 int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     int const nthreads,
-    size_t * const dist_nnzs,
-    size_t * dist_nrows);
+    sptNnzIndex * const dist_nnzs,
+    sptNnzIndex * dist_nrows);
 
-int spt_GetSubSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const size_t limit_low[], const size_t limit_high[]);
+int spt_GetSubSparseTensor(sptSparseTensor *dest, const sptSparseTensor *tsr, const sptIndex limit_low[], const sptIndex limit_high[]);
 
 struct spt_TagSplitHandle {
     size_t nsplits;
@@ -58,22 +58,21 @@ struct spt_TagSplitHandle {
     size_t *cut_low;
 };
 typedef struct spt_TagSplitHandle *spt_SplitHandle;
-int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *tsr, const size_t max_size_by_mode[]);
-int spt_SplitSparseTensor(sptSparseTensor *dest, size_t *inds_low, size_t *inds_high, spt_SplitHandle handle);
+int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *tsr, const sptIndex max_size_by_mode[]);
+int spt_SplitSparseTensor(sptSparseTensor *dest, sptIndex *inds_low, sptIndex *inds_high, spt_SplitHandle handle);
 void spt_FinishSplitSparseTensor(spt_SplitHandle handle);
 
 typedef struct spt_TagSplitResult {
     sptSparseTensor tensor;
-    size_t *inds_low;
-    size_t *inds_high;
+    sptIndex *inds_low;
+    sptIndex *inds_high;
     struct spt_TagSplitResult *next;    // Not use now, for one gpu implementation. Now all splits inside one queue has a real subtsr contigously, the length is marked by real_queue_size.
 } spt_SplitResult;
 /* FIXME: index_limit_by_mode is not used yet */
 int spt_SparseTensorGetAllSplits(spt_SplitResult **splits, size_t *nsplits, const sptSparseTensor *tsr, const size_t nnz_limit_by_mode[], const size_t index_limit_by_mode[], int emit_map);
 // void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits);
 void spt_SparseTensorFreeAllSplits(spt_SplitResult *splits, size_t const nsplits);
-int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, size_t const nsplits, FILE *fp);
-void spt_DumpArray(const size_t array[], size_t length, size_t start_index, FILE *fp);
+int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const nsplits, FILE *fp);
 
 // abundant
 int spt_SparseTensorBalancedSplit(

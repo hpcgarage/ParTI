@@ -27,8 +27,8 @@
  * @param nmodes number of modes the tensor will have
  * @param ndims  the dimension of each mode the tensor will have
  */
-int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]) {
-    size_t i;
+int sptNewSparseTensor(sptSparseTensor *tsr, sptIndex nmodes, const sptIndex ndims[]) {
+    sptIndex i;
     int result;
     tsr->nmodes = nmodes;
     tsr->sortorder = malloc(nmodes * sizeof tsr->sortorder[0]);
@@ -42,10 +42,10 @@ int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]
     tsr->inds = malloc(nmodes * sizeof *tsr->inds);
     spt_CheckOSError(!tsr->inds, "SpTns New");
     for(i = 0; i < nmodes; ++i) {
-        result = sptNewSizeVector(&tsr->inds[i], 0, 0);
+        result = sptNewIndexVector(&tsr->inds[i], 0, 0);
         spt_CheckError(result, "SpTns New", NULL);
     }
-    result = sptNewVector(&tsr->values, 0, 0);
+    result = sptNewValueVector(&tsr->values, 0, 0);
     spt_CheckError(result, "SpTns New", NULL);
     return 0;
 }
@@ -56,7 +56,7 @@ int sptNewSparseTensor(sptSparseTensor *tsr, size_t nmodes, const size_t ndims[]
  * @param[in]  src  a pointer to a valid sparse tensor
  */
 int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
-    size_t i;
+    sptIndex i;
     int result;
     dest->nmodes = src->nmodes;
     dest->sortorder = malloc(src->nmodes * sizeof src->sortorder[0]);
@@ -68,10 +68,10 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
     dest->inds = malloc(dest->nmodes * sizeof *dest->inds);
     spt_CheckOSError(!dest->inds, "SpTns Copy");
     for(i = 0; i < dest->nmodes; ++i) {
-        result = sptCopySizeVector(&dest->inds[i], &src->inds[i]);
+        result = sptCopyIndexVector(&dest->inds[i], &src->inds[i]);
         spt_CheckError(result, "SpTns Copy", NULL);
     }
-    result = sptCopyVector(&dest->values, &src->values);
+    result = sptCopyValueVector(&dest->values, &src->values);
     spt_CheckError(result, "SpTns Copy", NULL);
     return 0;
 }
@@ -81,26 +81,28 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
  * @param tsr the tensor to release
  */
 void sptFreeSparseTensor(sptSparseTensor *tsr) {
-    size_t i;
+    sptIndex i;
     for(i = 0; i < tsr->nmodes; ++i) {
-        sptFreeSizeVector(&tsr->inds[i]);
+        sptFreeIndexVector(&tsr->inds[i]);
     }
     free(tsr->sortorder);
     free(tsr->ndims);
     free(tsr->inds);
-    sptFreeVector(&tsr->values);
+    sptFreeValueVector(&tsr->values);
+    tsr->nmodes = 0;
+    tsr->nmodes = 0;
 }
 
 
 double SparseTensorFrobeniusNormSquared(sptSparseTensor const * const spten) 
 {
   double norm = 0;
-  sptScalar const * const restrict vals = spten->values.data;
+  sptValue const * const restrict vals = spten->values.data;
   
 #ifdef PARTI_USE_OPENMP
   #pragma omp parallel for reduction(+:norm)
 #endif
-  for(size_t n=0; n < spten->nnz; ++n) {
+  for(sptNnzIndex n=0; n < spten->nnz; ++n) {
     norm += vals[n] * vals[n];
   }
   return norm;
@@ -109,21 +111,21 @@ double SparseTensorFrobeniusNormSquared(sptSparseTensor const * const spten)
 
 int spt_DistSparseTensor(sptSparseTensor * tsr,
     int const nthreads,
-    size_t * const dist_nnzs,
-    size_t * dist_nrows) {
+    sptNnzIndex * const dist_nnzs,
+    sptIndex * dist_nrows) {
 
-    size_t global_nnz = tsr->nnz;
-    size_t aver_nnz = global_nnz / nthreads;
-    memset(dist_nnzs, 0, nthreads*sizeof(size_t));
-    memset(dist_nrows, 0, nthreads*sizeof(size_t));
+    sptNnzIndex global_nnz = tsr->nnz;
+    sptNnzIndex aver_nnz = global_nnz / nthreads;
+    memset(dist_nnzs, 0, nthreads*sizeof(sptNnzIndex));
+    memset(dist_nrows, 0, nthreads*sizeof(sptIndex));
 
     sptSparseTensorSortIndex(tsr, 0);
-    size_t * ind0 = tsr->inds[0].data;
+    sptIndex * ind0 = tsr->inds[0].data;
 
     int ti = 0;
     dist_nnzs[0] = 1;
     dist_nrows[0] = 1;
-    for(size_t x=1; x<global_nnz; ++x) {
+    for(sptNnzIndex x=1; x<global_nnz; ++x) {
         if(ind0[x] == ind0[x-1]) {
             ++ dist_nnzs[ti];
         } else if (ind0[x] > ind0[x-1]) {
@@ -147,19 +149,19 @@ int spt_DistSparseTensor(sptSparseTensor * tsr,
 
 int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     int const nthreads,
-    size_t * const dist_nnzs,
-    size_t * dist_nrows) {
+    sptNnzIndex * const dist_nnzs,
+    sptNnzIndex * dist_nrows) {
 
-    size_t global_nnz = tsr->nnz;
-    size_t aver_nnz = global_nnz / nthreads;
-    memset(dist_nnzs, 0, nthreads*sizeof(size_t));
+    sptNnzIndex global_nnz = tsr->nnz;
+    sptNnzIndex aver_nnz = global_nnz / nthreads;
+    memset(dist_nnzs, 0, nthreads*sizeof(sptNnzIndex));
 
     sptSparseTensorSortIndex(tsr, 0);
-    size_t * ind0 = tsr->inds[0].data;
+    sptIndex * ind0 = tsr->inds[0].data;
 
     int ti = 0;
     dist_nnzs[0] = 1;
-    for(size_t x=1; x<global_nnz; ++x) {
+    for(sptNnzIndex x=1; x<global_nnz; ++x) {
         if(ind0[x] == ind0[x-1]) {
             ++ dist_nnzs[ti];
         } else if (ind0[x] > ind0[x-1]) {
@@ -178,16 +180,16 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
 }
 
 
-int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, size_t const nsplits, FILE *fp) {
-    size_t i = 0;
+int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const nsplits, FILE *fp) {
+    sptIndex i = 0;
     for(i=0; i<nsplits; ++i) {
     // while(split_i) {
         const spt_SplitResult *split_i = splits + i;
-        printf("Printing split #%zu of %zu:\n", i + 1, nsplits);
+        printf("Printing split #%lu of %lu:\n", i + 1, nsplits);
         printf("Index: \n");
-        spt_DumpArray(split_i->inds_low, split_i->tensor.nmodes, 0, fp);
+        sptDumpIndexArray(split_i->inds_low, split_i->tensor.nmodes, fp);
         printf(" .. \n");
-        spt_DumpArray(split_i->inds_high, split_i->tensor.nmodes, 0, fp);
+        sptDumpIndexArray(split_i->inds_high, split_i->tensor.nmodes, fp);
         sptDumpSparseTensor(&split_i->tensor, 0, fp);
         printf("\n");
         fflush(fp);
@@ -195,17 +197,4 @@ int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, size_t const n
         // split_i = split_i->next;
     }
     return 0;
-}
-
-
-void spt_DumpArray(const size_t array[], size_t length, size_t start_index, FILE *fp) {
-    if(length == 0) {
-        return;
-    }
-    fprintf(fp, "%zu", array[0] + start_index);
-    size_t i;
-    for(i = 1; i < length; ++i) {
-        fprintf(fp, ", %zu", array[i] + start_index);
-    }
-    fprintf(fp, "\n");
 }
