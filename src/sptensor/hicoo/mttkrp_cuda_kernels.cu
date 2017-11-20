@@ -25,10 +25,12 @@ int sptMTTKRPKernelHiCOO(
     const sptIndex mode,
     const sptIndex nmodes,
     const sptNnzIndex nnz,
+    const sptNnzIndex max_nnzb,
     const sptIndex R,
     const sptIndex stride,
     const sptElementIndex sb_bits,
     const sptElementIndex sc_bits,
+    const sptIndex blength,
     const int impl_num,
     const sptNnzIndex kptr_begin,
     const sptNnzIndex kptr_end,
@@ -52,14 +54,14 @@ int sptMTTKRPKernelHiCOO(
     sptIndex nthreadsy = 0;
     sptIndex nblocks = 0;
     sptIndex shr_size = 0;
-    sptNnzIndex all_nblocks = kptr_end - kptr_begin;
+    sptNnzIndex all_nblocks = blength;
 
     switch(nmodes) {
     case 3: /* 3-D tensors */
         switch(impl_num) {
         case 1: // Naive, 1D
             /* Set number of blocks and threads */
-            nthreadsx = (sptIndex)pow(2, sc_bits);
+            nthreadsx = max_nnzb;
             if(all_nblocks < max_nblocks) {
                 nblocks = all_nblocks;
             } else {
@@ -111,6 +113,7 @@ int sptMTTKRPKernelHiCOO(
                 stride,
                 sb_bits,
                 sc_bits,
+                blength,
                 kptr_begin,
                 kptr_end,
                 dev_ndims,
@@ -209,6 +212,7 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     const sptIndex stride,
     const sptElementIndex sb_bits,
     const sptElementIndex sc_bits,
+    const sptNnzIndex blength,
     const sptNnzIndex kptr_begin,
     const sptNnzIndex kptr_end,
     sptIndex * const dev_ndims,
@@ -222,9 +226,8 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
 {
     extern __shared__ sptIndex mempool[];
     sptIndex * block_coord = mempool;
-    //sptIndex * ele_coord = mempool + nmodes;
 
-    sptNnzIndex all_nblocks = kptr_end - kptr_begin;
+    sptNnzIndex all_nblocks = blength;
     const sptIndex tidx = threadIdx.x;
     sptNnzIndex z;
 
@@ -235,9 +238,9 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     sptValue * times_mat_2 = dev_mats[times_mat_index_2];
 
     sptNnzIndex num_loops_blocks = 1;
-    /*if(all_nblocks > gridDim.x) {
+    if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
-    }*/
+    }
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
         sptNnzIndex b = blockIdx.x + nb * gridDim.x;
         /* Block indices */
@@ -250,17 +253,10 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
 
         z = tidx + bptr_begin;
         if(z < bptr_end) {
-            /* Element indices */
-            //for(sptIndex m=0; m<nmodes; ++m)
-            //    ele_coord[m] = (block_coord[m] << sb_bits) + dev_einds[m][z];
-            
             sptValue const entry = dev_values[z];
-            //sptElementIndex const mode_i = ele_coord[mode];
-            sptElementIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
-            //sptElementIndex const tmp_i_1 = ele_coord[times_mat_index_1];
-            sptElementIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
-            //sptElementIndex const tmp_i_2 = ele_coord[times_mat_index_2];
-            sptElementIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
+            sptNnzIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
+            sptNnzIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
+            sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
 
             sptValue tmp_val = 0;
             for(sptIndex r=0; r<R; ++r) {

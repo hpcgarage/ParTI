@@ -28,6 +28,7 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     const sptIndex stride,
     const sptElementIndex sb_bits,
     const sptElementIndex sc_bits,
+    const sptNnzIndex blength,
     const sptNnzIndex kptr_begin,
     const sptNnzIndex kptr_end,
     sptIndex * const dev_ndims,
