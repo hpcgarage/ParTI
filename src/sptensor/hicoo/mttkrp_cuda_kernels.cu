@@ -19,7 +19,7 @@
 #include <ParTI.h>
 #include "hicoo.h"
 #include "mttkrp_cuda_kernels.h"
-
+#include <inttypes.h>
 
 int sptMTTKRPKernelHiCOO(
     const sptIndex mode,
@@ -243,29 +243,30 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     }
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
         sptNnzIndex b = blockIdx.x + nb * gridDim.x;
-        /* Block indices */
-        for(sptIndex m=0; m<nmodes; ++m)
-            block_coord[m] = dev_binds[m][b];
+        if(b <= blength) {
+            /* Block indices */
+            for(sptIndex m=0; m<nmodes; ++m)
+                block_coord[m] = dev_binds[m][b];
 
-        sptNnzIndex bptr_begin = dev_bptr[b];
-        sptNnzIndex bptr_end = dev_bptr[b+1];
-        __syncthreads();
+            sptNnzIndex bptr_begin = dev_bptr[b];
+            sptNnzIndex bptr_end = dev_bptr[b+1];
+            __syncthreads();
 
-        z = tidx + bptr_begin;
-        if(z < bptr_end) {
-            sptValue const entry = dev_values[z];
-            sptNnzIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
-            sptNnzIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
-            sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
+            z = tidx + bptr_begin;
+            if(z < bptr_end) {
+                sptValue const entry = dev_values[z];
+                sptNnzIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
+                sptNnzIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
+                sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
 
-            sptValue tmp_val = 0;
-            for(sptIndex r=0; r<R; ++r) {
-                tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-                atomicAdd(&mvals[mode_i * stride + r], tmp_val);
-            }
+                sptValue tmp_val = 0;
+                for(sptIndex r=0; r<R; ++r) {
+                    tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
+                    atomicAdd(&mvals[mode_i * stride + r], tmp_val);
+                }
 
-        }   // End loop entries
-
+            }   // End loop entries
+        }
     }   // End loop blocks
 
 }
