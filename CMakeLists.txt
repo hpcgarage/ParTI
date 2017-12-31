@@ -6,6 +6,7 @@ option(BUILD_SHARED "Build shared library" ON)
 
 option(USE_CUDA "Use NVIDIA CUDA library" ON)
 option(USE_OPENMP "Use OPENMP" ON)
+option(USE_MPI "Use MPI" OFF)
 
 option(USE_LAPACK "Use LAPACK library" ON)
 option(USE_BLAS "Use LAPACK library" ON)
@@ -14,15 +15,18 @@ option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
 
 
-# set(CMAKE_C_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc")
-# set(CMAKE_CXX_COMPILER "/scratch/jli458/Software/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icpc")
+if(USE_MPI)
+    add_definitions(-DPARTI_USE_MPI)
+    set(CMAKE_C_COMPILER "${MPICC_PATH}" CACHE BOOL ON)
+endif()
 
 if(USE_CUDA)
     find_package(CUDA REQUIRED)
     add_definitions(-DPARTI_USE_CUDA)
     link_libraries(${CUDA_cusparse_LIBRARY})
     link_libraries(${CUDA_cusolver_LIBRARY})
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_${CUDA_ARCH_BIN},code=sm_${CUDA_ARCH_BIN}")
+    # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_${CUDA_ARCH_BIN},code=sm_${CUDA_ARCH_BIN}")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_60,code=sm_60")
 endif()
 
 if(USE_OPENMP)
@@ -34,6 +38,9 @@ else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
 endif()
+
+
+
 
 if(USE_BLAS)
     find_package(BLAS)
@@ -120,7 +127,7 @@ if(USE_CUDA)
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
     list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/hicoo/cpd_omp.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/matrix/rankmatrix_solver.c" "src/ktensor/rankktensor.c")
+    # list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/hicoo/cpd_omp.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/matrix/rankmatrix_solver.c" "src/ktensor/rankktensor.c")
     # MESSAGE( STATUS "PARTI_SRC:         " ${PARTI_SRC} )
 
     if(BUILD_SHARED)

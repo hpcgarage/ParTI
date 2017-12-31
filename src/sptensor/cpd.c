@@ -190,7 +190,7 @@ int sptCpdAls(
   magma_init();
 
   /* Initialize factor matrices */
-  sptIndex max_dim = sptMaxSizeArray(spten->ndims, nmodes);
+  sptIndex max_dim = sptMaxIndexArray(spten->ndims, nmodes);
   sptMatrix ** mats = (sptMatrix **)malloc((nmodes+1) * sizeof(*mats));
   for(sptIndex m=0; m < nmodes+1; ++m) {
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));

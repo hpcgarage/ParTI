@@ -19,8 +19,8 @@
 #include <ParTI.h>
 #include <assert.h>
 #include <math.h>
-#include "magma_v2.h"
-#include "magma_lapack.h"
+// #include "magma_v2.h"
+// #include "magma_lapack.h"
 #include "hicoo.h"
 
 
@@ -36,7 +36,6 @@ double CpdAlsStepHiCOO(
   sptIndex const stride = mats[0]->stride;
   double fit = 0;
 
-  // sptAssert(stride == rank);  // for correct column-major magma functions
   for(sptIndex m=0; m < nmodes; ++m) {
     sptAssert(hitsr->ndims[m] == mats[m]->nrows);
     sptAssert(mats[m]->ncols == rank);
@@ -171,7 +170,7 @@ int sptCpdAlsHiCOO(
   sptRankKruskalTensor * ktensor)
 {
   sptIndex nmodes = hitsr->nmodes;
-  magma_init();
+  // magma_init();
 
   /* Initialize factor matrices */
   sptIndex max_dim = 0;
@@ -202,7 +201,7 @@ int sptCpdAlsHiCOO(
 
   ktensor->factors = mats;
 
-  magma_finalize();
+  // magma_finalize();
   sptFreeRankMatrix(mats[nmodes]);
 
   return 0;

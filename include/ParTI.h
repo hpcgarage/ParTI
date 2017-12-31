@@ -27,6 +27,9 @@
 #ifdef PARTI_USE_OPENMP
     #include <omp.h>
 #endif
+#ifdef PARTI_USE_MPI
+    #include <mpi.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,12 +56,13 @@ typedef uint64_t sptNnzIndex;
 typedef unsigned __int128 sptMortonIndex;
 
 
+#define SPT_PF_INDEX PRIu32
+#define SPT_PF_VALUE "f"
 #define SPT_PF_ELEMENTINDEX PRIu16
 #define SPT_PF_BLOCKINDEX PRIu32
 #define SPT_PF_BLOCKNNZINDEX SPT_PF_BLOCKINDEX
-#define SPT_PF_INDEX PRIu32
 #define SPT_PF_NNZINDEX PRIu64
-#define SPT_PF_VALUE "f"
+
 
 
 /**
@@ -758,16 +762,16 @@ int sptCpdAls(
   sptKruskalTensor * ktensor);
 int sptOmpCpdAls(
   sptSparseTensor const * const spten,
-  size_t const rank,
-  size_t const niters,
+  sptIndex const rank,
+  sptIndex const niters,
   double const tol,
   const int tk,
   const int use_reduce,
   sptKruskalTensor * ktensor);
 int sptCudaCpdAls(
   sptSparseTensor const * const spten,
-  size_t const rank,
-  size_t const niters,
+  sptIndex const rank,
+  sptIndex const niters,
   double const tol,
   sptKruskalTensor * ktensor);
 int sptCpdAlsHiCOO(

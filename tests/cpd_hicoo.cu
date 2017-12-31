@@ -36,7 +36,7 @@ int main(int argc, char * const argv[]) {
     sptIndex R = 16;
     int cuda_dev_id = -2;
     int nloops = 1; // 5
-    int niters = 2; // 50
+    sptIndex niters = 2; // 50
     double tol = 1e-5;
     int impl_num = 0;
     int tk = 1;
