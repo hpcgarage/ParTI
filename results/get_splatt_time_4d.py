@@ -5,7 +5,7 @@ import sys
 
 # intput_path = '/nethome/jli458/ParTI-dev/timing_splatt/32bit/'
 # intput_path = '/nethome/jli458/ParTI-dev/timing_git_splatt/32bit/'
-intput_path = '/nethome/jli458/ParTI-dev/timing_git_splatt/32bit-allmode/'
+intput_path = '/nethome/jli458/Work/ParTI-dev/timing_git_splatt/mttkrp/32bit-float-onemode-sameordered/'
 # s3tsrs = ['choa100k_init', 'choa200k_init', 'choa700k_init', '1998DARPA_init', 'nell2_init', 'nell1_init', 'delicious_init']
 s3tsrs = ['choa700k_init', '1998DARPA_init', 'nell2_init', 'nell1_init', 'delicious_init']
 l3tsrs = ['amazon-reviews_init', 'patents_init', 'reddit-2015_init']

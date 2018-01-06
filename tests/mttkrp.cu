@@ -41,8 +41,8 @@ int main(int argc, char const *argv[]) {
     for(;;) {
         static struct option long_options[] = {
             {"mode", required_argument, 0, 'm'},
-            {"impl-num", required_argument, 0, 'i'},
-            {"cuda-dev-id", required_argument, 0, 'd'},
+            {"impl-num", optional_argument, 0, 'i'},
+            {"cuda-dev-id", optional_argument, 0, 'd'},
             {"nt", optional_argument, 0, 't'},
             {"use-reduce", optional_argument, 0, 'u'},
             {0, 0, 0, 0}
@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
         }
         switch(c) {
         case 'm':
-            sscanf(optarg, "%zu", &mode);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &mode);
             break;
         case 'i':
             sscanf(optarg, "%d", &impl_num);
@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
         case 'r':
-            sscanf(optarg, "%zu", &R);
+            sscanf(optarg, "%u"PARTI_SCN_ELEMENT_INDEX, &R);
             break;
         case 'u':
             sscanf(optarg, "%d", &use_reduce);
@@ -93,6 +93,9 @@ int main(int argc, char const *argv[]) {
         printf("\n");
         return 1;
     }
+
+    printf("mode: %"PARTI_PRI_INDEX "\n", mode);
+    printf("cuda_dev_id: %d\n", cuda_dev_id);
 
     fX = fopen(argv[optind], "r");
     sptAssert(fX != NULL);

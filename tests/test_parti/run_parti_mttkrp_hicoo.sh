@@ -4,9 +4,10 @@ declare -a array=("one" "two" "three")
 declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "freebase_music" "freebase_sampled" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("delicious-4d" "flickr-4d" "enron-4d" "nips-4d")
-# declare -a test_tsr_names=()
-declare -a threads=("2" "4" "8" "16" "24")
-declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
+declare -a test_tsr_names=("amazon-reviews")
+declare -a threads=("16" "24")
+# declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
+declare -a sk_range=("12" "13" "14" "15" "16" "17" "18" "19" "20")
 
 tsr_path="/scratch/jli458/BIGTENSORS"
 out_path="timing_parti/hicoo/uint-fast8-simd-fulltest"
@@ -33,15 +34,15 @@ tk=8
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${l3tsrs[@]}"
 	do
 
-		# if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
-		# 	sk=18
-		# fi
-		# if [ ${tsr_name} = "patents" ]; then
-		# 	sk=12
-		# fi
+		if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
+			sk_range=("15" "17")
+		fi
+		if [ ${tsr_name} = "patents" ]; then
+			sk_range=("11" "13")
+		fi
 
 		for mode in ${modes[@]}
 		do

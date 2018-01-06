@@ -24,19 +24,19 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
 {
   sptIndex nmodes = hitsr->nmodes;
   fprintf(fp, "HiCOO Sparse Tensor information ---------\n");
-  fprintf(fp, "DIMS=%"SPT_PF_INDEX, hitsr->ndims[0]);
+  fprintf(fp, "DIMS=%"PARTI_PRI_INDEX, hitsr->ndims[0]);
   for(sptIndex m=1; m < nmodes; ++m) {
-    fprintf(fp, "x%"SPT_PF_INDEX, hitsr->ndims[m]);
+    fprintf(fp, "x%"PARTI_PRI_INDEX, hitsr->ndims[m]);
   }
-  fprintf(fp, " NNZ=%"SPT_PF_NNZINDEX, hitsr->nnz);
+  fprintf(fp, " NNZ=%"PARTI_PRI_NNZ_INDEX, hitsr->nnz);
   fprintf(fp, "\n");
-  fprintf(fp, "sb=%"SPT_PF_INDEX, (sptIndex)pow(2, hitsr->sb_bits));
-  fprintf(fp, " sk=%"SPT_PF_INDEX, (sptIndex)pow(2, hitsr->sk_bits));
-  fprintf(fp, " sc=%"SPT_PF_INDEX, (sptIndex)pow(2, hitsr->sc_bits));
+  fprintf(fp, "sb=%"PARTI_PRI_INDEX, (sptIndex)pow(2, hitsr->sb_bits));
+  fprintf(fp, " sk=%"PARTI_PRI_INDEX, (sptIndex)pow(2, hitsr->sk_bits));
+  fprintf(fp, " sc=%"PARTI_PRI_INDEX, (sptIndex)pow(2, hitsr->sc_bits));
   fprintf(fp, "\n");
-  fprintf(fp, "nb=%"SPT_PF_NNZINDEX, hitsr->bptr.len - 1);
-  fprintf(fp, " nk=%"SPT_PF_NNZINDEX, hitsr->kptr.len - 1);
-  fprintf(fp, " nc=%"SPT_PF_NNZINDEX, hitsr->cptr.len - 1);
+  fprintf(fp, "nb=%"PARTI_PRI_NNZ_INDEX, hitsr->bptr.len - 1);
+  fprintf(fp, " nk=%"PARTI_PRI_NNZ_INDEX, hitsr->kptr.len - 1);
+  fprintf(fp, " nc=%"PARTI_PRI_NNZ_INDEX, hitsr->cptr.len - 1);
   fprintf(fp, "\n");
 
   sptNnzIndex bytes = hitsr->nnz * ( sizeof(sptValue) + nmodes * sizeof(sptElementIndex) );
@@ -61,9 +61,9 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   fprintf(fp, "HiCOO-STORAGE=%s\n", bytestr);
   free(bytestr);
 
-  fprintf(fp, "SCHEDULE INFO: %"SPT_PF_INDEX, hitsr->nkiters[0]);
+  fprintf(fp, "SCHEDULE INFO: %"PARTI_PRI_INDEX, hitsr->nkiters[0]);
   for(sptIndex m=1; m < nmodes; ++m) {
-    fprintf(fp, ", %"SPT_PF_INDEX, hitsr->nkiters[m]);
+    fprintf(fp, ", %"PARTI_PRI_INDEX, hitsr->nkiters[m]);
   }
   fprintf(fp, " [KERNEL]\n");
   fprintf(fp, "\n");

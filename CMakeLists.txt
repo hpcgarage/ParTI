@@ -1,18 +1,37 @@
+# Requires
 cmake_minimum_required(VERSION 3.2)  # CMake 3.2 supports CUDA 7.0
 project(ParTI)
 
+# Define build ParTI library
 option(BUILD_STATIC "Build static library" OFF)
 option(BUILD_SHARED "Build shared library" ON)
 
+# Define data types
+add_definitions(-DPARTI_INDEX_TYPEWIDTH=32)
+add_definitions(-DPARTI_VALUE_TYPEWIDTH=32)
+add_definitions(-DPARTI_ELEMENT_INDEX_TYPEWIDTH=8)
+
+# Check for implementations
 option(USE_CUDA "Use NVIDIA CUDA library" ON)
 option(USE_OPENMP "Use OPENMP" ON)
 option(USE_MPI "Use MPI" OFF)
 
+# Check for libraries
 option(USE_LAPACK "Use LAPACK library" ON)
 option(USE_BLAS "Use LAPACK library" ON)
 option(USE_OpenBLAS "Use OpenBLAS library" OFF)
 option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
+
+# Check for debug mode
+if (DEFINED DEBUG)                                                     
+  message("Building in DEBUG mode. Expect for plenty of prints.")
+  add_definitions(-DPARTI_DEBUG=${DEBUG})                   
+  set(CMAKE_BUILD_TYPE Debug)                        
+else()                     
+  message("Building in RELEASE mode.")
+  set(CMAKE_BUILD_TYPE Release)
+endif() 
 
 
 if(USE_MPI)
@@ -25,18 +44,32 @@ if(USE_CUDA)
     add_definitions(-DPARTI_USE_CUDA)
     link_libraries(${CUDA_cusparse_LIBRARY})
     link_libraries(${CUDA_cusolver_LIBRARY})
-    # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_${CUDA_ARCH_BIN},code=sm_${CUDA_ARCH_BIN}")
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_60,code=sm_60")
+    if(DEFINED DEBUG)
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O0 -g -gencode arch=compute_60,code=sm_60")
+    else()
+        # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_${CUDA_ARCH_BIN},code=sm_${CUDA_ARCH_BIN}")
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -gencode arch=compute_60,code=sm_60")
+    endif()
 endif()
 
 if(USE_OPENMP)
     add_definitions(-DPARTI_USE_OPENMP)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
-    # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+    if(DEFINED DEBUG)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O0 -g -DADD_")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O0 -g -DADD_")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+        # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+    endif()
 else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+    if(DEFINED DEBUG)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O0 -g -DADD_")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O0 -g -DADD_")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+    endif()
 endif()
 
 

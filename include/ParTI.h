@@ -39,29 +39,69 @@ extern "C" {
 /**
  * Define types, TODO: check the bit size of them, add branch for different settings
  */
-typedef uint32_t sptIndex;
-typedef float sptValue;
+#define PARTI_INDEX_TYPEWIDTH 32
+#define PARTI_VALUE_TYPEWIDTH 32
+#define PARTI_ELEMENT_INDEX_TYPEWIDTH 8
 
-// typedef uint16_t sptElementIndex;
-// typedef uint32_t sptBlockMatrixIndex;
-typedef uint_fast8_t sptElementIndex;
-typedef uint_fast16_t sptBlockMatrixIndex;
-// typedef uint8_t sptElementIndex;
-// typedef uint16_t sptBlockMatrixIndex;
-// typedef uint32_t sptElementIndex;
-// typedef uint32_t sptBlockMatrixIndex;
-typedef uint32_t sptBlockIndex;
+#if PARTI_INDEX_TYPEWIDTH == 32
+  typedef uint32_t sptIndex;
+  typedef uint32_t sptBlockIndex;
+  #define PARTI_PRI_INDEX PRIu32
+  #define PARTI_SCN_INDEX SCNu32
+  #define PARTI_PRI_BLOCK_INDEX PRIu32
+  #define PARTI_SCN_BLOCK_INDEX SCNu32
+#elif PARTI_INDEX_TYPEWIDTH == 64
+  typedef uint64_t sptIndex;
+  typedef uint64_t sptBlockIndex;
+  #define PARTI_PFI_INDEX PRIu64
+  #define PARTI_SCN_INDEX SCNu64
+  #define PARTI_PRI_BLOCK_INDEX PRIu64
+  #define PARTI_SCN_BLOCK_INDEX SCNu64
+#else
+  #error "Unrecognized PARTI_INDEX_TYPEWIDTH."
+#endif
+
+#if PARTI_VALUE_TYPEWIDTH == 32
+  typedef float sptValue;
+  #define PARTI_PRI_VALUE "f"
+  #define PARTI_SCN_VALUE "f"
+#elif PARTI_VALUE_TYPEWIDTH == 64
+  typedef double sptValue;
+  #define PARTI_PRI_VALUE "lf"
+  #define PARTI_SCN_VALUE "lf"
+#else
+  #error "Unrecognized PARTI_VALUE_TYPEWIDTH."
+#endif
+
+#if PARTI_ELEMENT_INDEX_TYPEWIDTH == 8
+  typedef uint_fast8_t sptElementIndex;
+  typedef uint_fast16_t sptBlockMatrixIndex;  // R < 256
+  // typedef uint8_t sptElementIndex;
+  // typedef uint16_t sptBlockMatrixIndex;  // R < 256
+  #define PARTI_PRI_ELEMENT_INDEX PRIuFAST8
+  #define PARTI_SCN_ELEMENT_INDEX SCNuFAST8
+  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIuFAST16
+  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNuFAST16
+#elif PARTI_ELEMENT_INDEX_TYPEWIDTH == 16
+  typedef uint16_t sptElementIndex;
+  typedef uint32_t sptBlockMatrixIndex;  // R < 256
+  #define PARTI_PFI_ELEMENT_INDEX PRIu16
+  #define PARTI_SCN_ELEMENT_INDEX SCNu16
+  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIuFAST32
+  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNuFAST32
+#else
+  #error "Unrecognized PARTI_ELEMENT_INDEX_TYPEWIDTH."
+#endif
+
 typedef sptBlockIndex sptBlockNnzIndex;
+#define PARTI_PRI_BLOCKNNZ_INDEX PARTI_PRI_BLOCK_INDEX
+#define PARTI_SCN_BLOCKNNZ_INDEX PARTI_SCN_BLOCK_INDEX
+
 typedef uint64_t sptNnzIndex;
+#define PARTI_PRI_NNZ_INDEX PRIu64
+#define PARTI_SCN_NNZ_INDEX PRIu64
+
 typedef unsigned __int128 sptMortonIndex;
-
-
-#define SPT_PF_INDEX PRIu32
-#define SPT_PF_VALUE "f"
-#define SPT_PF_ELEMENTINDEX PRIu16
-#define SPT_PF_BLOCKINDEX PRIu32
-#define SPT_PF_BLOCKNNZINDEX SPT_PF_BLOCKINDEX
-#define SPT_PF_NNZINDEX PRIu64
 
 
 
@@ -730,12 +770,10 @@ int sptMTTKRPKernelHiCOO(
     const sptIndex mode,
     const sptIndex nmodes,
     const sptNnzIndex nnz,
-    const sptNnzIndex max_nnzb,
     const sptIndex R,
     const sptIndex stride,
     const sptElementIndex sb_bits,
     const sptElementIndex sc_bits,
-    const sptIndex blength,
     const int impl_num,
     const sptNnzIndex kptr_begin,
     const sptNnzIndex kptr_end,

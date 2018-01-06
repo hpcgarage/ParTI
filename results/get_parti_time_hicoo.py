@@ -2,12 +2,12 @@
 
 import sys 
 
-intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint-fast8-simd-fulltest/'
+intput_path = '/nethome/jli458/Work/ParTI-dev/timing_parti/hicoo/uint-fast8-simd-fulltest/'
 # intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint16/'
 # s3tsrs = ['choa100k', 'choa200k', 'choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
 s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'freebase_music', 'freebase_sampled', 'nell1', 'delicious']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
-test_tsrs = ['freebase_music', 'freebase_sampled']
+test_tsrs = ['patents']
 modes = ['0', '1', '2']
 r = 16
 tb = 1
@@ -25,7 +25,7 @@ out_str = 'parti-hicoo-uint-fast8-simd-sb' + str(sb) + '-sk' + str(sk) + '-tk' +
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in test_tsrs:
 	for m in modes:
 
 		## omp hicoo

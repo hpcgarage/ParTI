@@ -24,6 +24,7 @@
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
 static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
+static void spt_QuickSortIndexMorton(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode);
 
 /* Mode order: X -> Y -> Z, x indices are sorted, y and z are Morton order sorted. */
@@ -166,7 +167,7 @@ void sptSparseTensorSortIndexMorton(
                 spt_QuickSortIndexMorton3D(tsr, begin, end, sb_bits);
                 break;
             default:
-                fprintf(stderr, "Tensor order hasn't been supported.");
+                spt_QuickSortIndexMorton(tsr, begin, end, sb_bits);
         }
         
     }
@@ -433,6 +434,74 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptN
     }
     spt_QuickSortIndexMorton3D(tsr, l, i, sb_bits);
     spt_QuickSortIndexMorton3D(tsr, i, r, sb_bits);
+}
+
+
+
+/**
+ * compare two indices from two identical or distinct sparse tensors lexicographically, using Z-Morton ordering recursively, freely support arbitrary tensor orders.
+ * @param tsr1 the first sparse tensor
+ * @param loc1 the order of the element in the first sparse tensor whose index is to be compared
+ * @param tsr2 the second sparse tensor
+ * @param loc2 the order of the element in the second sparse tensor whose index is to be compared
+ * @return -1 for less, 0 for equal, 1 for greater
+ */
+static int spt_SparseTensorCompareIndicesMorton(
+    const sptSparseTensor *tsr1, 
+    uint64_t loc1, 
+    const sptSparseTensor *tsr2, 
+    uint64_t loc2) 
+{
+    sptMortonIndex mkey1 = 0, mkey2 = 0;
+    assert(tsr1->nmodes == tsr2->nmodes);
+
+    sptIndex idx1, idx2;
+    for(sptIndex i=0; i<tsr1->nmodes; i++) {
+        idx1 = tsr1->inds[i].data[loc1];
+        idx2 = tsr1->inds[i].data[loc2];
+    }
+
+    // TODO: calculate mkey1, mkey2 here
+
+    if(mkey1 < mkey2) {
+        return -1;
+    } else if(mkey1 > mkey2) {
+        return 1;
+    } else {
+        return 0;
+    }
+    
+}
+
+
+static void spt_QuickSortIndexMorton(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
+
+    uint64_t i, j, p;
+    if(r-l < 2) {
+        return;
+    }
+    p = (l+r) / 2;
+    for(i = l, j = r-1; ; ++i, --j) {
+        while(spt_SparseTensorCompareIndicesMorton(tsr, i, tsr, p) < 0) {
+            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton(tsr, i, tsr, p));
+            ++i;
+        }
+        while(spt_SparseTensorCompareIndicesMorton(tsr, p, tsr, j) < 0) {
+            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton(tsr, p, tsr, j));
+            --j;
+        }
+        if(i >= j) {
+            break;
+        }
+        spt_SwapValues(tsr, i, j);
+        if(i == p) {
+            p = j;
+        } else if(j == p) {
+            p = i;
+        }
+    }
+    spt_QuickSortIndexMorton(tsr, l, i, sb_bits);
+    spt_QuickSortIndexMorton(tsr, i, r, sb_bits);
 }
 
 

@@ -5,12 +5,14 @@ import sys
 
 # intput_path = '/nethome/jli458/ParTI-dev/timing_splatt/32bit/'
 # intput_path = '/nethome/jli458/ParTI-dev/timing_git_splatt/32bit/'
-intput_path = '/nethome/jli458/ParTI-dev/timing_git_splatt/mttkrp/32bit-allmode-newtest/'
+intput_path = '/nethome/jli458/Work/ParTI-dev/timing_git_splatt/mttkrp/32bit-onemode/'
 # intput_path = '/nethome/jli458/ParTI-dev/timing_git_splatt/64bit-onemode/'
 # s3tsrs = ['choa100k_init', 'choa200k_init', 'choa700k_init', '1998DARPA_init', 'nell2_init', 'nell1_init', 'delicious_init']
 s3tsrs = ['choa700k_init', '1998DARPA_init', 'nell2_init', 'freebase_music_init', 'freebase_sampled_init', 'nell1_init', 'delicious_init']
 l3tsrs = ['amazon-reviews_init', 'patents_init', 'reddit-2015_init']
 sl4tsrs = ['delicious-4d_init', 'flickr-4d_init', 'enron-4d_init', 'nips-4d_init']
+test_tsr_names = ['freebase_music_init', 'freebase_sampled_init']
+
 r = 16
 m1_nums = []
 m2_nums = []
@@ -22,7 +24,7 @@ t = sys.argv[1]
 out_str = 'splatt-t' + str(t) + '.out'
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in test_tsr_names:
 	input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(t) + '.txt'
 	# print(input_str)
 

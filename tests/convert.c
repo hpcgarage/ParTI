@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
-    sscanf(argv[3], "%zu", &mode);
+    sscanf(argv[3], "%"PARTI_SCN_INDEX, &mode);
 
     fi = fopen(argv[1], "r");
     sptAssert(fi);

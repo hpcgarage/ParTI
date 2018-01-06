@@ -35,7 +35,7 @@ int main(int argc, char * const argv[]) {
     sptElementIndex sc_bits;
 
     sptIndex mode = 0;
-    sptIndex R = 16;
+    sptElementIndex R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
     int nthreads;
@@ -77,16 +77,16 @@ int main(int argc, char * const argv[]) {
             sptAssert(fo != NULL);
             break;
         case 'b':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sb_bits);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sb_bits);
             break;
         case 'k':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sk_bits);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sk_bits);
             break;
         case 'c':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sc_bits);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sc_bits);
             break;
         case 'm':
-            sscanf(optarg, "%"SPT_PF_INDEX, &mode);
+            sscanf(optarg, "%"PARTI_SCN_INDEX, &mode);
             break;
         case 'p':
             sscanf(optarg, "%d", &impl_num);
@@ -95,7 +95,7 @@ int main(int argc, char * const argv[]) {
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
         case 'r':
-            sscanf(optarg, "%"SPT_PF_INDEX, &R);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &R);
             break;
         case 't':
             sscanf(optarg, "%d", &tk);

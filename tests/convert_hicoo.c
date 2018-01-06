@@ -26,9 +26,9 @@ int main(int argc, char * const argv[]) {
     FILE *fi, *fo;
     sptSparseTensor tsr;
     sptSparseTensorHiCOO hitsr;
-    const sptElementIndex sb_bits;
-    const sptElementIndex sk_bits;
-    const sptElementIndex sc_bits;
+    sptElementIndex sb_bits;
+    sptElementIndex sk_bits;
+    sptElementIndex sc_bits;
 
 
     for(;;) {
@@ -57,13 +57,13 @@ int main(int argc, char * const argv[]) {
             sptAssert(fo != NULL);
             break;
         case 'b':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sb_bits);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sb_bits);
             break;
         case 'k':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sk_bits);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sk_bits);
             break;
         case 'c':
-            sscanf(optarg, "%"SPT_PF_ELEMENTINDEX, &sc_bits);
+            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sc_bits);
             break;
         default:
             abort();

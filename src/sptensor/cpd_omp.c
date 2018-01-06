@@ -170,7 +170,7 @@ double OmpCpdAlsStep(
     double its_time = sptElapsedTime(timer);
     sptFreeTimer(timer);
 
-    printf("  its = %3lu ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
+    printf("  its = %3"PARTI_PRI_INDEX " ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
         it+1, its_time, fit, fit - oldfit);
     // for(IndexType m=0; m < nmodes; ++m) {
     //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
@@ -230,7 +230,7 @@ int sptOmpCpdAls(
     for(int t=0; t<tk; ++t) {
       copy_mats[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
       sptAssert(sptNewMatrix(copy_mats[t], max_dim, rank) == 0);
-      sptAssert(sptConstantRankMatrix(copy_mats[t], 0) == 0);
+      sptAssert(sptConstantMatrix(copy_mats[t], 0) == 0);
     }
   }
 

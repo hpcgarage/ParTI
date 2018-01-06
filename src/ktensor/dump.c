@@ -26,24 +26,22 @@ int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
     int iores;
     sptIndex mode;
 
-    iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
+    iores = fprintf(fp, "nmodes: %"PARTI_PRI_INDEX ", rank: %"PARTI_PRI_INDEX "\n", ktsr->nmodes, ktsr->rank);
     spt_CheckOSError(iores < 0, "KruskalTns Dump");
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
         if(mode != 0) {
             iores = fputs(" ", fp);
             spt_CheckOSError(iores < 0, "KruskalTns Dump");
         }
-        iores = fprintf(fp, "%u", ktsr->ndims[mode]);
+        iores = fprintf(fp, "%"PARTI_PRI_INDEX, ktsr->ndims[mode]);
         spt_CheckOSError(iores < 0, "KruskalTns Dump");
     }
     fputs("\n", fp);
-    iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
-    spt_CheckOSError(iores < 0, "KruskalTns Dump");
 
     iores = fprintf(fp, "fit: %lf\n", ktsr->fit);
     fprintf(fp, "lambda:\n");    
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
-        iores = fprintf(fp, "%lf ", ktsr->lambda[mode]);
+        iores = fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
         spt_CheckOSError(iores != 0, "KruskalTns Dump");
     }
 
@@ -61,24 +59,23 @@ int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex start_index, F
     int iores;
     sptIndex mode;
 
-    iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
+    iores = fprintf(fp, "nmodes: %"PARTI_PRI_INDEX ", rank: %"PARTI_PRI_ELEMENT_INDEX "\n", ktsr->nmodes, ktsr->rank);
     spt_CheckOSError(iores < 0, "KruskalTns Dump");
+
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
         if(mode != 0) {
             iores = fputs(" ", fp);
             spt_CheckOSError(iores < 0, "KruskalTns Dump");
         }
-        iores = fprintf(fp, "%u", ktsr->ndims[mode]);
+        iores = fprintf(fp, "%"PARTI_PRI_INDEX, ktsr->ndims[mode]);
         spt_CheckOSError(iores < 0, "KruskalTns Dump");
     }
     fputs("\n", fp);
-    iores = fprintf(fp, "nmodes: %u, rank: %u\n", ktsr->nmodes, ktsr->rank);
-    spt_CheckOSError(iores < 0, "KruskalTns Dump");
 
     iores = fprintf(fp, "fit: %lf\n", ktsr->fit);
     fprintf(fp, "lambda:\n");    
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
-        iores = fprintf(fp, "%lf ", ktsr->lambda[mode]);
+        iores = fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
         spt_CheckOSError(iores != 0, "KruskalTns Dump");
     }
 

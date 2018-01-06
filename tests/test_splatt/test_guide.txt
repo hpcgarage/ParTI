@@ -1,0 +1,11 @@
+Make sure the settings:
+* integers and values: change "types.h"
+* ./configure; make; 
+
+Test ONEMODE/ALLMODE:
+* change "bench_csf" in "bench.c"
+* change ONEMODE's mode order: "csf_alloc" in "csf.c"
+
+Some changes made by jli:
+* Added printfs in "stats.c"
+

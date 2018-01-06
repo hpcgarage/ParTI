@@ -40,20 +40,20 @@ int main(int argc, char const *argv[]) {
     sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
 
-    sscanf(argv[2], "%zu", &mode);
+    sscanf(argv[2], "%"PARTI_SCN_INDEX, &mode);
     sptIndex impl_num = 0;
-    sscanf(argv[3], "%u", &impl_num);
+    sscanf(argv[3], "%"PARTI_SCN_INDEX, &impl_num);
     sptNnzIndex smem_size = 0;
-    sscanf(argv[4], "%lu", &smem_size);
+    sscanf(argv[4], "%"PARTI_SCN_NNZ_INDEX, &smem_size);
 
     if(argc > 5) {
         sscanf(argv[5], "%d", &cuda_dev_id);
     }
     if(argc > 6) {
-        sscanf(argv[6], "%zu", &R);
+        sscanf(argv[6], "%"PARTI_SCN_INDEX, &R);
     }
 
-    fprintf(stderr, "sptRandomizeMatrix(&U, %zu, %zu)\n", X.ndims[mode], R);
+    fprintf(stderr, "sptRandomizeMatrix(&U, %"PARTI_PRI_INDEX ", %"PARTI_PRI_INDEX ")\n", X.ndims[mode], R);
     // sptAssert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
     sptAssert(sptNewMatrix(&U, X.ndims[mode], R) == 0);
     sptAssert(sptConstantMatrix(&U, 1) == 0);

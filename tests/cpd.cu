@@ -52,7 +52,7 @@ int main(int argc, char const *argv[]) {
         sscanf(argv[3], "%d", &nthreads);
     }
     if(argc >= 5) {
-        sscanf(argv[4], "%"SPT_PF_INDEX, &R);
+        sscanf(argv[4], "%"PARTI_SCN_INDEX, &R);
     }
     if(argc >= 6) {
         sscanf(argv[5], "%d", &use_reduce);

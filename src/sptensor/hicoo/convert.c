@@ -523,12 +523,14 @@ int sptSparseTensorToHiCOO(
     result = sptNewSparseTensorHiCOO(hitsr, (sptIndex)tsr->nmodes, ndims, (sptNnzIndex)tsr->nnz, sb_bits, sk_bits, sc_bits);
     spt_CheckError(result, "HiSpTns Convert", NULL);
 
-    /* Pre-process tensor to get hitsr->kptr */
+    /* Pre-process tensor to get hitsr->kptr, values are nonzero locations. */
     sptPreprocessSparseTensor(&hitsr->kptr, hitsr->kschr, hitsr->nkiters, tsr, sb_bits, sk_bits);
-    // printf("Kernels: Row-major, blocks: Morton-order sorted:\n");
-    // sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
-    // printf("hitsr->kptr:\n");
-    // sptDumpNnzIndexVector(&hitsr->kptr, stdout);
+#if PARTI_DEBUG >= 2
+    printf("Kernels: Row-major, blocks: Morton-order sorted:\n");
+    sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
+    printf("hitsr->kptr:\n");
+    sptDumpNnzIndexVector(&hitsr->kptr, stdout);
+#endif
 
     /* Temporary storage */
     sptIndex * block_begin = (sptIndex *)malloc(nmodes * sizeof(*block_begin));
@@ -536,7 +538,7 @@ int sptSparseTensorToHiCOO(
     sptIndex * block_begin_prior = (sptIndex *)malloc(nmodes * sizeof(*block_begin_prior));
     sptIndex * block_coord = (sptIndex *)malloc(nmodes * sizeof(*block_coord));
 
-    sptNnzIndex k_begin, k_end;
+    sptNnzIndex k_begin, k_end; // #Nonzeros locations
     sptNnzIndex nk = 0; // #Kernels  
     sptNnzIndex nc = 0; // #Chunks  
     sptNnzIndex nb = 1; // #Blocks  // counting from the first nnz
@@ -561,7 +563,7 @@ int sptSparseTensorToHiCOO(
     sptAppendNnzIndexVector(&hitsr->bptr, 0);
 
 
-    /* Loop for all kernels, 0 - hitsr->kptr.len for OMP code */
+    /* Loop for all kernels, 0 - hitsr->kptr.len - 1 for OMP code */
     for(sptNnzIndex k=0; k<hitsr->kptr.len - 1; ++k) {
         k_begin = hitsr->kptr.data[k];
         k_end = hitsr->kptr.data[k+1]; // exclusive
@@ -579,19 +581,25 @@ int sptSparseTensorToHiCOO(
 
         /* Loop nonzeros in each kernel */
         for(sptNnzIndex z = k_begin; z < k_end; ++z) {
-            // printf("z: %lu\n", z);
+            #if PARTI_DEBUG == 3
+                printf("z: %"PARTI_PRI_NNZ_INDEX "\n", z);
+            #endif
 
             for(sptIndex m=0; m<nmodes; ++m) 
                 block_coord[m] = tsr->inds[m].data[z];    // first nonzero indices
-            // printf("block_coord:\n");
-            // sptAssert(sptDumpIndexArray(block_coord, nmodes, stdout) == 0);
+            #if PARTI_DEBUG == 3
+                printf("block_coord:\n");
+                sptAssert(sptDumpIndexArray(block_coord, nmodes, stdout) == 0);
+            #endif
 
             result = sptLocateBeginCoord(block_begin, tsr, block_coord, sb_bits);
             spt_CheckError(result, "HiSpTns Convert", NULL);
-            // printf("block_begin_prior:\n");
-            // sptAssert(sptDumpIndexArray(block_begin_prior, nmodes, stdout) == 0);
-            // printf("block_begin:\n");
-            // sptAssert(sptDumpIndexArray(block_begin, nmodes, stdout) == 0);
+            #if PARTI_DEBUG == 3
+                printf("block_begin_prior:\n");
+                sptAssert(sptDumpIndexArray(block_begin_prior, nmodes, stdout) == 0);
+                printf("block_begin:\n");
+                sptAssert(sptDumpIndexArray(block_begin, nmodes, stdout) == 0);
+            #endif
 
             result = sptBlockEnd(block_end, tsr, block_begin, sb);  // exclusive
             spt_CheckError(result, "HiSpTns Convert", NULL);
@@ -633,7 +641,9 @@ int sptSparseTensorToHiCOO(
                 ++ nb;
                 ne = 1;              
             }
-            // printf("nk: %u, nc: %u, nb: %u, ne: %u, chunk_size: %lu\n\n", nk, nc, nb, ne, chunk_size);
+            #if PARTI_DEBUG == 3
+                printf("nk: %u, nc: %u, nb: %u, ne: %u, chunk_size: %lu\n\n", nk, nc, nb, ne, chunk_size);
+            #endif
         }
         
     }

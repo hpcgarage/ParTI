@@ -185,7 +185,7 @@ int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const
     for(i=0; i<nsplits; ++i) {
     // while(split_i) {
         const spt_SplitResult *split_i = splits + i;
-        printf("Printing split #%lu of %lu:\n", i + 1, nsplits);
+        printf("Printing split #%"PARTI_PRI_INDEX " of %"PARTI_PRI_INDEX "lu:\n", i + 1, nsplits);
         printf("Index: \n");
         sptDumpIndexArray(split_i->inds_low, split_i->tensor.nmodes, fp);
         printf(" .. \n");

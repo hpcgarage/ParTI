@@ -37,11 +37,11 @@ double sptSparseTensorDensity(sptSparseTensor const * const tsr)
 void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp)
 {
   fprintf(fp, "COO Sparse Tensor information (use sptIndex, sptValue))---------\n");
-  fprintf(fp, "DIMS=%lu", tsr->ndims[0]);
+  fprintf(fp, "DIMS=%"PARTI_PRI_INDEX, tsr->ndims[0]);
   for(sptIndex m=1; m < tsr->nmodes; ++m) {
-    fprintf(fp, "x%lu", tsr->ndims[m]);
+    fprintf(fp, "x%"PARTI_PRI_INDEX, tsr->ndims[m]);
   }
-  fprintf(fp, " NNZ=%lu", tsr->nnz);
+  fprintf(fp, " NNZ=%"PARTI_PRI_NNZ_INDEX, tsr->nnz);
   fprintf(fp, " DENSITY=%e\n" , sptSparseTensorDensity(tsr));
 
   char * bytestr = sptBytesString(tsr->nnz * (sizeof(sptIndex) * tsr->nmodes + sizeof(sptValue)));

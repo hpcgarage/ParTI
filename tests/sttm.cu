@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
     sptAssert(sptLoadSparseTensor(&spU, 1, fU) == 0);
     fclose(fU);
 
-    sscanf(argv[4], "%zu", &mode);
+    sscanf(argv[4], "%"PARTI_SCN_INDEX, &mode);
     if(argc >= 6) {
         sscanf(argv[5], "%d", &cuda_dev_id);
     }
