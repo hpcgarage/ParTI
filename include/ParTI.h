@@ -102,7 +102,7 @@ typedef uint64_t sptNnzIndex;
 #define PARTI_SCN_NNZ_INDEX PRIu64
 
 typedef unsigned __int128 sptMortonIndex;
-
+// typedef __uint128_t sptMortonIndex;
 
 
 /**

@@ -24,7 +24,7 @@
 static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
 static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
-static void spt_QuickSortIndexMorton(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
+static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode);
 
 /* Mode order: X -> Y -> Z, x indices are sorted, y and z are Morton order sorted. */
@@ -166,8 +166,11 @@ void sptSparseTensorSortIndexMorton(
             case 3:
                 spt_QuickSortIndexMorton3D(tsr, begin, end, sb_bits);
                 break;
+            case 4:
+                spt_QuickSortIndexMorton4D(tsr, begin, end, sb_bits);
+                break;
             default:
-                spt_QuickSortIndexMorton(tsr, begin, end, sb_bits);
+                printf("No support for more than 4th-order tensors yet.\n");
         }
         
     }
@@ -355,7 +358,7 @@ static int spt_SparseTensorCompareIndicesMorton3D(
     sptMortonIndex mkey1 = 0, mkey2 = 0;
     assert(tsr1->nmodes == tsr2->nmodes);
 
-    /* TODO: only support 3-D tensors now, with 32-bit indices. */
+    /* Only support 3-D tensors, with 32-bit indices. */
     uint32_t x1 = tsr1->inds[0].data[loc1];
     uint32_t y1 = tsr1->inds[1].data[loc1];
     uint32_t z1 = tsr1->inds[2].data[loc1];
@@ -446,22 +449,175 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptN
  * @param loc2 the order of the element in the second sparse tensor whose index is to be compared
  * @return -1 for less, 0 for equal, 1 for greater
  */
-static int spt_SparseTensorCompareIndicesMorton(
+static int spt_SparseTensorCompareIndicesMorton4D(
     const sptSparseTensor *tsr1, 
     uint64_t loc1, 
     const sptSparseTensor *tsr2, 
     uint64_t loc2) 
 {
-    sptMortonIndex mkey1 = 0, mkey2 = 0;
+    sptMortonIndex mkey1, mkey2;
     assert(tsr1->nmodes == tsr2->nmodes);
 
-    sptIndex idx1, idx2;
-    for(sptIndex i=0; i<tsr1->nmodes; i++) {
-        idx1 = tsr1->inds[i].data[loc1];
-        idx2 = tsr1->inds[i].data[loc2];
-    }
+    /* Only support 3-D tensors, with 32-bit indices. */
+    uint32_t x1 = tsr1->inds[0].data[loc1];
+    uint32_t y1 = tsr1->inds[1].data[loc1];
+    uint32_t z1 = tsr1->inds[2].data[loc1];
+    uint32_t w1 = tsr1->inds[3].data[loc1];
+    uint32_t x2 = tsr2->inds[0].data[loc2];
+    uint32_t y2 = tsr2->inds[1].data[loc2];
+    uint32_t z2 = tsr2->inds[2].data[loc2];
+    uint32_t w2 = tsr2->inds[3].data[loc2];
 
-    // TODO: calculate mkey1, mkey2 here
+    static const uint64_t MASKS_64[]={0x5555555555555555, 0x3333333333333333, 0x0F0F0F0F0F0F0F0F, 0x00FF00FF00FF00FF, 0x0000FFFF0000FFFF};
+    static const uint64_t SHIFTS_64[]= {1, 2, 4, 8, 16};
+    static sptMortonIndex MASKS_128[] = {
+        (sptMortonIndex)0x5555555555555555 << 64 | 0x5555555555555555, 
+        (sptMortonIndex)0x3333333333333333 << 64 | 0x3333333333333333, 
+        (sptMortonIndex)0x0F0F0F0F0F0F0F0F << 64 | 0x0F0F0F0F0F0F0F0F, 
+        (sptMortonIndex)0x00FF00FF00FF00FF << 64 | 0x00FF00FF00FF00FF, 
+        (sptMortonIndex)0x0000FFFF0000FFFF << 64 | 0x0000FFFF0000FFFF, 
+        (sptMortonIndex)0x00000000FFFFFFFF << 64 | 0x00000000FFFFFFFF};
+    static const uint64_t SHIFTS_128[]= {1, 2, 4, 8, 16, 32};
+    // sptMortonIndex tmp_mask = MASKS_128[2];
+    // printf("tmp_mask: high: %"PRIX64 " ; low: %"PRIX64 " .\n", (uint64_t)(tmp_mask >> 64), (uint64_t)tmp_mask);
+
+    uint64_t tmp_64;
+    sptMortonIndex x, y, z, w;
+    
+    /**** compute mkey1 ****/
+    /* compute correct x, 32bit -> 64bit first */
+    tmp_64 = x1;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct x, 64bit -> 128bit */
+    x = tmp_64;
+    x = (x | (x << SHIFTS_128[5])) & MASKS_128[5];
+    x = (x | (x << SHIFTS_128[4])) & MASKS_128[4];
+    x = (x | (x << SHIFTS_128[3])) & MASKS_128[3];
+    x = (x | (x << SHIFTS_128[2])) & MASKS_128[2];
+    x = (x | (x << SHIFTS_128[1])) & MASKS_128[1];
+    x = (x | (x << SHIFTS_128[0])) & MASKS_128[0];
+
+    /* compute correct y, 32bit -> 64bit first */
+    tmp_64 = y1;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct y, 64bit -> 128bit */
+    y = tmp_64;
+    y = (y | (y << SHIFTS_128[5])) & MASKS_128[5];
+    y = (y | (y << SHIFTS_128[4])) & MASKS_128[4];
+    y = (y | (y << SHIFTS_128[3])) & MASKS_128[3];
+    y = (y | (y << SHIFTS_128[2])) & MASKS_128[2];
+    y = (y | (y << SHIFTS_128[1])) & MASKS_128[1];
+    y = (y | (y << SHIFTS_128[0])) & MASKS_128[0];
+
+    /* compute correct z, 32bit -> 64bit first */
+    tmp_64 = z1;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct z, 64bit -> 128bit */
+    z = tmp_64;
+    z = (z | (z << SHIFTS_128[5])) & MASKS_128[5];
+    z = (z | (z << SHIFTS_128[4])) & MASKS_128[4];
+    z = (z | (z << SHIFTS_128[3])) & MASKS_128[3];
+    z = (z | (z << SHIFTS_128[2])) & MASKS_128[2];
+    z = (z | (z << SHIFTS_128[1])) & MASKS_128[1];
+    z = (z | (z << SHIFTS_128[0])) & MASKS_128[0];
+
+    /* compute correct w, 32bit -> 64bit first */
+    tmp_64 = w1;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct w, 64bit -> 128bit */
+    w = tmp_64;
+    w = (w | (w << SHIFTS_128[5])) & MASKS_128[5];
+    w = (w | (w << SHIFTS_128[4])) & MASKS_128[4];
+    w = (w | (w << SHIFTS_128[3])) & MASKS_128[3];
+    w = (w | (w << SHIFTS_128[2])) & MASKS_128[2];
+    w = (w | (w << SHIFTS_128[1])) & MASKS_128[1];
+    w = (w | (w << SHIFTS_128[0])) & MASKS_128[0];
+
+    mkey1 = x | (y << 1) | (z << 2) | (w << 3);
+
+
+    /**** compute mkey2 ****/
+    /* compute correct x, 32bit -> 64bit first */
+    tmp_64 = x2;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct x, 64bit -> 128bit */
+    x = tmp_64;
+    x = (x | (x << SHIFTS_128[5])) & MASKS_128[5];
+    x = (x | (x << SHIFTS_128[4])) & MASKS_128[4];
+    x = (x | (x << SHIFTS_128[3])) & MASKS_128[3];
+    x = (x | (x << SHIFTS_128[2])) & MASKS_128[2];
+    x = (x | (x << SHIFTS_128[1])) & MASKS_128[1];
+    x = (x | (x << SHIFTS_128[0])) & MASKS_128[0];
+
+    /* compute correct y, 32bit -> 64bit first */
+    tmp_64 = y2;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct y, 64bit -> 128bit */
+    y = tmp_64;
+    y = (y | (y << SHIFTS_128[5])) & MASKS_128[5];
+    y = (y | (y << SHIFTS_128[4])) & MASKS_128[4];
+    y = (y | (y << SHIFTS_128[3])) & MASKS_128[3];
+    y = (y | (y << SHIFTS_128[2])) & MASKS_128[2];
+    y = (y | (y << SHIFTS_128[1])) & MASKS_128[1];
+    y = (y | (y << SHIFTS_128[0])) & MASKS_128[0];
+
+    /* compute correct z, 32bit -> 64bit first */
+    tmp_64 = z2;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct z, 64bit -> 128bit */
+    z = tmp_64;
+    z = (z | (z << SHIFTS_128[5])) & MASKS_128[5];
+    z = (z | (z << SHIFTS_128[4])) & MASKS_128[4];
+    z = (z | (z << SHIFTS_128[3])) & MASKS_128[3];
+    z = (z | (z << SHIFTS_128[2])) & MASKS_128[2];
+    z = (z | (z << SHIFTS_128[1])) & MASKS_128[1];
+    z = (z | (z << SHIFTS_128[0])) & MASKS_128[0];
+
+    /* compute correct w, 32bit -> 64bit first */
+    tmp_64 = w2;
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[4])) & MASKS_64[4];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[3])) & MASKS_64[3];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[2])) & MASKS_64[2];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[1])) & MASKS_64[1];
+    tmp_64 = (tmp_64 | (tmp_64 << SHIFTS_64[0])) & MASKS_64[0];
+    /* compute correct w, 64bit -> 128bit */
+    w = tmp_64;
+    w = (w | (w << SHIFTS_128[5])) & MASKS_128[5];
+    w = (w | (w << SHIFTS_128[4])) & MASKS_128[4];
+    w = (w | (w << SHIFTS_128[3])) & MASKS_128[3];
+    w = (w | (w << SHIFTS_128[2])) & MASKS_128[2];
+    w = (w | (w << SHIFTS_128[1])) & MASKS_128[1];
+    w = (w | (w << SHIFTS_128[0])) & MASKS_128[0];
+
+    mkey2 = x | (y << 1) | (z << 2) | (w << 3);
 
     if(mkey1 < mkey2) {
         return -1;
@@ -474,7 +630,7 @@ static int spt_SparseTensorCompareIndicesMorton(
 }
 
 
-static void spt_QuickSortIndexMorton(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
+static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
 
     uint64_t i, j, p;
     if(r-l < 2) {
@@ -482,11 +638,11 @@ static void spt_QuickSortIndexMorton(sptSparseTensor *tsr, sptNnzIndex l, sptNnz
     }
     p = (l+r) / 2;
     for(i = l, j = r-1; ; ++i, --j) {
-        while(spt_SparseTensorCompareIndicesMorton(tsr, i, tsr, p) < 0) {
+        while(spt_SparseTensorCompareIndicesMorton4D(tsr, i, tsr, p) < 0) {
             // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton(tsr, i, tsr, p));
             ++i;
         }
-        while(spt_SparseTensorCompareIndicesMorton(tsr, p, tsr, j) < 0) {
+        while(spt_SparseTensorCompareIndicesMorton4D(tsr, p, tsr, j) < 0) {
             // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton(tsr, p, tsr, j));
             --j;
         }
@@ -500,8 +656,8 @@ static void spt_QuickSortIndexMorton(sptSparseTensor *tsr, sptNnzIndex l, sptNnz
             p = i;
         }
     }
-    spt_QuickSortIndexMorton(tsr, l, i, sb_bits);
-    spt_QuickSortIndexMorton(tsr, i, r, sb_bits);
+    spt_QuickSortIndexMorton4D(tsr, l, i, sb_bits);
+    spt_QuickSortIndexMorton4D(tsr, i, r, sb_bits);
 }
 
 
