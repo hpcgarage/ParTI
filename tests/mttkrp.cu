@@ -174,38 +174,38 @@ int main(int argc, char const *argv[]) {
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    for(int it=0; it<niters; ++it) {
-        if(cuda_dev_id == -2) {
-            nthreads = 1;
-            sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-        } else if(cuda_dev_id == -1) {
-            if(use_reduce == 1) {
-                sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
-            } else {
-                sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
-            }
-        } else {
-            #if 0
-           switch(ncudas) {
-           case 1:
-             sptCudaSetDevice(cuda_dev_id);
-             sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
-             break;
-           case 2:
-             sptCudaSetDevice(cuda_dev_id);
-             sptCudaSetDevice(cuda_dev_id+1);
-             printf("====\n");
-             sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-             sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
-             break;
-           }
-           #endif
-            sptCudaSetDevice(cuda_dev_id);
-            // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
-            sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
-        }
-    }
+    // for(int it=0; it<niters; ++it) {
+    //     if(cuda_dev_id == -2) {
+    //         nthreads = 1;
+    //         sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
+    //     } else if(cuda_dev_id == -1) {
+    //         if(use_reduce == 1) {
+    //             sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
+    //         } else {
+    //             sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+    //             // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
+    //         }
+    //     } else {
+    //         #if 0
+    //        switch(ncudas) {
+    //        case 1:
+    //          sptCudaSetDevice(cuda_dev_id);
+    //          sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
+    //          break;
+    //        case 2:
+    //          sptCudaSetDevice(cuda_dev_id);
+    //          sptCudaSetDevice(cuda_dev_id+1);
+    //          printf("====\n");
+    //          sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
+    //          sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
+    //          break;
+    //        }
+    //        #endif
+    //         sptCudaSetDevice(cuda_dev_id);
+    //         // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
+    //         sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
+    //     }
+    // }
 
     sptStopTimer(timer);
     double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");

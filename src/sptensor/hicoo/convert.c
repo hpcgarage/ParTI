@@ -379,7 +379,7 @@ int sptSetKernelScheduler(
     const sptElementIndex sk_bits)
 {
     sptIndex nmodes = tsr->nmodes;
-    sptNnzIndex * ndims = tsr->ndims; // todo: tsr->ndims is size_t type
+    sptIndex * ndims = tsr->ndims;
     int result = 0;
 
     sptIndex * coord = (sptIndex *)malloc(nmodes * sizeof(*coord));
@@ -405,7 +405,7 @@ int sptSetKernelScheduler(
     sptIndex tmp;
     for(sptIndex m=0; m<nmodes; ++m) {
         tmp = 0;
-        sptIndex kernel_ndim = ((sptIndex)ndims[m] + sk - 1) / sk;
+        sptIndex kernel_ndim = (ndims[m] + sk - 1) / sk;
         for(sptIndex i=0; i<kernel_ndim; ++i) {
             if(tmp < kschr[m][i].len)
                 tmp = kschr[m][i].len;
@@ -438,6 +438,10 @@ int sptPreprocessSparseTensor(
 
     /* Sort tsr in a Row-major Block order to get all kernels. Not use Morton-order for kernels: 1. better support for higher-order tensors by limiting kernel size, because Morton key bit <= 128; */
     sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+#if PARTI_DEBUG == 3
+    printf("Sorted by sptSparseTensorSortIndexRowBlock.\n");
+    sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
+#endif
     result = sptSetKernelPointers(kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
     result = sptSetKernelScheduler(kschr, nkiters, kptr, tsr, sk_bits);
@@ -451,6 +455,10 @@ int sptPreprocessSparseTensor(
         k_end = kptr->data[k+1];   // exclusive
         /* Sort blocks in each kernel in Morton-order */
         sptSparseTensorSortIndexMorton(tsr, 1, k_begin, k_end, sb_bits);
+#if PARTI_DEBUG == 3
+    printf("Kernel %"PARTI_PRI_NNZ_INDEX ": Sorted by sptSparseTensorSortIndexMorton.\n", k);
+    sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
+#endif
     }
 
     return 0;
@@ -581,20 +589,20 @@ int sptSparseTensorToHiCOO(
 
         /* Loop nonzeros in each kernel */
         for(sptNnzIndex z = k_begin; z < k_end; ++z) {
-            #if PARTI_DEBUG == 3
+            #if PARTI_DEBUG == 5
                 printf("z: %"PARTI_PRI_NNZ_INDEX "\n", z);
             #endif
 
             for(sptIndex m=0; m<nmodes; ++m) 
                 block_coord[m] = tsr->inds[m].data[z];    // first nonzero indices
-            #if PARTI_DEBUG == 3
+            #if PARTI_DEBUG == 5
                 printf("block_coord:\n");
                 sptAssert(sptDumpIndexArray(block_coord, nmodes, stdout) == 0);
             #endif
 
             result = sptLocateBeginCoord(block_begin, tsr, block_coord, sb_bits);
             spt_CheckError(result, "HiSpTns Convert", NULL);
-            #if PARTI_DEBUG == 3
+            #if PARTI_DEBUG == 5
                 printf("block_begin_prior:\n");
                 sptAssert(sptDumpIndexArray(block_begin_prior, nmodes, stdout) == 0);
                 printf("block_begin:\n");
@@ -641,7 +649,7 @@ int sptSparseTensorToHiCOO(
                 ++ nb;
                 ne = 1;              
             }
-            #if PARTI_DEBUG == 3
+            #if PARTI_DEBUG == 5
                 printf("nk: %u, nc: %u, nb: %u, ne: %u, chunk_size: %lu\n\n", nk, nc, nb, ne, chunk_size);
             #endif
         }

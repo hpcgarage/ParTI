@@ -98,7 +98,7 @@ int sptMTTKRP(sptSparseTensor const * const X,
 
         sptIndex const mode_i = mode_ind[x];
         for(sptIndex r=0; r<R; ++r) {
-            mvals[mode_i * stride + r] += entry * scratch.data[r];
+            mvals[mode_i * stride + r] += scratch.data[r];
         }
     }
 

@@ -549,7 +549,8 @@ static int spt_SparseTensorCompareIndicesMorton4D(
     w = (w | (w << SHIFTS_128[1])) & MASKS_128[1];
     w = (w | (w << SHIFTS_128[0])) & MASKS_128[0];
 
-    mkey1 = x | (y << 1) | (z << 2) | (w << 3);
+    // mkey1 = x | (y << 1) | (z << 2) | (w << 3);
+    mkey1 = w | (z << 1) | (y << 2) | (x << 3);
 
 
     /**** compute mkey2 ****/
@@ -617,7 +618,7 @@ static int spt_SparseTensorCompareIndicesMorton4D(
     w = (w | (w << SHIFTS_128[1])) & MASKS_128[1];
     w = (w | (w << SHIFTS_128[0])) & MASKS_128[0];
 
-    mkey2 = x | (y << 1) | (z << 2) | (w << 3);
+    mkey2 = w | (z << 1) | (y << 2) | (x << 3);
 
     if(mkey1 < mkey2) {
         return -1;
