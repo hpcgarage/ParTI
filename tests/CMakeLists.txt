@@ -8,7 +8,7 @@ else()
 endif()
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "backup/*.c" "backup/*.cu")
     list(REMOVE_ITEM TEST_SRCS ${IGNORED_FILES})
-    # list(REMOVE_ITEM TEST_SRCS "cpd.cu" "cpd_hicoo.cu")
+    list(REMOVE_ITEM TEST_SRCS "cpd.cu" "cpd_hicoo.cu" "dist_cpd.cu")
 
 
 foreach(TEST_SRC IN LISTS TEST_SRCS)
