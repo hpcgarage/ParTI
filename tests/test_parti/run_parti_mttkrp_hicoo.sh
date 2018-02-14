@@ -5,7 +5,7 @@ declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "freebase_music" "freebase_sam
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("flickr-4d" "enron-4d" "nips-4d" "delicious-4d")
 declare -a test_tsr_names=("amazon-reviews")
-declare -a threads=("16" "24")
+declare -a threads=("24")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 declare -a sk_range=("12" "13" "14" "15" "16" "17" "18" "19" "20")
 
