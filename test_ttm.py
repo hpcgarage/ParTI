@@ -4,6 +4,7 @@ import logging
 import re
 import subprocess
 import time
+import os
 
 tensors_to_test = [
     '/home/sbliss/tensors/choa100k.tns',                # 4142859
