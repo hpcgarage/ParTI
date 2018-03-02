@@ -36,7 +36,7 @@ def main():
     logging.info(':: Start test')
 
     report = open('test_ssttm.csv', 'w', encoding='utf-8')
-    report.write(','.join(['tensor', 'mode'] + ['new' + str(i) for i in range(-3, 5)] + ['old' + str(i) for i in range(-2, 5)] + ['old_avg', 'new_avg']) + '\n')
+    report.write(','.join(['tensor'] + ['new' + str(i) for i in range(-3, 5)] + ['old' + str(i) for i in range(-2, 5)] + ['old_avg', 'new_avg']) + '\n')
 
     row = 2
     for tensor in tensors_to_test:
@@ -79,7 +79,7 @@ def main():
         os.unlink(temp_tensor2)
         os.unlink(temp_tensor3)
 
-        report.write(',=AVERAGE(M{}:Q{}),=AVERAGE(F{}:J{})\n'.format(row, row, row, row))
+        report.write(',=AVERAGE(L{}:P{}),=AVERAGE(E{}:I{})\n'.format(row, row, row, row))
         report.flush()
         row += 1
 
