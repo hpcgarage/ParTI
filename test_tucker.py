@@ -3,6 +3,7 @@
 import logging
 import re
 import subprocess
+import os
 
 tensors_to_test = [
     '/home/sbliss/tensors/20^3.tns',                    # 8002
