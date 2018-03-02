@@ -4,6 +4,7 @@ import logging
 import re
 import subprocess
 import time
+import os
 
 tensors_to_test = [
     '/home/sbliss/tensors/choa100k.tns',                # 4142859
@@ -56,6 +57,7 @@ def main():
                     match = re.match(r'\[CUDA SpTns \* Mtx\]: (.*) s$', line)
                     if match:
                         report.write(',' + match.group(1))
+                        report.flush()
 
             cmdline = [new_test_program, tensor, temp_tensor, '--mode', str(mode), '--dev', str(new_cuda_device)]
             logging.info(str(cmdline))
@@ -65,6 +67,7 @@ def main():
                     match = re.match(r'\[CUDA TTM Kernel\]: (.*) s spent on device ', line)
                     if match:
                         report.write(',' + match.group(1))
+                        report.flush()
 
             os.unlink(temp_tensor)
 
