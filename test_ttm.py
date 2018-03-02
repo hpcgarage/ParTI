@@ -3,10 +3,11 @@
 import logging
 import re
 import subprocess
-import time
 import os
+import sys
 
 tensors_to_test = [
+    '/home/sbliss/tensors/20^3.tns',                    # 8002
     '/home/sbliss/tensors/choa100k.tns',                # 4142859
     '/opt/data/jli/BIGTENSORS/choa700k.tns',            # 26953734
     '/opt/data/jli/BIGTENSORS/nell2.tns',               # 76879421

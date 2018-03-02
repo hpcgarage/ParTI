@@ -27,6 +27,8 @@ def main():
     logging.getLogger().addHandler(hlog)
     logging.info(':: Start test')
 
+    os.putenv("PTI_MEMCPY_PROFILE", "1")
+
     report = open('test_tucker.csv', 'w', encoding='utf-8')
     report.write(','.join(['tensor', 'pre_memcpy', 'memcpy', 'setidx', 'ttmkernel', 'ttmchain (setidx+ttmkernel)', 'svd', 'loop (ttmchain+svd)', 'calc_core (setidx+ttmkernel)', 'calc_norm', 'full_iter (loop+core+norm)']) + '\n')
 
