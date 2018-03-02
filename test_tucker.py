@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import logging
-import numpy
 import re
 import subprocess
-import os
 
 tensors_to_test = [
     '/home/sbliss/tensors/20^3.tns',                    # 8002
