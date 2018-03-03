@@ -4,7 +4,6 @@ import logging
 import re
 import subprocess
 import os
-import sys
 
 tensors_to_test = [
     '/home/sbliss/tensors/20^3.tns',                    # 8002
@@ -60,7 +59,7 @@ def main():
         with subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
             for line in proc.stdout:
                 logging.info(line.rstrip())
-                match = re.match(r'\[CUDA TTM Kernel\]: (.*) s spent on device ', line)
+                match = re.match(r'\[.* TTM Kernel\]: (.*) s spent on device ', line)
                 if match:
                     report.write(',' + match.group(1))
                     report.flush()
@@ -70,14 +69,17 @@ def main():
         with subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
             for line in proc.stdout:
                 logging.info(line.rstrip())
-                match = re.match(r'\[CUDA SpTns \* Mtx\]: (.*) s$', line)
+                match = re.match(r'\[.* SpTns \* Mtx\]: (.*) s$', line)
                 if match:
                     report.write(',' + match.group(1))
                     report.flush()
 
         os.unlink(temp_tensor1)
         os.unlink(temp_tensor2)
-        os.unlink(temp_tensor3)
+        try:
+            os.unlink(temp_tensor3)
+        except FileNotFoundError:
+            pass
 
         report.write(',=AVERAGE(L{}:P{}),=AVERAGE(E{}:I{})\n'.format(row, row, row, row))
         report.flush()

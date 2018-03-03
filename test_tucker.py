@@ -64,11 +64,11 @@ def main():
                 if match:
                     timing['memcpy'].append(match.group(1))
                     continue
-                match = re.match(r'\[CUDA TTM SetIdx\]: (.*) s spent', line)
+                match = re.match(r'\[.* TTM SetIdx\]: (.*) s spent', line)
                 if match:
                     timing['setidx'].append(match.group(1))
                     continue
-                match = re.match(r'\[CUDA TTM Kernel\]: (.*) s spent', line)
+                match = re.match(r'\[.* TTM Kernel\]: (.*) s spent', line)
                 if match:
                     timing['ttmkernel'].append(match.group(1))
                     continue
