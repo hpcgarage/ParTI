@@ -8,13 +8,18 @@ import sys
 
 tensors_to_test = [
     '/home/sbliss/tensors/20^3.tns',                    # 8002
+    '/opt/data/jli/BIGTENSORS/nips-4d.tns',             # 3101611
     '/home/sbliss/tensors/choa100k.tns',                # 4142859
     '/opt/data/jli/BIGTENSORS/choa700k.tns',            # 26953734
+    '/opt/data/jli/BIGTENSORS/enron-4d.tns',            # 54202101
     '/opt/data/jli/BIGTENSORS/nell2.tns',               # 76879421
     '/opt/data/jli/BIGTENSORS/freebase_music.tns',      # 99546553
     '/opt/data/jli/BIGTENSORS/freebase_sampled.tns',    # 139920773
     '/opt/data/jli/BIGTENSORS/delicious.tns',           # 140126183
     '/opt/data/jli/BIGTENSORS/nell1.tns',               # 143599554
+    '/opt/data/jli/BIGTENSORS/uber-4d.tns',             #
+    '/opt/data/jli/BIGTENSORS/flickr-4d.tns',           #
+    '/opt/data/jli/BIGTENSORS/delicious-4d.tns',        #
 ]
 
 dense_tensor_generator = '/home/sbliss/ParTImm/tools/generate_dense_tensor.py'
