@@ -55,7 +55,7 @@ def main():
             with subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
                 for line in proc.stdout:
                     logging.info(line.rstrip())
-                    match = re.match(r'\[CUDA SpTns \* Mtx\]: (.*) s$', line)
+                    match = re.match(r'\[.* SpTns \* Mtx\]: (.*) s$', line)
                     if match:
                         report.write(',' + match.group(1))
                         report.flush()
@@ -65,7 +65,7 @@ def main():
             with subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
                 for line in proc.stdout:
                     logging.info(line.rstrip())
-                    match = re.match(r'\[CUDA TTM Kernel\]: (.*) s spent on device ', line)
+                    match = re.match(r'\[.* TTM Kernel\]: (.*) s spent on device ', line)
                     if match:
                         report.write(',' + match.group(1))
                         report.flush()
