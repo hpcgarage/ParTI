@@ -75,7 +75,10 @@ def main():
                         report.write(',' + match.group(1))
                         report.flush()
 
-            os.unlink(temp_tensor)
+            try:
+                os.unlink(temp_tensor)
+            except FileNotFoundError:
+                pass
 
             report.write(',=AVERAGE(E{}:I{}),=AVERAGE(L{}:U{})\n'.format(row, row, row, row))
             report.flush()

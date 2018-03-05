@@ -79,8 +79,14 @@ def main():
                     report.write(',' + match.group(1))
                     report.flush()
 
-        os.unlink(temp_tensor1)
-        os.unlink(temp_tensor2)
+        try:
+            os.unlink(temp_tensor1)
+        except FileNotFoundError:
+            pass
+        try:
+            os.unlink(temp_tensor2)
+        except FileNotFoundError:
+            pass
         try:
             os.unlink(temp_tensor3)
         except FileNotFoundError:
