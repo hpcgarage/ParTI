@@ -94,6 +94,15 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 * **ParTI!: a Parallel Tensor Infrastructure for Data Analysis**. Jiajia Li, Yuchen Ma, Chenggang Yan, Jimeng Sun, Richard Vuduc. Tensor-Learn Workshop @ NIPS'16. [[pdf]](http://fruitfly1026.github.io/static/files/nips16-tensorlearn.pdf)
 
+## Citation
+```
+@article{parti,
+author="Jiajia Li, Yuchen Ma, Richard Vuduc",
+title="{ParTI!} : A Parallel Tensor Infrastructure",
+year="2017",
+url="https://github.com/hpcgarage/ParTI"
+}
+```
 
 ## Contributiors
 
