@@ -96,7 +96,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Citation
 ```
-@article{parti,
+@misc{parti,
 author="Jiajia Li, Yuchen Ma, Richard Vuduc",
 title="{ParTI!} : A Parallel Tensor Infrastructure",
 year="2017",
