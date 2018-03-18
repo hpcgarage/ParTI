@@ -18,3 +18,5 @@ out*
 
 CMakeLists.txt
 tests/CMakeLists.txt
+
+-y
