@@ -5,7 +5,7 @@ import sys
 intput_path = '/nethome/jli458/Work/ParTI-dev/timing_parti/hicoo/uint-fast8-simd-fulltest/'
 # intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint16/'
 # s3tsrs = ['choa100k', 'choa200k', 'choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
-s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'freebase_music', 'freebase_sampled', 'nell1', 'delicious']
+s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d']
 l4tsrs = ['flickr-4d', 'delicious-4d']

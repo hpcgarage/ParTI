@@ -1,6 +1,8 @@
 Make sure the settings:
-* integers and values: change "types.h"
-* ./configure; make; 
+* NEW (Use OpenBLAS): ./configure --prefix=/nethome/jli458/Software/Install/splatt/int64-single --index-size=64 --precision=single --max-modes=6 --with-blas-lib=/opt/OpenBLAS/lib/libopenblas.so --with-lapack-lib=/opt/OpenBLAS/lib/libopenblas.so 
+* integers and values: change "types.h" (OLD)
+* make; 
+* make install;
 
 Test ONEMODE/ALLMODE:
 * change "bench_csf" in "bench.c"

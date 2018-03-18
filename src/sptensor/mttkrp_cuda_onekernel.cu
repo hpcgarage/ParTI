@@ -53,7 +53,7 @@ int sptCudaMTTKRPOneKernel(
     int result;
 
     double time_h2d, time_exe, time_d2h;
-    double gbw_h2d, gflops_exe, gbw_d2h;
+    double gbw_h2d, gflops_exe, gbytes_exe, gbw_d2h;
     sptTimer timer;
     sptNewTimer(&timer, 0);
 
@@ -90,7 +90,11 @@ int sptCudaMTTKRPOneKernel(
     /* the pointer to dev_mats[nmodes] */
     sptValue *dev_part_prod;  
     sptNnzIndex dev_mem_size = 0;
-    sptNnzIndex dev_flops = 2 * nnz * R + (nmodes - 1) * R;
+    uint64_t dev_flops = 2 * nnz * R + (nmodes - 1) * R;
+    uint64_t dev_bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * nnz; 
+    for (sptIndex m=0; m<nmodes; ++m) {
+        dev_bytes += ndims[m] * R * sizeof(sptValue);
+    }
 
 
     sptStartTimer(timer);
@@ -374,9 +378,10 @@ int sptCudaMTTKRPOneKernel(
 
     sptStopTimer(timer);
     time_exe = sptElapsedTime(timer);
-    gflops_exe = dev_flops / time_exe / 1e9;
+    gflops_exe = (double)dev_flops / time_exe / 1e9;
+    gbytes_exe = (double)dev_bytes / time_exe / 1e9;
     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP");
-    printf("[GFLOPS]: %lf GFlops \n", gflops_exe);
+    printf("[GFLOPS]: %.2lf GFlops, [Bandwidth]: %.2lf GB/s\n", gflops_exe, gbytes_exe);
 
     sptStartTimer(timer);
 
@@ -395,6 +400,7 @@ int sptCudaMTTKRPOneKernel(
     gbw_d2h = dev_mem_size / time_d2h /1e9;
     sptPrintElapsedTime(timer, "CUDA SpTns MTTKRP D2H");
     printf("[Bandwidth D2H]: %lf GBytes/sec\n", gbw_d2h);
+    printf("\n");
     sptFreeTimer(timer);
 
     result = cudaFree(dev_mats_order);

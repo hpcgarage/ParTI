@@ -42,6 +42,7 @@ int main(int argc, char * const argv[]) {
     int tk = 1;
     int tb = 1;
     printf("niters: %d\n", niters);
+    int retval;
 
     for(;;) {
         static struct option long_options[] = {
@@ -179,7 +180,7 @@ int main(int argc, char * const argv[]) {
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
 
-    for(int it=0; it<1; ++it) {
+    for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);

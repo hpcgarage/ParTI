@@ -21,7 +21,7 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
-static void spt_QuickSortIndex(sptSparseTensor *tsr, size_t l, size_t r);
+static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r);
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
 static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
@@ -139,6 +139,190 @@ static const uint32_t morton256_x[256] = {
     0x00924804, 0x00924820, 0x00924824, 0x00924900, 0x00924904, 0x00924920, 0x00924924
 };
 
+
+void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2) {
+
+    for(sptIndex i = 0; i < tsr->nmodes; ++i) {
+        sptIndex eleind1 = tsr->inds[i].data[ind1];
+        tsr->inds[i].data[ind1] = tsr->inds[i].data[ind2];
+        tsr->inds[i].data[ind2] = eleind1;
+    }
+    sptValue val1 = tsr->values.data[ind1];
+    tsr->values.data[ind1] = tsr->values.data[ind2];
+    tsr->values.data[ind2] = val1;
+}
+
+
+/**
+ * Determine the best mode order. Sort order: [mode, (ordered by increasing dimension sizes)]
+ *
+ * @param[out] mode_order a pointer to the array to be filled,
+ * @param[in] mode mode to do product
+ * @param[in] ndims tensor dimension sizes
+ * @param[in] nmodes tensor order
+ *
+ */
+void sptGetBestModeOrder(
+    sptIndex * mode_order,
+    sptIndex const mode,
+    sptIndex const * ndims,
+    sptIndex const nmodes)
+{
+    sptKeyValuePair * sorted_ndims = (sptKeyValuePair*)malloc(nmodes * sizeof(*sorted_ndims));
+    for(sptIndex m=0; m<nmodes; ++m) {
+        sorted_ndims[m].key = m;
+        sorted_ndims[m].value = ndims[m];
+    }
+
+    /* Increasingly sort */
+    sptPairArraySort(sorted_ndims, nmodes);
+
+    for(sptIndex m=0; m<nmodes; ++m) {
+        mode_order[m] = sorted_ndims[m].key;
+    }
+    /* Find the location of mode */
+    sptIndex mode_loc = 0;
+    for(sptIndex m=0; m<nmodes; ++m) {
+        if(mode_order[m] == mode) {
+            mode_loc = m;
+        }
+    }
+    /* Shift mode to moder_order[0] */
+    if(mode_loc != 0) {
+        for(sptIndex m=mode_loc; m>=1; --m) {
+            mode_order[m] = mode_order[m-1];
+        }
+        mode_order[0] = mode;
+    }
+
+    free(sorted_ndims);
+}
+
+
+/**
+ * Determine the worst mode order. Sort order: [(ordered by decreasing dimension sizes)]
+ *
+ * @param[out] mode_order a pointer to the array to be filled,
+ * @param[in] mode mode to do product
+ * @param[in] ndims tensor dimension sizes
+ * @param[in] nmodes tensor order
+ *
+ */
+void sptGetWorstModeOrder(
+    sptIndex * mode_order,
+    sptIndex const mode,
+    sptIndex const * ndims,
+    sptIndex const nmodes)
+{
+    sptKeyValuePair * sorted_ndims = (sptKeyValuePair*)malloc(nmodes * sizeof(*sorted_ndims));
+    for(sptIndex m=0; m<nmodes; ++m) {
+        sorted_ndims[m].key = m;
+        sorted_ndims[m].value = ndims[m];
+    }
+
+    /* Increasingly sort */
+    sptPairArraySort(sorted_ndims, nmodes);
+
+    for(sptIndex m=0; m<nmodes; ++m) {
+        mode_order[m] = sorted_ndims[nmodes - 1 - m].key;
+    }
+
+    /* Find the location of mode */
+    sptIndex mode_loc = 0;
+    for(sptIndex m=0; m<nmodes; ++m) {
+        if(mode_order[m] == mode) {
+            mode_loc = m;
+        }
+    }
+    /* Shift mode to moder_order[0] */
+    if(mode_loc != nmodes - 1) {
+        for(sptIndex m=mode_loc; m<nmodes; ++m) {
+            mode_order[m] = mode_order[m+1];
+        }
+        mode_order[nmodes - 1] = mode;
+    }
+
+    free(sorted_ndims);
+}
+
+
+/**
+ * Sort COO sparse tensor by Z-Morton order. (The same with "sptPreprocessSparseTensor" function in "convert.c" except setting kschr.) 
+ * Kernels in Row-major order, blocks and elements are in Z-Morton order.
+ * @param tsr    a pointer to a sparse tensor
+ * @return      mode pointers
+ */
+int sptSparseTensorMixedOrder(
+    sptSparseTensor *tsr, 
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits)
+{
+    sptNnzIndex nnz = tsr->nnz;
+    int result;
+
+    /* Sort tsr in a Row-major Block order to get all kernels. Not use Morton-order for kernels: 1. better support for higher-order tensors by limiting kernel size, because Morton key bit <= 128; */
+    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+
+    sptNnzIndexVector kptr;
+    result = sptNewNnzIndexVector(&kptr, 0, 0);
+    spt_CheckError(result, "HiSpTns New", NULL);
+    result = sptSetKernelPointers(&kptr, tsr, sk_bits);
+    spt_CheckError(result, "HiSpTns Preprocess", NULL);
+
+    /* Sort blocks in each kernel in Morton-order */
+    sptNnzIndex k_begin, k_end;
+    /* Loop for all kernels, 0-kptr.len for OMP code */
+    for(sptNnzIndex k=0; k<kptr.len - 1; ++k) {
+        k_begin = kptr.data[k];
+        k_end = kptr.data[k+1];   // exclusive
+        /* Sort blocks in each kernel in Morton-order */
+        sptSparseTensorSortIndexMorton(tsr, 1, k_begin, k_end, sb_bits);
+
+    }
+
+    return 0;
+}
+
+/**
+ * Randomly shuffle all nonzeros.
+ *
+ * @param[in] tsr tensor to be shuffled
+ *
+ */
+void sptGetRandomShuffleElements(sptSparseTensor *tsr) {
+    sptNnzIndex const nnz = tsr->nnz;
+    for(sptNnzIndex z=0; z<nnz; ++z) {
+        srand(z+1);
+        sptValue rand_val = (sptValue) rand() / (sptValue) RAND_MAX;
+        sptNnzIndex new_loc = (sptNnzIndex) ( rand_val * nnz ) % nnz;
+        spt_SwapValues(tsr, z, new_loc);
+    }
+    
+}
+
+
+/**
+ * Randomly shuffle all indices.
+ *
+ * @param[in] tsr tensor to be shuffled
+ *
+ */
+void sptGetRandomShuffleIndices(sptSparseTensor *tsr, sptIndexVector *map_inds) {
+    for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+        sptIndex dim_len = tsr->ndims[m];
+        for(sptIndex i = dim_len - 1; i > 0; --i) {
+            srand(m+i+1);
+            sptIndex new_loc = (sptIndex) (rand() % (i+1));            
+            /* Swap i <-> new_loc */
+            sptIndex tmp = map_inds[m].data[i];
+            map_inds[m].data[i] = map_inds[m].data[new_loc];
+            map_inds[m].data[new_loc] = tmp;
+        }
+    }
+    
+}
+
+
 /**
  * Reorder the elements in a COO sparse tensor lexicographically, sorting by Morton-order.
  * @param hitsr  the sparse tensor to operate on
@@ -224,6 +408,40 @@ void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptInde
     }
 }
 
+/**
+ * Reorder the elements in a sparse tensor lexicographically in a customized order.
+ * @param tsr  the sparse tensor to operate on
+ */
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const *  mode_order, int force) {
+    sptIndex nmodes = tsr->nmodes;
+    sptIndex m;
+    sptSparseTensor tsr_temp; // Only copy pointers, not real data.
+
+    if(!force && memcmp(tsr->sortorder, mode_order, nmodes * sizeof (sptIndex)) == 0) {
+        return;
+    }
+
+    tsr_temp.nmodes = nmodes;
+    tsr_temp.sortorder = tsr->sortorder;
+    tsr_temp.ndims = malloc(nmodes * sizeof tsr_temp.ndims[0]);
+    tsr_temp.nnz = tsr->nnz;
+    tsr_temp.inds = malloc(nmodes * sizeof tsr_temp.inds[0]);
+    tsr_temp.values = tsr->values;
+
+    for(m = 0; m < nmodes; ++m) {
+        tsr_temp.ndims[m] = tsr->ndims[mode_order[m]];
+        tsr_temp.inds[m] = tsr->inds[mode_order[m]];
+    }
+
+    sptSparseTensorSortIndex(&tsr_temp, 1);
+
+    free(tsr_temp.inds);
+    free(tsr_temp.ndims);
+
+    for(m = 0; m < nmodes; ++m) {
+        tsr->sortorder[m] = mode_order[m];
+    }
+}
 
 /**
  * Reorder the elements in a sparse tensor lexicographically
@@ -245,21 +463,6 @@ void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force) {
     }
 }
 
-
-void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2) {
-    sptIndex i;
-    sptValue val1, val2;
-    for(i = 0; i < tsr->nmodes; ++i) {
-        sptIndex eleind1 = tsr->inds[i].data[ind1];
-        sptIndex eleind2 = tsr->inds[i].data[ind2];
-        tsr->inds[i].data[ind1] = eleind2;
-        tsr->inds[i].data[ind2] = eleind1;
-    }
-    val1 = tsr->values.data[ind1];
-    val2 = tsr->values.data[ind2];
-    tsr->values.data[ind2] = val1;
-    tsr->values.data[ind1] = val2;
-}
 
 
 /**

@@ -20,34 +20,6 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
-    
-
-sptNnzIndex sptMaxNnzIndexArray(
-  sptNnzIndex const * const indices,
-  sptNnzIndex const size)
-{
-  sptNnzIndex max = indices[0];
-  for(sptNnzIndex i=1; i < size; ++i) {
-    if(indices[i] > max) {
-      max = indices[i];
-    }
-  }
-  return max;
-}
-
-
-sptIndex sptMaxIndexArray(
-  sptIndex const * const indices,
-  sptNnzIndex const size)
-{
-  sptIndex max = indices[0];
-  for(sptNnzIndex i=1; i < size; ++i) {
-    if(indices[i] > max) {
-      max = indices[i];
-    }
-  }
-  return max;
-}
 
 
 char * sptBytesString(uint64_t const bytes)

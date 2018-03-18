@@ -24,7 +24,17 @@ int sptMTTKRPHiCOO_3D(
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode);
+int sptMTTKRPHiCOO_3D_Blocked(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode);
 int sptMTTKRPHiCOO_3D_MatrixTiling(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode);
+int sptMTTKRPHiCOO_4D_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
@@ -57,7 +67,7 @@ int sptMTTKRPHiCOO(
     sptIndex const nmodes = hitsr->nmodes;
 
     if(nmodes == 3) {
-        sptAssert(sptMTTKRPHiCOO_3D(hitsr, mats, mats_order, mode) == 0);
+        sptAssert(sptMTTKRPHiCOO_3D_Blocked(hitsr, mats, mats_order, mode) == 0);
         return 0;
     }
 
@@ -142,6 +152,7 @@ int sptMTTKRPHiCOO(
 }
 
 
+/* Very slow version! Slower than COO in Morton order. */
 int sptMTTKRPHiCOO_3D(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -218,6 +229,87 @@ int sptMTTKRPHiCOO_3D(
 }
 
 
+int sptMTTKRPHiCOO_3D_Blocked(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode) 
+{
+    sptIndex const nmodes = hitsr->nmodes;
+    sptIndex const * const ndims = hitsr->ndims;
+    sptValue const * const restrict vals = hitsr->values.data;
+    sptIndex const stride = mats[0]->stride;
+
+    /* Check the mats. */
+    sptAssert(nmodes ==3);
+    for(sptIndex i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
+
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptIndex const R = mats[mode]->ncols;
+    sptMatrix * const restrict M = mats[nmodes];
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
+
+    sptIndex times_mat_index_1 = mats_order[1];
+    sptMatrix * restrict times_mat_1 = mats[times_mat_index_1];
+    sptIndex times_mat_index_2 = mats_order[2];
+    sptMatrix * restrict times_mat_2 = mats[times_mat_index_2];
+
+    sptElementIndex mode_i;
+    sptElementIndex tmp_i_1, tmp_i_2;
+    sptValue entry;
+    sptValue * restrict blocked_mvals;
+    sptValue * restrict blocked_times_mat_1;
+    sptValue * restrict blocked_times_mat_2;
+
+    /* Loop kernels */
+    for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
+        sptNnzIndex kptr_begin = hitsr->kptr.data[k];
+        sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
+
+        /* Loop blocks in a kernel */
+        for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
+
+            blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_1 = times_mat_1->values + (hitsr->binds[times_mat_index_1].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_2 = times_mat_2->values + (hitsr->binds[times_mat_index_2].data[b] << hitsr->sb_bits) * stride;
+
+            sptNnzIndex bptr_begin = hitsr->bptr.data[b];
+            sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
+            /* Loop entries in a block */
+            for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
+                
+                mode_i = hitsr->einds[mode].data[z];
+                tmp_i_1 = hitsr->einds[times_mat_index_1].data[z];
+                tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
+                entry = vals[z];
+
+                sptValue * const restrict bmvals_row = blocked_mvals + mode_i * stride;
+                sptValue * const restrict blocked_times_mat_1_row = blocked_times_mat_1 + tmp_i_1 * stride;
+                sptValue * const restrict blocked_times_mat_2_row = blocked_times_mat_2 + tmp_i_2 * stride;
+
+                for(sptIndex r=0; r<R; ++r) {
+                    bmvals_row[r] += entry *
+                        blocked_times_mat_1_row[r]
+                        * blocked_times_mat_2_row[r];
+                }
+                
+            }   // End loop entries
+        }   // End loop blocks
+
+    }   // End loop kernels
+
+    return 0;
+}
+
+
 int sptMTTKRPHiCOO_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -228,6 +320,10 @@ int sptMTTKRPHiCOO_MatrixTiling(
 
     if(nmodes == 3) {
         sptAssert(sptMTTKRPHiCOO_3D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
+        return 0;
+    } 
+    else if(nmodes == 4) {
+        sptAssert(sptMTTKRPHiCOO_4D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
         return 0;
     }
 
@@ -348,41 +444,252 @@ int sptMTTKRPHiCOO_3D_MatrixTiling(
     sptValue * restrict blocked_times_mat_2;
 
     /* Loop kernels */
+    // sptTimer loop_timer, kernel_timer, block_timer, element_timer, elementmat_timer, blockmat_timer;
+    // double loop_etime = 0, kernel_etime = 0, block_etime = 0, element_etime = 0, elementmat_etime = 0, blockmat_etime = 0;
+    // sptNewTimer(&loop_timer, 0);
+    // sptNewTimer(&kernel_timer, 0);
+    // sptNewTimer(&block_timer, 0);
+    // sptNewTimer(&element_timer, 0);
+    // sptNewTimer(&elementmat_timer, 0);
+    // sptNewTimer(&blockmat_timer, 0);
+
+    // sptStartTimer(loop_timer);
+
     for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
         sptNnzIndex kptr_begin = hitsr->kptr.data[k];
         sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
 
         /* Loop blocks in a kernel */
+        // printf("kptr_begin: %"PARTI_PRI_NNZ_INDEX", kptr_end: %"PARTI_PRI_NNZ_INDEX"\n", kptr_begin, kptr_end); 
+        // sptStartTimer(kernel_timer);
         for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
 
+            // sptStartTimer(blockmat_timer);
             blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
             blocked_times_mat_1 = times_mat_1->values + (hitsr->binds[times_mat_index_1].data[b] << hitsr->sb_bits) * stride;
             blocked_times_mat_2 = times_mat_2->values + (hitsr->binds[times_mat_index_2].data[b] << hitsr->sb_bits) * stride;
 
             sptNnzIndex bptr_begin = hitsr->bptr.data[b];
             sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
+            // sptStopTimer(blockmat_timer);
+            // blockmat_etime += sptElapsedTime(blockmat_timer);
+            // sptPrintElapsedTime(blockmat_timer, "===Blockmat Timer");
+
             /* Loop entries in a block */
-            for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
-                
+            // printf("bptr_begin: %"PARTI_PRI_INDEX", bptr_end: %"PARTI_PRI_INDEX"\n", bptr_begin, bptr_end); 
+            // sptStartTimer(block_timer);
+            for(sptIndex z=bptr_begin; z<bptr_end; ++z) {  
+                // sptStartTimer(elementmat_timer);
                 mode_i = hitsr->einds[mode].data[z];
                 tmp_i_1 = hitsr->einds[times_mat_index_1].data[z];
                 tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
+                // mode_i = (sptBlockMatrixIndex)hitsr->einds[mode].data[z];
+                // tmp_i_1 = (sptBlockMatrixIndex)hitsr->einds[times_mat_index_1].data[z];
+                // tmp_i_2 = (sptBlockMatrixIndex)hitsr->einds[times_mat_index_2].data[z];
                 entry = vals[z];
+                sptValue * const restrict bmvals_row = blocked_mvals + mode_i * stride;
+                sptValue * const restrict blocked_times_mat_1_row = blocked_times_mat_1 + tmp_i_1 * stride;
+                sptValue * const restrict blocked_times_mat_2_row = blocked_times_mat_2 + tmp_i_2 * stride;
+                // sptStopTimer(elementmat_timer);
+                // elementmat_etime += sptElapsedTime(elementmat_timer);
+                // sptPrintElapsedTime(elementmat_timer, "===Elementmat Timer");
 
+                // sptStartTimer(element_timer);
                 #pragma omp simd
                 for(sptElementIndex r=0; r<R; ++r) {
-                    blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += entry * 
-                        blocked_times_mat_1[(sptBlockMatrixIndex)tmp_i_1 * stride + r] * 
-                        blocked_times_mat_2[(sptBlockMatrixIndex)tmp_i_2 * stride + r];
+                    // blocked_mvals[mode_i * stride + r] += entry * 
+                    //     blocked_times_mat_1[tmp_i_1 * stride + r] * 
+                    //     blocked_times_mat_2[tmp_i_2 * stride + r];
+                    bmvals_row[r] += entry * 
+                        blocked_times_mat_1_row[r]
+                        * blocked_times_mat_2_row[r];
                 }
+                // sptStopTimer(element_timer);
+                // element_etime += sptElapsedTime(element_timer);
+                // sptPrintElapsedTime(element_timer, "===Element Timer");
                 
             }   // End loop entries
+            // sptStopTimer(block_timer);
+            // block_etime += sptElapsedTime(block_timer);
+            // sptPrintElapsedTime(block_timer, "==Block Timer");
+
         }   // End loop blocks
+        // sptStopTimer(kernel_timer);
+        // kernel_etime += sptElapsedTime(kernel_timer);
+        // sptPrintElapsedTime(kernel_timer, "=Kernel Timer");
 
     }   // End loop kernels
 
+    // sptStopTimer(loop_timer);
+    // loop_etime += sptElapsedTime(loop_timer);
+    // sptPrintElapsedTime(loop_timer, "=Loop Timer");
+
+    // printf("\nTotal Elementmat Time: %lf\n", elementmat_etime);
+    // printf("Total Element Time: %lf\n", element_etime);
+    // printf("Total Blockmat Time: %lf\n", blockmat_etime);
+    // printf("Total Block Time: %lf\n", block_etime);
+    // printf("Total Kernel Time: %lf\n", kernel_etime);
+    // printf("Total Loop Time: %lf\n\n", loop_etime);
+
+    // sptFreeTimer(loop_timer);
+    // sptFreeTimer(kernel_timer);
+    // sptFreeTimer(block_timer);
+    // sptFreeTimer(element_timer);
+    // sptFreeTimer(elementmat_timer);
+    // sptFreeTimer(blockmat_timer);
+
     return 0;
 }
+
+
+
+int sptMTTKRPHiCOO_4D_MatrixTiling(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode) 
+{
+    sptIndex const nmodes = hitsr->nmodes;
+    sptIndex const * const ndims = hitsr->ndims;
+    sptValue const * const restrict vals = hitsr->values.data;
+    sptElementIndex const stride = mats[0]->stride;
+
+    /* Check the mats. */
+    sptAssert(nmodes == 4);
+    for(sptIndex i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
+
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptElementIndex const R = mats[mode]->ncols;
+    sptRankMatrix * const restrict M = mats[nmodes];
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
+
+    sptIndex times_mat_index_1 = mats_order[1];
+    sptRankMatrix * restrict times_mat_1 = mats[times_mat_index_1];
+    sptIndex times_mat_index_2 = mats_order[2];
+    sptRankMatrix * restrict times_mat_2 = mats[times_mat_index_2];
+    sptIndex times_mat_index_3 = mats_order[3];
+    sptRankMatrix * restrict times_mat_3 = mats[times_mat_index_3];
+
+    sptElementIndex mode_i;
+    sptElementIndex tmp_i_1, tmp_i_2, tmp_i_3;
+    sptValue entry;
+    sptValue * restrict blocked_mvals;
+    sptValue * restrict blocked_times_mat_1;
+    sptValue * restrict blocked_times_mat_2;
+    sptValue * restrict blocked_times_mat_3;
+
+    /* Loop kernels */
+    // sptTimer loop_timer, kernel_timer, block_timer, element_timer, elementmat_timer, blockmat_timer;
+    // double loop_etime = 0, kernel_etime = 0, block_etime = 0, element_etime = 0, elementmat_etime = 0, blockmat_etime = 0;
+    // sptNewTimer(&loop_timer, 0);
+    // sptNewTimer(&kernel_timer, 0);
+    // sptNewTimer(&block_timer, 0);
+    // sptNewTimer(&element_timer, 0);
+    // sptNewTimer(&elementmat_timer, 0);
+    // sptNewTimer(&blockmat_timer, 0);
+
+    // sptStartTimer(loop_timer);
+
+    for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
+        sptNnzIndex kptr_begin = hitsr->kptr.data[k];
+        sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
+
+        /* Loop blocks in a kernel */
+        // printf("kptr_begin: %"PARTI_PRI_NNZ_INDEX", kptr_end: %"PARTI_PRI_NNZ_INDEX"\n", kptr_begin, kptr_end); 
+        // sptStartTimer(kernel_timer);
+        for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
+
+            // sptStartTimer(blockmat_timer);
+            blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_1 = times_mat_1->values + (hitsr->binds[times_mat_index_1].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_2 = times_mat_2->values + (hitsr->binds[times_mat_index_2].data[b] << hitsr->sb_bits) * stride;
+            blocked_times_mat_3 = times_mat_3->values + (hitsr->binds[times_mat_index_3].data[b] << hitsr->sb_bits) * stride;
+
+            sptNnzIndex bptr_begin = hitsr->bptr.data[b];
+            sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
+            // sptStopTimer(blockmat_timer);
+            // blockmat_etime += sptElapsedTime(blockmat_timer);
+            // sptPrintElapsedTime(blockmat_timer, "===Blockmat Timer");
+
+            /* Loop entries in a block */
+            // printf("bptr_begin: %"PARTI_PRI_INDEX", bptr_end: %"PARTI_PRI_INDEX"\n", bptr_begin, bptr_end); 
+            // sptStartTimer(block_timer);
+            for(sptIndex z=bptr_begin; z<bptr_end; ++z) {  
+                // sptStartTimer(elementmat_timer);
+                mode_i = hitsr->einds[mode].data[z];
+                tmp_i_1 = hitsr->einds[times_mat_index_1].data[z];
+                tmp_i_2 = hitsr->einds[times_mat_index_2].data[z];
+                tmp_i_3 = hitsr->einds[times_mat_index_3].data[z];
+                // mode_i = (sptBlockMatrixIndex)hitsr->einds[mode].data[z];
+                // tmp_i_1 = (sptBlockMatrixIndex)hitsr->einds[times_mat_index_1].data[z];
+                // tmp_i_2 = (sptBlockMatrixIndex)hitsr->einds[times_mat_index_2].data[z];
+                // tmp_i_3 = (sptBlockMatrixIndex)hitsr->einds[times_mat_index_3].data[z];
+                entry = vals[z];
+                sptValue * const restrict bmvals_row = blocked_mvals + mode_i * stride;
+                sptValue * const restrict blocked_times_mat_1_row = blocked_times_mat_1 + tmp_i_1 * stride;
+                sptValue * const restrict blocked_times_mat_2_row = blocked_times_mat_2 + tmp_i_2 * stride;
+                sptValue * const restrict blocked_times_mat_3_row = blocked_times_mat_3 + tmp_i_3 * stride;
+                // sptStopTimer(elementmat_timer);
+                // elementmat_etime += sptElapsedTime(elementmat_timer);
+                // sptPrintElapsedTime(elementmat_timer, "===Elementmat Timer");
+
+                // sptStartTimer(element_timer);
+                #pragma omp simd
+                for(sptElementIndex r=0; r<R; ++r) {
+                    // blocked_mvals[mode_i * stride + r] += entry * 
+                    //     blocked_times_mat_1[tmp_i_1 * stride + r] * 
+                    //     blocked_times_mat_2[tmp_i_2 * stride + r] * 
+                    //     blocked_times_mat_3[tmp_i_3 * stride + r];
+                    bmvals_row[r] += entry * 
+                        blocked_times_mat_1_row[r]
+                        * blocked_times_mat_2_row[r]
+                        * blocked_times_mat_3_row[r];
+                }
+                // sptStopTimer(element_timer);
+                // element_etime += sptElapsedTime(element_timer);
+                // sptPrintElapsedTime(element_timer, "===Element Timer");
+                
+            }   // End loop entries
+            // sptStopTimer(block_timer);
+            // block_etime += sptElapsedTime(block_timer);
+            // sptPrintElapsedTime(block_timer, "==Block Timer");
+
+        }   // End loop blocks
+        // sptStopTimer(kernel_timer);
+        // kernel_etime += sptElapsedTime(kernel_timer);
+        // sptPrintElapsedTime(kernel_timer, "=Kernel Timer");
+
+    }   // End loop kernels
+
+    // sptStopTimer(loop_timer);
+    // loop_etime += sptElapsedTime(loop_timer);
+    // sptPrintElapsedTime(loop_timer, "=Loop Timer");
+
+    // printf("\nTotal Elementmat Time: %lf\n", elementmat_etime);
+    // printf("Total Element Time: %lf\n", element_etime);
+    // printf("Total Blockmat Time: %lf\n", blockmat_etime);
+    // printf("Total Block Time: %lf\n", block_etime);
+    // printf("Total Kernel Time: %lf\n", kernel_etime);
+    // printf("Total Loop Time: %lf\n\n", loop_etime);
+
+    // sptFreeTimer(loop_timer);
+    // sptFreeTimer(kernel_timer);
+    // sptFreeTimer(block_timer);
+    // sptFreeTimer(element_timer);
+    // sptFreeTimer(elementmat_timer);
+    // sptFreeTimer(blockmat_timer);
+
+    return 0;
+}
+
 
 
 int sptMTTKRPHiCOO_3D_MatrixTiling_init(

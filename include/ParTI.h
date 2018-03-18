@@ -76,19 +76,30 @@ extern "C" {
 #if PARTI_ELEMENT_INDEX_TYPEWIDTH == 8
   typedef uint_fast8_t sptElementIndex;
   typedef uint_fast16_t sptBlockMatrixIndex;  // R < 256
-  // typedef uint8_t sptElementIndex;
-  // typedef uint16_t sptBlockMatrixIndex;  // R < 256
   #define PARTI_PRI_ELEMENT_INDEX PRIuFAST8
   #define PARTI_SCN_ELEMENT_INDEX SCNuFAST8
   #define PARTI_PRI_BLOCKMATRIX_INDEX PRIuFAST16
   #define PARTI_SCN_BLOCKMATRIX_INDEX SCNuFAST16
+  // typedef uint8_t sptElementIndex;
+  // typedef uint16_t sptBlockMatrixIndex;  // R < 256
+  // #define PARTI_PRI_ELEMENT_INDEX PRIu8
+  // #define PARTI_SCN_ELEMENT_INDEX SCNu8
+  // #define PARTI_PRI_BLOCKMATRIX_INDEX PRIu16
+  // #define PARTI_SCN_BLOCKMATRIX_INDEX SCNu16
 #elif PARTI_ELEMENT_INDEX_TYPEWIDTH == 16
   typedef uint16_t sptElementIndex;
-  typedef uint32_t sptBlockMatrixIndex;  // R < 256
+  typedef uint32_t sptBlockMatrixIndex;
   #define PARTI_PFI_ELEMENT_INDEX PRIu16
   #define PARTI_SCN_ELEMENT_INDEX SCNu16
-  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIuFAST32
-  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNuFAST32
+  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIu32
+  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNu32
+#elif PARTI_ELEMENT_INDEX_TYPEWIDTH == 32
+  typedef uint32_t sptElementIndex;
+  typedef uint32_t sptBlockMatrixIndex;
+  #define PARTI_PFI_ELEMENT_INDEX PRIu32
+  #define PARTI_SCN_ELEMENT_INDEX SCNu32
+  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIu32
+  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNu32
 #else
   #error "Unrecognized PARTI_ELEMENT_INDEX_TYPEWIDTH."
 #endif
@@ -293,6 +304,14 @@ typedef struct {
   sptRankMatrix ** factors;
 } sptRankKruskalTensor;
 
+/**
+ * Key-value pair structure
+ */
+typedef struct 
+{
+  sptIndex key;
+  sptIndex value;
+} sptKeyValuePair;
 
 /**
  * OpenMP lock pool.
@@ -353,11 +372,15 @@ double sptPrintAverageElapsedTime(const sptTimer timer, const int niters, const 
 int sptFreeTimer(sptTimer timer);
 
 /* Base functions */
-sptNnzIndex sptMaxNnzIndexArray(sptNnzIndex const * const indices, sptNnzIndex const size);
-sptIndex sptMaxIndexArray(sptIndex const * const indices, sptNnzIndex const size);
 char * sptBytesString(uint64_t const bytes);
 sptValue sptRandomValue(void);
 
+/* Dense Array functions */
+sptNnzIndex sptMaxNnzIndexArray(sptNnzIndex const * const indices, sptNnzIndex const size);
+sptIndex sptMaxIndexArray(sptIndex const * const indices, sptNnzIndex const size);
+void sptPairArraySort(sptKeyValuePair const * kvarray, sptIndex const length);
+int sptDumpIndexArray(sptIndex *array, sptNnzIndex const n, FILE *fp);
+int sptDumpNnzIndexArray(sptNnzIndex *array, sptNnzIndex const n, FILE *fp);
 
 /* Dense vector, with sptValueVector type */
 int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap);
@@ -408,10 +431,6 @@ int sptAppendNnzIndexVectorWithVector(sptNnzIndexVector *vec, const sptNnzIndexV
 int sptResizeNnzIndexVector(sptNnzIndexVector *vec, sptNnzIndex const size);
 void sptFreeNnzIndexVector(sptNnzIndexVector *vec);
 int sptDumpNnzIndexVector(sptNnzIndexVector *vec, FILE *fp);
-
-/* Dense arrays */
-int sptDumpIndexArray(sptIndex *array, sptNnzIndex const n, FILE *fp);
-int sptDumpNnzIndexArray(sptNnzIndex *array, sptNnzIndex const n, FILE *fp);
 
 
 /* Dense matrix */
@@ -491,9 +510,21 @@ int sptMatricize(sptSparseTensor const * const X,
     sptIndex const m,
     sptSparseMatrix * const A,
     int const transpose);
+void sptGetBestModeOrder(
+    sptIndex * mode_order,
+    sptIndex const mode,
+    sptIndex const * ndims,
+    sptIndex const nmodes);
+void sptGetWorstModeOrder(
+    sptIndex * mode_order,
+    sptIndex const mode,
+    sptIndex const * ndims,
+    sptIndex const nmodes);
+void sptGetRandomShuffleElements(sptSparseTensor *tsr);
+void sptGetRandomShuffleIndices(sptSparseTensor *tsr, sptIndexVector *map_inds);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force);
-void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, const sptIndex sortkeys[], int force);
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const *  mode_order, int force);
 void sptSparseTensorSortIndexMorton(
     sptSparseTensor *tsr, 
     int force,
@@ -507,6 +538,10 @@ void sptSparseTensorSortIndexRowBlock(
     const sptNnzIndex end,
     const sptElementIndex sk_bits);
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
+int sptSparseTensorMixedOrder(
+    sptSparseTensor *tsr, 
+    const sptElementIndex sb_bits,
+    const sptElementIndex sk_bits);
 void sptSparseTensorCalcIndexBounds(sptIndex inds_low[], sptIndex inds_high[], const sptSparseTensor *tsr);
 int spt_ComputeSliceSizes(
     sptNnzIndex * slice_nnzs, 
@@ -542,6 +577,10 @@ int sptSparseTensorToHiCOO(
 int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp);
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
 double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr);
+int sptSetKernelPointers(
+    sptNnzIndexVector *kptr,
+    sptSparseTensor *tsr, 
+    const sptElementIndex sk_bits);
 
 
 /**

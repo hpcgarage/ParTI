@@ -10,10 +10,12 @@ echo "This script will do an out-of-tree build of ParTI into the 'build' directo
 declare -a CMAKE_FLAGS
 [ -e build.config ] && CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" $(<build.config))
 CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" "$@")
+# CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" "-DUSE_ICC=ON" "$@")
 
 mkdir -p build
 cd build
 
+# CC=icc cmake "${CMAKE_FLAGS[@]}" ..
 cmake "${CMAKE_FLAGS[@]}" ..
 
 make

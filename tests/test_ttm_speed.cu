@@ -14,7 +14,7 @@
     }
 extern "C" void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason);
 
-static int do_ttm(sptSparseTensor *X, sptMatrix *U, size_t mode, int cuda_dev_id) {
+static int do_ttm(sptSparseTensor *X, sptMatrix *U, sptIndex mode, int cuda_dev_id) {
     sptSemiSparseTensor Y;
     int result;
     if(cuda_dev_id == -2) {
@@ -31,15 +31,15 @@ static int do_ttm(sptSparseTensor *X, sptMatrix *U, size_t mode, int cuda_dev_id
 
 static int spt_LoadMatrixTranspose(sptMatrix *X, FILE *f) {
     int result = 0;
-    size_t nmodes, nrows, ncols;
-    fscanf(f, "%zu%zu%zu", &nmodes, &ncols, &nrows);
+    sptIndex nmodes, nrows, ncols;
+    fscanf(f, "%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX, &nmodes, &ncols, &nrows);
     if(nmodes != 2) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "LoadMtx", "nmodes != 2");
     }
     result = sptNewMatrix(X, nrows, ncols);
     spt_CheckError(result, "LoadMtx", NULL);
-    memset(X->values, 0, X->nrows * X->stride * sizeof (sptScalar));
-    size_t i, j;
+    memset(X->values, 0, X->nrows * X->stride * sizeof (sptValue));
+    sptIndex i, j;
     for(i = 0; i < X->ncols; ++i) {
         for(j = 0; j < X->nrows; ++j) {
             double value;
@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
     FILE *fX, *fU;
     sptSparseTensor X;
     sptMatrix U;
-    size_t mode = 0;
+    sptIndex mode = 0;
     int cuda_dev_id = -2;
     int result = 0;
 
@@ -79,7 +79,7 @@ int main(int argc, char const *argv[]) {
     spt_CheckError(result, "main", NULL);
     fclose(fU);
 
-    sscanf(argv[3], "%zu", &mode);
+    sscanf(argv[3], "%"PARTI_SCN_INDEX, &mode);
     sscanf(argv[4], "%d", &cuda_dev_id);
 
     printf("Preheating...\n");

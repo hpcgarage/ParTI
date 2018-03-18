@@ -24,67 +24,44 @@
 #include "../src/sptensor/sptensor.h"
 #include "../src/sptensor/hicoo/hicoo.h"
 
-void print_usage(int argc, char ** argv) {
-    printf("Usage: %s [options] \n\n", argv[0]);
-    printf("Options: -i INPUT, --input=INPUT\n");
-    printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
-    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-    printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
-    printf("         -m MODE, --mode=MODE\n");
-    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
-    printf("         -r RANK\n");
-    printf("         -t TK, --tk=TK\n");
-    printf("         -h TB, --tb=TB\n");
-    printf("         --help\n");
-    printf("\n");
-}
-
-int main(int argc, char ** argv) {
+int main(int argc, char * const argv[]) {
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
-    sptRankMatrix ** U;
-    sptRankMatrix ** copy_U;
+    sptMatrix ** U;
     sptSparseTensorHiCOO hitsr;
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
     sptElementIndex sc_bits;
 
     sptIndex mode = 0;
-    sptElementIndex R = 16;
+    sptIndex R = 16;
     int cuda_dev_id = -2;
-    int niters = 1;
+    int niters = 5;
     int nthreads;
     int impl_num = 0;
     int tk = 1;
     int tb = 1;
-    int par_iters = 0;
     printf("niters: %d\n", niters);
-
-    if(argc <= 6) { // #Required arguments
-        print_usage(argc, argv);
-        exit(1);
-    }
+    int retval;
 
     for(;;) {
         static struct option long_options[] = {
             {"input", required_argument, 0, 'i'},
+            {"output", required_argument, 0, 'o'},
             {"bs", required_argument, 0, 'b'},
             {"ks", required_argument, 0, 'k'},
             {"cs", required_argument, 0, 'c'},
             {"mode", required_argument, 0, 'm'},
-            {"output", optional_argument, 0, 'o'},
             {"impl-num", optional_argument, 0, 'p'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
-            {"tb", optional_argument, 0, 'l'},
-            {"help", no_argument, 0, 0},
+            {"tb", optional_argument, 0, 'h'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
+        // c = getopt_long(argc, argv, "i:o:b:k:c:m:", long_options, &option_index);
         c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:h:", long_options, &option_index);
         if(c == -1) {
             break;
@@ -117,29 +94,57 @@ int main(int argc, char ** argv) {
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
         case 'r':
-            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &R);
+            sscanf(optarg, "%"PARTI_SCN_INDEX, &R);
             break;
         case 't':
             sscanf(optarg, "%d", &tk);
             break;
-        case 'l':
+        case 'h':
             sscanf(optarg, "%d", &tb);
             break;
-        case '?':   /* invalid option */
-        case 'h':
         default:
-            print_usage(argc, argv);
-            exit(1);
+            abort();
         }
     }
-    printf("mode: %"PARTI_PRI_INDEX "\n", mode);
-    printf("cuda_dev_id: %d\n", cuda_dev_id);
 
-    /* A sorting included in load tensor */
+    // if(optind > argc) {
+    if(argc < 2) {
+        printf("Usage: %s [options] \n", argv[0]);
+        printf("Options: -i INPUT, --input=INPUT\n");
+        printf("         -o OUTPUT, --output=OUTPUT\n");
+        printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
+        printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
+        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
+        printf("         -m MODE, --mode=MODE\n");
+        printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
+        printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+        printf("         -r RANK\n");
+        printf("         -t TK, --tk=TK\n");
+        printf("         -h TB, --tb=TB\n");
+        printf("\n");
+        return 1;
+    }
+
+
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+
+    sptIndexVector *map_inds = (sptIndexVector *)malloc(tsr.nmodes * sizeof *map_inds);
+    spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
+    for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+        retval = sptNewIndexVector(&map_inds[m], tsr.ndims[m], tsr.ndims[m]);
+        for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
+            map_inds[m].data[i] = i;
+        spt_CheckError(retval, "MTTKRP HiCOO", NULL);
+    }
+    sptGetRandomShuffleIndices(&tsr, map_inds);
+    printf("map_inds:\n");
+    for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+        sptDumpIndexVector(&map_inds[m], stdout);
+    }
+
 
     /* Convert to HiCOO tensor */
     sptNnzIndex max_nnzb = 0;
@@ -149,44 +154,23 @@ int main(int argc, char ** argv) {
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
     sptIndex nmodes = hitsr.nmodes;
-    U = (sptRankMatrix **)malloc((nmodes+1) * sizeof(sptRankMatrix*));
+    U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
     for(sptIndex m=0; m<nmodes+1; ++m) {
-      U[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
+      U[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
     }
     sptIndex max_ndims = 0;
     for(sptIndex m=0; m<nmodes; ++m) {
       // sptAssert(sptRandomizeMatrix(U[m], tsr.ndims[m], R) == 0);
-      sptAssert(sptNewRankMatrix(U[m], hitsr.ndims[m], R) == 0);
-      sptAssert(sptConstantRankMatrix(U[m], 1) == 0);
+      sptAssert(sptNewMatrix(U[m], hitsr.ndims[m], R) == 0);
+      sptAssert(sptConstantMatrix(U[m], 1) == 0);
       if(hitsr.ndims[m] > max_ndims)
         max_ndims = hitsr.ndims[m];
       // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
     }
-    sptAssert(sptNewRankMatrix(U[nmodes], max_ndims, R) == 0);
-    sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
+    sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
+    sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
 
-    /* determine niters or num_kernel_dim to be parallelized */
-    sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
-    sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
-    printf("num_kernel_dim: %u, hitsr.nkiters[mode] / num_kernel_dim: %u\n", num_kernel_dim, hitsr.nkiters[mode]/num_kernel_dim);
-    if(num_kernel_dim <= 24 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
-        par_iters = 1;
-    }
-
-    /* Set zeros for temporary copy_U, for mode-"mode" */
-    char * bytestr;
-    if(cuda_dev_id == -1 && par_iters == 1) {
-        copy_U = (sptRankMatrix **)malloc(tk * sizeof(sptRankMatrix*));
-        for(int t=0; t<tk; ++t) {
-            copy_U[t] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-            sptAssert(sptNewRankMatrix(copy_U[t], hitsr.ndims[mode], R) == 0);
-            sptAssert(sptConstantRankMatrix(copy_U[t], 0) == 0);
-        }
-        sptNnzIndex bytes = tk * hitsr.ndims[mode] * R * sizeof(sptValue);
-        bytestr = sptBytesString(bytes);
-        printf("MODE MATRIX COPY=%s\n\n", bytestr);
-    }
 
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
     mats_order[0] = mode;
@@ -198,22 +182,14 @@ int main(int argc, char ** argv) {
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
         nthreads = 1;
-        sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
+        sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
     } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
-        // printf("sptOmpMTTKRPHiCOO_MatrixTiling:\n");
-        // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        if(par_iters == 0) {
-            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled:\n");
-            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        } else {
-            printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce:\n");
-            sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
-        }
-    } /* else {
+        sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
+    } else {
         sptCudaSetDevice(cuda_dev_id);
-        sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
-    } */
+        //sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
+    }
 
     sptTimer timer;
     sptNewTimer(&timer, 0);
@@ -222,42 +198,32 @@ int main(int argc, char ** argv) {
     for(int it=0; it<niters; ++it) {
         if(cuda_dev_id == -2) {
             nthreads = 1;
-            sptAssert(sptMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode) == 0);
+            sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
-            // sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling(&hitsr, U, mats_order, mode, tk, tb) == 0);
-            if(par_iters == 0) {
-                sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(&hitsr, U, mats_order, mode, tk, tb) == 0);
-            } else {
-                sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
-            }
-        } /* else {
+            sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
+        } else {
             sptCudaSetDevice(cuda_dev_id);
-            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
-        } */
+            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
+        } 
     }
 
     sptStopTimer(timer);
     sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
     sptFreeTimer(timer);
 
+
     if(fo != NULL) {
-        sptAssert(sptDumpRankMatrix(U[nmodes], fo) == 0);
+        sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         fclose(fo);
     }
 
-    if(cuda_dev_id == -1 && par_iters == 1) {
-        for(int t=0; t<tk; ++t) {
-            sptFreeRankMatrix(copy_U[t]);
-        }
-        free(copy_U);
-        free(bytestr);
-    }
+
     for(sptIndex m=0; m<nmodes; ++m) {
-        sptFreeRankMatrix(U[m]);
+        sptFreeMatrix(U[m]);
     }
-    sptFreeRankMatrix(U[nmodes]);
-    free(U);
     free(mats_order);
+    sptFreeMatrix(U[nmodes]);
+    free(U);
     sptFreeSparseTensorHiCOO(&hitsr);
 
     return 0;

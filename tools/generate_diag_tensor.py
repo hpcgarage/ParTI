@@ -45,72 +45,66 @@ def human_size(nbytes):
 
 def main(argv):
     if len(argv) < 3:
-        print('Usage:   %s output.tns [nonzero_rate%%]mode_dimension ...' % argv[0])
+        print('Usage:   %s output.tns ndims ndiags mode_dim' % argv[0])
         print()
-        print('Example: %s output.tns 50%%1024 2%%4096' % argv[0])
+        print('Example: %s output.tns 3 5 1024' % argv[0])
         print()
         print('Each non-zero element will be a gaussian random number (mu=0, sigma=1).')
         print()
         return 1
 
     output = argv[1]
-    rates = []
-    dims = []
-    for i in argv[2:]:
-        if '%' in i:
-            rate, dim = i.split('%', 1)
-            rates.append(float(rate) * 0.01)
-            dims.append(int(dim))
-        else:
-            rates.append(1)
-            dims.append(int(i))
-    ndims = len(dims)
+    ndims = int(argv[2])
+    ndiags = int(argv[3])
+    mode_dim = int(argv[4])
+    stencil_length = (int)(mode_dim ** (1.0/3))
+    print('stencil_length: %d' % (stencil_length))
+    assert(ndims == 3)
+    assert(ndiags == 5)
 
-    nnz = 1
+    dims = []
     for i in range(ndims):
-        nnz *= rates[i] * dims[i]
-    print('%d non-zero elements estimated.' % round(nnz))
-    written = 0
-    percent = 0
+        dims.append (mode_dim)
+
+    nnz = mode_dim * ndiags
+    print('%d non-zero elements estimated.' % nnz)
 
     f = open(output, 'w')
     f.write('%d\n' % ndims)
     f.write('\t'.join(map(str, dims)))
     f.write('\n')
 
-    inds = [None] * ndims
-    ptrs = [0] * ndims
-    for i in range(ndims):
-        if rates[i] == 1:
-            inds[i] = range(dims[i])
-        else:
-            inds[i] = random.sample(range(dims[i]), randround(rates[i] * dims[i]))
-            inds[i].sort()
+    inds = [[]]
+    offset = (int)(ndiags / (2 * (ndims - 1)))
+    for m in range(ndims-1):
+        inds.append ([])
+    z = 0
+    for i in range(mode_dim):
+        if ndims == 3:
+            # Write (i, i-stencil_length, i), (i, i, i-stencil_length), (i, i, i), (i, i, i+stencil_length), (i, i+stencil_length, i)
+            if i - stencil_length >= 0:
+                inds[0].append (i); inds[1].append (i - stencil_length); inds[2].append (i);
+                z = z + 1;
+                inds[0].append (i); inds[1].append (i); inds[2].append (i - stencil_length);
+                z = z + 1;
+            inds[0].append (i); inds[1].append (i); inds[2].append (i);  
+            z = z + 1;
+            if i + stencil_length < mode_dim:
+                inds[0].append (i); inds[1].append (i); inds[2].append (i + stencil_length);  
+                z = z + 1;
+                inds[0].append (i); inds[1].append (i + stencil_length); inds[2].append (i);
+                z = z + 1;
 
-    while ptrs[0] != len(inds[0]):
-        for i in range(ndims):
-            f.write('%d\t' % (inds[i][ptrs[i]]+1))
+    assert (z <= nnz)
+    nnz = z
+    print('%d non-zero elements real.' % nnz)
+
+    for z in range(nnz):
+        for m in range(ndims):
+            f.write('%d\t' % ((int)(inds[m][z] + 1)))
         f.write('% .16f\n' % random.gauss(0, 1))
-        ptrs[ndims-1] += 1
 
-        written += 1
-        if nnz != 0:
-            new_percent = int(written * 100.0 / nnz)
-            if new_percent < 100 and new_percent != percent:
-                percent = new_percent
-                print('%3d%% completed, %d generated, %s written.' % (percent, written, human_size(f.tell())), end='\r', flush=True)
-
-        for i in range(ndims-1, 0, -1):
-            if ptrs[i] == len(inds[i]):
-                if rates[i] == 1:
-                    inds[i] = range(dims[i])
-                else:
-                    inds[i] = random.sample(range(dims[i]), randround(rates[i] * dims[i]))
-                    inds[i].sort()
-                ptrs[i] = 0
-                ptrs[i-1] += 1
-
-    print('100%% completed, %d generated, %s written.' % (written, human_size(f.tell())))
+    print('100%% completed, %s written.' % human_size(f.tell()))
     f.close()
     print('Successfully written into %s.' % output)
     return 0

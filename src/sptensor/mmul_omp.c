@@ -24,7 +24,6 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     int result;
     sptIndex *ind_buf;
     sptIndex m;
-    sptNnzIndex i;
     sptNnzIndexVector fiberidx;
     if(mode >= X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP  SpTns * Mtx", "shape mismatch");
@@ -51,7 +50,7 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     sptStartTimer(timer);
 
     #pragma omp parallel for
-    for(i = 0; i < Y->nnz; ++i) {
+    for(sptNnzIndex i = 0; i < Y->nnz; ++i) {
         sptNnzIndex inz_begin = fiberidx.data[i];
         sptNnzIndex inz_end = fiberidx.data[i+1];
         // jli: exchange two loops

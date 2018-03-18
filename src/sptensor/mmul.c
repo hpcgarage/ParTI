@@ -66,12 +66,10 @@ int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     for(i = 0; i < Y->nnz; ++i) {
         sptNnzIndex inz_begin = fiberidx.data[i];
         sptNnzIndex inz_end = fiberidx.data[i+1];
-        sptNnzIndex j;
-        sptIndex k;
         // jli: exchange the two loops
-        for(j = inz_begin; j < inz_end; ++j) {
+        for(sptNnzIndex j = inz_begin; j < inz_end; ++j) {
             sptIndex r = X->inds[mode].data[j];
-            for(k = 0; k < U->ncols; ++k) {
+            for(sptIndex k = 0; k < U->ncols; ++k) {
                 Y->values.values[i*Y->stride + k] += X->values.data[j] * U->values[r*U->stride + k];
             }
         }
