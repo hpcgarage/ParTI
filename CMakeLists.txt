@@ -186,7 +186,7 @@ else()
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h" "include/*.h")
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
     list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
-    list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/hicoo/cpd_omp.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/matrix/rankmatrix_solver.c" "src/ktensor/rankktensor.c")
+    # list(REMOVE_ITEM PARTI_SRC "src/sptensor/hicoo/cpd.c" "src/sptensor/hicoo/cpd_omp.c" "src/sptensor/cpd.c" "src/sptensor/cpd_omp.c" "src/matrix/rankmatrix_solver.c" "src/ktensor/rankktensor.c")
 
     if(BUILD_SHARED)
         add_library(ParTI SHARED ${PARTI_SRC})

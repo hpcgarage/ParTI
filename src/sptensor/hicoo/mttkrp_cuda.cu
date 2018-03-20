@@ -179,9 +179,11 @@ int sptCudaMTTKRPHiCOO(
     sptStartTimer(timer);
 
     /* Loop kernels */
-    for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
-        sptNnzIndex kptr_begin = hitsr->kptr.data[k];
-        sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
+    // for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
+    //     sptNnzIndex kptr_begin = hitsr->kptr.data[k];
+    //     sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
+        sptNnzIndex kptr_begin = hitsr->kptr.data[0];   //useless
+        sptNnzIndex kptr_end = hitsr->kptr.data[1];   //useless
 
         sptAssert( sptMTTKRPKernelHiCOO(
             mode,
@@ -204,7 +206,8 @@ int sptCudaMTTKRPHiCOO(
             dev_values,
             dev_mats_order,
             dev_mats) == 0 );
-    }   // End loop kernels
+
+    // }   // End loop kernels
     sptStopTimer(timer);
     time_exe = sptElapsedTime(timer);
     gflops_exe = dev_flops / time_exe / 1e9;

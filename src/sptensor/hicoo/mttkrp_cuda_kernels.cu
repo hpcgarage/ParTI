@@ -101,10 +101,11 @@ int sptMTTKRPKernelHiCOO(
             break;
 
         }
+
         dim3 dimBlock(nthreadsx, nthreadsy);
         switch(impl_num) {
         case 1: // Naive, 1D
-            printf("Execute spt_MTTKRPKernelNnz3DOneKernel (%u, %u)\n", nblocks, nthreadsx);
+            printf("\nExecute spt_MTTKRPKernelHiCOO_3D_naive (%u, %u)\n", nblocks, nthreadsx);
             spt_MTTKRPKernelHiCOO_3D_naive<<<nblocks, nthreadsx, shr_size>>>(
                 mode,
                 nmodes,
@@ -126,7 +127,7 @@ int sptMTTKRPKernelHiCOO(
                 dev_mats);
             break;
         case 2:
-            printf("Execute spt_MTTKRPKernelRankNnz3DOneKernel (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
+            printf("\nExecute spt_MTTKRPKernelRankHiCOO_3D_naive (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
 
             spt_MTTKRPKernelRankHiCOO_3D_naive<<<nblocks, dimBlock, shr_size>>>(
                 mode,
@@ -149,7 +150,7 @@ int sptMTTKRPKernelHiCOO(
                 dev_mats);
             break;
         case 3:
-            printf("Execute spt_MTTKRPKernelRankNnz3DOneKernel (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
+            printf("\nExecute spt_MTTKRPKernelRankSplitHiCOO_3D_naive (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
 
             spt_MTTKRPKernelRankSplitHiCOO_3D_naive<<<nblocks, dimBlock, shr_size>>>(
                 mode,
@@ -172,7 +173,7 @@ int sptMTTKRPKernelHiCOO(
                 dev_mats);
             break;
         case 4:
-            printf("Execute spt_MTTKRPKernelRankNnz3DOneKernel (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
+            printf("\nExecute spt_MTTKRPKernelRankSplitHiCOORB_3D_naive (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
 
             spt_MTTKRPKernelRankSplitHiCOORB_3D_naive<<<nblocks, dimBlock, shr_size>>>(
                 mode,
@@ -206,7 +207,9 @@ int sptMTTKRPKernelHiCOO(
 }
 
 
-/* impl_num = 01  Naive, 1-D */
+/* impl_num = 01  Naive, 1-D 
+ * Limitation: blockDim.x (max_nnz) <= 1024.
+ */
 __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     const sptIndex mode,
     const sptIndex nmodes,
@@ -230,31 +233,35 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
     extern __shared__ sptIndex mempool[];
     sptIndex * block_coord = mempool;
 
-    sptNnzIndex all_nblocks = blength;
+    sptNnzIndex const all_nblocks = blength;
     const sptIndex tidx = threadIdx.x;
     sptNnzIndex z;
 
-    sptValue * const mvals = (sptValue*)dev_mats[nmodes];
-    sptIndex times_mat_index_1 = dev_mats_order[1];
-    sptValue * times_mat_1 = dev_mats[times_mat_index_1];
-    sptIndex times_mat_index_2 = dev_mats_order[2];
-    sptValue * times_mat_2 = dev_mats[times_mat_index_2];
+    sptValue * const mvals = dev_mats[nmodes];
+    sptIndex const times_mat_index_1 = dev_mats_order[1];
+    sptValue * const times_mat_1 = dev_mats[times_mat_index_1];
+    sptIndex const times_mat_index_2 = dev_mats_order[2];
+    sptValue * const times_mat_2 = dev_mats[times_mat_index_2];
 
     sptNnzIndex num_loops_blocks = 1;
     if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
     }
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
+        /* Block level */
         sptNnzIndex b = blockIdx.x + nb * gridDim.x;
         if(b < blength) {
             /* Block indices */
-            for(sptIndex m=0; m<nmodes; ++m)
-                block_coord[m] = dev_binds[m][b];
-
-            sptNnzIndex bptr_begin = dev_bptr[b];
-            sptNnzIndex bptr_end = dev_bptr[b+1];
+            if(tidx < nmodes) {
+                block_coord[tidx] = dev_binds[tidx][b];
+            }
             __syncthreads();
 
+            /* TODO: duplicated in registers */
+            sptNnzIndex const bptr_begin = dev_bptr[b];
+            sptNnzIndex const bptr_end = dev_bptr[b+1];
+
+            /* Thread level */
             z = tidx + bptr_begin;
             if(z < bptr_end) {
                 sptValue const entry = dev_values[z];
@@ -265,7 +272,7 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
                 sptValue tmp_val = 0;
                 for(sptIndex r=0; r<R; ++r) {
                     tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-                    atomicAdd(&mvals[mode_i * stride + r], tmp_val);
+                    atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
                 }
 
             }   // End loop entries
@@ -274,7 +281,9 @@ __global__ void spt_MTTKRPKernelHiCOO_3D_naive(
 
 }
 
-/* impl_num = 02  Naive, 2-D */
+/* impl_num = 02  Naive, 2-D 
+ * Limitation: blockDim.x (max_nnz) * R <= 1024.
+ */
 __global__ void spt_MTTKRPKernelRankHiCOO_3D_naive(
     const sptIndex mode,
     const sptIndex nmodes,
@@ -298,44 +307,47 @@ __global__ void spt_MTTKRPKernelRankHiCOO_3D_naive(
     extern __shared__ sptIndex mempool[];
     sptIndex * block_coord = mempool;
 
-    sptNnzIndex all_nblocks = blength;
+    sptNnzIndex const all_nblocks = blength;
     const sptIndex tidx = threadIdx.x;
     const sptIndex tidy = threadIdx.y;
     sptNnzIndex z;
 
-    sptValue * const mvals = (sptValue*)dev_mats[nmodes];
-    sptIndex times_mat_index_1 = dev_mats_order[1];
-    sptValue * times_mat_1 = dev_mats[times_mat_index_1];
-    sptIndex times_mat_index_2 = dev_mats_order[2];
-    sptValue * times_mat_2 = dev_mats[times_mat_index_2];
+    sptValue * const mvals = dev_mats[nmodes];
+    sptIndex const times_mat_index_1 = dev_mats_order[1];
+    sptValue * const times_mat_1 = dev_mats[times_mat_index_1];
+    sptIndex const times_mat_index_2 = dev_mats_order[2];
+    sptValue * const times_mat_2 = dev_mats[times_mat_index_2];
 
     sptNnzIndex num_loops_blocks = 1;
     if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
     }
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
+        /* Block level */
         sptNnzIndex b = blockIdx.x + nb * gridDim.x;
         if(b < blength) {
             /* Block indices */
-            for(sptIndex m=0; m<nmodes; ++m)
-                block_coord[m] = dev_binds[m][b];
-
-            sptNnzIndex bptr_begin = dev_bptr[b];
-            sptNnzIndex bptr_end = dev_bptr[b+1];
+            if(tidx < nmodes && tidy == 0) {
+                block_coord[tidx] = dev_binds[tidx][b];
+            }
             __syncthreads();
 
+            /* TODO: duplicated in registers */
+            sptNnzIndex const bptr_begin = dev_bptr[b];
+            sptNnzIndex const bptr_end = dev_bptr[b+1];
+
+            /* Thread level */
             z = tidx + bptr_begin;
             if(z < bptr_end) {
+                /* TODO: duplicated in R threads */
                 sptValue const entry = dev_values[z];
                 sptNnzIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
                 sptNnzIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
                 sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
 
                 sptValue tmp_val = 0;
-                sptIndex r = 0;
-                r = tidy;
-                tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-                atomicAdd(&mvals[mode_i * stride + r], tmp_val);
+                tmp_val = entry * times_mat_1[tmp_i_1 * stride + tidy] * times_mat_2[tmp_i_2 * stride + tidy];
+                atomicAdd(&(mvals[mode_i * stride + tidy]), tmp_val);
 
             }   // End loop entries
         }
@@ -343,7 +355,9 @@ __global__ void spt_MTTKRPKernelRankHiCOO_3D_naive(
 
 }
 
-/* impl_num = 03  Naive, 2-D */
+/* impl_num = 03  Naive, 2-D, exchange tidx and tidy.
+ * Limitation: R * blockDim.x (max_nnz) <= 1024.
+ */
 __global__ void spt_MTTKRPKernelRankSplitHiCOO_3D_naive(
     const sptIndex mode,
     const sptIndex nmodes,
@@ -367,32 +381,36 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOO_3D_naive(
     extern __shared__ sptIndex mempool[];
     sptIndex * block_coord = mempool;
 
-    sptNnzIndex all_nblocks = kptr_end - kptr_begin;
+    sptNnzIndex const all_nblocks = blength;
     const sptIndex tidx = threadIdx.x;
     const sptIndex tidy = threadIdx.y;
     sptNnzIndex z;
 
-    sptValue * const mvals = (sptValue*)dev_mats[nmodes];
-    sptIndex times_mat_index_1 = dev_mats_order[1];
-    sptValue * times_mat_1 = dev_mats[times_mat_index_1];
-    sptIndex times_mat_index_2 = dev_mats_order[2];
-    sptValue * times_mat_2 = dev_mats[times_mat_index_2];
+    sptValue * const mvals = dev_mats[nmodes];
+    sptIndex const times_mat_index_1 = dev_mats_order[1];
+    sptValue * const times_mat_1 = dev_mats[times_mat_index_1];
+    sptIndex const times_mat_index_2 = dev_mats_order[2];
+    sptValue * const times_mat_2 = dev_mats[times_mat_index_2];
 
     sptNnzIndex num_loops_blocks = 1;
     if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
     }
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
+        /* Block level */
         sptNnzIndex b = blockIdx.x + nb * gridDim.x;
         if(b < blength) {
             /* Block indices */
-            for(sptIndex m=0; m<nmodes; ++m)
-                block_coord[m] = dev_binds[m][b];
-
-            sptNnzIndex bptr_begin = dev_bptr[b];
-            sptNnzIndex bptr_end = dev_bptr[b+1];
+            if(tidy < nmodes && tidx == 0) {
+                block_coord[tidy] = dev_binds[tidy][b];
+            }
             __syncthreads();
 
+            /* TODO: duplicated in registers */
+            sptNnzIndex const bptr_begin = dev_bptr[b];
+            sptNnzIndex const bptr_end = dev_bptr[b+1];
+
+            /* Thread level */
             z = tidy + bptr_begin;
             if(z < bptr_end) {
                 sptValue const entry = dev_values[z];
@@ -401,10 +419,8 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOO_3D_naive(
                 sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
 
                 sptValue tmp_val = 0;
-                sptIndex r = 0;
-                r = tidx;
-                tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-                atomicAdd(&mvals[mode_i * stride + r], tmp_val);
+                tmp_val = entry * times_mat_1[tmp_i_1 * stride + tidx] * times_mat_2[tmp_i_2 * stride + tidx];
+                atomicAdd(&(mvals[mode_i * stride + tidx]), tmp_val);
 
             }   // End loop entries
         }
@@ -412,7 +428,9 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOO_3D_naive(
 
 }
 
-/* impl_num = 04  Naive, 2-D */
+/* impl_num = 04  Naive, 2-D, with rank blocking.
+ * Limitation: R * blockDim.x (max_nnz) <= 1024.
+ */
 __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
     const sptIndex mode,
     const sptIndex nmodes,
@@ -437,46 +455,49 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
     sptIndex * block_coord = mempool;
     //sptIndex * ele_coord = mempool + nmodes;
 
-    sptNnzIndex all_nblocks = kptr_end - kptr_begin;
+    sptNnzIndex const all_nblocks = blength;
     const sptIndex tidx = threadIdx.x;
     const sptIndex tidy = threadIdx.y;
     sptNnzIndex z;
+    const sptIndex num_loops_r = R / blockDim.x;
+    const sptIndex rest_loop = R - num_loops_r * blockDim.x;
 
-    sptValue * const mvals = (sptValue*)dev_mats[nmodes];
-    sptIndex times_mat_index_1 = dev_mats_order[1];
-    sptValue * times_mat_1 = dev_mats[times_mat_index_1];
-    sptIndex times_mat_index_2 = dev_mats_order[2];
-    sptValue * times_mat_2 = dev_mats[times_mat_index_2];
+    sptValue * const mvals = dev_mats[nmodes];
+    sptIndex const times_mat_index_1 = dev_mats_order[1];
+    sptValue * const times_mat_1 = dev_mats[times_mat_index_1];
+    sptIndex const times_mat_index_2 = dev_mats_order[2];
+    sptValue * const times_mat_2 = dev_mats[times_mat_index_2];
 
     sptNnzIndex num_loops_blocks = 1;
     if(all_nblocks > gridDim.x) {
         num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
     }
-    sptIndex r = 0;
-    r = tidx;
 
     for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
+        /* Block level */
         sptNnzIndex b = blockIdx.x + nb * gridDim.x;
         if(b < blength) {
             /* Block indices */
-            for(sptIndex m=0; m<nmodes; ++m)
-                block_coord[m] = dev_binds[m][b];
-
-            sptNnzIndex bptr_begin = dev_bptr[b];
-            sptNnzIndex bptr_end = dev_bptr[b+1];
+            if(tidy < nmodes && tidx == 0) {
+                block_coord[tidy] = dev_binds[tidy][b];
+            }
             __syncthreads();
 
+            /* TODO: duplicated in registers */
+            sptNnzIndex const bptr_begin = dev_bptr[b];
+            sptNnzIndex const bptr_end = dev_bptr[b+1];
+
+            /* Thread level */
             z = tidy + bptr_begin;
             if(z < bptr_end) {
-                
                 sptValue const entry = dev_values[z];
                 sptNnzIndex const mode_i = (block_coord[mode] << sb_bits) + dev_einds[mode][z];
                 sptNnzIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
                 sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
 
                 sptValue tmp_val = 0;
-                tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-                atomicAdd(&mvals[mode_i * stride + r], tmp_val);
+                tmp_val = entry * times_mat_1[tmp_i_1 * stride + tidx] * times_mat_2[tmp_i_2 * stride + tidx];
+                atomicAdd(&(mvals[mode_i * stride + tidx]), tmp_val);
 
             }   // End loop entries
         }

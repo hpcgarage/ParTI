@@ -137,6 +137,10 @@ int main(int argc, char * const argv[]) {
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
+    if (max_nnzb > 1024 && cuda_dev_id >= 0 ) {
+        printf("Too many nnzs per block. \n");
+        return -1;
+    }
 
     sptIndex nmodes = hitsr.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -173,7 +177,7 @@ int main(int argc, char * const argv[]) {
         sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
     } else {
         sptCudaSetDevice(cuda_dev_id);
-        //sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
+        sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
     }
 
     sptTimer timer;
@@ -181,6 +185,7 @@ int main(int argc, char * const argv[]) {
     sptStartTimer(timer);
 
     for(int it=0; it<niters; ++it) {
+        sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
         if(cuda_dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
@@ -195,7 +200,6 @@ int main(int argc, char * const argv[]) {
     sptStopTimer(timer);
     sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
     sptFreeTimer(timer);
-
 
     if(fo != NULL) {
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
