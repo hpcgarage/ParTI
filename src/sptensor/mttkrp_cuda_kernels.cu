@@ -463,16 +463,15 @@ __global__ void spt_MTTKRPKernelNnz3DOneKernel(
     for(sptNnzIndex nl=0; nl<num_loops_nnz; ++nl) {
         x = blockIdx.x * blockDim.x + tidx + nl * nnz_per_loop;
         if(x < nnz) {
-            sptIndex const mode_i = mode_ind[x];
-            sptIndex tmp_i = times_inds[x];
-            sptValue const entry = Xvals[x];
-            sptIndex tmp_i_2 = times_inds_2[x];
-            sptValue tmp_val = 0;
-            for(sptIndex r=0; r<R; ++r) {
-            tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
-            atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+              sptIndex const mode_i = mode_ind[x];
+              sptIndex tmp_i = times_inds[x];
+              sptValue const entry = Xvals[x];
+              sptIndex tmp_i_2 = times_inds_2[x];
+              sptValue tmp_val = 0;
+              for(sptIndex r=0; r<R; ++r) {
+              tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
+              atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
             }
-            __syncthreads();
         }
     }  
 
@@ -529,16 +528,13 @@ __global__ void spt_MTTKRPKernelRankNnz3DOneKernel(
                 r = tidy + l * blockDim.y;
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
-                __syncthreads();
             }
 
             if(rest_loop > 0 && tidx < rest_loop) {
                 r = tidy + num_loops_r * blockDim.y;
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
-                __syncthreads();
             }
-            __syncthreads();
         }
    
     }
@@ -596,16 +592,13 @@ __global__ void spt_MTTKRPKernelRankSplitNnz3DOneKernel(
                 r = tidx + l * blockDim.x;
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
-                __syncthreads();
             }
 
             if(rest_loop > 0 && tidx < rest_loop) {
                 r = tidx + num_loops_r * blockDim.x;
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
-                __syncthreads();
             }
-            __syncthreads();
         }
    
     }
@@ -664,7 +657,6 @@ __global__ void spt_MTTKRPKernelRankSplitNnzRB3DOneKernel(
 
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
-                __syncthreads();
             }
         }
     }  // End for l: num_loops_r
@@ -683,7 +675,6 @@ __global__ void spt_MTTKRPKernelRankSplitNnzRB3DOneKernel(
 
                 tmp_val = entry * times_mat[tmp_i * stride + r] * times_mat_2[tmp_i_2 * stride + r];
                 atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
-                __syncthreads();
             }
         }
     }   // End if rest_loop

@@ -124,6 +124,7 @@ int sptCudaMTTKRPOneKernel(
     dev_mem_size += nmodes * nnz * sizeof(sptIndex);
 
     /* mats_header and lengths */
+    memset(mats[nmodes]->values, 0, mats[mode]->nrows * stride * sizeof(sptValue));
     sptNnzIndex sum_mat_length = 0;
     for(sptIndex m = 0; m < nmodes; ++m) {
         mats_header[m] = mats[m]->values;

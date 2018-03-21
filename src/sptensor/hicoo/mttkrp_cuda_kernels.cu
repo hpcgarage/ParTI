@@ -48,7 +48,7 @@ int sptMTTKRPKernelHiCOO(
     /* Maximum settings */
     sptIndex max_nthreads_per_block = 256;
     sptIndex max_nblocks = 32768;
-    sptIndex max_nthreadsy = 16;
+    sptIndex max_nthreadsy = 4;
 
     sptIndex nthreadsx = 0;
     sptIndex nthreadsy = 0;
@@ -91,6 +91,10 @@ int sptMTTKRPKernelHiCOO(
             break;
         case 4:
             nthreadsx = R;
+            if(R <= max_nthreadsy)
+                nthreadsx = R;
+            else
+                nthreadsx = max_nthreadsy;
             nthreadsy = max_nnzb;
             if(all_nblocks < max_nblocks) {
                 nblocks = all_nblocks;
@@ -495,9 +499,19 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
                 sptNnzIndex const tmp_i_1 = (block_coord[times_mat_index_1] << sb_bits) + dev_einds[times_mat_index_1][z];
                 sptNnzIndex const tmp_i_2 = (block_coord[times_mat_index_2] << sb_bits) + dev_einds[times_mat_index_2][z];
 
+                sptIndex r;
                 sptValue tmp_val = 0;
-                tmp_val = entry * times_mat_1[tmp_i_1 * stride + tidx] * times_mat_2[tmp_i_2 * stride + tidx];
-                atomicAdd(&(mvals[mode_i * stride + tidx]), tmp_val);
+                for(sptIndex l=0; l<num_loops_r; ++l) {
+                    r = tidx + l * blockDim.x;
+                    tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
+                    atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+                }
+
+                if(rest_loop > 0 && tidx < rest_loop) {
+                    r = tidx + num_loops_r * blockDim.x;
+                    tmp_val = entry * times_mat_1[tmp_i_1 * stride + r] * times_mat_2[tmp_i_2 * stride + r];
+                    atomicAdd(&(mvals[mode_i * stride + r]), tmp_val);
+                }
 
             }   // End loop entries
         }

@@ -54,7 +54,7 @@ int main(int argc, char ** argv) {
     sptIndex mode = 0;
     sptElementIndex R = 16;
     int cuda_dev_id = -2;
-    int niters = 1;
+    int niters = 5;
     int nthreads;
     int impl_num = 0;
     int tk = 1;

@@ -286,6 +286,7 @@ int main(int argc, char ** argv) {
     sptStartTimer(timer);
 
     for(int it=0; it<niters; ++it) {
+        // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
         if(cuda_dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
