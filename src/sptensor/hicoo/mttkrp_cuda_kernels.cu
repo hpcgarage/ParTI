@@ -48,7 +48,7 @@ int sptMTTKRPKernelHiCOO(
     /* Maximum settings */
     sptIndex max_nthreads_per_block = 256;
     sptIndex max_nblocks = 32768;
-    sptIndex max_nthreadsy = 4;
+    sptIndex max_R = 4;
 
     sptIndex nthreadsx = 0;
     sptIndex nthreadsy = 0;
@@ -91,10 +91,26 @@ int sptMTTKRPKernelHiCOO(
             break;
         case 4:
             nthreadsx = R;
-            if(R <= max_nthreadsy)
+            if(R <= max_R)
                 nthreadsx = R;
             else
-                nthreadsx = max_nthreadsy;
+                nthreadsx = max_R;
+            nthreadsy = max_nnzb;
+            if(all_nblocks < max_nblocks) {
+                nblocks = all_nblocks;
+            } else {
+                nblocks = max_nblocks;
+            }
+            shr_size = 2 * nmodes * sizeof(sptIndex);
+            break;
+
+        /* Matrix blocked implementations */
+        case 14:
+            nthreadsx = R;
+            if(R <= max_R)
+                nthreadsx = R;
+            else
+                nthreadsx = max_R;
             nthreadsy = max_nnzb;
             if(all_nblocks < max_nblocks) {
                 nblocks = all_nblocks;
@@ -180,6 +196,31 @@ int sptMTTKRPKernelHiCOO(
             printf("\nExecute spt_MTTKRPKernelRankSplitHiCOORB_3D_naive (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
 
             spt_MTTKRPKernelRankSplitHiCOORB_3D_naive<<<nblocks, dimBlock, shr_size>>>(
+                mode,
+                nmodes,
+                nnz,
+                R,
+                stride,
+                sb_bits,
+                sc_bits,
+                blength,
+                kptr_begin,
+                kptr_end,
+                dev_ndims,
+                dev_cptr,
+                dev_bptr,
+                dev_binds,
+                dev_einds,
+                dev_values,
+                dev_mats_order,
+                dev_mats);
+            break;
+
+        /* Matrix blocked implementations */
+        case 14:
+            printf("\nExecute spt_MTTKRPKernelRankSplitHiCOORB_3D_MatrixBlocked (%u, %u, %u)\n", nblocks, nthreadsx, nthreadsy);
+
+            spt_MTTKRPKernelRankSplitHiCOORB_3D_MatrixBlocked<<<nblocks, dimBlock, shr_size>>>(
                 mode,
                 nmodes,
                 nnz,
@@ -360,7 +401,7 @@ __global__ void spt_MTTKRPKernelRankHiCOO_3D_naive(
 }
 
 /* impl_num = 03  Naive, 2-D, exchange tidx and tidy.
- * Limitation: R * blockDim.x (max_nnz) <= 1024.
+ * Limitation: R * blockDim.y (max_nnz) <= 1024.
  */
 __global__ void spt_MTTKRPKernelRankSplitHiCOO_3D_naive(
     const sptIndex mode,
@@ -433,7 +474,7 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOO_3D_naive(
 }
 
 /* impl_num = 04  Naive, 2-D, with rank blocking.
- * Limitation: R * blockDim.x (max_nnz) <= 1024.
+ * Limitation: max_R * blockDim.y (max_nnz) <= 1024.
  */
 __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
     const sptIndex mode,
@@ -519,4 +560,91 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
 
 }
 
+
+
+/* impl_num = 14  Matrix Blocked, 2-D, with rank blocking.
+ * Limitation: max_R * blockDim.y (max_nnz) <= 1024.
+ */
+__global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_MatrixBlocked(
+    const sptIndex mode,
+    const sptIndex nmodes,
+    const sptNnzIndex nnz,
+    const sptIndex R,
+    const sptIndex stride,
+    const sptElementIndex sb_bits,
+    const sptElementIndex sc_bits,
+    const sptNnzIndex blength,
+    const sptNnzIndex kptr_begin,
+    const sptNnzIndex kptr_end,
+    sptIndex * const dev_ndims,
+    sptNnzIndex * const dev_cptr,
+    sptNnzIndex * const dev_bptr,
+    sptBlockIndex ** const dev_binds,
+    sptElementIndex ** const dev_einds,
+    sptValue * const dev_values,
+    sptIndex * const dev_mats_order,
+    sptValue ** const dev_mats)
+{
+    extern __shared__ sptIndex mempool[];
+    // sptIndex * block_coord = mempool;
+
+    sptNnzIndex const all_nblocks = blength;
+    const sptIndex tidx = threadIdx.x;
+    const sptIndex tidy = threadIdx.y;
+    sptNnzIndex z;
+    const sptIndex num_loops_r = R / blockDim.x;
+    const sptIndex rest_loop = R - num_loops_r * blockDim.x;
+
+    sptValue * const mvals = dev_mats[nmodes];
+    sptIndex const times_mat_index_1 = dev_mats_order[1];
+    sptValue * const times_mat_1 = dev_mats[times_mat_index_1];
+    sptIndex const times_mat_index_2 = dev_mats_order[2];
+    sptValue * const times_mat_2 = dev_mats[times_mat_index_2];
+
+    sptNnzIndex num_loops_blocks = 1;
+    if(all_nblocks > gridDim.x) {
+        num_loops_blocks = (all_nblocks + gridDim.x - 1) / gridDim.x;
+    }
+
+    for(sptNnzIndex nb=0; nb<num_loops_blocks; ++nb) {
+        /* Block level */
+        sptNnzIndex b = blockIdx.x + nb * gridDim.x;
+        if(b < blength) {
+            /* TODO: duplicated in registers */
+            sptValue * blocked_mvals = mvals + (dev_binds[mode][b] << sb_bits) * stride;
+            sptValue * blocked_times_mat_1 = times_mat_1 + (dev_binds[times_mat_index_1][b] << sb_bits) * stride;
+            sptValue * blocked_times_mat_2 = times_mat_2 + (dev_binds[times_mat_index_2][b] << sb_bits) * stride;
+
+            sptNnzIndex const bptr_begin = dev_bptr[b];
+            sptNnzIndex const bptr_end = dev_bptr[b+1];
+
+            /* Thread level */
+            z = tidy + bptr_begin;
+            if(z < bptr_end) {
+                sptValue const entry = dev_values[z];
+                sptElementIndex const mode_i = dev_einds[mode][z];
+                sptElementIndex const tmp_i_1 = dev_einds[times_mat_index_1][z];
+                sptElementIndex const tmp_i_2 = dev_einds[times_mat_index_2][z];
+
+                sptValue * const bmvals_row = blocked_mvals + mode_i * stride;
+
+                sptIndex r;
+                sptValue tmp_val = 0;
+                for(sptIndex l=0; l<num_loops_r; ++l) {
+                    r = tidx + l * blockDim.x;
+                    tmp_val = entry * blocked_times_mat_1[tmp_i_1 * stride + r] * blocked_times_mat_2[tmp_i_2 * stride + r];
+                    atomicAdd(&(bmvals_row[r]), tmp_val);
+                }
+
+                if(rest_loop > 0 && tidx < rest_loop) {
+                    r = tidx + num_loops_r * blockDim.x;
+                    tmp_val = entry * blocked_times_mat_1[tmp_i_1 * stride + r] * blocked_times_mat_2[tmp_i_2 * stride + r];
+                    atomicAdd(&(bmvals_row[r]), tmp_val);
+                }
+
+            }   // End loop entries
+        }
+    }   // End loop blocks
+
+}
 

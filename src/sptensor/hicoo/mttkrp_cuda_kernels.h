@@ -104,4 +104,26 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_naive(
     sptValue ** const dev_mats);
 
 
+/* impl_num = 14  Matrix Blocked, 2-D, with rank blocking. */
+__global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_MatrixBlocked(
+    const sptIndex mode,
+    const sptIndex nmodes,
+    const sptNnzIndex nnz,
+    const sptIndex R,
+    const sptIndex stride,
+    const sptElementIndex sb_bits,
+    const sptElementIndex sc_bits,
+    const sptNnzIndex blength,
+    const sptNnzIndex kptr_begin,
+    const sptNnzIndex kptr_end,
+    sptIndex * const dev_ndims,
+    sptNnzIndex * const dev_cptr,
+    sptNnzIndex * const dev_bptr,
+    sptBlockIndex ** const dev_binds,
+    sptElementIndex ** const dev_einds,
+    sptValue * const dev_values,
+    sptIndex * const dev_mats_order,
+    sptValue ** const dev_mats);
+
+
 #endif
