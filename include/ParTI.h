@@ -359,8 +359,10 @@ void spt_Panic(const char *file, unsigned line, const char *expr);
 #define sptAssert(expr) ((expr) ? (void) 0 : spt_Panic(__FILE__, __LINE__, #expr))
 
 /* Helper function for pure C module */
+#ifdef PARTI_USE_CUDA
 int sptCudaSetDevice(int device);
 int sptCudaGetLastError(void);
+#endif
 
 /* Timer functions, using either CPU or GPU timer */
 int sptNewTimer(sptTimer *timer, int use_cuda);
@@ -450,26 +452,35 @@ int sptDumpMatrix(sptMatrix *mtx, FILE *fp);
 /* Dense matrix operations */
 int sptMatrixDotMul(sptMatrix const * A, sptMatrix const * B, sptMatrix const * C);
 int sptMatrixDotMulSeq(sptIndex const mode, sptIndex const nmodes, sptMatrix ** mats);
+#ifdef PARTI_USE_CUDA
 int sptCudaMatrixDotMulSeq(
     sptIndex const mode,
     sptIndex const nmodes, 
     sptIndex const rank, 
     sptIndex const stride, 
     sptValue ** dev_ata);
+#endif
 int sptMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptMatrix ** mats);
 int sptMatrix2Norm(sptMatrix * const A, sptValue * const lambda);
+#ifdef PARTI_USE_CUDA
 int sptCudaMatrix2Norm(
     sptIndex const nrows,
     sptIndex const ncols,
     sptIndex const stride,
     sptValue * const dev_vals,
     sptValue * const dev_lambda);
+#endif
 int sptMatrixMaxNorm(sptMatrix * const A, sptValue * const lambda);
 void GetFinalLambda(
   sptIndex const rank,
   sptIndex const nmodes,
   sptMatrix ** mats,
   sptValue * const lambda);
+int sptMatrixSolveNormals(
+  sptIndex const mode,
+  sptIndex const nmodes,
+  sptMatrix ** aTa,
+  sptMatrix * rhs);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 
 /* Dense Rank matrix, ncols = small rank (<= 256) */
@@ -650,14 +661,22 @@ int sptSparseTensorAdd(sptSparseTensor *Z, const sptSparseTensor *X, const sptSp
 int sptSparseTensorSub(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 int sptSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
+#ifdef PARTI_USE_OPENMP
 int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
+#endif
+#ifdef PARTI_USE_CUDA
 int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
+#endif
 int sptSparseTensorDotDiv(sptSparseTensor *Z, const sptSparseTensor *X, const sptSparseTensor *Y);
 
 int sptSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode);
+#ifdef PARTI_USE_OPENMP
 int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode);
+#endif
+#ifdef PARTI_USE_CUDA
 int sptCudaSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode);
 int sptCudaSparseTensorMulMatrixOneKernel(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode, sptIndex const impl_num, sptNnzIndex const smen_size);
+#endif
 int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptValueVector *V, sptIndex const mode);
 /**
  * Semi-sparse tensor times a dense matrix (TTM)
@@ -665,7 +684,9 @@ int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
  * Output: sparse tensor Y[I][J][R] (e.g. n=2)
  */
 int sptSemiSparseTensorMulMatrix(sptSemiSparseTensor *Y, const sptSemiSparseTensor *X, const sptMatrix *U, sptIndex mode);
+#ifdef PARTI_USE_CUDA
 int sptCudaSemiSparseTensorMulMatrix(sptSemiSparseTensor *Y, const sptSemiSparseTensor *X, const sptMatrix *U, sptIndex mode);
+#endif
 /**
  * Kronecker product
  */
@@ -684,6 +705,7 @@ int sptMTTKRP(
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode);
+#ifdef PARTI_USE_OPENMP
 int sptOmpMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -702,6 +724,8 @@ int sptOmpMTTKRP_Lock(sptSparseTensor const * const X,
     sptIndex const mode,
     const int tk,
     sptMutexPool * lock_pool);
+#endif
+#ifdef PARTI_USE_CUDA
 int sptCudaMTTKRP(
     sptSparseTensor const * const X,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -732,6 +756,13 @@ int sptCudaMTTKRPDevice(
     const sptIndex * dev_mats_order,
     sptValue ** dev_mats,
     sptValue * dev_scratch);
+/* Coarse GPU */
+int sptCudaCoarseMTTKRP(
+    sptSparseTensor const * const X,
+    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
+    sptIndexVector const * const mats_order,    // Correspond to the mode order of X.
+    sptIndex const mode);
+#endif
 int sptSplittedMTTKRP(
     sptSparseTensor const *const X,
     sptMatrix *mats[],
@@ -741,12 +772,6 @@ int sptSplittedMTTKRP(
     sptIndex const split_count[]
 );
 
-/* Coarse GPU */
-int sptCudaCoarseMTTKRP(
-    sptSparseTensor const * const X,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptIndexVector const * const mats_order,    // Correspond to the mode order of X.
-    sptIndex const mode);
 
 /**
  * Matricized tensor times Khatri-Rao product for HiCOO tensors
@@ -761,6 +786,7 @@ int sptMTTKRPHiCOO_MatrixTiling(
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode);
+#ifdef PARTI_USE_OPENMP
 int sptOmpMTTKRPHiCOO(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
@@ -798,6 +824,8 @@ int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce_Two(
     sptIndex const mode,
     const int tk,
     const int tb);
+#endif
+#ifdef PARTI_USE_CUDA
 int sptCudaMTTKRPHiCOO(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix ** const mats,     // mats[nmodes] as temporary space.
@@ -826,6 +854,7 @@ int sptMTTKRPKernelHiCOO(
     sptValue * const dev_values,
     sptIndex * const dev_mats_order,
     sptValue ** const dev_mats);
+#endif
 int sptTTMHiCOO_MatrixTiling(
     sptSparseTensorHiCOO * const Y,
     sptSparseTensorHiCOO const * const X,
@@ -841,6 +870,7 @@ int sptCpdAls(
   sptIndex const niters,
   double const tol,
   sptKruskalTensor * ktensor);
+#ifdef PARTI_USE_OPENMP
 int sptOmpCpdAls(
   sptSparseTensor const * const spten,
   sptIndex const rank,
@@ -849,18 +879,22 @@ int sptOmpCpdAls(
   const int tk,
   const int use_reduce,
   sptKruskalTensor * ktensor);
+#endif
+#ifdef PARTI_USE_CUDA
 int sptCudaCpdAls(
   sptSparseTensor const * const spten,
   sptIndex const rank,
   sptIndex const niters,
   double const tol,
   sptKruskalTensor * ktensor);
+#endif
 int sptCpdAlsHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
   sptIndex const niters,
   double const tol,
   sptRankKruskalTensor * ktensor);
+#ifdef PARTI_USE_OPENMP
 int sptOmpCpdAlsHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
@@ -869,7 +903,9 @@ int sptOmpCpdAlsHiCOO(
   const int tk,
   const int tb,
   sptRankKruskalTensor * ktensor);
+#endif
 
+#ifdef PARTI_USE_OPENMP
 /**
  * OMP functions
  */
@@ -908,6 +944,7 @@ static inline void sptMutexUnsetLock(
   sptIndex const lock_id = sptMutexTranslateId(id, pool->nlocks, pool->padsize);
   omp_unset_lock(pool->locks + lock_id);
 }
+#endif
 
 #ifdef __cplusplus
 }
