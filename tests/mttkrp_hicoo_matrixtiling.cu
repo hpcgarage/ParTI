@@ -36,7 +36,7 @@ void print_usage(int argc, char ** argv) {
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
     printf("         -r RANK\n");
     printf("         -t TK, --tk=TK\n");
-    printf("         -h TB, --tb=TB\n");
+    printf("         -l TB, --tb=TB\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -85,7 +85,7 @@ int main(int argc, char ** argv) {
         };
         int option_index = 0;
         int c = 0;
-        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:h:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:l:", long_options, &option_index);
         if(c == -1) {
             break;
         }

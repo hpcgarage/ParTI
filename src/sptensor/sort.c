@@ -308,15 +308,25 @@ void sptGetRandomShuffleElements(sptSparseTensor *tsr) {
  *
  */
 void sptGetRandomShuffleIndices(sptSparseTensor *tsr, sptIndexVector *map_inds) {
+    /* Get randomly renumbering indices */
     for(sptIndex m = 0; m < tsr->nmodes; ++m) {
         sptIndex dim_len = tsr->ndims[m];
         for(sptIndex i = dim_len - 1; i > 0; --i) {
-            srand(m+i+1);
+            srand(m+i+1+time(NULL));
             sptIndex new_loc = (sptIndex) (rand() % (i+1));            
             /* Swap i <-> new_loc */
             sptIndex tmp = map_inds[m].data[i];
             map_inds[m].data[i] = map_inds[m].data[new_loc];
             map_inds[m].data[new_loc] = tmp;
+        }
+    }
+
+    /* Renumber nonzero elements */
+    sptIndex tmp_ind;
+    for(sptIndex z = 0; z < tsr->nnz; ++z) {
+        for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+            tmp_ind = tsr->inds[m].data[z];
+            tsr->inds[m].data[z] = map_inds[m].data[tmp_ind];
         }
     }
     

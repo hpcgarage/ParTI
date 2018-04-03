@@ -24,7 +24,24 @@
 #include "../src/sptensor/sptensor.h"
 #include "../src/sptensor/hicoo/hicoo.h"
 
-int main(int argc, char * const argv[]) {
+void print_usage(int argc, char ** argv) {
+    printf("Usage: %s [options] \n", argv[0]);
+    printf("Options: -i INPUT, --input=INPUT\n");
+    printf("         -o OUTPUT, --output=OUTPUT\n");
+    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
+    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
+    printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
+    printf("         -e RENUMBER, --renumber=RENUMBER\n");
+    printf("         -m MODE, --mode=MODE\n");
+    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
+    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+    printf("         -r RANK\n");
+    printf("         -t TK, --tk=TK\n");
+    printf("         -l TB, --tb=TB\n");
+    printf("\n");
+}
+
+int main(int argc, char ** argv) {
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
     sptMatrix ** U;
@@ -39,10 +56,16 @@ int main(int argc, char * const argv[]) {
     int niters = 5;
     int nthreads;
     int impl_num = 0;
+    int renumber = 0;
     int tk = 1;
     int tb = 1;
     printf("niters: %d\n", niters);
     int retval;
+
+    if(argc <= 3) { // #Required arguments
+        print_usage(argc, argv);
+        exit(1);
+    }
 
     for(;;) {
         static struct option long_options[] = {
@@ -53,16 +76,17 @@ int main(int argc, char * const argv[]) {
             {"cs", required_argument, 0, 'c'},
             {"mode", required_argument, 0, 'm'},
             {"impl-num", optional_argument, 0, 'p'},
+            {"renumber", optional_argument, 0, 'e'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
-            {"tb", optional_argument, 0, 'h'},
+            {"tb", optional_argument, 0, 'l'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
         // c = getopt_long(argc, argv, "i:o:b:k:c:m:", long_options, &option_index);
-        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:h:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:e:d:r:t:l:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -90,6 +114,9 @@ int main(int argc, char * const argv[]) {
         case 'p':
             sscanf(optarg, "%d", &impl_num);
             break;
+        case 'e':
+            sscanf(optarg, "%d", &renumber);
+            break;
         case 'd':
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
@@ -99,30 +126,15 @@ int main(int argc, char * const argv[]) {
         case 't':
             sscanf(optarg, "%d", &tk);
             break;
-        case 'h':
+        case 'l':
             sscanf(optarg, "%d", &tb);
             break;
+        case '?':   /* invalid option */
+        case 'h':
         default:
-            abort();
+            print_usage(argc, argv);
+            exit(1);
         }
-    }
-
-    // if(optind > argc) {
-    if(argc < 2) {
-        printf("Usage: %s [options] \n", argv[0]);
-        printf("Options: -i INPUT, --input=INPUT\n");
-        printf("         -o OUTPUT, --output=OUTPUT\n");
-        printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
-        printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
-        printf("         -m MODE, --mode=MODE\n");
-        printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-        printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
-        printf("         -r RANK\n");
-        printf("         -t TK, --tk=TK\n");
-        printf("         -h TB, --tb=TB\n");
-        printf("\n");
-        return 1;
     }
 
 
@@ -130,6 +142,33 @@ int main(int argc, char * const argv[]) {
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+
+    /* Renumber the input tensor */
+    if (renumber == 1) {
+        sptIndexVector * map_inds = (sptIndexVector *)malloc(tsr.nmodes * sizeof *map_inds);
+        spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
+        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+            retval = sptNewIndexVector(&map_inds[m], tsr.ndims[m], tsr.ndims[m]);
+            for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
+                map_inds[m].data[i] = i;
+            spt_CheckError(retval, "MTTKRP HiCOO", NULL);
+        }
+        sptGetRandomShuffleIndices(&tsr, map_inds);
+        // printf("map_inds:\n");
+        // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+        //     sptDumpIndexVector(&map_inds[m], stdout);
+        // }
+        // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+
+        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+            sptFreeIndexVector(&map_inds[m]);
+        }
+        free(map_inds);
+    }
+
+    sptTimer convert_timer;
+    sptNewTimer(&convert_timer, 0);
+    sptStartTimer(convert_timer);
 
     /* Convert to HiCOO tensor */
     sptNnzIndex max_nnzb = 0;
@@ -141,6 +180,10 @@ int main(int argc, char * const argv[]) {
         printf("Too many nnzs per block. \n");
         return -1;
     }
+
+    sptStopTimer(convert_timer);
+    sptPrintElapsedTime(convert_timer, "Convert HiCOO");
+    sptFreeTimer(convert_timer);
 
     sptIndex nmodes = hitsr.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));

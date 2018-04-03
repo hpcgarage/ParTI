@@ -9,10 +9,12 @@ declare -a test_tsr_names=("amazon-reviews")
 declare -a threads=("1")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 declare -a sk_range=("7")
+iters="$(seq -s ' ' 1 50)"
 
-# tsr_path="/scratch/jli458/BIGTENSORS"
-tsr_path="/scratch/jli458/BIGTENSORS/DenseSynTensors"
-out_path="timing-2018/parti/hicoo/uint-fast8-single"
+
+tsr_path="/scratch/jli458/BIGTENSORS"
+# tsr_path="/scratch/jli458/BIGTENSORS/DenseSynTensors"
+out_path="timing-2018/parti/hicoo/uint-fast8-single-renumber"
 nmodes=3
 modes="$(seq -s ' ' 0 $((nmodes-1)))"
 impl_num=25
@@ -25,14 +27,12 @@ nstreams=8
 tb=1
 
 # sb=15
-# sc=16
-sb=7
 sc=14
 
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${dense3dtsrs[@]}"
+	for tsr_name in "${s3tsrs[@]}"
 	do
 
 		# if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
@@ -45,28 +45,39 @@ do
 		for mode in ${modes[@]}
 		do
 
-			# # Sequetial code
-			# dev_id=-2
-			# echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
-			# ./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
-
-			# Sequetial code with matrix tiling
+			# Sequential code
 			dev_id=-2
-			sk=${sb}
-			tk=1
-			echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
+			sk=20
+			sb=7
+			renum=0
+			echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-e${renum}-seq.txt"
+			./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-e${renum}-seq.txt
+
+			renum=1
+			for it in ${iters[@]}
+			do
+				echo "./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-e${renum}-it${it}-seq.txt"
+				./build/tests/mttkrp_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-e${renum}-it${it}-seq.txt
+			done
+
+
+			# Sequential code with matrix tiling
+			# dev_id=-2
+			# sk=${sb}
+			# tk=1
+			# echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt"
 			# ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-seq.txt
 
 			# OpenMP code
-			dev_id=-1
-			for sk in ${sk_range[@]}
-			do
-				for tk in ${threads[@]}
-				do
-					echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt"
-					# ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
-				done
-			done
+			# dev_id=-1
+			# for sk in ${sk_range[@]}
+			# do
+			# 	for tk in ${threads[@]}
+			# 	do
+			# 		echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt"
+			# 		./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -m ${mode} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-m${mode}-r${R}-tk${tk}-tb${tb}.txt
+			# 	done
+			# done
 		# for ((tb=1; tb <= ((${nthreads}/${tk})) ; tb=tb*2))
 
 		done
