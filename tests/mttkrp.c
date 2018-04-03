@@ -258,26 +258,6 @@ int main(int argc, char ** argv) {
             // printf("sptOmpMTTKRP_Lock:\n");
             // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
         }
-    } else {
-        sptCudaSetDevice(cuda_dev_id);
-        // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
-        sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
-
-        #if 0
-        switch(ncudas) {
-        case 1:
-            sptCudaSetDevice(cuda_dev_id);
-            sptAssert(sptCudaMTTKRP(&X, U, &mats_order, mode) == 0);
-            break;
-        case 2:
-            sptCudaSetDevice(cuda_dev_id);
-            sptCudaSetDevice(cuda_dev_id+1);
-            printf("====\n");
-            sptAssert(sptCudaMTTKRP(csX, U, &mats_order, mode) == 0);
-            sptAssert(sptCudaMTTKRP(csX+1, U, &mats_order, mode) == 0);
-            break;
-        }
-       #endif
     }
 
     
@@ -301,10 +281,6 @@ int main(int argc, char ** argv) {
                 // printf("sptOmpMTTKRP_Lock:\n");
                 // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
             }
-        } else {
-            sptCudaSetDevice(cuda_dev_id);
-            // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
-            sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
         }
     }
 
@@ -320,9 +296,7 @@ int main(int argc, char ** argv) {
         }
         double gbw = (double)bytes / aver_time / 1e9;
         printf("Performance: %.2lf GFlop/s, Bandwidth: %.2lf GB/s\n", gflops, gbw);
-    } else if (cuda_dev_id >=0) {
-        double aver_time = sptPrintAverageElapsedTime(timer, niters, "GPU SpTns MTTKRP");
-    }
+    } 
     sptFreeTimer(timer);
 
 

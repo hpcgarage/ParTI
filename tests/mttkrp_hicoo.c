@@ -176,10 +176,6 @@ int main(int argc, char ** argv) {
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
-    if (max_nnzb > 1024 && cuda_dev_id >= 0 ) {
-        printf("Too many nnzs per block. \n");
-        return -1;
-    }
 
     sptStopTimer(convert_timer);
     sptPrintElapsedTime(convert_timer, "Convert HiCOO");
@@ -218,9 +214,6 @@ int main(int argc, char ** argv) {
     } else if(cuda_dev_id == -1) {
         printf("tk: %d, tb: %d\n", tk, tb);
         sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-    } else {
-        sptCudaSetDevice(cuda_dev_id);
-        sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
     }
 
     sptTimer timer;
@@ -233,10 +226,7 @@ int main(int argc, char ** argv) {
             sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
             sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-        } else {
-            sptCudaSetDevice(cuda_dev_id);
-            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, max_nnzb, impl_num) == 0);
-        } 
+        }
     }
 
     sptStopTimer(timer);

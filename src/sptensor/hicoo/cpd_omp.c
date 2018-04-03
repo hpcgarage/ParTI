@@ -61,7 +61,7 @@ double OmpCpdAlsStepHiCOO(
 
   sptValue alpha = 1.0, beta = 0.0;
   char const notrans = 'N';
-  char const trans = 'T';
+  // char const trans = 'T';
   char const uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;
@@ -94,7 +94,7 @@ double OmpCpdAlsStepHiCOO(
   sptTimer tmp_timer;
   sptNewTimer(&tmp_timer, 0);
   double mttkrp_time, solver_time, norm_time, ata_time, fit_time;
-  double sum_time = 0.0;
+  // double sum_time = 0.0;
 
   for(sptIndex it=0; it < niters; ++it) {
     // printf("  its = %3lu\n", it+1);

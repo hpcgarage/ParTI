@@ -210,11 +210,8 @@ int main(int argc, char ** argv) {
             printf("sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce:\n");
             sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
         }
-    } /* else {
-        sptCudaSetDevice(cuda_dev_id);
-        sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
-    } */
-
+    }
+    
     sptTimer timer;
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
@@ -230,10 +227,7 @@ int main(int argc, char ** argv) {
             } else {
                 sptAssert(sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(&hitsr, U, copy_U, mats_order, mode, tk, tb) == 0);
             }
-        } /* else {
-            sptCudaSetDevice(cuda_dev_id);
-            sptAssert(sptCudaMTTKRPHiCOO(&hitsr, U, mats_order, mode, impl_num) == 0);
-        } */
+        }
     }
 
     sptStopTimer(timer);

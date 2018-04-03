@@ -18,17 +18,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include <ParTI.h>
 
-int main(int argc, char *argv[]) {
-    FILE *fX, *fY, *fo;
-    sptSparseTensor X, Y, Z;
+int main(int argc, char const *argv[]) {
+    FILE *fX, *fo;
+    sptSparseTensor X;
+    sptIndex R = 16;
+    sptIndex niters = 2; // 50
+    double tol = 1e-5;
+    sptKruskalTensor ktensor;
+    int nloops = 5;
     int cuda_dev_id = -2;
-    int niters = 5;
     int nthreads;
+    int use_reduce = 1;
 
-    if(argc < 3) {
-        printf("Usage: %s X Y [cuda_dev_id, niters, out]\n\n", argv[0]);
+    if(argc < 2) {
+        printf("Usage: %s X [cuda_dev_id, nthreads, R, use_reduce, ktensor]\n\n", argv[0]);
         return 1;
     }
 
@@ -36,63 +42,63 @@ int main(int argc, char *argv[]) {
     sptAssert(fX != NULL);
     sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
     fclose(fX);
-    fY = fopen(argv[1], "r");
-    sptAssert(fY != NULL);
-    sptAssert(sptLoadSparseTensor(&Y, 1, fY) == 0);
-    fclose(fY);
+    sptSparseTensorStatus(&X, stdout);
+    // sptDumpSparseTensor(&X, 0, stdout);
 
+    if(argc >= 3) {
+        sscanf(argv[2], "%d", &cuda_dev_id);
+    }
     if(argc >= 4) {
-        sscanf(argv[3], "%d", &cuda_dev_id);
+        sscanf(argv[3], "%d", &nthreads);
     }
     if(argc >= 5) {
-        sscanf(argv[4], "%d", &niters);
+        sscanf(argv[4], "%"PARTI_SCN_INDEX, &R);
     }
-    sptAssert(niters >= 1);
+    if(argc >= 6) {
+        sscanf(argv[5], "%d", &use_reduce);
+    }
 
-    // sptSparseTensorSortIndex(&a);
-    // sptSparseTensorSortIndex(&b);
+    sptIndex nmodes = X.nmodes;
+    sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
-        sptAssert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
+        nthreads = 1;
+        sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
     } else if(cuda_dev_id == -1) {
+        omp_set_num_threads(nthreads);
         #pragma omp parallel
         {
             nthreads = omp_get_num_threads();
         }
         printf("nthreads: %d\n", nthreads);
-        sptAssert(sptOmpSparseTensorDotMulEq(&Z, &X, &Y) == 0);
-    } else if(cuda_dev_id >= 0) {
-        sptCudaSetDevice(cuda_dev_id);
-        sptAssert(sptCudaSparseTensorDotMulEq(&Z, &X, &Y) == 0);
+        printf("use_reduce: %d\n", use_reduce);
+        sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
     }
 
-    for(int it=0; it<niters; ++it) {
+    for(int it=0; it<nloops; ++it) {
         if(cuda_dev_id == -2) {
-            sptAssert(sptSparseTensorDotMulEq(&Z, &X, &Y) == 0);
+            nthreads = 1;
+            sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
         } else if(cuda_dev_id == -1) {
             #pragma omp parallel
             {
                 nthreads = omp_get_num_threads();
             }
             printf("nthreads: %d\n", nthreads);
-            sptAssert(sptOmpSparseTensorDotMulEq(&Z, &X, &Y) == 0);
-        } else if(cuda_dev_id >= 0) {
-            sptCudaSetDevice(cuda_dev_id);
-            sptAssert(sptCudaSparseTensorDotMulEq(&Z, &X, &Y) == 0);
+            sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
         }
     }
 
-    if(argc >= 6) {
-        fo = fopen(argv[5], "w");
-        sptAssert(fo != NULL);
-        sptAssert(sptDumpSparseTensor(&Z, 1, fo) == 0);
+    sptFreeSparseTensor(&X);
+    sptFreeKruskalTensor(&ktensor);
+
+    if(argc >= 7) {
+        // Dump ktensor to files
+        fo = fopen(argv[6], "w");
+        sptAssert( sptDumpKruskalTensor(&ktensor, 0, fo) == 0 );
         fclose(fo);
     }
-
-    sptFreeSparseTensor(&X);
-    sptFreeSparseTensor(&Y);
-    sptFreeSparseTensor(&Z);
 
     return 0;
 }

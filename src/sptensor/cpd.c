@@ -46,7 +46,7 @@ double CpdAlsStep(
 
   sptValue alpha = 1.0, beta = 0.0;
   char const notrans = 'N';
-  char const trans = 'T';
+  // char const trans = 'T';
   char const uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;

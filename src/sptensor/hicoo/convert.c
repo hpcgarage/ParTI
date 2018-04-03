@@ -117,6 +117,7 @@ static int sptEqualWithTwoCoordinates(
     return 1;
 }
 
+#if 0
 /**
  * Check if a nonzero item is in the range of two given coordinates, in the order of mode-0,...,N-1. 
  * @param tsr    a pointer to a sparse tensor
@@ -135,7 +136,9 @@ static int sptCoordinatesInRange(
     }
     return 0;
 }
+#endif
 
+#if 0
 /**
  * Compute the beginning of the next block
  * @param tsr    a pointer to a sparse tensor
@@ -158,6 +161,7 @@ static int sptNextBlockBegin(
 
     return 0;
 }
+#endif
 
 
 /**
@@ -203,6 +207,7 @@ static int sptLocateBeginCoord(
 }
 
 
+#if 0
 /**
  * Compute the strides for kernels, mode order N-1, ..., 0 (row-like major)
  * @param tsr    a pointer to a sparse tensor
@@ -227,11 +232,11 @@ static int sptKernelStrides(
 
     return 0;
 }
+#endif
 
 
 
-
-
+#if 0
 /**
  * Compute the end of this kernel
  * @param tsr    a pointer to a sparse tensor
@@ -252,6 +257,7 @@ static int sptKernelEnd(
 
     return 0;
 }
+#endif
 
 
 

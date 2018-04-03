@@ -143,13 +143,23 @@ int main(int argc, char * const argv[]) {
         }
         printf("tk: %d, tb: %d\n", tk, tb);
         sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, tk, tb, &ktensor) == 0);
-    } /* else {
-         sptCudaSetDevice(cuda_dev_id);
-         sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } */
+    } 
 
-    // for(int it=0; it<nloops; ++it) {
-    // }
+
+    for(int it=0; it<nloops; ++it) {
+        if(cuda_dev_id == -2) {
+            tk = 1;
+            sptAssert(sptCpdAlsHiCOO(&hitsr, R, niters, tol, &ktensor) == 0);
+        } else if(cuda_dev_id == -1) {
+            omp_set_num_threads(tk);
+            #pragma omp parallel
+            {
+                tk = omp_get_num_threads();
+            }
+            printf("tk: %d, tb: %d\n", tk, tb);
+            sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, tk, tb, &ktensor) == 0);
+        } 
+    }
 
     if(fo != NULL) {
         // Dump ktensor to files
