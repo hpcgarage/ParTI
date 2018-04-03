@@ -872,7 +872,7 @@ __global__ void spt_MTTKRPKernelRankSplitHiCOORB_3D_MatrixBlocked_SM(
 
 
 
-/* impl_num = 16  Matrix Blocked, 2-D, with rank blocking.
+/* impl_num = 16  Matrix Blocked, 2-D, with rank blocking. TODO: BUG EXISTS.
  * + switch according to block size
  * use shared memory for three matrices
  * Limitation: max_R * blockDim.y (max_nnz) <= 1024.

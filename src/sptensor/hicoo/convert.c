@@ -624,8 +624,10 @@ int sptSparseTensorToHiCOO(
             /* z in the same block with last z */
             if (sptEqualWithTwoCoordinates(block_begin, block_begin_prior, nmodes) == 1)
             {
+                /* ne: #Elements in current block */
                 ++ ne;
             } else { /* New block */
+                /* ne: #Elements in the last block */
                 /* Append block bptr and bidx */
                 sptAppendNnzIndexVector(&hitsr->bptr, (sptBlockIndex)z);
                 for(sptIndex m=0; m<nmodes; ++m)
@@ -635,24 +637,37 @@ int sptSparseTensorToHiCOO(
 
                 /* ne: old block's number of nonzeros */
                 // if(chunk_size + ne > sc || ne >= sc) { 
-                if(chunk_size + ne > sc && chunk_size > 0) {    // calculate the prior block
+                // if(chunk_size + ne >= sc && chunk_size > 0) {    // calculate the prior block
+                //     /* Append a chunk ending by the old block */
+                //     sptAppendNnzIndexVector(&hitsr->cptr, nb-1);
+                //     // printf("cptr 2:\n");
+                //     // sptDumpNnzIndexVector(&hitsr->cptr, stdout);
+                //     ++ nc;
+                //     chunk_size = ne;
+                // } else {
+                //     chunk_size += ne;
+                // }
+
+                if(chunk_size + ne >= sc) {    // calculate the prior block
                     /* Append a chunk ending by the old block */
-                    sptAppendNnzIndexVector(&hitsr->cptr, nb-1);
+                    sptAppendNnzIndexVector(&hitsr->cptr, nb);
                     // printf("cptr 2:\n");
                     // sptDumpNnzIndexVector(&hitsr->cptr, stdout);
+                    // printf("nb: %u, chunk_size: %u, ne: %u\n", nb, chunk_size, ne);
                     ++ nc;
-                    chunk_size = ne;
+                    chunk_size = 0;
                 } else {
                     chunk_size += ne;
                 }
 
                 ++ nb;
                 ne = 1;              
-            }
+            } // End new block
             #if PARTI_DEBUG == 5
                 printf("nk: %u, nc: %u, nb: %u, ne: %u, chunk_size: %lu\n\n", nk, nc, nb, ne, chunk_size);
             #endif
-        }
+
+        }   // End z loop
         
     }
     sptAssert(nb <= nnz);
