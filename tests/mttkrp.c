@@ -19,9 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <omp.h>
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
+#ifdef PARTI_USE_OPENMP
+#include <omp.h>
+#endif
+
 
 void print_usage(int argc, char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
@@ -50,7 +53,6 @@ int main(int argc, char ** argv) {
     sptIndex R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
-    int nthreads;
     int impl_num = 0;
     int use_reduce = 1; // Need to choose from two omp parallel approaches
     int nt = 1;
@@ -199,7 +201,6 @@ int main(int argc, char ** argv) {
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-    sptIndex stride = U[0]->stride;
 
     /* Set zeros for temporary copy_U, for mode-"mode" */
     char * bytestr;
@@ -245,7 +246,7 @@ int main(int argc, char ** argv) {
 
     /* For warm-up caches, timing not included */
     if(cuda_dev_id == -2) {
-        nthreads = 1;
+        nt = 1;
         sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
     } else if(cuda_dev_id == -1) {
         printf("nt: %d\n", nt);
@@ -268,7 +269,7 @@ int main(int argc, char ** argv) {
     for(int it=0; it<niters; ++it) {
         // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
         if(cuda_dev_id == -2) {
-            nthreads = 1;
+            nt = 1;
             sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
             printf("nt: %d\n", nt);

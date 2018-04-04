@@ -24,7 +24,7 @@ endif()
 # Check for implementations
 option(USE_ICC "Use ICC" OFF)   # Only support gcc or icc.
 option(USE_OPENMP "Use OPENMP" ON)  # Always ON
-option(USE_CUDA "Use NVIDIA CUDA library" ON)
+option(USE_CUDA "Use NVIDIA CUDA library" OFF)
 option(USE_MPI "Use MPI" OFF)
 
 # Check for BLAS libraries
@@ -71,6 +71,7 @@ else()
 endif()
 
 
+# Require MPICC_PATH
 if(USE_MPI)
     # MPI settings
     add_definitions(-DPARTI_USE_MPI)
@@ -130,6 +131,7 @@ if(USE_LAPACK)
     # link_libraries(lapack blas)
 endif()
 
+# Require MAGMA_DIR
 if(USE_MAGMA)
     # Use MAGMA lib
     find_library(
@@ -156,6 +158,7 @@ if(USE_OpenBLAS)
     link_libraries(${OpenBLAS_LIBRARIES})
 endif()
 
+# Require MKL_DIR
 if(USE_MKL)
     # Use Intel MKL lib
     # find_package(MKL REQUIRED)
