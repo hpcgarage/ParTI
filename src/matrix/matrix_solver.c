@@ -27,16 +27,16 @@
   #include "magma_lapack.h"
 #endif
 
-int sptRankMatrixSolveNormals(
+int sptMatrixSolveNormals(
   sptIndex const mode,
   sptIndex const nmodes,
-  sptRankMatrix ** aTa,
-  sptRankMatrix * rhs)
+  sptMatrix ** aTa,
+  sptMatrix * rhs)
 {
   int rank = (int)(aTa[0]->ncols);
   int stride = (int)(aTa[0]->stride);
 
-  sptRankMatrixDotMulSeqTriangle(mode, nmodes, aTa);
+  sptMatrixDotMulSeqTriangle(mode, nmodes, aTa);
 
   int info;
   char uplo = 'L';
@@ -65,7 +65,7 @@ int sptRankMatrixSolveNormals(
     int * ipiv = (int*)malloc(rank * sizeof(int));  
 
     /* restore gram matrix */
-    sptRankMatrixDotMulSeqTriangle(mode, nmodes, aTa);
+    sptMatrixDotMulSeqTriangle(mode, nmodes, aTa);
 
     sgesv_(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
     // lapackf77_sgesv(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
