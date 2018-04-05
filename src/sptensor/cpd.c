@@ -20,8 +20,10 @@
 #include <ParTI.h>
 #include <assert.h>
 #include <math.h>
-#include "magma_v2.h"
-#include "magma_lapack.h"
+#ifdef PARTI_USE_MAGMA
+  #include "magma_v2.h"
+  #include "magma_lapack.h"
+#endif
 #include "sptensor.h"
 
 
@@ -34,28 +36,37 @@ double CpdAlsStep(
   sptValue * const lambda)
 {
   sptIndex const nmodes = spten->nmodes;
+  sptIndex const stride = mats[0]->stride;
   double fit = 0;
 
   for(sptIndex m=0; m < nmodes; ++m) {
-    assert(spten->ndims[m] == mats[m]->nrows);
-    assert(mats[m]->ncols == rank);
+    sptAssert(spten->ndims[m] == mats[m]->nrows);
+    sptAssert(mats[m]->ncols == rank);
   }
 
   sptValue alpha = 1.0, beta = 0.0;
+  char const notrans = 'N';
+  // char const trans = 'T';
+  char const uplo = 'L';
+  int blas_rank = (int) rank;
+  int blas_stride = (int) stride;
 
   sptMatrix * tmp_mat = mats[nmodes];
   sptMatrix ** ata = (sptMatrix **)malloc((nmodes+1) * sizeof(*ata)); // symmetric matrices, but in column-major
   for(sptIndex m=0; m < nmodes+1; ++m) {
     ata[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
-    sptNewMatrix(ata[m], rank, rank);
+    sptAssert(sptNewMatrix(ata[m], rank, rank) == 0);
+    sptAssert(mats[m]->stride == ata[m]->stride);
   }
 
   /* Compute all "ata"s */
   for(sptIndex m=0; m < nmodes; ++m) {
-    /* ata[m] = mats[m]^T * mats[m]) */
-    // cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
-    blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
-      mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
+    /* ata[m] = mats[m]^T * mats[m]), actually do A * A' due to row-major mats, and output an upper triangular matrix. */
+    int blas_nrows = (int)(mats[m]->nrows);
+    ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
+      mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
+    // blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
+    //   mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
   }
   // printf("Initial mats:\n");
   // for(size_t m=0; m < nmodes+1; ++m)
@@ -66,15 +77,7 @@ double CpdAlsStep(
 
 
   double oldfit = 0;
-
-  // timer_reset(&g_timers[TIMER_ATA]);
-  // Timer itertime;
-  // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
-
-  sptIndexVector mats_order;
-  sptNewIndexVector(&mats_order, nmodes, nmodes);
-  int * ipiv = (int*)malloc(rank * sizeof(int));
-  int info;
+  sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
 
 
   for(sptIndex it=0; it < niters; ++it) {
@@ -88,38 +91,22 @@ double CpdAlsStep(
       tmp_mat->nrows = mats[m]->nrows;
 
       /* Factor Matrices order */
-      mats_order.data[0] = m;
+      mats_order[0] = m;
       for(sptIndex i=1; i<nmodes; ++i)
-          mats_order.data[i] = (m+i) % nmodes;
-      // sptDumpSizeVector(&mats_order, stdout);
+          mats_order[i] = (m+i) % nmodes; 
 
       // mats[nmodes]: row-major
-      sptAssert (sptMTTKRP(spten, mats, mats_order.data, m) == 0);
+      sptAssert (sptMTTKRP(spten, mats, mats_order, m) == 0);
       // printf("sptMTTKRP mats[nmodes]:\n");
       // sptDumpMatrix(mats[nmodes], stdout);
 
       // Column-major calculation
-      sptMatrixDotMulSeqCol(m, nmodes, ata);
-      // printf("sptMatrixDotMulSeqCol ata[nmodes]:\n");
-      // sptDumpMatrix(ata[nmodes], stdout);
+      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * stride * sizeof(sptValue));
 
-      memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * mats[m]->stride * sizeof(sptValue));
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
-      // LAPACKE_sgesv(LAPACK_ROW_MAJOR, rank, rank, ata[nmodes]->values, ata[nmodes]->stride, ipiv, tmp_mat->values, tmp_mat->stride);
-      magma_sgesv(rank, mats[m]->nrows, ata[nmodes]->values, ata[nmodes]->stride, ipiv, mats[m]->values, mats[m]->stride, &info);
-      sptAssert ( info == 0 );
+      sptAssert ( sptMatrixSolveNormals(m, nmodes, ata, mats[m]) == 0 );
       // printf("Inverse mats[m]:\n");
-      // sptDumpMatrix(mats[m], stdout);
-
-
-      /* sptMatrixMultiply(tmp_mat, ata[nmodes], mats[m]); */
-      // cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
-      //   tmp_mat->nrows, rank, mats[m]->ncols,
-      //   1.0, tmp_mat->values, tmp_mat->stride,
-      //   unitMat->values, unitMat->stride,
-      //   0.0, mats[m]->values, mats[m]->stride);
-      // printf("Update mats[m]:\n");
-      // sptDumpMatrix(mats[m], stdout);
+      // sptDumpRankMatrix(mats[m], stdout);
 
       /* Normalized mats[m], store the norms in lambda. Use different norms to avoid precision explosion. */
       if (it == 0 ) {
@@ -135,12 +122,11 @@ double CpdAlsStep(
       // printf("\n\n");
 
       /* ata[m] = mats[m]^T * mats[m]) */
-      // cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, rank, rank, mats[m]->nrows, 1.0, mats[m]->values, mats[m]->stride, mats[m]->values, mats[m]->stride, 0.0, ata[m]->values, ata[m]->stride);
-      blasf77_sgemm("N", "T", (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha, mats[m]->values, (magma_int_t*)&(mats[m]->stride), mats[m]->values, (magma_int_t*)&(mats[m]->stride), &beta, ata[m]->values, (magma_int_t*)&(ata[m]->stride));
+      int blas_nrows = (int)(mats[m]->nrows);
+      ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
+        mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
       // printf("Update ata[m]:\n");
       // sptDumpMatrix(ata[m], stdout);
-
-      // timer_stop(&modetime[m]);
 
     } // Loop nmodes
 
@@ -153,11 +139,6 @@ double CpdAlsStep(
 
     printf("  its = %"PARTI_PRI_INDEX " ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
         it+1, its_time, fit, fit - oldfit);
-    // for(IndexType m=0; m < nmodes; ++m) {
-    //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
-    //       modetime[m].seconds);
-    // }
-
     if(it > 0 && fabs(fit - oldfit) < tol) {
       break;
     }
@@ -171,9 +152,7 @@ double CpdAlsStep(
     sptFreeMatrix(ata[m]);
   }
   free(ata);
-  sptFreeIndexVector(&mats_order);
-  free(ipiv);
-  // free(modetime);
+  free(mats_order);
 
   return fit;
 }
@@ -187,7 +166,9 @@ int sptCpdAls(
   sptKruskalTensor * ktensor)
 {
   sptIndex nmodes = spten->nmodes;
+#ifdef PARTI_USE_MAGMA
   magma_init();
+#endif
 
   /* Initialize factor matrices */
   sptIndex max_dim = sptMaxIndexArray(spten->ndims, nmodes);
@@ -196,11 +177,12 @@ int sptCpdAls(
     mats[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
   }
   for(sptIndex m=0; m < nmodes; ++m) {
-    // assert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
-    // assert(sptConstantMatrix(mats[m], 1) == 0);
-    assert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
+    sptAssert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
+    // sptAssert(sptConstantMatrix(mats[m], 1) == 0);
+    sptAssert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
   }
-  sptNewMatrix(mats[nmodes], max_dim, rank);
+  sptAssert(sptNewMatrix(mats[nmodes], max_dim, rank) == 0);
+  sptAssert(sptConstantMatrix(mats[nmodes], 0) == 0);
 
 
   sptTimer timer;
@@ -215,7 +197,9 @@ int sptCpdAls(
 
   ktensor->factors = mats;
 
+#ifdef PARTI_USE_MAGMA
   magma_finalize();
+#endif
   sptFreeMatrix(mats[nmodes]);
 
   return 0;
