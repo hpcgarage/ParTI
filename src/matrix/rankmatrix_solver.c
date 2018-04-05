@@ -23,9 +23,7 @@
 #include <time.h>
 #include <math.h>
 #include "../error/error.h"
-#ifdef PARTI_USE_MAGMA
-  #include "magma_lapack.h"
-#endif
+// #include "magma_lapack.h"
 
 int sptRankMatrixSolveNormals(
   sptIndex const mode,
@@ -71,7 +69,7 @@ int sptRankMatrixSolveNormals(
     // lapackf77_sgesv(&rank, &nrhs, neqs, &stride, ipiv, rhs->values, &stride, &info);
     // magma_sgesv(rank, nrhs, neqs, stride, ipiv, rhs->values, stride, &info);
     if(info) {
-      printf("sgesv_ returned %d\n", info);
+      printf("magma_sgesv returned %d\n", info);
     }
 
     free(ipiv);

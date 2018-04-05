@@ -20,7 +20,6 @@
 #include <math.h>
 #include <ParTI.h>
 #include "sptensor.h"
-#include <time.h>
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r);
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);

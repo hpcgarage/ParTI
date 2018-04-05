@@ -11,6 +11,19 @@ add_definitions(-DPARTI_INDEX_TYPEWIDTH=32)
 add_definitions(-DPARTI_VALUE_TYPEWIDTH=32)
 add_definitions(-DPARTI_ELEMENT_INDEX_TYPEWIDTH=8)
 
+# Check for implementations
+option(USE_CUDA "Use NVIDIA CUDA library" ON)
+option(USE_ICC "Use ICC" OFF)
+option(USE_OPENMP "Use OPENMP" ON)
+option(USE_MPI "Use MPI" OFF)
+
+# Check for libraries
+option(USE_LAPACK "Use LAPACK library" ON)
+option(USE_BLAS "Use LAPACK library" ON)
+option(USE_OpenBLAS "Use OpenBLAS library" OFF)
+option(USE_MAGMA "Use MAGMA library" OFF)
+option(USE_MKL "Use Intel MKL library" OFF)
+
 # Check for debug mode
 if (DEFINED DEBUG)                                                     
   message("Building in DEBUG mode. Expect for plenty of prints.")
@@ -21,65 +34,13 @@ else()
   set(CMAKE_BUILD_TYPE Release)
 endif() 
 
-# Check for implementations
-option(USE_ICC "Use ICC" OFF)   # Only support gcc or icc.
-option(USE_OPENMP "Use OPENMP" ON)  # Always ON
-option(USE_CUDA "Use NVIDIA CUDA library" OFF)
-option(USE_MPI "Use MPI" OFF)
 
-# Check for BLAS libraries
-option(USE_BLAS "Use LAPACK library" ON)
-option(USE_LAPACK "Use LAPACK library" ON)
-option(USE_OpenBLAS "Use OpenBLAS library" OFF)
-option(USE_MAGMA "Use MAGMA library" OFF)
-option(USE_MKL "Use Intel MKL library" OFF)
-
-
-if(USE_OPENMP)
-    # OpenMP settings
-    add_definitions(-DPARTI_USE_OPENMP)
-    if(USE_ICC)
-        # icc compiler
-        if(DEFINED DEBUG)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
-        else()
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
-            # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
-        endif()
-    else()
-        # gcc compiler
-        if(DEFINED DEBUG)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O0 -g -DADD_")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O0 -g -DADD_")
-        else()
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
-            # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
-        endif()
-    endif()
-else()
-    # Sequential settings
-    if(DEFINED DEBUG)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O0 -g -DADD_")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O0 -g -DADD_")
-    else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
-    endif()
-endif()
-
-
-# Require MPICC_PATH
 if(USE_MPI)
-    # MPI settings
     add_definitions(-DPARTI_USE_MPI)
     set(CMAKE_C_COMPILER "${MPICC_PATH}" CACHE BOOL ON)
 endif()
 
 if(USE_CUDA)
-    # CUDA settings
     find_package(CUDA REQUIRED)
     add_definitions(-DPARTI_USE_CUDA)
     link_libraries(${CUDA_cusparse_LIBRARY})
@@ -91,12 +52,41 @@ if(USE_CUDA)
     endif()
 endif()
 
+if(USE_OPENMP)
+    add_definitions(-DPARTI_USE_OPENMP)
+    if(USE_ICC)
+        if(DEFINED DEBUG)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
+        else()
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
+            # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
+        endif()
+    else()
+        if(DEFINED DEBUG)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O0 -g -DADD_")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O0 -g -DADD_")
+        else()
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+            # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -fopenmp -O3 -DADD_")
+        endif()
+    endif()
+else()
+    if(DEFINED DEBUG)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O0 -g -DADD_")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O0 -g -DADD_")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -O3 -DADD_")
+    endif()
+endif()
 
 
 
 
 if(USE_BLAS)
-    # Use embedded BLAS lib
     find_package(BLAS)
     add_definitions(-DPARTI_USE_BLAS)
     include_directories(${BLAS_INCLUDE_DIRS})
@@ -109,7 +99,6 @@ if(USE_BLAS)
 endif()
 
 if(USE_LAPACK)
-    # Use embedded LAPACK lib
     find_package(LAPACK)
     add_definitions(-DPARTI_USE_LAPACK)
     include_directories(${LAPACK_INCLUDE_DIRS})
@@ -131,9 +120,7 @@ if(USE_LAPACK)
     # link_libraries(lapack blas)
 endif()
 
-# Require MAGMA_DIR
 if(USE_MAGMA)
-    # Use MAGMA lib
     find_library(
         MAGMA_LIBRARIES
         NAMES magma
@@ -151,16 +138,13 @@ if(USE_MAGMA)
 endif()
 
 if(USE_OpenBLAS)
-    # Use OpenBLAS lib
     find_package(OpenBLAS REQUIRED)
     add_definitions(-DPARTI_USE_OpenBLAS)
     include_directories(${OpenBLAS_INCLUDE_DIRS})
     link_libraries(${OpenBLAS_LIBRARIES})
 endif()
 
-# Require MKL_DIR
 if(USE_MKL)
-    # Use Intel MKL lib
     # find_package(MKL REQUIRED)
     find_library(
         MKL_LIBRARIES
@@ -184,7 +168,6 @@ include_directories("include")
 link_libraries("m")
 
 if(USE_CUDA)
-    # Include CUDA codes
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.cu" "src/*.h" "include/*.h")
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
     list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
@@ -200,7 +183,6 @@ if(USE_CUDA)
         CUDA_ADD_CUBLAS_TO_TARGET(ParTI_s)
     endif()
 else()
-    # Include OpenMP and sequential codes
     file(GLOB_RECURSE PARTI_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/*.c" "src/*.h" "include/*.h")
     file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "src/backup/*.c" "src/backup/*.cu")
     list(REMOVE_ITEM PARTI_SRC ${IGNORED_FILES})
@@ -221,5 +203,5 @@ if(BUILD_STATIC)
     set_target_properties(ParTI_s PROPERTIES C_STANDARD 99)
 endif()
 
-# add_subdirectory("examples")
+add_subdirectory("examples")
 add_subdirectory("tests")

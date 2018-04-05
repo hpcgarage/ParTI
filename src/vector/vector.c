@@ -535,7 +535,7 @@ int sptAppendBlockIndexVectorWithVector(sptBlockIndexVector *vec, const sptBlock
     sptNnzIndex newlen = vec->len + append_vec->len;
     if(vec->cap <= newlen) {
         sptNnzIndex newcap = vec->cap + append_vec->cap;
-        sptBlockIndex *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        sptBlockIndexVector *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         spt_CheckOSError(!newdata, "BlkIdxVec Append BlkIdxVec");
         vec->cap = newcap;
         vec->data = newdata;
@@ -676,7 +676,7 @@ int sptAppendNnzIndexVectorWithVector(sptNnzIndexVector *vec, const sptNnzIndexV
     sptNnzIndex newlen = vec->len + append_vec->len;
     if(vec->cap <= newlen) {
         sptNnzIndex newcap = vec->cap + append_vec->cap;
-        sptNnzIndex *newdata = realloc(vec->data, newcap * sizeof *vec->data);
+        sptNnzIndexVector *newdata = realloc(vec->data, newcap * sizeof *vec->data);
         spt_CheckOSError(!newdata, "NnzIdxVec Append NnzIdxVec");
         vec->cap = newcap;
         vec->data = newdata;

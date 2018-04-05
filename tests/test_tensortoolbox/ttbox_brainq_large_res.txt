@@ -1,0 +1,39 @@
+R: 16, mode: 3
+matricization time: 0.339323 sec
+Sparse tensorization time: 1.014154 sec
+matricization time: 0.194948 sec
+Sparse tensorization time: 0.773932 sec
+matricization time: 0.192923 sec
+Sparse tensorization time: 0.752099 sec
+matricization time: 0.192246 sec
+Sparse tensorization time: 0.781850 sec
+matricization time: 0.191076 sec
+Sparse tensorization time: 0.746885 sec
+time: 3.092996 sec
+
+R: 16, mode: 2
+matricization time: 0.190801 sec
+Dense tensorization time: 0.040729 sec
+matricization time: 0.189955 sec
+Dense tensorization time: 0.000519 sec
+matricization time: 0.194192 sec
+Dense tensorization time: 0.000233 sec
+matricization time: 0.194642 sec
+Dense tensorization time: 0.000227 sec
+matricization time: 0.191389 sec
+Dense tensorization time: 0.000233 sec
+time: 1.408984 sec
+
+R: 16, mode: 1
+matricization time: 0.191179 sec
+Sparse tensorization time: 0.113007 sec
+matricization time: 0.192377 sec
+Sparse tensorization time: 0.150092 sec
+matricization time: 0.190777 sec
+Sparse tensorization time: 0.148075 sec
+matricization time: 0.188257 sec
+Sparse tensorization time: 0.149097 sec
+matricization time: 0.190112 sec
+Sparse tensorization time: 0.112050 sec
+time: 2.316801 sec
+

@@ -19,10 +19,8 @@
 #include <ParTI.h>
 #include <assert.h>
 #include <math.h>
-#ifdef PARTI_USE_MAGMA
-  #include "magma_v2.h"
-  #include "magma_lapack.h"
-#endif
+// #include "magma_v2.h"
+// #include "magma_lapack.h"
 #include "hicoo.h"
 
 
@@ -54,7 +52,7 @@ double CpdAlsStepHiCOO(
   sptRankMatrix ** ata = (sptRankMatrix **)malloc((nmodes+1) * sizeof(*ata));
   for(sptIndex m=0; m < nmodes+1; ++m) {
     ata[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-    sptAssert(sptNewRankMatrix(ata[m], rank, rank) == 0);
+    sptNewRankMatrix(ata[m], rank, rank);
     sptAssert(mats[m]->stride == ata[m]->stride);
   }
 
@@ -73,6 +71,12 @@ double CpdAlsStepHiCOO(
   //   sptDumpRankMatrix(ata[m], stdout);
 
   double oldfit = 0;
+
+  // timer_reset(&g_timers[TIMER_ATA]);
+  // Timer itertime;
+  // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
+
+  /* For MttkrpHyperTensor with size rank. */
   sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
 
   for(sptIndex it=0; it < niters; ++it) {
@@ -90,7 +94,7 @@ double CpdAlsStepHiCOO(
       for(sptIndex i=1; i<nmodes; ++i)
           mats_order[i] = (m+i) % nmodes;     
 
-      sptAssert (sptMTTKRPHiCOO_MatrixTiling(hitsr, mats, mats_order, m) == 0);
+      sptAssert (sptMTTKRPHiCOO_MatrixTiling(hitsr, mats, mats_order, m) == 0);  
       // printf("sptMTTKRPHiCOO_MatrixTiling mats[nmodes]:\n");
       // sptDumpRankMatrix(mats[nmodes], stdout);
 
@@ -116,9 +120,11 @@ double CpdAlsStepHiCOO(
       /* ata[m] = mats[m]^T * mats[m]) */
       int blas_nrows = (int)(mats[m]->nrows);
       ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
-        mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
+      mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
       // printf("Update ata[m]:\n");
       // sptDumpRankMatrix(ata[m], stdout);
+
+      // timer_stop(&modetime[m]);
 
     } // Loop nmodes
 
@@ -131,6 +137,10 @@ double CpdAlsStepHiCOO(
 
     printf("  its = %3u ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
         it+1, its_time, fit, fit - oldfit);
+    // for(IndexType m=0; m < nmodes; ++m) {
+    //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
+    //       modetime[m].seconds);
+    // }
     if(it > 0 && fabs(fit - oldfit) < tol) {
       break;
     }
@@ -145,6 +155,7 @@ double CpdAlsStepHiCOO(
   }
   free(ata);
   free(mats_order);
+  // free(modetime);
 
 
   return fit;
@@ -159,9 +170,7 @@ int sptCpdAlsHiCOO(
   sptRankKruskalTensor * ktensor)
 {
   sptIndex nmodes = hitsr->nmodes;
-#ifdef PARTI_USE_MAGMA
-  magma_init();
-#endif
+  // magma_init();
 
   /* Initialize factor matrices */
   sptIndex max_dim = 0;
@@ -173,9 +182,9 @@ int sptCpdAlsHiCOO(
     mats[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
   }
   for(sptIndex m=0; m < nmodes; ++m) {
-    sptAssert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
-    // sptAssert(sptConstantRankMatrix(mats[m], 1) == 0);
-    sptAssert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    // assert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    // assert(sptConstantRankMatrix(mats[m], 1) == 0);
+    assert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
   }
   sptNewRankMatrix(mats[nmodes], max_dim, rank);
   printf("max_dim: %u\n", max_dim);
@@ -192,9 +201,7 @@ int sptCpdAlsHiCOO(
 
   ktensor->factors = mats;
 
-#ifdef PARTI_USE_MAGMA
-  magma_finalize();
-#endif
+  // magma_finalize();
   sptFreeRankMatrix(mats[nmodes]);
 
   return 0;

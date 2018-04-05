@@ -21,7 +21,7 @@
 #include <string.h>
 #include "../error/error.h"
 
-int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp)
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 {
     int iores;
     sptIndex mode;
@@ -41,12 +41,12 @@ int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp)
     iores = fprintf(fp, "fit: %lf\n", ktsr->fit);
     fprintf(fp, "lambda:\n");    
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
-        fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
+        iores = fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
+        spt_CheckOSError(iores != 0, "KruskalTns Dump");
     }
-    fprintf(fp, "\n");
 
     fprintf(fp, "Factor matrices:\n");
-    for(mode=0; mode < ktsr->nmodes; ++mode) {
+    for(mode=0; mode < ktsr->nmodes+1; ++mode) {
         iores = sptDumpMatrix(ktsr->factors[mode], fp);
         spt_CheckOSError(iores != 0, "KruskalTns Dump");
     }
@@ -54,7 +54,7 @@ int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp)
 }
 
 
-int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp)
+int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 {
     int iores;
     sptIndex mode;
@@ -75,12 +75,12 @@ int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp)
     iores = fprintf(fp, "fit: %lf\n", ktsr->fit);
     fprintf(fp, "lambda:\n");    
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
-        fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
+        iores = fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
+        spt_CheckOSError(iores != 0, "KruskalTns Dump");
     }
-    fputs("\n", fp);
 
     fprintf(fp, "Factor matrices:\n");
-    for(mode=0; mode < ktsr->nmodes; ++mode) {
+    for(mode=0; mode < ktsr->nmodes+1; ++mode) {
         iores = sptDumpRankMatrix(ktsr->factors[mode], fp);
         spt_CheckOSError(iores != 0, "KruskalTns Dump");
     }

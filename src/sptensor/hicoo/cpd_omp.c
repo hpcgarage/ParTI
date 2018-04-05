@@ -19,13 +19,10 @@
 #include <ParTI.h>
 #include <assert.h>
 #include <math.h>
-#ifdef PARTI_USE_MAGMA
-  #include "magma_v2.h"
-  #include "magma_lapack.h"
-#endif
+#include "magma_v2.h"
+#include "magma_lapack.h"
 #include "hicoo.h"
 
-#ifdef PARTI_USE_OPENMP
 
 double OmpCpdAlsStepHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
@@ -42,16 +39,12 @@ double OmpCpdAlsStepHiCOO(
   sptIndex const nmodes = hitsr->nmodes;
   sptIndex const stride = mats[0]->stride;
   double fit = 0;
-
   omp_set_num_threads(tk);
-
-#ifdef PARTI_USE_MAGMA
   magma_set_omp_numthreads(tk);
   magma_set_lapack_numthreads(tk);
   // printf("magma nthreads: %d\n", magma_get_parallel_numthreads());
   // printf("magma nthreads: %d\n", magma_get_omp_numthreads());
   // printf("magma lapack nthreads: %d\n", magma_get_lapack_numthreads());
-#endif
 
   // sptAssert(stride == rank);  // for correct column-major magma functions
   for(sptIndex m=0; m < nmodes; ++m) {
@@ -61,7 +54,7 @@ double OmpCpdAlsStepHiCOO(
 
   sptValue alpha = 1.0, beta = 0.0;
   char const notrans = 'N';
-  // char const trans = 'T';
+  char const trans = 'T';
   char const uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;
@@ -70,7 +63,7 @@ double OmpCpdAlsStepHiCOO(
   sptRankMatrix ** ata = (sptRankMatrix **)malloc((nmodes+1) * sizeof(*ata));
   for(sptIndex m=0; m < nmodes+1; ++m) {
     ata[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-    sptAssert(sptNewRankMatrix(ata[m], rank, rank) == 0);
+    sptNewRankMatrix(ata[m], rank, rank);
     sptAssert(mats[m]->stride == ata[m]->stride);
   }
 
@@ -78,6 +71,8 @@ double OmpCpdAlsStepHiCOO(
   for(sptIndex m=0; m < nmodes; ++m) {
     /* ata[m] = mats[m]^T * mats[m]), actually do A * A' due to row-major mats, and output an upper triangular matrix. */
     int blas_nrows = (int)(mats[m]->nrows);
+    // blasf77_sgemm(&notrans, &trans, (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha,
+      // mats[m]->values, (magma_int_t*)&stride, mats[m]->values, (magma_int_t*)&stride, &beta, ata[m]->values, (magma_int_t*)&stride);
     ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
       mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
   }
@@ -89,12 +84,18 @@ double OmpCpdAlsStepHiCOO(
   //   sptDumpRankMatrix(ata[m], stdout);
 
   double oldfit = 0;
+
+  // timer_reset(&g_timers[TIMER_ATA]);
+  // Timer itertime;
+  // Timer * modetime = (Timer*)malloc(nmodes*sizeof(Timer));
+
+  /* For MttkrpHyperTensor with size rank. */
   sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
 
   sptTimer tmp_timer;
   sptNewTimer(&tmp_timer, 0);
   double mttkrp_time, solver_time, norm_time, ata_time, fit_time;
-  // double sum_time = 0.0;
+  double sum_time = 0.0;
 
   for(sptIndex it=0; it < niters; ++it) {
     // printf("  its = %3lu\n", it+1);
@@ -126,7 +127,7 @@ double OmpCpdAlsStepHiCOO(
 
       sptStartTimer(tmp_timer);
 #ifdef PARTI_USE_OPENMP
-      #pragma omp parallel for num_threads(tk)
+      #pragma omp parallel for
 #endif
       for(sptIndex i=0; i<mats[m]->nrows * stride; ++i)
         mats[m]->values[i] = tmp_mat->values[i];
@@ -158,13 +159,15 @@ double OmpCpdAlsStepHiCOO(
       /* ata[m] = mats[m]^T * mats[m]) */
       sptStartTimer(tmp_timer);
       int blas_nrows = (int)(mats[m]->nrows);
+      // blasf77_sgemm(&notrans, &trans, (magma_int_t*)&rank, (magma_int_t*)&rank, (magma_int_t*)&(mats[m]->nrows), &alpha, mats[m]->values, (magma_int_t*)&stride, mats[m]->values, (magma_int_t*)&stride, &beta, ata[m]->values, (magma_int_t*)&stride);
       ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
-        mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
+      mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
       sptStopTimer(tmp_timer);
       ata_time = sptPrintElapsedTime(tmp_timer, "update ata");
       // printf("Update ata[m]:\n");
       // sptDumpRankMatrix(ata[m], stdout);
 
+      // timer_stop(&modetime[m]);
       // sum_time += mttkrp_time + norm_time + ata_time;
 
     } // Loop nmodes
@@ -181,6 +184,10 @@ double OmpCpdAlsStepHiCOO(
 
     printf("  its = %3u ( %.3lf s ) fit = %0.5f  delta = %+0.4e\n",
         it+1, its_time, fit, fit - oldfit);
+    // for(IndexType m=0; m < nmodes; ++m) {
+    //   printf("     mode = %1"PF_INDEX" (%0.3fs)\n", m+1,
+    //       modetime[m].seconds);
+    // }
     if(it > 0 && fabs(fit - oldfit) < tol) {
       break;
     }
@@ -195,6 +202,7 @@ double OmpCpdAlsStepHiCOO(
   }
   free(ata);
   free(mats_order);
+  // free(modetime);
 
   return fit;
 }
@@ -210,9 +218,7 @@ int sptOmpCpdAlsHiCOO(
   sptRankKruskalTensor * ktensor)
 {
   sptIndex nmodes = hitsr->nmodes;
-#ifdef PARTI_USE_MAGMA
   magma_init();
-#endif
 
   /* Initialize factor matrices */
   sptIndex max_dim = 0;
@@ -224,11 +230,11 @@ int sptOmpCpdAlsHiCOO(
     mats[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
   }
   for(sptIndex m=0; m < nmodes; ++m) {
-    sptAssert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    // assert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
     // assert(sptConstantRankMatrix(mats[m], 1) == 0);
-    sptAssert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    assert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
   }
-  sptAssert(sptNewRankMatrix(mats[nmodes], max_dim, rank) == 0);
+  sptNewRankMatrix(mats[nmodes], max_dim, rank);
   sptAssert(sptConstantRankMatrix(mats[nmodes], 0) == 0);
 
   /* determine niters or num_kernel_dim to be parallelized */
@@ -272,9 +278,7 @@ int sptOmpCpdAlsHiCOO(
 
   ktensor->factors = mats;
 
-#ifdef PARTI_USE_MAGMA
   magma_finalize();
-#endif
   sptFreeRankMatrix(mats[nmodes]);
   for(sptIndex m=0; m < nmodes; ++m) {
     if(par_iters[m] == 1) {
@@ -289,5 +293,3 @@ int sptOmpCpdAlsHiCOO(
 
   return 0;
 }
-
-#endif
