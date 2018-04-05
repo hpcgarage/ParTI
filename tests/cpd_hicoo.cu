@@ -24,7 +24,23 @@
 #include "../src/sptensor/hicoo/hicoo.h"
 
 
-int main(int argc, char * const argv[]) {
+void print_usage(int argc, char ** argv) {
+    printf("Usage: %s [options] \n", argv[0]);
+    printf("Options: -i INPUT, --input=INPUT\n");
+    printf("         -o OUTPUT, --output=OUTPUT\n");
+    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
+    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
+    printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
+    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
+    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+    printf("         -r RANK\n");
+    printf("         -t TK, --tk=TK\n");
+    printf("         -h TB, --tb=TB\n");
+    printf("\n");
+}
+
+
+int main(int argc, char ** argv) {
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
     sptSparseTensorHiCOO hitsr;
@@ -41,6 +57,12 @@ int main(int argc, char * const argv[]) {
     int impl_num = 0;
     int tk = 1;
     int tb = 1;
+
+    if(argc < 2) {
+        print_usage(argc, argv);
+        exit(1);
+    }
+
 
     for(;;) {
         static struct option long_options[] = {
@@ -100,22 +122,6 @@ int main(int argc, char * const argv[]) {
         }
     }
 
-    if(argc < 2) {
-        printf("Usage: %s [options] \n", argv[0]);
-        printf("Options: -i INPUT, --input=INPUT\n");
-        printf("         -o OUTPUT, --output=OUTPUT\n");
-        printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
-        printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
-        printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-        printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
-        printf("         -r RANK\n");
-        printf("         -t TK, --tk=TK\n");
-        printf("         -h TB, --tb=TB\n");
-        printf("\n");
-        return 1;
-    }
-
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
@@ -153,7 +159,7 @@ int main(int argc, char * const argv[]) {
 
     if(fo != NULL) {
         // Dump ktensor to files
-        sptAssert( sptDumpRankKruskalTensor(&ktensor, 0, fo) == 0 );
+        sptAssert( sptDumpRankKruskalTensor(&ktensor, fo) == 0 );
         fclose(fo);
     }
 

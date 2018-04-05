@@ -43,6 +43,7 @@ int sptCudaMatrixDotMulSeq(
     sptIndex const stride, 
     sptValue ** dev_ata);
 int sptMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptMatrix ** mats);
+int sptMatrixDotMulSeqTriangle(sptIndex const mode, sptIndex const nmodes, sptMatrix ** mats);
 int sptMatrix2Norm(sptMatrix * const A, sptValue * const lambda);
 int sptCudaMatrix2Norm(
     sptIndex const nrows,
@@ -56,6 +57,11 @@ void GetFinalLambda(
   sptIndex const nmodes,
   sptMatrix ** mats,
   sptValue * const lambda);
+int sptMatrixSolveNormals(
+  sptIndex const mode,
+  sptIndex const nmodes,
+  sptMatrix ** aTa,
+  sptMatrix * rhs);
 int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 
 /* Dense Rank matrix, ncols = small rank (<= 256) */

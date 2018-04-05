@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 
+
 /*************************************************
  * TYPES
  *************************************************/
@@ -75,6 +76,7 @@ extern "C" {
 #include "includes/ktensors.h"
 /* CPD functions */
 #include "includes/cpds.h"
+
 
 
 #ifdef __cplusplus

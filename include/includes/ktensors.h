@@ -22,7 +22,7 @@
 /* Kruskal tensor */
 int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptIndex rank); 
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
-int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp);
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp);
 double KruskalTensorFit(
   sptSparseTensor const * const spten,
   sptValue const * const __restrict lambda,
@@ -41,7 +41,7 @@ double SparseKruskalTensorInnerProduct(
 /* Rank Kruskal tensor, ncols = small rank (<= 256)  */
 int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptElementIndex rank);
 void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr);
-int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex start_index, FILE *fp);
+int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp);
 double KruskalTensorFitHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptValue const * const __restrict lambda,

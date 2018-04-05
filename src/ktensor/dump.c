@@ -21,7 +21,7 @@
 #include <string.h>
 #include "../error/error.h"
 
-int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
+int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp)
 {
     int iores;
     sptIndex mode;
@@ -54,7 +54,7 @@ int sptDumpKruskalTensor(sptKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
 }
 
 
-int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex start_index, FILE *fp)
+int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp)
 {
     int iores;
     sptIndex mode;
