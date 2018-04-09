@@ -66,8 +66,6 @@ int sptNewMatrix(sptMatrix *mtx, sptIndex const nrows, sptIndex const ncols) {
  * The random number will have a precision of 31 bits out of 51 bits
  */
 int sptRandomizeMatrix(sptMatrix *mtx, sptIndex const nrows, sptIndex const ncols) {
-  int result = sptNewMatrix(mtx, nrows, ncols);
-  spt_CheckError(result, "Mtx Randomize", NULL);
   srand(time(NULL));
   for(sptIndex i=0; i<nrows; ++i)
     for(sptIndex j=0; j<ncols; ++j) {
@@ -262,7 +260,7 @@ int sptMatrixDotMulSeq(sptIndex const mode, sptIndex const nmodes, sptMatrix ** 
         sptIndex const pm = (mode + m) % nmodes;
         sptValue const * vals = mats[pm]->values;
 #ifdef PARTI_USE_OPENMP
-    #pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for(sptIndex i=0; i < nrows; ++i) {
             for(sptIndex j=0; j < ncols; ++j) {
@@ -302,7 +300,7 @@ int sptMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptMatrix 
         sptIndex const pm = (mode + m) % nmodes;
         sptValue const * vals = mats[pm]->values;
 #ifdef PARTI_USE_OPENMP
-    #pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for(sptIndex j=0; j < ncols; ++j) {
             for(sptIndex i=0; i < nrows; ++i) {
@@ -313,6 +311,56 @@ int sptMatrixDotMulSeqCol(sptIndex const mode, sptIndex const nmodes, sptMatrix 
     
     return 0;
 }
+
+
+/* mats (aTa) only stores upper triangle elements. */
+int sptMatrixDotMulSeqTriangle(sptIndex const mode, sptIndex const nmodes, sptMatrix ** mats)
+{
+    sptIndex const nrows = mats[0]->nrows;
+    sptIndex const ncols = mats[0]->ncols;
+    sptIndex const stride = mats[0]->stride;
+    for(sptIndex m=1; m<nmodes+1; ++m) {
+        assert(mats[m]->ncols == ncols);
+        assert(mats[m]->nrows == nrows);
+    }
+
+    sptValue * ovals = mats[nmodes]->values;
+#ifdef PARTI_USE_OPENMP
+    #pragma omp parallel for schedule(static)
+#endif
+    for(sptIndex i=0; i < nrows; ++i) {
+        for(sptIndex j=0; j < ncols; ++j) {
+            ovals[j * stride + i] = 1.0;
+        }
+    }
+
+
+    for(sptIndex m=1; m < nmodes; ++m) {
+        sptIndex const pm = (mode + m) % nmodes;
+        sptValue const * vals = mats[pm]->values;
+#ifdef PARTI_USE_OPENMP
+    #pragma omp parallel for schedule(static)
+#endif
+        for(sptIndex i=0; i < nrows; ++i) {
+            for(sptIndex j=i; j < ncols; ++j) {
+                ovals[i * stride + j] *= vals[i * stride + j];
+            }
+        }
+    }
+
+    /* Copy upper triangle to lower part */
+#ifdef PARTI_USE_OPENMP
+    #pragma omp parallel for schedule(static)
+#endif
+    for(sptIndex i=0; i < nrows; ++i) {
+        for(sptIndex j=0; j < i; ++j) {
+            ovals[i * stride + j] = ovals[j * stride + i];
+        }
+    }
+    
+    return 0;
+}
+
 
 // Row-major
 int sptMatrix2Norm(sptMatrix * const A, sptValue * const lambda)
@@ -374,14 +422,14 @@ int sptMatrix2Norm(sptMatrix * const A, sptValue * const lambda)
 #endif
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp parallel for
 #endif
         for(sptIndex j=0; j < ncols; ++j) {
             lambda[j] = sqrt(lambda[j]);
         }
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp parallel for
 #endif
         for(sptIndex i=0; i < nrows; ++i) {
             for(sptIndex j=0; j < ncols; ++j) {
@@ -458,7 +506,7 @@ int sptMatrixMaxNorm(sptMatrix * const A, sptValue * const lambda)
 #endif
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp parallel for
 #endif
         for(sptIndex j=0; j < ncols; ++j) {
             if(lambda[j] < 1)
@@ -466,7 +514,7 @@ int sptMatrixMaxNorm(sptMatrix * const A, sptValue * const lambda)
         }
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp parallel for
 #endif
         for(sptIndex i=0; i < nrows; ++i) {
             for(sptIndex j=0; j < ncols; ++j) {

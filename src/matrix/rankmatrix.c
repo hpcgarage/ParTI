@@ -108,6 +108,7 @@ void sptFreeRankMatrix(sptRankMatrix *mtx) {
     mtx->stride = 0;
 }
 
+
 /* mats (aTa) only stores upper triangle elements. */
 int sptRankMatrixDotMulSeqTriangle(sptIndex const mode, sptIndex const nmodes, sptRankMatrix ** mats)
 {
