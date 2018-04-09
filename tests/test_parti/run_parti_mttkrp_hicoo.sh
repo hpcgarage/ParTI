@@ -9,7 +9,7 @@ declare -a test_tsr_names=("amazon-reviews")
 declare -a threads=("1")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 declare -a sk_range=("7")
-iters="$(seq -s ' ' 1 50)"
+iters="$(seq -s ' ' 1 10)"
 
 
 tsr_path="/scratch/jli458/BIGTENSORS"

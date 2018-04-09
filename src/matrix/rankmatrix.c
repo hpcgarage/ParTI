@@ -69,8 +69,6 @@ int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex const nrows, sptElementIndex c
  */
 int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex const nrows, sptElementIndex const ncols) 
 {
-  int result = sptNewRankMatrix(mtx, nrows, ncols);
-  spt_CheckError(result, "RankMtx Randomize", NULL);
   srand(time(NULL));
   for(sptIndex i=0; i<nrows; ++i)
     for(sptElementIndex j=0; j<ncols; ++j) {
@@ -222,14 +220,14 @@ int sptRankMatrix2Norm(sptRankMatrix * const A, sptValue * const lambda)
 #endif
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for schedule(static)
+        #pragma omp parallel for schedule(static)
 #endif
         for(sptElementIndex j=0; j < ncols; ++j) {
             lambda[j] = sqrt(lambda[j]);
         }
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp parallel for
 #endif
         for(sptIndex i=0; i < nrows; ++i) {
             for(sptElementIndex j=0; j < ncols; ++j) {
@@ -310,7 +308,7 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
 #endif
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for schedule(static)
+        #pragma omp parallel for schedule(static)
 #endif
         for(sptElementIndex j=0; j < ncols; ++j) {
             if(lambda[j] < 1)
@@ -318,7 +316,7 @@ int sptRankMatrixMaxNorm(sptRankMatrix * const A, sptValue * const lambda)
         }
 
 #ifdef PARTI_USE_OPENMP
-        #pragma omp for
+        #pragma omp parallel for
 #endif
         for(sptIndex i=0; i < nrows; ++i) {
             for(sptElementIndex j=0; j < ncols; ++j) {

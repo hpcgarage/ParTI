@@ -52,7 +52,7 @@ double CpdAlsStepHiCOO(
   sptRankMatrix ** ata = (sptRankMatrix **)malloc((nmodes+1) * sizeof(*ata));
   for(sptIndex m=0; m < nmodes+1; ++m) {
     ata[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
-    sptNewRankMatrix(ata[m], rank, rank);
+    sptAssert(sptNewRankMatrix(ata[m], rank, rank) == 0);
     sptAssert(mats[m]->stride == ata[m]->stride);
   }
 
@@ -182,11 +182,12 @@ int sptCpdAlsHiCOO(
     mats[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
   }
   for(sptIndex m=0; m < nmodes; ++m) {
-    // assert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    sptAssert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
     // assert(sptConstantRankMatrix(mats[m], 1) == 0);
-    assert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    sptAssert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
   }
-  sptNewRankMatrix(mats[nmodes], max_dim, rank);
+  sptAssert(sptNewRankMatrix(mats[nmodes], max_dim, rank) == 0);
+  sptAssert(sptConstantRankMatrix(mats[nmodes], 0) == 0);
   printf("max_dim: %u\n", max_dim);
 
   sptTimer timer;

@@ -139,6 +139,7 @@ int main(int argc, char ** argv) {
 
 
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
+    // sptSparseTensorSortIndex(&tsr, 1);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
@@ -154,6 +155,7 @@ int main(int argc, char ** argv) {
             spt_CheckError(retval, "MTTKRP HiCOO", NULL);
         }
         sptGetRandomShuffleIndices(&tsr, map_inds);
+        // sptSparseTensorSortIndex(&tsr, 1);
         // printf("map_inds:\n");
         // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
         //     sptDumpIndexVector(&map_inds[m], stdout);
