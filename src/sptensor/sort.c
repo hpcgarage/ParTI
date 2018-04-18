@@ -305,9 +305,10 @@ void sptGetRandomShuffleElements(sptSparseTensor *tsr) {
  * Randomly shuffle all indices.
  *
  * @param[in] tsr tensor to be shuffled
+ * @param[out] map_inds records the randomly generated mapping
  *
  */
-void sptGetRandomShuffleIndices(sptSparseTensor *tsr, sptIndexVector *map_inds) {
+void sptGetRandomShuffledIndices(sptSparseTensor *tsr, sptIndex ** map_inds) {
     /* Get randomly renumbering indices */
     for(sptIndex m = 0; m < tsr->nmodes; ++m) {
         sptIndex dim_len = tsr->ndims[m];
@@ -315,21 +316,11 @@ void sptGetRandomShuffleIndices(sptSparseTensor *tsr, sptIndexVector *map_inds) 
             srand(m+i+1+time(NULL));
             sptIndex new_loc = (sptIndex) (rand() % (i+1));            
             /* Swap i <-> new_loc */
-            sptIndex tmp = map_inds[m].data[i];
-            map_inds[m].data[i] = map_inds[m].data[new_loc];
-            map_inds[m].data[new_loc] = tmp;
+            sptIndex tmp = map_inds[m][i];
+            map_inds[m][i] = map_inds[m][new_loc];
+            map_inds[m][new_loc] = tmp;
         }
     }
-
-    /* Renumber nonzero elements */
-    sptIndex tmp_ind;
-    for(sptIndex z = 0; z < tsr->nnz; ++z) {
-        for(sptIndex m = 0; m < tsr->nmodes; ++m) {
-            tmp_ind = tsr->inds[m].data[z];
-            tsr->inds[m].data[z] = map_inds[m].data[tmp_ind];
-        }
-    }
-    
 }
 
 
