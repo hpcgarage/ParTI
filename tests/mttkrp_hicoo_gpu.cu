@@ -146,24 +146,28 @@ int main(int argc, char ** argv) {
 
     /* Renumber the input tensor */
     if (renumber == 1) {
-        sptIndexVector * map_inds = (sptIndexVector *)malloc(tsr.nmodes * sizeof *map_inds);
+        sptIndex ** map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-            retval = sptNewIndexVector(&map_inds[m], tsr.ndims[m], tsr.ndims[m]);
+            map_inds[m] = (sptIndex *)malloc(tsr.ndims[m] * sizeof (sptIndex));
+            spt_CheckError(!map_inds[m], "MTTKRP HiCOO", NULL);
             for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
-                map_inds[m].data[i] = i;
-            spt_CheckError(retval, "MTTKRP HiCOO", NULL);
+                map_inds[m][i] = i;
         }
-        sptGetRandomShuffleIndices(&tsr, map_inds);
+        /* Set randomly renumbering */
+        sptGetRandomShuffledIndices(&tsr, map_inds);
+
+        sptSparseTensorShuffleIndices(&tsr, map_inds);
+
         // sptSparseTensorSortIndex(&tsr, 1);
         // printf("map_inds:\n");
         // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-        //     sptDumpIndexVector(&map_inds[m], stdout);
+        //     sptDumpIndexArray(map_inds[m], stdout);
         // }
         // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-            sptFreeIndexVector(&map_inds[m]);
+            free(map_inds[m]);
         }
         free(map_inds);
     }
