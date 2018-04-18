@@ -154,7 +154,7 @@ int main(int argc, char ** argv) {
             for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
                 map_inds[m][i] = i;
         }
-        /* Set randomly resampling */
+        /* Set randomly renumbering */
         sptGetRandomShuffledIndices(&tsr, map_inds);
 
         sptSparseTensorShuffleIndices(&tsr, map_inds);

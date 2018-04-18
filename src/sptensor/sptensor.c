@@ -204,7 +204,7 @@ int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const
  * Shuffle all indices.
  *
  * @param[in] tsr tensor to be shuffled
- * @param[out] map_inds is the resampling 
+ * @param[out] map_inds is the renumbering 
  *
  */
 void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds) {

@@ -154,9 +154,9 @@ int main(int argc, char ** argv) {
             for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
                 map_inds[m][i] = i;
         }
-        /* Set randomly resampling */
+        /* Set randomly renumbering */
         // sptGetRandomShuffledIndices(&tsr, map_inds);
-        /* Set the graph partitioning resampling */
+        /* Set the graph partitioning renumbering */
         orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
 
         sptSparseTensorShuffleIndices(&tsr, map_inds);
