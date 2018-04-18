@@ -196,7 +196,8 @@ int main(int argc, char ** argv) {
     for(sptIndex m=0; m<nmodes; ++m) {
       // sptAssert(sptRandomizeMatrix(U[m], tsr.ndims[m], R) == 0);
       sptAssert(sptNewMatrix(U[m], hitsr.ndims[m], R) == 0);
-      sptAssert(sptConstantMatrix(U[m], 1) == 0);
+      // sptAssert(sptConstantMatrix(U[m], 1) == 0);
+      sptAssert(sptRandomizeMatrix(U[m], hitsr.ndims[m], R) == 0);
       if(hitsr.ndims[m] > max_ndims)
         max_ndims = hitsr.ndims[m];
       // sptAssert(sptDumpMatrix(U[m], stdout) == 0);

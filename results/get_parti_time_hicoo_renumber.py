@@ -51,6 +51,7 @@ for tsr in s3tsrs:
 		## sequential hicoo
 		renumber = 1
 		min_num = sys.float_info.max
+		max_num = 0
 		for it in iterations:
 			input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-e' + str(renumber)+ '-it' + str(it)  + '-seq.txt'
 		
@@ -62,13 +63,17 @@ for tsr in s3tsrs:
 					continue;
 				elif(line_array[3] == 'MTTKRP]:'):
 					time_num = line_array[4]
-					print(time_num)
+					# print(time_num)
 					if( float(time_num) < min_num ):
 						min_num = float(time_num)
+					if( float(time_num) > min_num ):
+						max_num = float(time_num)
 
 			fi.close()
 		print
-		fo.write(str(min_num)+'\n')
+		fo.write(str(min_num)+',')
+		fo.write(str(max_num)+'\n')
+		
 		# print(str(min_num))
 
 	fo.write('\n')
