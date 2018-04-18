@@ -19,6 +19,8 @@
 #ifndef PARTI_TYPES_H
 #define PARTI_TYPES_H
 
+#include <stdint.h>
+
 /**
  * Define types, TODO: check the bit size of them, add branch for different settings
  */

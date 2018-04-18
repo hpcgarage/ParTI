@@ -24,6 +24,7 @@
 #include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #ifdef PARTI_USE_OPENMP
     #include <omp.h>
 #endif
@@ -76,6 +77,8 @@ extern "C" {
 #include "includes/ktensors.h"
 /* CPD functions */
 #include "includes/cpds.h"
+/* resampling for indices */
+#include "includes/orderforHiCOO.h"
 
 
 
