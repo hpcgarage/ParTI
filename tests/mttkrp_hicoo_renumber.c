@@ -145,6 +145,9 @@ int main(int argc, char ** argv) {
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     /* Renumber the input tensor */
+    sptTimer renumber_timer;
+    sptNewTimer(&renumber_timer, 0);
+    sptStartTimer(renumber_timer);
     if (renumber == 1) {
         sptIndex ** map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
@@ -154,6 +157,7 @@ int main(int argc, char ** argv) {
             for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
                 map_inds[m][i] = i;
         }
+
         /* Set randomly renumbering */
         // sptGetRandomShuffledIndices(&tsr, map_inds);
         /* Set the graph partitioning renumbering */
@@ -173,6 +177,10 @@ int main(int argc, char ** argv) {
         }
         free(map_inds);
     }
+    sptStopTimer(renumber_timer);
+    sptPrintElapsedTime(renumber_timer, "Renumbering");
+    sptFreeTimer(renumber_timer);
+    printf("\n");
 
     sptTimer convert_timer;
     sptNewTimer(&convert_timer, 0);

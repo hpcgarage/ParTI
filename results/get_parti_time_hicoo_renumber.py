@@ -33,8 +33,8 @@ for tsr in s3tsrs:
 	for m in modes:
 
 		## sequential hicoo
-		renumber = 0
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-e' + str(renumber) + '-seq.txt'
+		renumber = 1
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-e' + str(renumber) + '-renumber-seq.txt'
 		# print(input_str)
 
 		fi = open(input_str, 'r')
@@ -44,35 +44,35 @@ for tsr in s3tsrs:
 				continue;
 			elif(line_array[3] == 'MTTKRP]:'):
 				time_num = line_array[4]
-				fo.write(time_num+',')
+				fo.write(time_num+'\n')
 				# print(time_num)
 		fi.close()
 
 		## sequential hicoo
-		renumber = 1
-		min_num = sys.float_info.max
-		max_num = 0
-		for it in iterations:
-			input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-e' + str(renumber)+ '-it' + str(it)  + '-seq.txt'
+		# renumber = 1
+		# min_num = sys.float_info.max
+		# max_num = 0
+		# for it in iterations:
+		# 	input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-e' + str(renumber)+ '-it' + str(it)  + '-seq.txt'
 		
 
-			fi = open(input_str, 'r')
-			for line in fi:
-				line_array = line.rstrip().split(" ")
-				if(len(line_array) < 4):
-					continue;
-				elif(line_array[3] == 'MTTKRP]:'):
-					time_num = line_array[4]
-					# print(time_num)
-					if( float(time_num) < min_num ):
-						min_num = float(time_num)
-					if( float(time_num) > min_num ):
-						max_num = float(time_num)
+		# 	fi = open(input_str, 'r')
+		# 	for line in fi:
+		# 		line_array = line.rstrip().split(" ")
+		# 		if(len(line_array) < 4):
+		# 			continue;
+		# 		elif(line_array[3] == 'MTTKRP]:'):
+		# 			time_num = line_array[4]
+		# 			# print(time_num)
+		# 			if( float(time_num) < min_num ):
+		# 				min_num = float(time_num)
+		# 			if( float(time_num) > min_num ):
+		# 				max_num = float(time_num)
 
-			fi.close()
-		print
-		fo.write(str(min_num)+',')
-		fo.write(str(max_num)+'\n')
+		# 	fi.close()
+		# print
+		# fo.write(str(min_num)+',')
+		# fo.write(str(max_num)+'\n')
 		
 		# print(str(min_num))
 

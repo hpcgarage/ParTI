@@ -31,7 +31,6 @@ void print_usage(int argc, char ** argv) {
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
-    printf("         -e RENUMBER, --renumber=RENUMBER\n");
     printf("         -m MODE, --mode=MODE\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
@@ -56,7 +55,6 @@ int main(int argc, char ** argv) {
     int niters = 5;
     int nthreads;
     int impl_num = 0;
-    int renumber = 0;
     int tk = 1;
     int tb = 1;
     printf("niters: %d\n", niters);
@@ -76,7 +74,6 @@ int main(int argc, char ** argv) {
             {"cs", required_argument, 0, 'c'},
             {"mode", required_argument, 0, 'm'},
             {"impl-num", optional_argument, 0, 'p'},
-            {"renumber", optional_argument, 0, 'e'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
@@ -86,7 +83,7 @@ int main(int argc, char ** argv) {
         int option_index = 0;
         int c = 0;
         // c = getopt_long(argc, argv, "i:o:b:k:c:m:", long_options, &option_index);
-        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:e:d:r:t:l:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:d:r:t:l:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -114,9 +111,6 @@ int main(int argc, char ** argv) {
         case 'p':
             sscanf(optarg, "%d", &impl_num);
             break;
-        case 'e':
-            sscanf(optarg, "%d", &renumber);
-            break;
         case 'd':
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
@@ -143,34 +137,6 @@ int main(int argc, char ** argv) {
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
-
-    /* Renumber the input tensor */
-    if (renumber == 1) {
-        sptIndex ** map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
-        spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
-        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-            map_inds[m] = (sptIndex *)malloc(tsr.ndims[m] * sizeof (sptIndex));
-            spt_CheckError(!map_inds[m], "MTTKRP HiCOO", NULL);
-            for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
-                map_inds[m][i] = i;
-        }
-        /* Set randomly renumbering */
-        sptGetRandomShuffledIndices(&tsr, map_inds);
-
-        sptSparseTensorShuffleIndices(&tsr, map_inds);
-
-        // sptSparseTensorSortIndex(&tsr, 1);
-        // printf("map_inds:\n");
-        // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-        //     sptDumpIndexArray(map_inds[m], stdout);
-        // }
-        // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
-
-        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-            free(map_inds[m]);
-        }
-        free(map_inds);
-    }
 
     sptTimer convert_timer;
     sptNewTimer(&convert_timer, 0);

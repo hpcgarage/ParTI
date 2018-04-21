@@ -66,7 +66,6 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
     fprintf(fp, ", %"PARTI_PRI_INDEX, hitsr->nkiters[m]);
   }
   fprintf(fp, " [KERNEL]\n");
-  fprintf(fp, "\n");
 
   // fprintf(fp, "SCHEDULE DETAILS (kschr): \n");
   // for(sptIndex m=0; m < nmodes; ++m) {
@@ -98,5 +97,6 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   sptNnzIndex aver_nnzb = (sptNnzIndex)sum_nnzb / (hitsr->bptr.len - 1);
   // fprintf(fp, "\n");
   fprintf(fp, "Nnzb: Max=%lu, Min=%lu, Aver=%lu\n", max_nnzb, min_nnzb, aver_nnzb);
+  fprintf(fp, "\n");
 
 }
