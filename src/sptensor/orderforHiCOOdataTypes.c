@@ -100,7 +100,7 @@ void fillHypergraphFromCoo(basicHypergraph *hg, int N, idxType nnz, idxType *dim
         dimSizesPrefixSum[i] = totalSizes;
         totalSizes += dims[i];
     }
-    printf("allocating hyp %d %ld\n", N, nnz);
+    printf("allocating hyp %d %u\n", N, nnz);
     
     allocateHypergraphData(hg, totalSizes, nnz, nnz * N);
     
