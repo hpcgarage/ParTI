@@ -61,8 +61,10 @@ void orderforHiCOOaDim(basicHypergraph *hg, idxType *newIndicesHg, idxType indSt
                     {
                         hedge2 = vHids[jj];
                         ww = locateVertex(indStart, indEnd, hVids + hptrs[hedge2], hptrs[hedge2+1]-hptrs[hedge2]);
-                        newKeyval = keyvals[ww] + 1;
-                        heapIncreaseKey(heapIds, keyvals, vptrs, heapSz, ww, inHeap, newKeyval);
+                        if(inHeap[ww]) {
+                            newKeyval = keyvals[ww] + 1;
+                            heapIncreaseKey(heapIds, keyvals, vptrs, heapSz, ww, inHeap, newKeyval);
+                        }
                     }
                 }
             }
@@ -106,7 +108,7 @@ void orderforHiCOO(int N, idxType nnz, idxType *dims, sptIndexVector *coord, idx
     
     for (d = 0; d < N; d++) /*assume all others fixed and order for d*/
     {
-        printf("ordering %d. Indices: [%ld %ld]\n", d, dimsPrefixSum[d], dimsPrefixSum[d] + dims[d]-1);
+        // printf("ordering %d. Indices: [%ld %ld]\n", d, dimsPrefixSum[d], dimsPrefixSum[d] + dims[d]-1);
         orderforHiCOOaDim(&hg, newIndicesHg, dimsPrefixSum[d], dimsPrefixSum[d] + dims[d]-1);
     }
     /*copy from newIndices to newIndicesOut*/

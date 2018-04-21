@@ -75,12 +75,12 @@ void setVList(basicHypergraph *hg)
     for (v=1; v <= nvrt; v++)
         vptrs[v] += vptrs[v-1];
     
-    for (h = nhdg-1; h >= 0; h--)
+    for (h = nhdg; h >= 1; h--)
     {
-        for (j = hptrs[h]; j < hptrs[h+1]; j++)
+        for (j = hptrs[h-1]; j < hptrs[h]; j++)
         {
             v = hVids[j];
-            vHids[--(vptrs[v])] = h;
+            vHids[--(vptrs[v])] = h-1;
         }
     }
 }
@@ -103,7 +103,10 @@ void fillHypergraphFromCoo(basicHypergraph *hg, int N, idxType nnz, idxType *dim
     printf("allocating hyp %d %u\n", N, nnz);
     
     allocateHypergraphData(hg, totalSizes, nnz, nnz * N);
-    
+
+    // printf("totalSizes: %u, nnz: %u, nnz * N: %u\n", totalSizes, nnz, nnz * N);
+    // printf("coord[0].data[6]: %u\n", coord[0].data[6]);
+
     toAddress = 0;
     for (h = 0; h < nnz; h++)
     {
@@ -115,6 +118,8 @@ void fillHypergraphFromCoo(basicHypergraph *hg, int N, idxType nnz, idxType *dim
     hg->hptrs[hg->nhdg] = toAddress;
     
     setVList(hg);
+    // printf("OK\n"); fflush(stdout);
+    
     free(dimSizesPrefixSum);
 }
 /**********************************************************************************************/
@@ -147,18 +152,20 @@ idxType heapExtractMax(idxType *heapIds, idxType *key, idxType *vptrs, idxType *
 void heapIncreaseKey(idxType *heapIds, idxType *key, idxType *vptrs, idxType sz, idxType id, idxType *inheap, idxType newKey)
 {
     idxType i = inheap[id]; /*location in heap*/
-    key[id] = newKey;
-    
-    while ((i>>1)>0 && ( (key[id] > key[heapIds[i>>1]]) ||
-                         (key[id] == key[heapIds[i>>1]] && SIZEV(id) > SIZEV(heapIds[i>>1])))
-          )
-    {
-        heapIds[i] = heapIds[i>>1];
-        inheap[heapIds[i]] = i;
-        i = i>>1;
+    if(i > 0 && i <= sz) {
+        key[id] = newKey;
+        
+        while ((i>>1)>0 && ( (key[id] > key[heapIds[i>>1]]) ||
+                             (key[id] == key[heapIds[i>>1]] && SIZEV(id) > SIZEV(heapIds[i>>1])))
+              )
+        {
+            heapIds[i] = heapIds[i>>1];
+            inheap[heapIds[i]] = i;
+            i = i>>1;
+        }
+        heapIds[i] = id;
+        inheap[id] = i;
     }
-    heapIds[i] = id;
-    inheap[id] = i;
 }
 
 void heapInsert(idxType *heapIds, idxType *key, idxType *vptrs, idxType *sz, idxType id, idxType *inheap)
