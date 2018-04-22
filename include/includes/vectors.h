@@ -22,7 +22,7 @@
 /* Dense Array functions */
 sptNnzIndex sptMaxNnzIndexArray(sptNnzIndex const * const indices, sptNnzIndex const size);
 sptIndex sptMaxIndexArray(sptIndex const * const indices, sptNnzIndex const size);
-void sptPairArraySort(sptKeyValuePair const * kvarray, sptIndex const length);
+void sptPairArraySort(sptKeyValuePair * kvarray, sptIndex const length);
 int sptDumpIndexArray(sptIndex *array, sptNnzIndex const n, FILE *fp);
 int sptDumpNnzIndexArray(sptNnzIndex *array, sptNnzIndex const n, FILE *fp);
 

@@ -1067,7 +1067,8 @@ int sptOmpMTTKRPHiCOOKernels_MatrixTiling_Scheduled_Reduce_Two(
         int tid = omp_get_thread_num();
 
         /* Loop kernels */
-        #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk2)
+        // TODO: cannot compile using icc
+        // #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk2)
         for(sptIndex k=0; k<num_kernel_dim; ++k) {
 
             if(i >= kschr_mode[k].len) continue;
@@ -1188,7 +1189,8 @@ int sptOmpMTTKRPHiCOOKernels_3D_MatrixTiling_Scheduled_Reduce_Two(
         int tid = omp_get_thread_num();
 
         /* Loop kernels */
-        #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk2)
+        // Cannot compile using icc
+        // #pragma omp parallel for schedule(dynamic, CHUNKSIZE) num_threads(tk2)
         for(sptIndex k=0; k<num_kernel_dim; ++k) {
             if(i >= kschr_mode[k].len) {
                 // printf("i: %u, k: %u\n", i, k);

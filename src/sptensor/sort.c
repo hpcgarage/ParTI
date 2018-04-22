@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 #include <ParTI.h>
 #include "sptensor.h"
 

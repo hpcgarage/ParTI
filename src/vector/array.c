@@ -73,7 +73,7 @@ static inline void spt_SwapPairs(sptKeyValuePair * kvarray, sptIndex const ind1,
     kvarray[ind2].value = val1;
 }
 
-static void spt_QuickSortPairArray(sptKeyValuePair const * kvarray, sptIndex const l, sptIndex const r)
+static void spt_QuickSortPairArray(sptKeyValuePair * kvarray, sptIndex const l, sptIndex const r)
 {
     sptIndex i, j, p;
     if(r-l < 2) {
@@ -110,7 +110,7 @@ static void spt_QuickSortPairArray(sptKeyValuePair const * kvarray, sptIndex con
  * @param length number of values 
  *
  */
-void sptPairArraySort(sptKeyValuePair const * kvarray, sptIndex const length)
+void sptPairArraySort(sptKeyValuePair * kvarray, sptIndex const length)
 {
     spt_QuickSortPairArray(kvarray, 0, length);
 }

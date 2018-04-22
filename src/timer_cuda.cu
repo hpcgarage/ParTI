@@ -23,6 +23,8 @@
 #include <time.h>
 #include "error/error.h"
 
+#ifndef PARTI_USE_CUDA
+
 struct sptTagTimer {
     int use_cuda;
     struct timespec start_timespec;
@@ -109,3 +111,5 @@ int sptFreeTimer(sptTimer timer) {
     free(timer);
     return 0;
 }
+
+#endif

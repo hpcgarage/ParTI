@@ -18,7 +18,6 @@
 
 // This file will be compiled only if CUDA is not enabled,
 // or cuda_timer.cu will be compiled instead.
-#ifndef PARTI_USE_CUDA
 
 #include <ParTI.h>
 #include <stdio.h>
@@ -95,4 +94,3 @@ int sptFreeTimer(sptTimer timer) {
     return 0;
 }
 
-#endif

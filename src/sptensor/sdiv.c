@@ -30,4 +30,5 @@ int sptSparseTensorDivScalar(sptSparseTensor *X, sptValue const a) {
     } else {
         spt_CheckError(SPTERR_ZERO_DIVISION, "SpTns Div", "divide by zero");
     }
+    return 0;
 }

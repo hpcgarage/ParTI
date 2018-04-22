@@ -12,9 +12,9 @@ add_definitions(-DPARTI_VALUE_TYPEWIDTH=32)
 add_definitions(-DPARTI_ELEMENT_INDEX_TYPEWIDTH=8)
 
 # Check for implementations
-option(USE_CUDA "Use NVIDIA CUDA library" ON)
 option(USE_ICC "Use ICC" OFF)
 option(USE_OPENMP "Use OPENMP" ON)
+option(USE_CUDA "Use NVIDIA CUDA library" OFF)
 option(USE_MPI "Use MPI" OFF)
 
 # Check for libraries
@@ -56,10 +56,10 @@ if(USE_OPENMP)
     add_definitions(-DPARTI_USE_OPENMP)
     if(USE_ICC)
         if(DEFINED DEBUG)
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O0 -g -DADD_")
         else()
-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
             # -msse4 -ftree-vectorize -funroll-loops -fprefetch-loop-arrays -mfpmath=sse -ftree-vectorizer-verbose=2
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-maybe-uninitialized -qopenmp -O3 -DADD_")
         endif()

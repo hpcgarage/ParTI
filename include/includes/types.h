@@ -31,6 +31,7 @@
 #if PARTI_INDEX_TYPEWIDTH == 32
   typedef uint32_t sptIndex;
   typedef uint32_t sptBlockIndex;
+  #define PARTI_INDEX_MAX UINT32_MAX
   #define PARTI_PRI_INDEX PRIu32
   #define PARTI_SCN_INDEX SCNu32
   #define PARTI_PRI_BLOCK_INDEX PRIu32
@@ -38,6 +39,7 @@
 #elif PARTI_INDEX_TYPEWIDTH == 64
   typedef uint64_t sptIndex;
   typedef uint64_t sptBlockIndex;
+  #define PARTI_INDEX_MAX UINT64_MAX
   #define PARTI_PFI_INDEX PRIu64
   #define PARTI_SCN_INDEX SCNu64
   #define PARTI_PRI_BLOCK_INDEX PRIu64

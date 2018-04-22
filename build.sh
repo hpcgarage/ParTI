@@ -15,8 +15,9 @@ CMAKE_FLAGS=("${CMAKE_FLAGS[@]}" "$@")
 mkdir -p build
 cd build
 
-# CC=icc cmake "${CMAKE_FLAGS[@]}" ..
-cmake "${CMAKE_FLAGS[@]}" ..
+CC=icc CXX=icpc cmake "${CMAKE_FLAGS[@]}" ..
+# CC=gcc CXX=g++ cmake "${CMAKE_FLAGS[@]}" ..
+# cmake "${CMAKE_FLAGS[@]}" .. 		# Use Default cc and CC
 
 make
 
