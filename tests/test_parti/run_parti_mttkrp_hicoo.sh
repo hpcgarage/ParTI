@@ -1,9 +1,9 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("choa700k" "1998DARPA" "nell2" "freebase_music" "freebase_sampled" "nell1" "delicious")
+declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_music" "flickr" "freebase_sampled" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
-declare -a sl4tsrs=("flickr-4d" "enron-4d" "nips-4d" "delicious-4d")
+declare -a sl4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
 declare -a test_tsr_names=("amazon-reviews")
 declare -a threads=("1")
