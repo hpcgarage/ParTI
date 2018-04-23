@@ -143,7 +143,16 @@ int main(int argc, char ** argv) {
 
     /* Convert to HiCOO tensor */
     sptNnzIndex max_nnzb = 0;
+    sptTimer convert_timer;
+    sptNewTimer(&convert_timer, 0);
+    sptStartTimer(convert_timer);
+
     sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+
+    sptStopTimer(convert_timer);
+    sptPrintElapsedTime(convert_timer, "Convert HiCOO");
+    sptFreeTimer(convert_timer);
+
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
@@ -171,16 +180,19 @@ int main(int argc, char ** argv) {
 
     if (mode == PARTI_INDEX_MAX) {
         for(sptIndex mode=0; mode<nmodes; ++mode) {
+            par_iters = 0;
             /* Reset U[nmodes] */
             sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
 
             /* determine niters or num_kernel_dim to be parallelized */
             sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
             sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
-            printf("num_kernel_dim: %u, hitsr.nkiters[mode] / num_kernel_dim: %u\n", num_kernel_dim, hitsr.nkiters[mode]/num_kernel_dim);
-            if(num_kernel_dim <= 24 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
+            printf("hitsr.nkiters[mode] / num_kernel_dim: %u (threshold: %u)\n", hitsr.nkiters[mode]/num_kernel_dim, PAR_DEGREE_REDUCE);
+            if(num_kernel_dim <= NUM_CORES && hitsr.nkiters[mode] / num_kernel_dim >= PAR_DEGREE_REDUCE) {
                 par_iters = 1;
             }
+            sptIndex num_tasks = (par_iters == 1) ? hitsr.nkiters[mode] : num_kernel_dim;
+            printf("par_iters: %d, num_tasks: %u\n", par_iters, num_tasks);
 
             /* Set zeros for temporary copy_U, for mode-"mode" */
             if(cuda_dev_id == -1 && par_iters == 1) {
@@ -192,7 +204,7 @@ int main(int argc, char ** argv) {
                 }
                 sptNnzIndex bytes = tk * hitsr.ndims[mode] * R * sizeof(sptValue);
                 bytestr = sptBytesString(bytes);
-                printf("MODE MATRIX COPY=%s\n\n", bytestr);
+                printf("MODE MATRIX COPY=%s\n", bytestr);
             }
 
             mats_order[0] = mode;
@@ -240,6 +252,7 @@ int main(int argc, char ** argv) {
             char * prg_name;
             asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
             sptPrintAverageElapsedTime(timer, niters, prg_name);
+            printf("\n");
             sptFreeTimer(timer);
         }   // End nmodes
 
@@ -263,7 +276,7 @@ int main(int argc, char ** argv) {
             }
             sptNnzIndex bytes = tk * hitsr.ndims[mode] * R * sizeof(sptValue);
             bytestr = sptBytesString(bytes);
-            printf("MODE MATRIX COPY=%s\n\n", bytestr);
+            printf("MODE MATRIX COPY=%s\n", bytestr);
         }
 
         sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
@@ -310,6 +323,7 @@ int main(int argc, char ** argv) {
 
         sptStopTimer(timer);
         sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
+        printf("\n");
         sptFreeTimer(timer);
 
         if(fo != NULL) {

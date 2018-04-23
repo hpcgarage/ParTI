@@ -61,18 +61,18 @@
 #endif
 
 #if PARTI_ELEMENT_INDEX_TYPEWIDTH == 8
-  typedef uint_fast8_t sptElementIndex;
-  typedef uint_fast16_t sptBlockMatrixIndex;  // R < 256
-  #define PARTI_PRI_ELEMENT_INDEX PRIuFAST8
-  #define PARTI_SCN_ELEMENT_INDEX SCNuFAST8
-  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIuFAST16
-  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNuFAST16
-  // typedef uint8_t sptElementIndex;
-  // typedef uint16_t sptBlockMatrixIndex;  // R < 256
-  // #define PARTI_PRI_ELEMENT_INDEX PRIu8
-  // #define PARTI_SCN_ELEMENT_INDEX SCNu8
-  // #define PARTI_PRI_BLOCKMATRIX_INDEX PRIu16
-  // #define PARTI_SCN_BLOCKMATRIX_INDEX SCNu16
+  // typedef uint_fast8_t sptElementIndex;
+  // typedef uint_fast16_t sptBlockMatrixIndex;  // R < 256
+  // #define PARTI_PRI_ELEMENT_INDEX PRIuFAST8
+  // #define PARTI_SCN_ELEMENT_INDEX SCNuFAST8
+  // #define PARTI_PRI_BLOCKMATRIX_INDEX PRIuFAST16
+  // #define PARTI_SCN_BLOCKMATRIX_INDEX SCNuFAST16
+  typedef uint8_t sptElementIndex;
+  typedef uint16_t sptBlockMatrixIndex;  // R < 256
+  #define PARTI_PRI_ELEMENT_INDEX PRIu8
+  #define PARTI_SCN_ELEMENT_INDEX SCNu8
+  #define PARTI_PRI_BLOCKMATRIX_INDEX PRIu16
+  #define PARTI_SCN_BLOCKMATRIX_INDEX SCNu16
 #elif PARTI_ELEMENT_INDEX_TYPEWIDTH == 16
   typedef uint16_t sptElementIndex;
   typedef uint32_t sptBlockMatrixIndex;

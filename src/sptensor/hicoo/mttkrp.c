@@ -322,10 +322,10 @@ int sptMTTKRPHiCOO_MatrixTiling(
         sptAssert(sptMTTKRPHiCOO_3D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
         return 0;
     } 
-    else if(nmodes == 4) {
-        sptAssert(sptMTTKRPHiCOO_4D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
-        return 0;
-    }
+    // else if(nmodes == 4) {
+    //     sptAssert(sptMTTKRPHiCOO_4D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
+    //     return 0;
+    // }
 
     sptIndex const * const ndims = hitsr->ndims;
     sptValue const * const restrict vals = hitsr->values.data;

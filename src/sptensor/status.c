@@ -44,6 +44,12 @@ void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp)
   fprintf(fp, " NNZ=%"PARTI_PRI_NNZ_INDEX, tsr->nnz);
   fprintf(fp, " DENSITY=%e\n" , sptSparseTensorDensity(tsr));
 
+  fprintf(fp, "Average slice length (c): ");
+  for(sptIndex m=0; m < tsr->nmodes - 1; ++m) {
+    fprintf(fp, "%.2lf , ", (double)tsr->nnz / tsr->ndims[m]);
+  }
+  fprintf(fp, "%.2lf\n", (double)tsr->nnz / tsr->ndims[tsr->nmodes-1]);
+
   char * bytestr = sptBytesString(tsr->nnz * (sizeof(sptIndex) * tsr->nmodes + sizeof(sptValue)));
   fprintf(fp, "COO-STORAGE=%s\n", bytestr);
   fprintf(fp, "\n");

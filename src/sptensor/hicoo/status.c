@@ -61,11 +61,11 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   fprintf(fp, "HiCOO-STORAGE=%s\n", bytestr);
   free(bytestr);
 
-  fprintf(fp, "SCHEDULE INFO: %"PARTI_PRI_INDEX, hitsr->nkiters[0]);
-  for(sptIndex m=1; m < nmodes; ++m) {
-    fprintf(fp, ", %"PARTI_PRI_INDEX, hitsr->nkiters[m]);
+  fprintf(fp, "SCHEDULE INFO [KERNEL]: \n");
+  for(sptIndex m=0; m < nmodes; ++m) {
+    sptIndex kernel_ndim = (hitsr->ndims[m] + sk - 1)/sk;
+    fprintf(fp, "SCHEDULE MODE %"PARTI_PRI_INDEX" : %"PARTI_PRI_INDEX" x %"PARTI_PRI_INDEX"\n", m, kernel_ndim, hitsr->nkiters[m]);
   }
-  fprintf(fp, " [KERNEL]\n");
 
   // fprintf(fp, "SCHEDULE DETAILS (kschr): \n");
   // for(sptIndex m=0; m < nmodes; ++m) {
@@ -95,8 +95,16 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   }
   assert(sum_nnzb == hitsr->nnz);
   sptNnzIndex aver_nnzb = (sptNnzIndex)sum_nnzb / (hitsr->bptr.len - 1);
-  // fprintf(fp, "\n");
+  sptIndex sb = (sptIndex)pow(2, hitsr->sb_bits);
   fprintf(fp, "Nnzb: Max=%lu, Min=%lu, Aver=%lu\n", max_nnzb, min_nnzb, aver_nnzb);
-  fprintf(fp, "\n");
+  fprintf(fp, "cb: Max=%.3lf, Min=%.3lf, Aver=%.3lf\n", (double)max_nnzb / sb, (double)min_nnzb / sb, (double)aver_nnzb / sb);
+  fprintf(fp, "alpha_b: %lf\n", (double)(hitsr->bptr.len - 1) / hitsr->nnz);
+
+  fprintf(fp, "\nParameter configuration --------\n");
+  fprintf(fp, "Suggest B (sb) <= %.2lf / R. For cache efficiency\n", (double)L1_SIZE / hitsr->nmodes / sizeof(sptValue));
+  fprintf(fp, "Suggest alpha_b in (0,1], small is better. For tensor storage\n");
+  fprintf(fp, "Suggest cb > 1, large is better. For MTTKRP performance\n");
+  fprintf(fp, "Suggest num_tasks should in [%d, %d] (PAR_DEGREE: %d). For parallel efficiency\n", NUM_CORES, PAR_DEGREE * NUM_CORES, PAR_DEGREE);
+  fprintf(fp, "\n\n");
 
 }

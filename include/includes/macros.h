@@ -19,6 +19,13 @@
 #ifndef PARTI_MACROS_H
 #define PARTI_MACROS_H
 
+/* User defined system configuration */
+#define NUM_CORES 32    // for L size and determine privatilization or not
+#define L1_SIZE 32000    // for B size
+#define LLC_SIZE 40960000
+#define PAR_DEGREE_REDUCE 20     // for determine privatilization or not  
+#define PAR_DEGREE 100 // for L size
+
 #ifndef PARTI_DEFAULT_NLOCKS
 #define PARTI_DEFAULT_NLOCKS 1024
 #endif
