@@ -26,25 +26,26 @@ fo = open(out_str, 'w')
 for tsr in s3tsrs:
 	sum_seq = 0
 
-	# Set optimal sk
-	if(tsr == 'vast-2015-mc1'):
-		sk = 8
-	elif(tsr == 'choa700k' or tsr == 'nell2'):
-		sk = 10
-	elif(tsr == '1998DARPA' or tsr == 'delicious'):
-		sk = 14
-	elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
-		sk = 18
-	elif(tsr == 'flickr'):
-		sk = 11
-	elif(tsr == 'nell1'):
-		sk = 20
+	if (tk == '1'):
+		## sequential hicoo
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-seq.txt'
+	else:
+		# Set optimal sk
+		if(tsr == 'vast-2015-mc1'):
+			sk = 8
+		elif(tsr == 'choa700k' or tsr == 'nell2'):
+			sk = 10
+		elif(tsr == '1998DARPA' or tsr == 'delicious'):
+			sk = 14
+		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
+			sk = 18
+		elif(tsr == 'flickr'):
+			sk = 11
+		elif(tsr == 'nell1'):
+			sk = 20
 
-	## omp hicoo
-	input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
-
-	## sequential hicoo
-	# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-seq.txt'
+		## omp hicoo
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')

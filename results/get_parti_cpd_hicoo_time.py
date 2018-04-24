@@ -2,18 +2,14 @@
 
 import sys 
 
-intput_path = '/nethome/jli458/ParTI-dev/timing_parti/cpd-hicoo/uint-fast8-simd/'
-# intput_path = '/nethome/jli458/ParTI-dev/timing_parti/hicoo/uint16/'
-# s3tsrs = ['choa100k', 'choa200k', 'choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
-# s3tsrs = ['choa700k', '1998DARPA', 'nell2', 'nell1', 'delicious']
-s3tsrs = ['nell1']
+intput_path = '../timing-results/parti/hicoo/cpd-uint8-single/'
+s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
-modes = ['0', '1', '2']
+s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 r = 16
 tb = 1
 
 sc = 14
-# sc = 16
 
 # input parameters
 sb = sys.argv[1]
@@ -21,17 +17,31 @@ sk = sys.argv[2]
 tk = sys.argv[3]
 
 # out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
-out_str = 'parti-cpd-hicoo-uint-fast8-simd-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
+out_str = 'parti-cpd-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
 for tsr in s3tsrs:
 
-	## omp hicoo
-	input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
-
-	## sequential hicoo
-	# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
+	# Set optimal sk
+	if (tk == '1'):
+		## sequential hicoo
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-seq.txt'
+	else:
+		if(tsr == 'vast-2015-mc1'):
+			sk = 8
+		elif(tsr == 'choa700k' or tsr == 'nell2'):
+			sk = 10
+		elif(tsr == '1998DARPA' or tsr == 'delicious'):
+			sk = 14
+		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
+			sk = 18
+		elif(tsr == 'flickr'):
+			sk = 11
+		elif(tsr == 'nell1'):
+			sk = 20
+		## omp hicoo
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
 	# print(input_str)
 
 	count = 0
