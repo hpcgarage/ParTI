@@ -77,27 +77,41 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   //   fprintf(fp, "\n");
   // }
   // fprintf(fp, "\n");
-  
+
+  sptIndex sb = (sptIndex)pow(2, hitsr->sb_bits);
   sptNnzIndex max_nnzb = hitsr->bptr.data[1] - hitsr->bptr.data[0];
   sptNnzIndex min_nnzb = hitsr->bptr.data[1] - hitsr->bptr.data[0];
   sptNnzIndex sum_nnzb = 0;
+  double geo_mean_nnzb = 1;
+  sptNnzIndex nb = hitsr->bptr.len - 1;
+  sptNnzIndex * nnzb_array = (sptNnzIndex *)malloc(nb * sizeof(* nnzb_array));
   fprintf(fp, "block nnzs:\n");
-  for(sptIndex i=0; i < hitsr->bptr.len - 1; ++i) {
+  for(sptNnzIndex i=0; i < hitsr->bptr.len - 1; ++i) {
     sptNnzIndex nnzb = hitsr->bptr.data[i+1] - hitsr->bptr.data[i];
     // fprintf(fp, "%lu, ", nnzb);
-    sum_nnzb += nnzb;
     if(max_nnzb < nnzb) {
       max_nnzb = nnzb;
     }
     if(min_nnzb > nnzb) {
       min_nnzb = nnzb;
     }
+    sum_nnzb += nnzb;
+    geo_mean_nnzb *= pow( (double)nnzb / sb, 1.0/nb );
+    nnzb_array[i] = nnzb;
   }
   assert(sum_nnzb == hitsr->nnz);
   sptNnzIndex aver_nnzb = (sptNnzIndex)sum_nnzb / (hitsr->bptr.len - 1);
-  sptIndex sb = (sptIndex)pow(2, hitsr->sb_bits);
+
+  /* Compute median */
+  sptQuickSortNnzIndexArray(nnzb_array, 0, nb);
+  sptNnzIndex median_loc = (nb + 1) / 2 - 1;
+  assert (median_loc >= 0);
+  sptNnzIndex median_nnzb = nnzb_array[median_loc];
+  free(nnzb_array);
+  
   fprintf(fp, "Nnzb: Max=%lu, Min=%lu, Aver=%lu\n", max_nnzb, min_nnzb, aver_nnzb);
   fprintf(fp, "cb: Max=%.3lf, Min=%.3lf, Aver=%.3lf\n", (double)max_nnzb / sb, (double)min_nnzb / sb, (double)aver_nnzb / sb);
+  fprintf(fp, "median cb: %.3lf, geometric mean cb: %.3lf\n", (double)median_nnzb / sb, geo_mean_nnzb);
   fprintf(fp, "alpha_b: %lf\n", (double)(hitsr->bptr.len - 1) / hitsr->nnz);
 
   fprintf(fp, "\nParameter configuration --------\n");

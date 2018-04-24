@@ -25,6 +25,7 @@ sptIndex sptMaxIndexArray(sptIndex const * const indices, sptNnzIndex const size
 void sptPairArraySort(sptKeyValuePair * kvarray, sptIndex const length);
 int sptDumpIndexArray(sptIndex *array, sptNnzIndex const n, FILE *fp);
 int sptDumpNnzIndexArray(sptNnzIndex *array, sptNnzIndex const n, FILE *fp);
+void sptQuickSortNnzIndexArray(sptNnzIndex * array, sptNnzIndex l, sptNnzIndex r);
 
 /* Dense vector, with sptValueVector type */
 int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap);
@@ -75,5 +76,6 @@ int sptAppendNnzIndexVectorWithVector(sptNnzIndexVector *vec, const sptNnzIndexV
 int sptResizeNnzIndexVector(sptNnzIndexVector *vec, sptNnzIndex const size);
 void sptFreeNnzIndexVector(sptNnzIndexVector *vec);
 int sptDumpNnzIndexVector(sptNnzIndexVector *vec, FILE *fp);
+
 
 #endif

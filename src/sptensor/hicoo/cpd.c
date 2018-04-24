@@ -179,7 +179,7 @@ int sptCpdAlsHiCOO(
   }
   sptAssert(sptNewRankMatrix(mats[nmodes], max_dim, rank) == 0);
   sptAssert(sptConstantRankMatrix(mats[nmodes], 0) == 0);
-  printf("max_dim: %u\n", max_dim);
+  // printf("max_dim: %u\n", max_dim);
 
   sptTimer timer;
   sptNewTimer(&timer, 0);

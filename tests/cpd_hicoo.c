@@ -24,7 +24,7 @@
 #include "../src/sptensor/hicoo/hicoo.h"
 
 
-void print_usage(int argc, char ** argv) {
+void print_usage(char ** argv) {
     printf("Usage: %s [options] \n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT\n");
     printf("         -o OUTPUT, --output=OUTPUT\n");
@@ -59,7 +59,7 @@ int main(int argc, char ** argv) {
     int tb = 1;
 
     if(argc < 2) {
-        print_usage(argc, argv);
+        print_usage(argv);
         exit(1);
     }
 

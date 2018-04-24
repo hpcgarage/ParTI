@@ -1,5 +1,5 @@
 Make sure the settings:
-* NEW (Use OpenBLAS): ./configure --prefix=/nethome/jli458/Software/Install/splatt/int64-single --index-size=64 --precision=single --max-modes=6 --with-blas-lib=/opt/OpenBLAS/lib/libopenblas.so --with-lapack-lib=/opt/OpenBLAS/lib/libopenblas.so 
+* NEW (Use OpenBLAS): ./configure --prefix=/global/homes/j/jiajiali/Software/Install/splatt/int32-single --index-size=64 --precision=single --max-modes=6 --with-blas-lib=/opt/OpenBLAS/lib/libopenblas.so --with-lapack-lib=/opt/OpenBLAS/lib/libopenblas.so 
 * integers and values: change "types.h" (OLD)
 * make; 
 * make install;
@@ -11,3 +11,12 @@ Test ONEMODE/ALLMODE:
 Some changes made by jli:
 * Added printfs in "stats.c"
 
+splatt-1.1.1:
+* ./configure --cc=icc --prefix=/global/homes/j/jiajiali/Software/Install/splatt/int32-single
+* types of integers and values: change "splatt.h"
+
+Test ONEMODE/ALLMODE for CPD:
+* change "splatt_default_opts" in "opts.c"
+
+Run:
+* ./bin/splatt cpd --nowrite -i 5 -r 16 --tile -t 1  $SCRATCH/BIGTENSORS/choa100k_init.tns -v 

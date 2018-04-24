@@ -1,0 +1,18 @@
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k8-c14-r16-tk32-tb1.txt
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k10-c14-r16-tk32-tb1.txt
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k14-c14-r16-tk32-tb1.txt
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k10-c14-r16-tk32-tb1.txt
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k18-c14-r16-tk32-tb1.txt
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k11-c14-r16-tk32-tb1.txt
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k18-c14-r16-tk32-tb1.txt
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k20-c14-r16-tk32-tb1.txt
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k14-c14-r16-tk32-tb1.txt

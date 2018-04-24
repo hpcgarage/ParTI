@@ -23,11 +23,11 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-void print_usage(int argc, char ** argv) {
+void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT\n");
     printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -m MODE, --mode=MODE\n");
+    printf("         -m MODE, --mode=MODE (default -1: loop all modes)\n");
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4)\n");
@@ -46,7 +46,7 @@ int main(int argc, char ** argv) {
     sptMatrix ** U;
     sptMatrix ** copy_U;
 
-    sptIndex mode = 0;
+    sptIndex mode = PARTI_INDEX_MAX;
     sptIndex R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
@@ -67,7 +67,7 @@ int main(int argc, char ** argv) {
     printf("niters: %d\n", niters);
 
     if(argc <= 3) { // #Required arguments
-        print_usage(argc, argv);
+        print_usage(argv);
         exit(1);
     }
 
@@ -134,7 +134,7 @@ int main(int argc, char ** argv) {
         case '?':   /* invalid option */
         case 'h':
         default:
-            print_usage(argc, argv);
+            print_usage(argv);
             exit(1);
         }
     }
@@ -146,42 +146,6 @@ int main(int argc, char ** argv) {
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
-    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
-
-    /* Sort sparse tensor */
-    sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
-    memset(mode_order, 0, X.nmodes * sizeof(*mode_order));
-    switch (sortcase) {
-        case 0:
-            sptSparseTensorSortIndex(&X, 1);
-            break;
-        case 1:
-            sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
-            sptSparseTensorSortIndexCustomOrder(&X, mode_order, 1);
-            break;
-        case 2:
-            sptGetWorstModeOrder(mode_order, mode, X.ndims, X.nmodes);
-            sptSparseTensorSortIndexCustomOrder(&X, mode_order, 1);
-            break;
-        case 3:
-            /* Pre-process tensor, the same with the one used in HiCOO.
-             * Only difference is not setting kptr and kschr in this function.
-             */
-            sptSparseTensorMixedOrder(&X, sb_bits, sk_bits);
-            break;
-        case 4:
-            // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
-            sptGetRandomShuffleElements(&X);
-            break;
-        default:
-            printf("Wrong sortcase number, reset by -s. \n");
-    }
-    if(sortcase != 0) {
-        printf("mode_order:\n");
-        sptDumpIndexArray(mode_order, X.nmodes, stdout);
-    }
-
-    sptSparseTensorStatus(&X, stdout);
     // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     sptIndex nmodes = X.nmodes;
@@ -201,41 +165,8 @@ int main(int argc, char ** argv) {
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     sptIndex stride = U[0]->stride;
 
-    /* Set zeros for temporary copy_U, for mode-"mode" */
-    char * bytestr;
-    if(cuda_dev_id == -1 && use_reduce == 1) {
-        copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
-        for(int t=0; t<nt; ++t) {
-            copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
-            sptAssert(sptNewMatrix(copy_U[t], X.ndims[mode], R) == 0);
-            sptAssert(sptConstantMatrix(copy_U[t], 0) == 0);
-        }
-        sptNnzIndex bytes = nt * X.ndims[mode] * R * sizeof(sptValue);
-        bytestr = sptBytesString(bytes);
-        printf("MODE MATRIX COPY=%s\n\n", bytestr);
-    }
-
+    sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
-    switch (sortcase) {
-    case 0:
-    case 3:
-    case 4:
-        mats_order[0] = mode;
-        for(sptIndex i=1; i<nmodes; ++i)
-            mats_order[i] = (mode+i) % nmodes;
-        break;
-    case 1: // Reverse of mode_order except the 1st one
-        mats_order[0] = mode;
-        for(sptIndex i=1; i<nmodes; ++i)
-            mats_order[i] = mode_order[nmodes - i];
-        break;
-    case 2: // Totally reverse of mode_order
-        for(sptIndex i=0; i<nmodes; ++i)
-            mats_order[i] = mode_order[nmodes - i];
-        break;
-    }
-    // printf("mats_order:\n");
-    // sptDumpIndexArray(mats_order, nmodes, stdout);
 
     /* Initialize locks */
     sptMutexPool * lock_pool = NULL;
@@ -243,30 +174,215 @@ int main(int argc, char ** argv) {
         lock_pool = sptMutexAlloc();
     }
 
-    /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
-        nthreads = 1;
-        sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-    } else if(cuda_dev_id == -1) {
-        printf("nt: %d\n", nt);
-        if(use_reduce == 1) {
-            printf("sptOmpMTTKRP_Reduce:\n");
-            sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
-        } else {
-            printf("sptOmpMTTKRP:\n");
-            sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-            // printf("sptOmpMTTKRP_Lock:\n");
-            // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
+
+    if (mode == PARTI_INDEX_MAX) {
+
+        for(sptIndex mode=0; mode<nmodes; ++mode) {
+
+            /* Sort sparse tensor */
+            memset(mode_order, 0, X.nmodes * sizeof(*mode_order));
+            switch (sortcase) {
+                case 0:
+                    sptSparseTensorSortIndex(&X, 1);
+                    break;
+                case 1:
+                    sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                    sptSparseTensorSortIndexCustomOrder(&X, mode_order, 1);
+                    break;
+                case 2:
+                    sptGetWorstModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                    sptSparseTensorSortIndexCustomOrder(&X, mode_order, 1);
+                    break;
+                case 3:
+                    /* Pre-process tensor, the same with the one used in HiCOO.
+                     * Only difference is not setting kptr and kschr in this function.
+                     */
+                    sptSparseTensorMixedOrder(&X, sb_bits, sk_bits);
+                    break;
+                case 4:
+                    // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
+                    sptGetRandomShuffleElements(&X);
+                    break;
+                default:
+                    printf("Wrong sortcase number, reset by -s. \n");
+            }
+            if(sortcase != 0) {
+                printf("mode_order:\n");
+                sptDumpIndexArray(mode_order, X.nmodes, stdout);
+            }
+
+            sptSparseTensorStatus(&X, stdout);
+            // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+
+
+            /* Set zeros for temporary copy_U, for mode-"mode" */
+            char * bytestr;
+            if(cuda_dev_id == -1 && use_reduce == 1) {
+                copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
+                for(int t=0; t<nt; ++t) {
+                    copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
+                    sptAssert(sptNewMatrix(copy_U[t], X.ndims[mode], R) == 0);
+                    sptAssert(sptConstantMatrix(copy_U[t], 0) == 0);
+                }
+                sptNnzIndex bytes = nt * X.ndims[mode] * R * sizeof(sptValue);
+                bytestr = sptBytesString(bytes);
+                printf("MODE MATRIX COPY=%s\n", bytestr);
+                free(bytestr);
+            }
+
+            switch (sortcase) {
+            case 0:
+            case 3:
+            case 4:
+                mats_order[0] = mode;
+                for(sptIndex i=1; i<nmodes; ++i)
+                    mats_order[i] = (mode+i) % nmodes;
+                break;
+            case 1: // Reverse of mode_order except the 1st one
+                mats_order[0] = mode;
+                for(sptIndex i=1; i<nmodes; ++i)
+                    mats_order[i] = mode_order[nmodes - i];
+                break;
+            case 2: // Totally reverse of mode_order
+                for(sptIndex i=0; i<nmodes; ++i)
+                    mats_order[i] = mode_order[nmodes - i];
+                break;
+            }
+            // printf("mats_order:\n");
+            // sptDumpIndexArray(mats_order, nmodes, stdout);
+
+
+            /* For warm-up caches, timing not included */
+            if(cuda_dev_id == -2) {
+                nthreads = 1;
+                sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
+            } else if(cuda_dev_id == -1) {
+                printf("nt: %d\n", nt);
+                if(use_reduce == 1) {
+                    printf("sptOmpMTTKRP_Reduce:\n");
+                    sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
+                } else {
+                    printf("sptOmpMTTKRP:\n");
+                    sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                    // printf("sptOmpMTTKRP_Lock:\n");
+                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
+                }
+            }
+
+            
+            sptTimer timer;
+            sptNewTimer(&timer, 0);
+            sptStartTimer(timer);
+
+            for(int it=0; it<niters; ++it) {
+                // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+                if(cuda_dev_id == -2) {
+                    nthreads = 1;
+                    sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
+                } else if(cuda_dev_id == -1) {
+                    if(use_reduce == 1) {
+                        sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
+                    } else {
+                        sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                        // printf("sptOmpMTTKRP_Lock:\n");
+                        // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
+                    }
+                }
+            }
+
+            sptStopTimer(timer);
+
+            if(cuda_dev_id == -2 || cuda_dev_id == -1) {
+                char * prg_name;
+                asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+                double aver_time = sptPrintAverageElapsedTime(timer, niters, prg_name);
+
+                double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
+                uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
+                for (sptIndex m=0; m<nmodes; ++m) {
+                    bytes += X.ndims[m] * R * sizeof(sptValue);
+                }
+                double gbw = (double)bytes / aver_time / 1e9;
+                printf("Performance: %.2lf GFlop/s, Bandwidth: %.2lf GB/s\n\n", gflops, gbw);
+            }
+            sptFreeTimer(timer);
+
+        } // End nmodes
+
+    } else {
+        /* Sort sparse tensor */
+        memset(mode_order, 0, X.nmodes * sizeof(*mode_order));
+        switch (sortcase) {
+            case 0:
+                sptSparseTensorSortIndex(&X, 1);
+                break;
+            case 1:
+                sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                sptSparseTensorSortIndexCustomOrder(&X, mode_order, 1);
+                break;
+            case 2:
+                sptGetWorstModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                sptSparseTensorSortIndexCustomOrder(&X, mode_order, 1);
+                break;
+            case 3:
+                /* Pre-process tensor, the same with the one used in HiCOO.
+                 * Only difference is not setting kptr and kschr in this function.
+                 */
+                sptSparseTensorMixedOrder(&X, sb_bits, sk_bits);
+                break;
+            case 4:
+                // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
+                sptGetRandomShuffleElements(&X);
+                break;
+            default:
+                printf("Wrong sortcase number, reset by -s. \n");
         }
-    }
+        if(sortcase != 0) {
+            printf("mode_order:\n");
+            sptDumpIndexArray(mode_order, X.nmodes, stdout);
+        }
 
-    
-    sptTimer timer;
-    sptNewTimer(&timer, 0);
-    sptStartTimer(timer);
+        sptSparseTensorStatus(&X, stdout);
+        // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
-    for(int it=0; it<niters; ++it) {
-        // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+        /* Set zeros for temporary copy_U, for mode-"mode" */
+        char * bytestr;
+        if(cuda_dev_id == -1 && use_reduce == 1) {
+            copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
+            for(int t=0; t<nt; ++t) {
+                copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
+                sptAssert(sptNewMatrix(copy_U[t], X.ndims[mode], R) == 0);
+                sptAssert(sptConstantMatrix(copy_U[t], 0) == 0);
+            }
+            sptNnzIndex bytes = nt * X.ndims[mode] * R * sizeof(sptValue);
+            bytestr = sptBytesString(bytes);
+            printf("MODE MATRIX COPY=%s\n", bytestr);
+            free(bytestr);
+        }
+
+        sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
+        switch (sortcase) {
+        case 0:
+        case 3:
+        case 4:
+            mats_order[0] = mode;
+            for(sptIndex i=1; i<nmodes; ++i)
+                mats_order[i] = (mode+i) % nmodes;
+            break;
+        case 1: // Reverse of mode_order except the 1st one
+            mats_order[0] = mode;
+            for(sptIndex i=1; i<nmodes; ++i)
+                mats_order[i] = mode_order[nmodes - i];
+            break;
+        case 2: // Totally reverse of mode_order
+            for(sptIndex i=0; i<nmodes; ++i)
+                mats_order[i] = mode_order[nmodes - i];
+            break;
+        }
+        // printf("mats_order:\n");
+        // sptDumpIndexArray(mats_order, nmodes, stdout);
+
+        /* For warm-up caches, timing not included */
         if(cuda_dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
@@ -282,23 +398,44 @@ int main(int argc, char ** argv) {
                 // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
             }
         }
-    }
 
-    sptStopTimer(timer);
+        
+        sptTimer timer;
+        sptNewTimer(&timer, 0);
+        sptStartTimer(timer);
 
-    if(cuda_dev_id == -2 || cuda_dev_id == -1) {
-        double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU SpTns MTTKRP");
-
-        double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
-        uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
-        for (sptIndex m=0; m<nmodes; ++m) {
-            bytes += X.ndims[m] * R * sizeof(sptValue);
+        for(int it=0; it<niters; ++it) {
+            // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+            if(cuda_dev_id == -2) {
+                nthreads = 1;
+                sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
+            } else if(cuda_dev_id == -1) {
+                if(use_reduce == 1) {
+                    sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
+                } else {
+                    sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                    // printf("sptOmpMTTKRP_Lock:\n");
+                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
+                }
+            }
         }
-        double gbw = (double)bytes / aver_time / 1e9;
-        printf("Performance: %.2lf GFlop/s, Bandwidth: %.2lf GB/s\n", gflops, gbw);
-    }
-    sptFreeTimer(timer);
 
+        sptStopTimer(timer);
+
+        if(cuda_dev_id == -2 || cuda_dev_id == -1) {
+            double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU SpTns MTTKRP");
+
+            double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
+            uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
+            for (sptIndex m=0; m<nmodes; ++m) {
+                bytes += X.ndims[m] * R * sizeof(sptValue);
+            }
+            double gbw = (double)bytes / aver_time / 1e9;
+            printf("Performance: %.2lf GFlop/s, Bandwidth: %.2lf GB/s\n\n", gflops, gbw);
+        }
+        sptFreeTimer(timer);
+
+    } // End execute a specified mode
 
     if(cuda_dev_id == -1) {
         if (use_reduce == 1) {
@@ -306,7 +443,6 @@ int main(int argc, char ** argv) {
                 sptFreeMatrix(copy_U[t]);
             }
             free(copy_U);
-            free(bytestr);
         }
         if(lock_pool != NULL) {
             sptMutexFree(lock_pool);
@@ -317,6 +453,7 @@ int main(int argc, char ** argv) {
     }
     sptFreeSparseTensor(&X);
     free(mats_order);
+    free(mode_order);
 
     if(fo != NULL) {
         sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);

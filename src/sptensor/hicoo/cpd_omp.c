@@ -134,7 +134,7 @@ double OmpCpdAlsStepHiCOO(
       /* result is row-major, solve AT XT = BT */
       sptAssert ( sptRankMatrixSolveNormals(m, nmodes, ata, mats[m]) == 0 );
       sptStopTimer(tmp_timer);
-      solver_time = sptPrintElapsedTime(tmp_timer, "memcpy and sptRankMatrixSolveNormals");
+      // solver_time = sptPrintElapsedTime(tmp_timer, "memcpy and sptRankMatrixSolveNormals");
       // printf("Inverse mats[m]:\n");
       // sptDumpRankMatrix(mats[m], stdout);
 
@@ -146,7 +146,7 @@ double OmpCpdAlsStepHiCOO(
         sptRankMatrixMaxNorm(mats[m], lambda);
       }
       sptStopTimer(tmp_timer);
-      norm_time = sptPrintElapsedTime(tmp_timer, "matrix norm");
+      // norm_time = sptPrintElapsedTime(tmp_timer, "matrix norm");
       // printf("Normalize mats[m]:\n");
       // sptDumpRankMatrix(mats[m], stdout);
       // printf("lambda:\n");
@@ -160,7 +160,7 @@ double OmpCpdAlsStepHiCOO(
       ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
         mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
       sptStopTimer(tmp_timer);
-      ata_time = sptPrintElapsedTime(tmp_timer, "update ata");
+      // ata_time = sptPrintElapsedTime(tmp_timer, "update ata");
       // printf("Update ata[m]:\n");
       // sptDumpRankMatrix(ata[m], stdout);
 
@@ -172,7 +172,7 @@ double OmpCpdAlsStepHiCOO(
     sptStartTimer(tmp_timer);
     fit = KruskalTensorFitHiCOO(hitsr, lambda, mats, ata);
     sptStopTimer(tmp_timer);
-    fit_time = sptPrintElapsedTime(tmp_timer, "KruskalTensorFitHiCOO");
+    // fit_time = sptPrintElapsedTime(tmp_timer, "KruskalTensorFitHiCOO");
 
     sptStopTimer(timer);
     double its_time = sptElapsedTime(timer);

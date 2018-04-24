@@ -1,22 +1,17 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("choa700k_init" "1998DARPA_init" "nell2_init" "nell1_init" "delicious_init" "freebase_music_init" "freebase_sampled_init")
-declare -a l3tsrs=("amazon-reviews_init" "patents_init" "reddit-2015_init")
-declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d")
-declare -a l4tsrs=("flickr-4d" "delicious-4d")
+declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_music" "flickr" "freebase_sampled" "nell1" "delicious")
+declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
+declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
 declare -a test_tsr_names=()
 # declare -a threads=("1" "2" "4" "8" "16" "24" "32")
 declare -a threads=("1")
 
-# tsr_path="/scratch/jli458/BIGTENSORS"
-tsr_path="/scratch/jli458/BIGTENSORS/DenseSynTensors"
-splatt_path="/nethome/jli458/Software/Install/splatt/int32-single"
-# out_path="./timing-2018/splatt/mttkrp/32bit-single-onemode"
-out_path="./timing-2018/splatt/mttkrp/32bit-single-allmode"
-nmodes=3
-modes="$(seq -s ' ' 1 ${nmodes})"
+tsr_path="${SCRATCH}/BIGTENSORS"
+out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-allmode"
+splatt_path="/global/homes/j/jiajiali/Software/Install/splatt/int32-single-allmode"
 
 
 # for R in 8 16 32 64

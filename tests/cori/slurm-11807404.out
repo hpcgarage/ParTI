@@ -1,0 +1,380 @@
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/vast-2015-mc1.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/vast-2015-mc1-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/choa700k.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/choa700k-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/1998DARPA.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/1998DARPA-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell2.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell2-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_music.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_music-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/flickr.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/flickr-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/freebase_sampled.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/freebase_sampled-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/nell1.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/nell1-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=7; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 7 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k7-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=8; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 8 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k8-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=9; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 9 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k9-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=10; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 10 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k10-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=11; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 11 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k11-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=12; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 12 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k12-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=13; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 13 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k13-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=14; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 14 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k14-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=15; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 15 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k15-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=16; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 16 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k16-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=17; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 17 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k17-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=18; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 18 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k18-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=19; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 19 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k19-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+sk=20; sb=7
+numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i /global/cscratch1/sd/jiajiali/BIGTENSORS/delicious.tns -b 7 -k 20 -c 14 -d -1 -r 16 -t 32 -l 1 > /global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single/delicious-b7-k20-c14-r16-tk32-tb1.txt
+numactl: execution of `./build/tests/mttkrp_hicoo_matrixtiling': No such file or directory
+srun: error: nid01916: task 0: Exited with exit code 1
+srun: Terminating job step 11807404.0
