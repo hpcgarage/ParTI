@@ -32,7 +32,7 @@ void print_usage(char ** argv) {
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
     printf("         -e RENUMBER, --renumber=RENUMBER\n");
-    printf("         -m MODE, --mode=MODE\n");
+    printf("         -m MODE, --mode=MODE (default -1: loop all modes)\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
     printf("         -r RANK\n");
@@ -50,7 +50,7 @@ int main(int argc, char ** argv) {
     sptElementIndex sk_bits;
     sptElementIndex sc_bits;
 
-    sptIndex mode = 0;
+    sptIndex mode = PARTI_INDEX_MAX;
     sptIndex R = 16;
     int cuda_dev_id = -2;
     int niters = 5;
@@ -136,7 +136,8 @@ int main(int argc, char ** argv) {
             exit(1);
         }
     }
-
+    printf("mode: %"PARTI_PRI_INDEX "\n", mode);
+    printf("cuda_dev_id: %d\n", cuda_dev_id);
 
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     // sptSparseTensorSortIndex(&tsr, 1);
@@ -182,13 +183,18 @@ int main(int argc, char ** argv) {
     sptFreeTimer(renumber_timer);
     printf("\n");
 
+    /* Convert to HiCOO tensor */
+    sptNnzIndex max_nnzb = 0;
     sptTimer convert_timer;
     sptNewTimer(&convert_timer, 0);
     sptStartTimer(convert_timer);
-
-    /* Convert to HiCOO tensor */
-    sptNnzIndex max_nnzb = 0;
+    
     sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+
+    sptStopTimer(convert_timer);
+    sptPrintElapsedTime(convert_timer, "Convert HiCOO");
+    sptFreeTimer(convert_timer);
+
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
@@ -197,11 +203,10 @@ int main(int argc, char ** argv) {
         return -1;
     }
 
-    sptStopTimer(convert_timer);
-    sptPrintElapsedTime(convert_timer, "Convert HiCOO");
-    sptFreeTimer(convert_timer);
 
+    /* Initialize factor matrices */
     sptIndex nmodes = hitsr.nmodes;
+    sptNnzIndex factor_bytes = 0;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
     for(sptIndex m=0; m<nmodes+1; ++m) {
       U[m] = (sptMatrix *)malloc(sizeof(sptMatrix));
@@ -213,50 +218,103 @@ int main(int argc, char ** argv) {
       sptAssert(sptConstantMatrix(U[m], 1) == 0);
       if(hitsr.ndims[m] > max_ndims)
         max_ndims = hitsr.ndims[m];
+      factor_bytes += hitsr.ndims[m] * R * sizeof(sptValue);
       // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
     }
     sptAssert(sptNewMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
 
+    /* output factor size */
+    char * bytestr;
+    bytestr = sptBytesString(factor_bytes);
+    printf("FACTORS-STORAGE=%s\n", bytestr);
+    printf("\n");
+    free(bytestr);
 
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
-    mats_order[0] = mode;
-    for(sptIndex i=1; i<nmodes; ++i)
-        mats_order[i] = (mode+i) % nmodes;
-    // printf("mats_order:\n");
-    // sptDumpIndexArray(mats_order, nmodes, stdout);
 
-    /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
-        nthreads = 1;
-        sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
-    } else if(cuda_dev_id == -1) {
-        printf("tk: %d, tb: %d\n", tk, tb);
-        sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
-    }
+    if (mode == PARTI_INDEX_MAX) {
+        for(sptIndex mode=0; mode<nmodes; ++mode) {
+            /* Reset U[nmodes] */
+            sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
 
-    sptTimer timer;
-    sptNewTimer(&timer, 0);
-    sptStartTimer(timer);
+            mats_order[0] = mode;
+            for(sptIndex i=1; i<nmodes; ++i)
+                mats_order[i] = (mode+i) % nmodes;
+            // printf("mats_order:\n");
+            // sptDumpIndexArray(mats_order, nmodes, stdout);
 
-    for(int it=0; it<niters; ++it) {
+            /* For warm-up caches, timing not included */
+            if(cuda_dev_id == -2) {
+                nthreads = 1;
+                sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+            } else if(cuda_dev_id == -1) {
+                printf("tk: %d, tb: %d\n", tk, tb);
+                sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
+            }
+
+            sptTimer timer;
+            sptNewTimer(&timer, 0);
+            sptStartTimer(timer);
+
+            for(int it=0; it<niters; ++it) {
+                if(cuda_dev_id == -2) {
+                    nthreads = 1;
+                    sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+                } else if(cuda_dev_id == -1) {
+                    /* Atomic implementation */
+                    sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
+                }
+            }
+
+            sptStopTimer(timer);
+            char * prg_name;
+            asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+            sptPrintAverageElapsedTime(timer, niters, prg_name);
+            printf("\n");
+            sptFreeTimer(timer);
+        }   // End nmodes
+
+    } else {
+
+        mats_order[0] = mode;
+        for(sptIndex i=1; i<nmodes; ++i)
+            mats_order[i] = (mode+i) % nmodes;
+        // printf("mats_order:\n");
+        // sptDumpIndexArray(mats_order, nmodes, stdout);
+
+        /* For warm-up caches, timing not included */
         if(cuda_dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
         } else if(cuda_dev_id == -1) {
+            printf("tk: %d, tb: %d\n", tk, tb);
             sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
         }
-    }
 
-    sptStopTimer(timer);
-    sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
-    sptFreeTimer(timer);
+        sptTimer timer;
+        sptNewTimer(&timer, 0);
+        sptStartTimer(timer);
 
-    if(fo != NULL) {
-        sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
-        fclose(fo);
-    }
+        for(int it=0; it<niters; ++it) {
+            if(cuda_dev_id == -2) {
+                nthreads = 1;
+                sptAssert(sptMTTKRPHiCOO(&hitsr, U, mats_order, mode) == 0);
+            } else if(cuda_dev_id == -1) {
+                sptAssert(sptOmpMTTKRPHiCOO(&hitsr, U, mats_order, mode, tk, tb) == 0);
+            }
+        }
+
+        sptStopTimer(timer);
+        sptPrintAverageElapsedTime(timer, niters, "CPU  SpTns MTTKRP");
+        sptFreeTimer(timer);
+
+        if(fo != NULL) {
+            sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+            fclose(fo);
+        }
+    }   // End execute a specified mode
 
 
     for(sptIndex m=0; m<nmodes; ++m) {

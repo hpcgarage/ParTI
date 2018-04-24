@@ -157,7 +157,9 @@ int main(int argc, char ** argv) {
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
+    /* Initialize factor matrices */
     sptIndex nmodes = hitsr.nmodes;
+    sptNnzIndex factor_bytes = 0;
     U = (sptRankMatrix **)malloc((nmodes+1) * sizeof(sptRankMatrix*));
     for(sptIndex m=0; m<nmodes+1; ++m) {
       U[m] = (sptRankMatrix *)malloc(sizeof(sptRankMatrix));
@@ -169,14 +171,21 @@ int main(int argc, char ** argv) {
       sptAssert(sptConstantRankMatrix(U[m], 1) == 0);
       if(hitsr.ndims[m] > max_ndims)
         max_ndims = hitsr.ndims[m];
+      factor_bytes += hitsr.ndims[m] * R * sizeof(sptValue);
       // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
     }
     sptAssert(sptNewRankMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
     // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
 
-    sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
+    /* output factor size */
     char * bytestr;
+    bytestr = sptBytesString(factor_bytes);
+    printf("FACTORS-STORAGE=%s\n", bytestr);
+    printf("\n");
+    free(bytestr);
+
+    sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
 
     if (mode == PARTI_INDEX_MAX) {
         for(sptIndex mode=0; mode<nmodes; ++mode) {

@@ -532,7 +532,15 @@ int sptSparseTensorToHiCOO(
     spt_CheckError(result, "HiSpTns Convert", NULL);
 
     /* Pre-process tensor to get hitsr->kptr, values are nonzero locations. */
+    sptTimer sort_timer;
+    sptNewTimer(&sort_timer, 0);
+    sptStartTimer(sort_timer);
+
     sptPreprocessSparseTensor(&hitsr->kptr, hitsr->kschr, hitsr->nkiters, tsr, sb_bits, sk_bits);
+
+    sptStopTimer(sort_timer);
+    sptPrintElapsedTime(sort_timer, "HiCOO sorting (rowblock + morton)");
+    sptFreeTimer(sort_timer);
 #if PARTI_DEBUG >= 2
     printf("Kernels: Row-major, blocks: Morton-order sorted:\n");
     sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
