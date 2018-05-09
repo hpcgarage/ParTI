@@ -148,10 +148,6 @@ int main(int argc, char ** argv) {
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
-    if (max_nnzb > 1024 && cuda_dev_id >= 0 ) {
-        printf("Too many nnzs per block. \n");
-        return -1;
-    }
 
     sptStopTimer(convert_timer);
     sptPrintElapsedTime(convert_timer, "Convert HiCOO");

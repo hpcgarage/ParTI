@@ -5,7 +5,7 @@ declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_musi
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
-declare -a test_tsr_names=("choa100k" "choa200k")
+declare -a test_tsr_names=("freebase_sampled")
 declare -a threads=("32")
 
 tsr_path="${SCRATCH}/BIGTENSORS"
@@ -21,7 +21,7 @@ nstreams=8
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${s4tsrs[@]}"
 	do
 
 		#### sk set for sortcase = "3" ####
@@ -43,9 +43,9 @@ do
 
 
 		#### Sequetial code ####
-		dev_id=-2
-		echo "./build/tests/mttkrp -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-m${mode}-r${R}-seq.txt"
-		./build/tests/mttkrp -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-r${R}-seq.txt
+		# dev_id=-2
+		# echo "./build/tests/mttkrp -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-r${R}-seq.txt"
+		# ./build/tests/mttkrp -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-r${R}-seq.txt
 
 		# for sortcase in "1" "2" "4"
 		# do

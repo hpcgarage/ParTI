@@ -24,6 +24,8 @@
 #include "../src/sptensor/sptensor.h"
 #include "../src/sptensor/hicoo/hicoo.h"
 
+void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations);
+
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT\n");
@@ -146,9 +148,6 @@ int main(int argc, char ** argv) {
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     /* Renumber the input tensor */
-    sptTimer renumber_timer;
-    sptNewTimer(&renumber_timer, 0);
-    sptStartTimer(renumber_timer);
     if (renumber == 1) {
         sptIndex ** map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
@@ -162,9 +161,20 @@ int main(int argc, char ** argv) {
         /* Set randomly renumbering */
         // sptGetRandomShuffledIndices(&tsr, map_inds);
         /* Set the graph partitioning renumbering */
-        orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
+        sptTimer renumber_timer;
+        sptNewTimer(&renumber_timer, 0);
+        sptStartTimer(renumber_timer);
+
+        // orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
+        fflush(stdout);
+        orderit(&tsr, map_inds, 5);
 
         sptSparseTensorShuffleIndices(&tsr, map_inds);
+
+        sptStopTimer(renumber_timer);
+        sptPrintElapsedTime(renumber_timer, "Renumbering");
+        sptFreeTimer(renumber_timer);
+        printf("\n");
 
         // sptSparseTensorSortIndex(&tsr, 1);
         // printf("map_inds:\n");
@@ -178,10 +188,6 @@ int main(int argc, char ** argv) {
         }
         free(map_inds);
     }
-    sptStopTimer(renumber_timer);
-    sptPrintElapsedTime(renumber_timer, "Renumbering");
-    sptFreeTimer(renumber_timer);
-    printf("\n");
 
     /* Convert to HiCOO tensor */
     sptNnzIndex max_nnzb = 0;
@@ -198,11 +204,6 @@ int main(int argc, char ** argv) {
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
-    if (max_nnzb > 1024 && cuda_dev_id >= 0 ) {
-        printf("Too many nnzs per block. \n");
-        return -1;
-    }
-
 
     /* Initialize factor matrices */
     sptIndex nmodes = hitsr.nmodes;

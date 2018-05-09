@@ -56,16 +56,16 @@ double KruskalTensorFit(
   sptIndex const nmodes = spten->nmodes;
 
   double spten_normsq = SparseTensorFrobeniusNormSquared(spten);
-  // printf("spten_normsq: %lf\n", spten_normsq);
+  printf("spten_normsq: %lf\n", spten_normsq);
   double const norm_mats = KruskalTensorFrobeniusNormSquared(nmodes, lambda, ata);
-  // printf("norm_mats: %lf\n", norm_mats);
+  printf("norm_mats: %lf\n", norm_mats);
   double const inner = SparseKruskalTensorInnerProduct(nmodes, lambda, mats);
-  // printf("inner: %lf\n", inner);
+  printf("inner: %lf\n", inner);
   double residual = spten_normsq + norm_mats - 2 * inner;
+  printf("residual: %lf\n", residual);
   if (residual > 0.0) {
     residual = sqrt(residual);
   }
-  // printf("residual: %lf\n", residual);
   double fit = 1 - (residual / sqrt(spten_normsq));
 
   return fit;

@@ -55,26 +55,10 @@ for tsr in s3tsrs:
 		if(len(line_array) < 4):
 			continue;
 		elif(line_array[3] == 'MTTKRP'):
-			if(line_array[5] == '0]:'):
-				time_num_m0 = line_array[6]
-				# print(time_num_m0)
-				sum_seq = sum_seq + float(time_num_m0)
-				fo.write(time_num_m0+'\n')
-			elif(line_array[5] == '1]:'):
-				time_num_m1 = line_array[6]
-				# print(time_num_m1)
-				sum_seq = sum_seq + float(time_num_m1)
-				fo.write(time_num_m1+'\n')
-			elif(line_array[5] == '2]:'):
-				time_num_m2 = line_array[6]
-				# print(time_num_m2)
-				sum_seq = sum_seq + float(time_num_m2)
-				fo.write(time_num_m2+'\n')
-			elif(line_array[5] == '3]:'):
-				time_num_m3 = line_array[6]
-				# print(time_num_m3)
-				sum_seq = sum_seq + float(time_num_m3)
-				fo.write(time_num_m3+'\n')
+			time_num = line_array[6]
+			# print(time_num_m0)
+			sum_seq = sum_seq + float(time_num)
+			fo.write(time_num+'\n')
 	
 	fo.write(str(sum_seq)+'\n')
 	fi.close()

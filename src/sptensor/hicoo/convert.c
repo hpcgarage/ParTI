@@ -680,7 +680,7 @@ int sptSparseTensorToHiCOO(
     }
     sptAssert(nb <= nnz);
     sptAssert(nb == hitsr->binds[0].len); 
-    sptAssert(nc <= nb);
+    // sptAssert(nc <= nb);
     sptAssert(nk == hitsr->kptr.len - 1);
 
     /* Last element for kptr, cptr, bptr */

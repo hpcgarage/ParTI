@@ -9,9 +9,6 @@ s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', '
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 r = 16
-m1_nums = []
-m2_nums = []
-m3_nums = []
 
 # input parameters
 t = sys.argv[1]
