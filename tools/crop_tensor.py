@@ -32,19 +32,19 @@ def main(argv: [str]) -> int:
         print('        INDEX        for an index strictly equal to INDEX')
         print('        :            do not crop this dimension')
         print('        -            remove this dimension')
-        print('This program sums elements with identical coordinates prior to output.')
+        print('This program removes out-of-bound elements and sums elements with identical coordinates prior to output.')
         print()
         return 1
-    tensor_file = open(argv[1], 'r')
+    tensor_file = open(argv[1], 'rb')
     tensor_file.seek(0, 2)
     tensor_size = tensor_file.tell()
     tensor_file.seek(0)
-    ndims = int(tensor_file.readline())
+    ndims = int(tensor_file.readline().decode('iso-8859-1', 'replace'))
     if len(argv) != ndims + 3:
         raise ValueError(
             'Error: you specified {} ranges, while the tensor has {} modes.'.
             format(len(argv) - 3, ndims))
-    shape = list(map(int, tensor_file.readline().split()))
+    shape = list(map(int, tensor_file.readline().decode('iso-8859-1', 'replace').split()))
     if len(shape) != ndims:
         raise ValueError('Incomplete definition of tensor shape')
     limits = [None] * ndims
@@ -52,61 +52,56 @@ def main(argv: [str]) -> int:
     for i in range(ndims):
         limit = argv[i + 3]
         if limit == '-':
-            limits[i] = slice(None)
+            limits[i] = 0, shape[i] + 1
             squash[i] = True
         elif limit == ':':
-            limits[i] = slice(None)
+            limits[i] = 0, shape[i] + 1
         elif limit.startswith(':'):
-            limits[i] = slice(None, int(limit[1:]))
+            limits[i] = 0, int(limit[1:])
         elif limit.endswith(':'):
-            limits[i] = slice(int(limit[:-1]), None)
+            limits[i] = int(limit[:-1]), shape[i] + 1
         elif ':' in limit:
-            start, stop = tuple(map(int, limit.split(':', 1)))
-            limits[i] = slice(start, stop)
+            limits[i] = tuple(map(int, limit.split(':', 1)))
         else:
             start = int(limit)
-            limits[i] = slice(start, start + 1)
+            limits[i] = start, start + 1
     tensor = sortedcontainers.SortedDict()
     percent = 0
     while True:
         line = tensor_file.readline()
         if not line:
             break
-        line_split = line.split()
+        line_split = line.decode('iso-8859-1', 'replace').split()
         if not line_split:
             continue
         coord = tuple(
             (0 if s else int(c) for c, s in zip(line_split[:ndims], squash)))
-        value = float(line_split[ndims])
-        if all(((l.start is None or l.start <= c)
-                and (l.stop is None or c < l.stop)
-                for c, l in zip(coord, limits))):
+        if all((start <= c < stop for c, (start, stop) in zip(coord,limits))):
+            value = float(line_split[ndims])
             tensor[coord] = tensor.get(coord, 0) + value
-        new_percent = round(tensor_file.tell() * 50 / tensor_size, 1)
+        new_percent = tensor_file.tell() * 80 // tensor_size
         if new_percent != percent:
-            print('{:5.1f}% completed.'.format(new_percent), end='\r')
+            print('{:3d}% completed.'.format(new_percent), end='\r')
             percent = new_percent
-    print(' 50.0% completed.', end='\r')
     tensor_file.close()
-    tensor_file = open(argv[2], 'w')
-    tensor_file.write(str(ndims - sum(squash)) + '\n')
+    tensor_file = open(argv[2], 'wb')
+    tensor_file.write(str(ndims - sum(squash)).encode('iso-8859-1', 'replace') + b'\n')
     new_shape = shape.copy()
     for i in range(ndims - 1, -1):
         if squash[i]:
             del new_shape[i]
-    tensor_file.write('{}\n'.format('\t'.join(map(str, new_shape))))
-    percent = 50
+    tensor_file.write('{}\n'.format('\t'.join(map(str, new_shape))).encode('iso-8859-1', 'replace'))
     tensor_size = len(tensor)
     for count, (coord, value) in enumerate(tensor.iteritems()):
         for i in range(ndims):
             if not squash[i]:
-                tensor_file.write(str(coord[i]) + '\t')
-        tensor_file.write('{: .16g}\n'.format(value))
-        new_percent = round(50 + count * 50 / tensor_size, 1)
+                tensor_file.write(str(coord[i]).encode('iso-8859-1', 'replace') + b'\t')
+        tensor_file.write('{: .16g}\n'.format(value).encode('iso-8859-1', 'replace'))
+        new_percent = 80 + count * 20 // tensor_size
         if new_percent != percent:
-            print('{:5.1f}% completed.'.format(new_percent), end='\r')
+            print('{:3d}% completed.'.format(new_percent), end='\r')
             percent = new_percent
-    print('100.0% completed.')
+    print('100% completed.')
     tensor_file.close()
     return 0
 
