@@ -93,6 +93,8 @@ def main(argv: [str]) -> int:
     tensor_file.write('{}\n'.format('\t'.join(map(str, new_shape))).encode('iso-8859-1', 'replace'))
     tensor_size = len(tensor)
     for count, (coord, value) in enumerate(tensor.iteritems()):
+        if value == 0:
+            continue
         for i in range(ndims):
             if not squash[i]:
                 tensor_file.write(str(coord[i]).encode('iso-8859-1', 'replace') + b'\t')
