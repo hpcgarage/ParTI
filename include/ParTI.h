@@ -77,8 +77,6 @@ extern "C" {
 #include "includes/ktensors.h"
 /* CPD functions */
 #include "includes/cpds.h"
-/* Renumbering for indices */
-#include "includes/orderforHiCOO.h"
 
 
 

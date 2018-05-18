@@ -7,6 +7,104 @@
 /*function declarations*/
 void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex **newIndices);
 
+void orderforHiCOObfsLike(sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords, sptIndex **newIndices);
+
+void printCSR(sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols)
+{
+    sptNnzIndex r, jend, jcol;
+    printf("matrix of size %llu %u with %llu\n", m, n, ia[m+1]);
+    
+    for (r = 1; r <=m; r++)
+    {
+        jend = ia[r+1]-1;
+        printf("r=%llu (%llu %llu)): ", r, ia[r], ia[r+1]);
+        for(jcol = ia[r]; jcol <= jend ; jcol++)
+            printf("%u ", cols[jcol]);
+        printf("\n");
+    }
+}
+
+void checkRepeatIndex(sptNnzIndex mtxNrows, sptNnzIndex *rowPtrs, sptIndex *cols, sptIndex n )
+{
+    printf("\tChecking repeat indices\n");
+    sptIndex *marker = (sptIndex *) calloc(n+1, sizeof(sptIndex));
+    sptNnzIndex r,  jcol, jend;
+    for (r = 1; r <= mtxNrows; r++)
+    {
+        jend = rowPtrs[r+1]-1;
+        for (jcol = rowPtrs[r]; jcol <= jend; jcol++)
+        {
+            if( marker[cols[jcol]] < r )
+                marker[cols[jcol]] = r;
+            else if (marker[cols[jcol]] == r)
+            {
+                printf("*************************\n");
+                printf("error duplicate col index %u at row %llu\n", cols[jcol], r);
+                printf("*************************\n");
+                
+                exit(12);
+            }
+        }
+        
+    }
+    free(marker);
+}
+void checkEmptySlices(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims)
+{
+    sptIndex m, i;
+    sptNnzIndex z;
+    sptIndex **marker;
+    
+    marker = (sptIndex **) malloc(sizeof(sptIndex*) * nm);
+    for (m = 0; m < nm; m++)
+        marker[m] = (sptIndex*) calloc(ndims[m], sizeof(sptIndex) );
+    
+    for (z = 0; z < nnz; z++)
+        for (m=0; m < nm; m++)
+            marker[m][coords[z][m]] = m + 1;
+    
+    for (m=0; m < nm; m++)
+    {
+        sptIndex emptySlices = 0;
+        for (i = 0; i < ndims[m]; i++)
+            if(marker[m][i] != m+1)
+                emptySlices ++;
+        if(emptySlices)
+            printf("dim %u, empty slices %u of %u\n", m, emptySlices,ndims[m] );
+    }
+    for (m = 0; m < nm; m++)
+        free(marker[m]);
+    free(marker);
+}
+
+void checkNewIndices(sptIndex **newIndices, sptIndex nm, sptIndex *ndims)
+{
+    sptIndex m, i;
+    sptIndex **marker, leftVoid;
+    
+    marker = (sptIndex **) malloc(sizeof(sptIndex*) * nm);
+    for (m = 0; m < nm; m++)
+        marker[m] = (sptIndex*) calloc(ndims[m], sizeof(sptIndex) );
+    
+    for (m=0; m < nm; m++)
+        for (i = 0; i < ndims[m]; i++)
+            marker[m][newIndices[m][i]] = m + 1;
+    
+    leftVoid = 0;
+    for (m=0; m < nm; m++)
+    {
+        for (i = 0; i < ndims[m]; i++)
+            if(marker[m][i] != m+1)
+                leftVoid ++;
+        if(leftVoid)
+            printf("dim %u, left void %u of %u\n", m, leftVoid, ndims[m] );
+    }
+    for (m = 0; m < nm; m++)
+        free(marker[m]);
+    free(marker);
+}
+
+
 void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
 {
     /*
@@ -31,17 +129,26 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
             coords[z][m] = tsr->inds[m].data[z];
     }
     
+    /*checkEmptySlices(coords, nnz, nm, tsr->ndims);*/
+    
     /*initialize to the identity */
     for (m = 0; m < nm; m++)
         for (i = 0; i < tsr->ndims[m]; i++)
             newIndices[m][i] = i;
     
+   /*
+    REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations, but on a few cases it did not help much. Just leaving it in case we want to use it.
+    
+    orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
+    */
     for (its = 0; its < iterations; its++)
     {
         printf("Optimizing the numbering for its %u\n", its+1);
         for (m = 0; m < nm; m++)
             orderDim(coords, nnz, nm, tsr->ndims, m, newIndices);
     }
+    
+    checkNewIndices(newIndices, nm, tsr->ndims);
     
     for (z = 0; z < nnz; z++)
         free(coords[z]);
@@ -50,7 +157,7 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
     
 }
 /******************** Internals begin ***********************/
-/*beyond this line svages....
+/*beyond this line savages....
  **************************************************************/
 void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
 {
@@ -59,11 +166,10 @@ void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
     for (z = 0; z < nnz; z++)
     {
         for (m=0; m < nm; m++)
-            printf("%d ", coords[z][m]);
+            printf("%d ", coords[z][m]+1);
         printf("\n");
     }
 }
-
 /**************************************************************/
 static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
 {
@@ -99,37 +205,71 @@ static inline void buSwap(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *wsp
     
 }
 
-/**************************************************************/
+static inline void writeInto(sptIndex *target, sptIndex *source, sptIndex nm)
+{
+    sptIndex m;
+    for (m = 0; m < nm; m++)
+        target[m] = source[m];
+}
+void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
+{
+    sptNnzIndex z, z2plus;
+    for (z = lo+1; z <= hi; z++)
+    {
+        writeInto(tmpNnz, coords[z], nm);
+        /*find place for z*/
+        z2plus = z;
+        while ( z2plus > 0  && isLessThanOrEqualTo(coords[z2plus-1], tmpNnz, nm, newIndices, ndims, dim)== 1)
+        {
+            writeInto(coords[z2plus], coords[z2plus-1], nm);
+            z2plus --;
+        }
+        writeInto(coords[z2plus], tmpNnz, nm);
+    }
+}
 static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
 {
-    /*cannot have lo - 1 because unsigned, and starts from 0
-     the array is between [lo, ..., hi), the hi is not included.
-     */
-    sptNnzIndex left, right, mid=(lo+hi)/2;
-    sptIndex m;
+    /*copied from the web http://ndevilla.free.fr/median/median/src/quickselect.c*/
+    sptNnzIndex low, high, median, middle, ll, hh;
     
-    buSwap(coords[lo], coords[mid], nm, wspace);/*bring the middle to the pivot position; to avoid worst case behaivor. totally random would be safer but...*/
-    
-    for (m = 0; m < nm; m++)
-        tmpNnz[m] = coords[lo][m];
-    
-    left = lo;
-    right = hi;
-    while(1)
+    low = lo; high = hi; median = (low+high)/2;
+    for(;;)
     {
-        while(left <= hi && isLessThanOrEqualTo(coords[left], tmpNnz, nm, newIndices, ndims, dim) <= 0)
-            left ++;
-        while(isLessThanOrEqualTo(coords[right], tmpNnz, nm, newIndices, ndims, dim) > 0)
-            right --;
-        if(left >= right)
-            break;
-        buSwap(coords[left], coords[right], nm, wspace);
+        if (high<=low) return median;
+        if(high == low + 1)
+        {
+            if(isLessThanOrEqualTo(coords[low], coords[high], nm, newIndices, ndims, dim)== 1)
+                buSwap (coords[high], coords[low], nm, wspace);
+            return median;
+        }
+        middle = (low+high)/2;
+        if(isLessThanOrEqualTo(coords[middle], coords[high], nm, newIndices, ndims, dim) == 1)
+            buSwap (coords[middle], coords[high], nm, wspace);
+        
+        if(isLessThanOrEqualTo(coords[low], coords[high], nm, newIndices, ndims, dim) == 1)
+            buSwap (coords[low], coords[high], nm, wspace);
+        
+        if(isLessThanOrEqualTo(coords[middle], coords[low], nm, newIndices, ndims, dim) == 1)
+            buSwap (coords[low], coords[middle], nm, wspace);
+        
+        buSwap (coords[middle], coords[low+1], nm, wspace);
+        
+        ll = low + 1;
+        hh = high;
+        for (;;){
+            do ll++; while (isLessThanOrEqualTo(coords[low], coords[ll], nm, newIndices, ndims, dim) == 1);
+            do hh--; while (isLessThanOrEqualTo(coords[hh], coords[low], nm, newIndices, ndims, dim) == 1);
+            
+            if (hh < ll) break;
+            
+            buSwap (coords[ll], coords[hh], nm, wspace);
+        }
+        buSwap (coords[low], coords[hh], nm,wspace);
+        if (hh <= median) low = ll;
+        if (hh >= median) high = hh - 1;
     }
-    buSwap(coords[lo], coords[right], nm, wspace);
-
-    return right;
+    
 }
-
 /**************************************************************/
 void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
 {
@@ -137,12 +277,15 @@ void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIn
     /*an iterative quicksort*/
     sptNnzIndex *stack, top, lo, hi, pv;
     sptIndex *tmpNnz, *wspace;
-    sptNnzIndex total = 0;
     
     tmpNnz = (sptIndex*) malloc(sizeof(sptIndex) * nm);
     wspace = (sptIndex*) malloc(sizeof(sptIndex) * nm);
     stack = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * 2 * (last+2));
     
+    if(stack == NULL) {
+        printf("could not allocated stack. returning\n");
+        exit(14);
+    }
     top = 0;
     stack[top++] = 0;
     stack[top++] = last;
@@ -150,43 +293,73 @@ void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIn
     {
         hi = stack[--top];
         lo = stack[--top];
-        total += hi-lo+1;
-        
         pv = buPartition(coords, lo, hi, nm, newIndices, ndims, dim, tmpNnz, wspace);
+        
         if(pv > lo+1)
         {
-            stack[top++] = lo;
-            stack[top++] = pv-1 ;
+            if(pv - lo > 128)
+            {
+                stack[top++] = lo;
+                stack[top++] = pv-1 ;
+            }
+            else
+                insertionSort(coords, lo, pv-1,  nm, newIndices, ndims, dim, tmpNnz, wspace);
+        }
+        if(top >= 2 * (last+2)){
+            printf("\thow come this tight?\n");
+            exit(13);
         }
         if(pv + 1 < hi)
         {
-            stack[top++] = pv + 1 ;
-            stack[top++] = hi;
+            if(hi - pv > 128)
+            {
+                stack[top++] = pv + 1 ;
+                stack[top++] = hi;
+            }
+            else
+                insertionSort(coords, pv+1, hi,  nm, newIndices, ndims, dim, tmpNnz, wspace);
+        }
+        if( top >= 2 * (last+2)) {
+            printf("\thow come this tight?\n");
+            exit(13);
         }
     }
     free(stack);
     free(wspace);
     free(tmpNnz);
-    
 }
 
-
-/**************************************************************/
-void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, sptIndex *cprm)
-/*m, n are the num of rows and cols, respectively. We lex order cols,
- given rows.
- 
- BU notes as of 4 May 2018: I am hoping that I will not be asked the details of this function, and its memory use;) A quick and dirty update from something else I had since some time. I did not think through if the arrays could be reduced. Right now we have 13 arrays of size n each (where n is the length of a single dimension of the tensor.
- */
+sptIndex countNumItems(sptIndex *setnext, sptIndex *tailset, sptIndex firstset, sptIndex *prev)
 {
+    sptIndex cnt = 0, set;
+    for(set = firstset; set != 0; set = setnext[set])
+    {
+        sptIndex item = tailset[set];
+        
+        while(item != 0 )
+        {
+            cnt ++;
+            item = prev[item];
+        }
+    }
+    return cnt;
+}
+
+void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, sptIndex *cprm)
+{
+    /*m, n are the num of rows and cols, respectively. We lex order cols,
+     given rows.
+     
+     BU notes as of 4 May 2018: I am hoping that I will not be asked the details of this function, and its memory use;) A quick and dirty update from something else I had since some time. I did not think through if the arrays could be reduced. Right now we have 10 arrays of size n each (where n is the length of a single dimension of the tensor.
+     */
+    
     sptNnzIndex *flag, j, jcol, jend;
-    sptIndex *svar,  *var;
+    sptIndex *svar,  *var, numBlocks, jj;
     sptIndex *prev, *next, *sz, *setnext, *setprev, *tailset;
     
-    sptIndex freeId, *freeIdNext, *freeIdPrev;
-    sptIndex cnt = 0, k, s, acol;
+    sptIndex *freeIdList, freeIdTop;
     
-    sptIndex *ids, *starts;
+    sptIndex k, s, acol;
     
     sptIndex firstset, set, pos;
     
@@ -199,51 +372,42 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
     setprev = (sptIndex*)calloc(sizeof(sptIndex),(n+2));
     setnext = (sptIndex*)calloc(sizeof(sptIndex),(n+2));
     tailset = (sptIndex*)calloc(sizeof(sptIndex),(n+2));
-    freeIdNext  =(sptIndex*)calloc(sizeof(sptIndex),(n+2));
-    freeIdPrev  =(sptIndex*)calloc(sizeof(sptIndex),(n+2));
-    ids =(sptIndex*)calloc(sizeof(sptIndex),(n+2));
-    starts =(sptIndex*)calloc(sizeof(sptIndex),(n+2));
+    freeIdList = (sptIndex*)calloc(sizeof(sptIndex),(n+2));
     
-    cnt = 1;
-
     next[1] = 2;
     prev[0] =  prev[1] = 0;
     next[n] = 0;
     prev[n] = n-1;
     svar[1] = svar[n] = 1;
     flag[1] = flag[n] = flag[n+1] = 0;
-    sz[n] = sz[n+1] =  0;
-    
-    for(j = 2; j<=n-1; j++)/*init all in a single svar*/
+    cprm[1] = cprm[n] = 2 * n ;
+    setprev[1] = setnext[1] = 0;
+    for(jj = 2; jj<=n-1; jj++)/*init all in a single svar*/
     {
-        svar[j] = 1;
-        next[j] = j+1;
-        prev[j] = j-1;
-        flag[j] = 0;
-        sz[j] = 0;
-        setprev[j] = setnext[j] = 0;
+        svar[jj] = 1;
+        next[jj] = jj+1;
+        prev[jj] = jj-1;
+        flag[jj] = 0;
+        sz[jj] = 0;
+        setprev[jj] = setnext[jj] = 0;
+        cprm[jj] = 2 * n;
     }
     var[1] = 1;
     sz[1] = n;
+    sz[n] = sz[n+1] =  0;
     
-    setprev[1] = setprev[n] = 0;
-    setnext[1] = setnext[n] = 0;
+    setprev[n] = setnext[n] = 0;
+    setprev[n+1] = setnext[n+1] = 0;
+    
     tailset[1] = n;
     
     firstset = 1;
+    freeIdList[0] = 0;
     
-    freeIdNext[1] = freeIdPrev[1] = 1;
-    freeIdNext[2] = 3;
-    freeIdPrev[2] = n+1;
-    freeIdNext[n+1] = 2;
-    freeIdPrev[n+1] = n;
+    for(jj= 1; jj<=n; jj++)
+        freeIdList[jj] = jj+1;/*1 is used as a set id*/
     
-    for(j=3; j<=n; j++)
-    {
-        freeIdNext[j] = j+1;
-        freeIdPrev[j] = j-1;
-    }
-    freeId = 2;
+    freeIdTop = 1;
     for(j=1; j<=m; j++)
     {
         jend = ia[j+1]-1;
@@ -254,27 +418,28 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
             if( flag[s] < j)/*first occurence of supervar s in j*/
             {
                 flag[s] = j;
+                if(sz[s] == 1 && tailset[s] != acol)
+                {
+                    printf("this should not happen (sz 1 but tailset not ok)\n");
+                    exit(12);
+                }
                 if(sz[s] > 1)
                 {
-                    sptIndex newId, store;
-                    /*remove i=acol from s*/
-                    
+                    sptIndex newId;
+                    /*remove acol from s*/
                     if(tailset[s] == acol) tailset[s] = prev[acol];
                     
                     next[prev[acol]] = next[acol];
                     prev[next[acol]] = prev[acol];
-                    prev[acol] = next[acol] = acol;
+                    
                     sz[s] = sz[s] - 1;
                     /*create a new supervar ns=newId
                      and make i=acol its only var*/
-                    
-                    newId = freeId;
-                    store = freeId;
-                    freeId = freeIdNext[freeId];
-                    
-                    freeIdNext [freeIdPrev[store]] = freeIdNext[store];
-                    freeIdPrev [freeIdNext[store]] = freeIdPrev[store];
-                    
+                    if(freeIdTop == n+1) {
+                        printf("this should not happen (no index)\n");
+                        exit(12);
+                    }
+                    newId = freeIdList[freeIdTop++];
                     svar[acol] = newId;
                     var[newId] = acol;
                     flag[newId] = j;
@@ -282,6 +447,7 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
                     next[acol] = 0;
                     prev[acol] = 0;
                     var[s] = acol;
+                    tailset[newId] = acol;
                     
                     setnext[newId] = s;
                     setprev[newId] = setprev[s];
@@ -291,15 +457,15 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
                     
                     if(firstset == s)
                         firstset = newId;
-                    tailset[newId] = acol;
+                    
                 }
             }
-            else/*second or later occurence of s for column j*/
+            else/*second or later occurence of s for row j*/
             {
                 k = var[s];
                 svar[acol] = svar[k];
-                /*remove from i=acol from current chain*/
                 
+                /*remove acol from its current chain*/
                 if(tailset[s] == acol) tailset[s] = prev[acol];
                 
                 next[prev[acol]] = next[acol];
@@ -308,23 +474,22 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
                 sz[s] = sz[s] - 1;
                 if(sz[s] == 0)/*s is a free id now..*/
                 {
-                    freeIdNext[s] = freeId;
-                    freeIdPrev[s] = freeIdPrev[freeId] ;
-                    freeIdNext[freeIdPrev[freeId] ] = s;
-                    freeIdPrev[freeId] = s;
+                    
+                    freeIdList[--freeIdTop] = s; /*add s to the free id list*/
                     
                     if(setnext[s])
                         setprev[setnext[s]] = setprev[s];
                     if(setprev[s])
                         setnext[setprev[s]] = setnext[s];
                     
-                    if(firstset == s) firstset = setnext[s];
                     setprev[s] = setnext[s] = 0;
                     tailset[s] = 0;
+                    var[s] = 0;
+                    flag[s] = 0;
                 }
                 /*add to chain containing k (as the last element)*/
                 prev[acol] = tailset[svar[k]];
-                next[acol]  = next[tailset[svar[k]]];
+                next[acol]  = 0;/*BU next[tailset[svar[k]]];*/
                 next[tailset[svar[k]]] = acol;
                 tailset[svar[k]] = acol;
                 sz[svar[k]] = sz[svar[k]] + 1;
@@ -332,18 +497,20 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
         }
     }
     
-    /*overwriting prev array.*/
     pos = 1;
+    numBlocks = 0;
     for(set = firstset; set != 0; set = setnext[set])
     {
         sptIndex item = tailset[set];
         sptIndex headset = 0;
+        numBlocks ++;
+        
         while(item != 0 )
         {
             headset = item;
             item = prev[item];
         }
-        /*located head of the set. output them (this is for keeping the initial order*/
+        /*located the head of the set. output them (this is for keeping the initial order*/
         while(headset)
         {
             cprm[pos++] = headset;
@@ -353,8 +520,6 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
     
     free(tailset);
     free(sz);
-    free(freeIdNext);
-    free(freeIdPrev);
     free(next);
     free(prev);
     free(var);
@@ -362,44 +527,41 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
     free(svar);
     free(setnext);
     free(setprev);
-    free(ids);
-    free(starts);
+    if(pos-1 != n){
+        printf("**************** Error ***********\n");
+        printf("something went wrong and we could not order everyone\n");
+        exit(12);
+    }
+    
     return ;
 }
-
-void printCSR(sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols)
-{
-    sptNnzIndex r, jend, jcol;
-    printf("matrix of size %llu %u with %llu\n", m, n, ia[m+1]);
-    
-    for (r = 1; r <=m; r++)
-    {
-        jend = ia[r+1]-1;
-        printf("r=%llu (%llu %llu)): ", r, ia[r], ia[r+1]);
-        for(jcol = ia[r]; jcol <= jend ; jcol++)
-            printf("%u ", cols[jcol]);
-        printf("\n");
-    }
-}
-
+/**************************************************************/
 #define myAbs(x) (((x) < 0) ? -(x) : (x))
 
 void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex **newIndices)
 {
-    sptNnzIndex *rowPtrs, z, atRowPlus1, mtxNrows;
-    sptIndex *colIds, c;
-    sptIndex *cprm;
+    sptNnzIndex *rowPtrs=NULL, z, atRowPlus1, mtxNrows;
+    sptIndex *colIds=NULL, c;
+    sptIndex *cprm=NULL;
     sptNnzIndex mtrxNnz;
     double totalDisplacement;
     
     mySort(coords,  nnz-1, nm,  newIndices, ndims, dim);
+    /*    printCoords(coords, nnz, nm);*/
     /*we matricize this (others x thisDim), whose columns will be renumbered*/
     
     /*on the matrix all arrays are from 1, and all indices are from 1.*/
+    
     rowPtrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nnz+2));/*large space*/
     colIds = (sptIndex *) malloc(sizeof(sptIndex) * (nnz+2));/*large space*/
     
-    rowPtrs[0] = -99998888; /*we should not access this, that is why.*/
+    if(rowPtrs == NULL || colIds == NULL)
+    {
+        printf("could not allocate.exiting \n");
+        exit(12);
+    }
+    
+    rowPtrs[0] = 0; /*we should not access this, that is why.*/
     rowPtrs [1] = 1;
     colIds[1] = coords[0][dim]+1;
     atRowPlus1 = 2;
@@ -409,6 +571,7 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
     {
         if(isLessThanOrEqualTo(coords[z], coords[z-1], nm, newIndices, ndims, dim) != 0)
             rowPtrs[atRowPlus1++] = mtrxNnz;/*close the previous row and start a new one.*/
+        
         colIds[mtrxNnz++] = coords[z][dim]+1;
     }
     rowPtrs[atRowPlus1] = mtrxNnz;
@@ -417,17 +580,347 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
     rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows+2)));
     cprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
     
-    lexOrderThem( mtxNrows, ndims[dim], rowPtrs, colIds, cprm);
+    /*    checkRepeatIndex(mtxNrows, rowPtrs, colIds, ndims[dim] );*/
     
+    lexOrderThem(mtxNrows, ndims[dim], rowPtrs, colIds, cprm);
     totalDisplacement = 0;
+    /*    {
+     sptIndex negs = 0, plusses = 0;
+     for (c=1; c <= ndims[dim]; c++)
+     {
+     if(cprm[c] == 0 ) negs++;
+     if(cprm[c] >= ndims[dim]+1) plusses ++;
+     }
+     if( negs )
+     printf("dim %u: not accurate (-) sorting %d %u\n", dim, negs, ndims[dim]);
+     if(plusses)
+     printf("dim %u: not accurate (+) sorting %d %u\n", dim, plusses, ndims[dim]);
+     if (negs || plusses)
+     exit(12);
+     }
+     */
     for (c=1; c <= ndims[dim]; c++)
     {
         totalDisplacement +=  myAbs((double) newIndices[dim][cprm[c]-1] - (double)(c-1));
         newIndices[dim][cprm[c]-1] = c-1;
     }
-    printf("dim %u disp %.4f\n", dim, totalDisplacement/((double)(ndims[dim])));
+    
+    printf("\tdim %u displacements %.4f\n", dim, totalDisplacement/((double)(ndims[dim])));
     free(cprm);
     free(colIds);
     free(rowPtrs);
+}
+
+/**************************************************************/
+
+typedef struct{
+    sptIndex nvrt; /* number of vertices. This nvrt = n_0 + n_1 + ... + n_{d-1} for a d-dimensional tensor
+                   where the ith dimension is of size n_i.*/
+    sptNnzIndex *vptrs, *vHids; /*starts of hedges containing vertices, and the ids of the hedges*/
+    
+    sptNnzIndex nhdg; /*this will be equal to the number of nonzeros in the tensor*/
+    sptNnzIndex *hptrs, *hVids; /*starts of vertices in the hedges, and the ids of the vertices*/
+} basicHypergraph;
+
+void allocateHypergraphData(basicHypergraph *hg, sptIndex nvrt, sptNnzIndex nhdg, sptNnzIndex npins)
+{
+    hg->nvrt = nvrt;
+    hg->vptrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nvrt+1));
+    hg->vHids = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * npins);
+    
+    hg->nhdg = nhdg;
+    hg->hptrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nhdg+1));
+    hg->hVids = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * npins);
+}
+
+
+void freeHypergraphData(basicHypergraph *hg)
+{
+    hg->nvrt = 0;
+    if (hg->vptrs) free(hg->vptrs);
+    if (hg->vHids) free(hg->vHids);
+    
+    hg->nhdg = 0;
+    if (hg->hptrs) free(hg->hptrs);
+    if (hg->hVids) free(hg->hVids);
+}
+
+
+void setVList(basicHypergraph *hg)
+{
+    /*PRE: We assume hg->hptrs and hg->hVids are set; hg->nvrts is set, and
+     hg->vptrs and hg->vHids are allocated appropriately.
+     */
+    
+    sptNnzIndex j, h, v, nhdg = hg->nhdg;
+    
+    sptIndex nvrt = hg->nvrt;
+    
+    /*vertices */
+    sptNnzIndex *vptrs = hg->vptrs, *vHids = hg->vHids;
+    /*hyperedges*/
+    sptNnzIndex *hptrs = hg->hptrs, *hVids = hg->hVids;
+    
+    for (v = 0; v <= nvrt; v++)
+        vptrs[v] = 0;
+    
+    for (h = 0; h < nhdg; h++)
+    {
+        for (j = hptrs[h]; j < hptrs[h+1]; j++)
+        {
+            v = hVids[j];
+            vptrs[v] ++;
+        }
+    }
+    for (v=1; v <= nvrt; v++)
+        vptrs[v] += vptrs[v-1];
+    
+    for (h = nhdg; h >= 1; h--)
+    {
+        for (j = hptrs[h-1]; j < hptrs[h]; j++)
+        {
+            v = hVids[j];
+            vHids[--(vptrs[v])] = h-1;
+        }
+    }
+}
+
+void fillHypergraphFromCoo(basicHypergraph *hg, sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords)
+{
+    
+    sptIndex  totalSizes;
+    sptNnzIndex h, toAddress;
+    sptIndex *dimSizesPrefixSum;
+    
+    sptIndex i;
+    
+    dimSizesPrefixSum = (sptIndex *) malloc(sizeof(sptIndex) * (nm+1));
+    totalSizes = 0;
+    for (i=0; i < nm; i++)
+    {
+        dimSizesPrefixSum[i] = totalSizes;
+        totalSizes += ndims[i];
+    }
+    printf("allocating hyp %u %llu\n", nm, nnz);
+    
+    allocateHypergraphData(hg, totalSizes, nnz, nnz * nm);
+    
+    toAddress = 0;
+    for (h = 0; h < nnz; h++)
+    {
+        hg->hptrs[h] = toAddress;
+        for (i = 0;  i < nm; i++)
+            hg->hVids[toAddress + i] = dimSizesPrefixSum[i] + coords[h][i];
+        toAddress += nm;
+    }
+    hg->hptrs[hg->nhdg] = toAddress;
+    
+    setVList(hg);
+    free(dimSizesPrefixSum);
+}
+static inline sptIndex locateVertex(sptNnzIndex indStart, sptNnzIndex indEnd, sptNnzIndex *lst, sptNnzIndex sz)
+{
+    sptNnzIndex i;
+    for (i = 0; i < sz; i++)
+        if(lst[i] >= indStart && lst[i] <= indEnd)
+            return lst[i];
+    
+    printf("could not locate in a hyperedge !!!\n");
+    exit(1);
+    return sz+1;
+}
+
+#define SIZEV( vid ) vptrs[(vid)+1]-vptrs[(vid)]
+void heapIncreaseKey(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex id, sptIndex *inheap, sptNnzIndex newKey)
+{
+    
+    sptIndex i = inheap[id]; /*location in heap*/
+    if( i > 0 && i <=sz )
+    {
+        key[id] = newKey;
+        
+        while ((i>>1)>0 && ( (key[id] > key[heapIds[i>>1]]) ||
+                            (key[id] == key[heapIds[i>>1]] && SIZEV(id) > SIZEV(heapIds[i>>1])))
+               )
+        {
+            heapIds[i] = heapIds[i>>1];
+            inheap[heapIds[i]] = i;
+            i = i>>1;
+        }
+        heapIds[i] = id;
+        inheap[id] = i;
+    }
+}
+
+
+void heapify(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex i,  sptIndex *inheap)
+{
+    sptIndex largest, j, l,r, tmp;
+    
+    largest = j = i;
+    while(j<=sz/2)
+    {
+        l = 2*j;
+        r = 2*j + 1;
+        
+        if ( (key[heapIds[l]] > key[heapIds[j]] ) ||
+            (key[heapIds[l]] == key[heapIds[j]]  && SIZEV(heapIds[l]) < SIZEV(heapIds[j]) )
+            )
+            largest = l;
+        else
+            largest = j;
+        
+        if (r<=sz && (key[heapIds[r]]>key[heapIds[largest]] ||
+                      (key[heapIds[r]]==key[heapIds[largest]] && SIZEV(heapIds[r]) < SIZEV(heapIds[largest])))
+            )
+            largest = r;
+        
+        if (largest != j)
+        {
+            tmp = heapIds[largest];
+            heapIds[largest] = heapIds[j];
+            inheap[heapIds[j]] = largest;
+            
+            heapIds[j] = tmp;
+            inheap[heapIds[j]] = j;
+            j = largest;
+        }
+        else
+            break;
+    }
+}
+
+sptIndex heapExtractMax(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex *sz, sptIndex *inheap)
+{
+    sptIndex maxind ;
+    if (*sz < 1){
+        printf("Error: heap underflow\n"); exit(12);
+    }
+    maxind = heapIds[1];
+    heapIds[1] = heapIds[*sz];
+    inheap[heapIds[1]] = 1;
+    
+    *sz = *sz - 1;
+    inheap[maxind] = 0;
+    
+    heapify(heapIds, key, vptrs, *sz, 1, inheap);
+    return maxind;
+    
+}
+
+void heapBuild(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex *inheap)
+{
+    sptIndex i;
+    for (i=sz/2; i>=1; i--)
+        heapify(heapIds, key, vptrs, sz, i, inheap);
+}
+
+void orderforHiCOOaDim(basicHypergraph *hg, sptIndex *newIndicesHg, sptIndex indStart, sptIndex indEnd)
+{
+    /* we re-order the vertices of the hypergraph with ids in the range [indStart, indEnd]*/
+    
+    sptIndex i, v, heapSz, *inHeap, *heapIds;
+    sptNnzIndex j, jj, hedge, hedge2, k, w, ww;
+    sptNnzIndex *vptrs = hg->vptrs, *vHids = hg->vHids, *hptrs = hg->hptrs, *hVids = hg->hVids;
+    
+    sptNnzIndex *keyvals, newKeyval;
+    int *markers, mark;
+    
+    mark = 0;
+    
+    heapIds = (sptIndex*) malloc(sizeof(sptIndex) * (indEnd-indStart + 2));
+    inHeap = (sptIndex*) malloc(sizeof(sptIndex) * hg->nvrt);/*this is large*/
+    keyvals = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * hg->nvrt);
+    markers = (int*) malloc(sizeof(int)* hg->nvrt);
+    
+    heapSz = 0;
+    
+    for (i = indStart; i<=indEnd; i++)
+    {
+        keyvals[i] = 0;
+        heapIds[++heapSz] = i;
+        inHeap[i] = heapSz;
+        markers[i] = -1;
+    }
+    heapBuild(heapIds, keyvals, vptrs, heapSz, inHeap);
+    
+    for (i = indStart; i <= indEnd; i++)
+    {
+        v = heapExtractMax(heapIds, keyvals, vptrs, &heapSz, inHeap);
+        newIndicesHg[v] = i;
+        markers[v] = mark;
+        for (j = vptrs[v]; j < vptrs[v+1]; j++)
+        {
+            hedge = vHids[j];
+            for (k = hptrs[hedge]; k < hptrs[hedge+1]; k++)
+            {
+                w = hVids[k];
+                if (markers[w] != mark)
+                {
+                    markers[w] = mark;
+                    for(jj = vptrs[w]; jj < vptrs[w+1]; jj++)
+                    {
+                        hedge2 = vHids[jj];
+                        ww = locateVertex(indStart, indEnd, hVids + hptrs[hedge2], hptrs[hedge2+1]-hptrs[hedge2]);
+                        if( inHeap[ww] )
+                        {
+                            newKeyval = keyvals[ww] + 1;
+                            heapIncreaseKey(heapIds, keyvals, vptrs, heapSz, ww, inHeap, newKeyval);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    free(markers);
+    free(keyvals);
+    free(inHeap);
+    free(heapIds);
+}
+
+
+/**************************************************************/
+void orderforHiCOObfsLike(sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords, sptIndex ** newIndices)
+{
+    /*PRE: newIndices is allocated
+     
+     POST:
+     newIndices[0][0...n_0-1] gives the new ids for dim 0
+     newIndices[1][0...n_1-1] gives the new ids for dim 1
+     ...
+     newIndices[d-1][0...n_{d-1}-1] gives the new ids for dim d-1
+     
+     This implements a simple idea close to BFS/Cuthill-McKee/Maximum cardinality search.
+     */
+    sptIndex d, i;
+    sptIndex *dimsPrefixSum;
+    
+    basicHypergraph hg;
+    
+    sptIndex *newIndicesHg;
+    
+    dimsPrefixSum = (sptIndex*) calloc(nm, sizeof(sptIndex));
+    for (d = 1; d < nm; d++)
+        dimsPrefixSum[d] = ndims[d-1] + dimsPrefixSum[d-1];
+    
+    fillHypergraphFromCoo(&hg, nm,  nnz, ndims, coords);
+    newIndicesHg = (sptIndex*) malloc(sizeof(sptIndex) * hg.nvrt);
+    
+    for (i = 0; i < hg.nvrt; i++)
+        newIndicesHg[i] = i;
+    
+    for (d = 0; d < nm; d++) /*order d*/
+        orderforHiCOOaDim(&hg, newIndicesHg, dimsPrefixSum[d], dimsPrefixSum[d] + ndims[d]-1);
+    
+    /*copy from newIndices to newIndicesOut*/
+    for (d = 0; d < nm; d++)
+        for (i = 0; i < ndims[d]; i++)
+            newIndices[d][i] = newIndicesHg[dimsPrefixSum[d] + i] - dimsPrefixSum[d];
+    
+    free(newIndicesHg);
+    freeHypergraphData(&hg);
+    free(dimsPrefixSum);
+    
 }
 /********************** Internals end *************************/

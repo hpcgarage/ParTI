@@ -5,21 +5,21 @@ declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_musi
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a sl4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
-declare -a test_tsr_names=("1998DARPA" "nell2" "freebase_music" "flickr" "freebase_sampled" "nell1" "delicious")
+declare -a test_tsr_names=("choa700k")
 declare -a threads=("1")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 declare -a sk_range=("7")
 iters="$(seq -s ' ' 1 50)"
 
 tsr_path="${SCRATCH}/BIGTENSORS"
-out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-renumber-it5"
+out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-renumber-it10"
 
 sc=14
 
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${test_tsr_names[@]}"
+	for tsr_name in "${s3tsrs[@]}"
 	do
 
 		# if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
