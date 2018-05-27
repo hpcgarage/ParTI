@@ -45,7 +45,7 @@ int main(int argc, char ** argv) {
     sptIndex niters = 5; // 50
     double tol = 1e-5;
     sptKruskalTensor ktensor;
-    int nloops = 1;
+    int nloops = 0;
     int cuda_dev_id = -2;
     int nthreads;
     int use_reduce = 1;

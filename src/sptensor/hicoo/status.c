@@ -118,7 +118,7 @@ void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
   fprintf(fp, "Suggest B (sb) <= %.2lf / R. For cache efficiency\n", (double)L1_SIZE / hitsr->nmodes / sizeof(sptValue));
   fprintf(fp, "Suggest alpha_b in (0,1], small is better. For tensor storage\n");
   fprintf(fp, "Suggest cb > 1, large is better. For MTTKRP performance\n");
-  fprintf(fp, "Suggest num_tasks should in [%d, %d] (PAR_DEGREE: %d). For parallel efficiency\n", NUM_CORES, PAR_DEGREE * NUM_CORES, PAR_DEGREE);
+  fprintf(fp, "Suggest num_tasks should in [%d, %d] PAR_DEGREE: [%d, %d]. For parallel efficiency\n", PAR_MIN_DEGREE * NUM_CORES, PAR_MAX_DEGREE * NUM_CORES, PAR_MIN_DEGREE, PAR_MAX_DEGREE);
   fprintf(fp, "\n\n");
 
 }

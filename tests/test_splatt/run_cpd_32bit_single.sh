@@ -8,14 +8,15 @@ declare -a test_tsr_names=()
 declare -a threads=("1" "32")
 
 tsr_path="${SCRATCH}/BIGTENSORS"
-out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-allmode"
-splatt_path="/global/homes/j/jiajiali/Software/Install/splatt/int32-single-allmode"
-
+# out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-allmode"
+# splatt_path="/global/homes/j/jiajiali/Software/Install/splatt/int32-single-allmode"
+out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-onemode"
+splatt_path="/global/homes/j/jiajiali/Software/Install/splatt/int32-single-onemode"
 
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${s3tsrs[@]}" "${s4tsrs[@]}"
 	do
 		for th in ${threads[@]}
 		do

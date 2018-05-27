@@ -171,6 +171,7 @@ void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
     }
 }
 /**************************************************************/
+#if 0
 static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
 {
     /*is z1 less than or equal to z2 for all indices except dim?*/
@@ -184,6 +185,42 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
                 return -1;
             if (newIndices[m][z1[m]] > newIndices[m][z2[m]])
                 return 1;
+        }
+    }
+    return 0; /*are equal*/
+}
+#endif
+static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
+{
+    /*
+     to sort the nonzeros first on i_1+i_2+...+i_4, if ties then on
+     i_1+i_2+...+3, if ties then on i_1+i_2, if ties then on i_1 only.
+     We do not include dim in the comparisons.
+     
+    */
+    sptIndex m;
+    sptIndex v1 = 0, v2 = 0;
+    
+    for (m = 0; m < nm; m++)
+    {
+        if(m != dim)
+        {
+            v1 += newIndices[m][z1[m]];
+            v2 += newIndices[m][z2[m]];
+        }
+    }
+    if(v1 < v2) return -1;
+    else if(v1 > v2) return 1;
+    else{
+        for (m = 0; m < nm; m++)
+        {
+            if(m != dim)
+            {
+                v1 -= newIndices[m ][z1[m ]];
+                v2 -= newIndices[m ][z2[m ]];
+                if (v1 < v2) return -1;
+                else if (v1 > v2) return 1;
+            }
         }
     }
     return 0; /*are equal*/

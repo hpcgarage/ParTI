@@ -4,7 +4,8 @@ import numpy as np
 import sys 
 
 
-intput_path = '/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-allmode/'
+# intput_path = '/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-allmode/'
+intput_path = '/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-onemode/'
 s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']

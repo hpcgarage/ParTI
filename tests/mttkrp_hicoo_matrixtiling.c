@@ -197,7 +197,7 @@ int main(int argc, char ** argv) {
             sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
             sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
             printf("hitsr.nkiters[mode] / num_kernel_dim: %u (threshold: %u)\n", hitsr.nkiters[mode]/num_kernel_dim, PAR_DEGREE_REDUCE);
-            if(num_kernel_dim <= NUM_CORES && hitsr.nkiters[mode] / num_kernel_dim >= PAR_DEGREE_REDUCE) {
+            if(num_kernel_dim <= PAR_MIN_DEGREE * NUM_CORES && hitsr.nkiters[mode] / num_kernel_dim >= PAR_DEGREE_REDUCE) {
                 par_iters = 1;
             }
             sptIndex num_tasks = (par_iters == 1) ? hitsr.nkiters[mode] : num_kernel_dim;
@@ -271,7 +271,7 @@ int main(int argc, char ** argv) {
         sptIndex sk = (sptIndex)pow(2, hitsr.sk_bits);
         sptIndex num_kernel_dim = (hitsr.ndims[mode] + sk - 1) / sk;
         printf("num_kernel_dim: %u, hitsr.nkiters[mode] / num_kernel_dim: %u\n", num_kernel_dim, hitsr.nkiters[mode]/num_kernel_dim);
-        if(num_kernel_dim <= 24 && hitsr.nkiters[mode] / num_kernel_dim >= 20) {
+        if(num_kernel_dim <= PAR_MIN_DEGREE * NUM_CORES && hitsr.nkiters[mode] / num_kernel_dim >= PAR_DEGREE_REDUCE) {
             par_iters = 1;
         }
 

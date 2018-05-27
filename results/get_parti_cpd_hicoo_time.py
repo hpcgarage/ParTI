@@ -21,7 +21,7 @@ out_str = 'parti-cpd-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(t
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in s4tsrs:
 
 	# Set optimal sk
 	if (tk == '1'):
@@ -40,6 +40,23 @@ for tsr in s3tsrs:
 			sk = 11
 		elif(tsr == 'nell1'):
 			sk = 20
+		# 4-D
+		elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
+			sk = 4
+		elif(tsr == 'nips-4d'):
+			sk = 7
+		elif(tsr == 'enron-4d'):
+			sk = 8
+		elif(tsr == 'flickr-4d'):
+			sk = 15
+		elif(tsr == 'delicious-4d'):
+			sk = 16
+
+		if(sk >= 7):
+			sb = 7
+		else:
+			sb = sk
+
 		## omp hicoo
 		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
 	# print(input_str)

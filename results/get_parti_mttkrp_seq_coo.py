@@ -18,7 +18,7 @@ input_str = ""
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in s4tsrs:
 	sum_seq = 0
 
 	if tk == "1":

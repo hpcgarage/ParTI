@@ -237,7 +237,7 @@ int sptOmpCpdAlsHiCOO(
     par_iters[m] = 0;
     sptIndex num_kernel_dim = (hitsr->ndims[m] + sk - 1) / sk;
     // printf("num_kernel_dim: %u, hitsr->nkiters[m] / num_kernel_dim: %u\n", num_kernel_dim, hitsr->nkiters[m]/num_kernel_dim);
-    if(num_kernel_dim <= 20 && hitsr->nkiters[m] / num_kernel_dim >= 20) {
+    if(num_kernel_dim <= PAR_MIN_DEGREE * NUM_CORES && hitsr->nkiters[m] / num_kernel_dim >= PAR_DEGREE_REDUCE) {
         par_iters[m] = 1;
     }
   }

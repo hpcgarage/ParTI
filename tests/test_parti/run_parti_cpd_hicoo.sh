@@ -20,16 +20,16 @@ sc=14
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${s4tsrs[@]}"
 	do
 
 		# Sequetial code with matrix tiling
-		dev_id=-2
-		sk=20
-		sb=7
-		tk=1
-		echo "./build/tests/cpd_hicoo_copy -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt"
-		./build/tests/cpd_hicoo_copy -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt
+		# dev_id=-2
+		# sk=20
+		# sb=7
+		# tk=1
+		# echo "./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt"
+		# ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt
 
 		# For OpenMP code
 		if [ ${tsr_name} = "vast-2015-mc1" ]; then
@@ -50,6 +50,22 @@ do
 		if [ ${tsr_name} = "nell1" ]; then
 			sk=20
 		fi
+		# 4-D tensors
+		if [ ${tsr_name} = "chicago-crime-comm-4d" ] || [ ${tsr_name} = "uber-4d" ]; then
+			sk=4
+		fi
+		if [ ${tsr_name} = "nips-4d" ]; then
+			sk=7;
+		fi
+		if [ ${tsr_name} = "enron-4d" ]; then
+			sk=8
+		fi
+		if [ ${tsr_name} = "flickr-4d" ]; then
+			sk=15
+		fi
+		if [ ${tsr_name} = "delicious-4d" ]; then
+			sk=16
+		fi
 
 		# OpenMP code
 		dev_id=-1
@@ -64,8 +80,8 @@ do
 
 			for tk in ${threads[@]}
 			do
-				echo "numactl --interleave=0-1 ./build/tests/cpd_hicoo_copy -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt"
-				numactl --interleave=0-1 ./build/tests/cpd_hicoo_copy -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt
+				echo "numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt"
+				numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -h ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt
 			done
 		# done
 
