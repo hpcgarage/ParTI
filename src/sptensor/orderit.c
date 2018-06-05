@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <time.h>
+
 #include "ParTI.h"
 
 /*Interface to everything in this file is orderit(.., ..)*/
@@ -9,6 +12,15 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
 
 void orderforHiCOObfsLike(sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords, sptIndex **newIndices);
 
+double u_seconds(void)
+{
+    struct timeval tp;
+    
+    gettimeofday(&tp, NULL);
+    
+    return (double) tp.tv_sec + (double) tp.tv_usec / 1000000.0;
+    
+};
 void printCSR(sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols)
 {
     sptNnzIndex r, jend, jcol;
@@ -118,6 +130,8 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
     sptIndex **coords;
     sptNnzIndex z, nnz = tsr->nnz;
     
+    sptIndex **orgIds;
+    
     sptIndex its;
     
     /*copy the indices*/
@@ -131,13 +145,17 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
     
     /*checkEmptySlices(coords, nnz, nm, tsr->ndims);*/
     
-    /*initialize to the identity */
+    orgIds = (sptIndex **) malloc(sizeof(sptIndex*) * nm);
+
     for (m = 0; m < nm; m++)
+    {
+        orgIds[m] = (sptIndex*) malloc(sizeof(sptIndex) * tsr->ndims[m]);
         for (i = 0; i < tsr->ndims[m]; i++)
-            newIndices[m][i] = i;
-    
+            orgIds[m][i] = i;
+    }
    /*
-    REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations, but on a few cases it did not help much. Just leaving it in case we want to use it.
+    REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations,
+    but on a few cases it did not help much. Just leaving it in case we want to use it.
     
     orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
     */
@@ -145,11 +163,21 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
     {
         printf("Optimizing the numbering for its %u\n", its+1);
         for (m = 0; m < nm; m++)
-            orderDim(coords, nnz, nm, tsr->ndims, m, newIndices);
+            orderDim(coords, nnz, nm, tsr->ndims, m, orgIds);
     }
     
-    checkNewIndices(newIndices, nm, tsr->ndims);
+    /*compute newIndices from orgIds. Reverse perm*/
+    for (m = 0; m < nm; m++)
+        for (i = 0; i < tsr->ndims[m]; i++)
+            newIndices[m][orgIds[m][i]] = i;
     
+    printf("set the new indices\n");
+/*    checkNewIndices(newIndices, nm, tsr->ndims);*/
+    
+    for (m = 0; m < nm; m++)
+        free(orgIds[m]);
+
+    free(orgIds);
     for (z = 0; z < nnz; z++)
         free(coords[z]);
     free(coords);
@@ -171,8 +199,8 @@ void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
     }
 }
 /**************************************************************/
-#if 0
-static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
+// static inline int isLessThanOrEqualToCoord(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
+static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 {
     /*is z1 less than or equal to z2 for all indices except dim?*/
     sptIndex m;
@@ -181,16 +209,15 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
     {
         if(m != dim)
         {
-            if (newIndices[m][z1[m]] < newIndices[m][z2[m]])
+            if (z1[m] < z2[m])
                 return -1;
-            if (newIndices[m][z1[m]] > newIndices[m][z2[m]])
+            if (z1[m] > z2[m])
                 return 1;
         }
     }
     return 0; /*are equal*/
 }
-#endif
-static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
+static inline int isLessThanOrEqualToNewSum(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 {
     /*
      to sort the nonzeros first on i_1+i_2+...+i_4, if ties then on
@@ -205,8 +232,8 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
     {
         if(m != dim)
         {
-            v1 += newIndices[m][z1[m]];
-            v2 += newIndices[m][z2[m]];
+            v1 += z1[m];
+            v2 += z2[m];
         }
     }
     if(v1 < v2) return -1;
@@ -216,8 +243,8 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
         {
             if(m != dim)
             {
-                v1 -= newIndices[m ][z1[m ]];
-                v2 -= newIndices[m ][z2[m ]];
+                v1 -= z1[m];
+                v2 -= z2[m];
                 if (v1 < v2) return -1;
                 else if (v1 > v2) return 1;
             }
@@ -225,7 +252,6 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
     }
     return 0; /*are equal*/
 }
-
 /**************************************************************/
 static inline void buSwap(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *wspace)
 {
@@ -248,7 +274,7 @@ static inline void writeInto(sptIndex *target, sptIndex *source, sptIndex nm)
     for (m = 0; m < nm; m++)
         target[m] = source[m];
 }
-void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
+void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
 {
     sptNnzIndex z, z2plus;
     for (z = lo+1; z <= hi; z++)
@@ -256,7 +282,7 @@ void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex n
         writeInto(tmpNnz, coords[z], nm);
         /*find place for z*/
         z2plus = z;
-        while ( z2plus > 0  && isLessThanOrEqualTo(coords[z2plus-1], tmpNnz, nm, newIndices, ndims, dim)== 1)
+        while ( z2plus > 0  && isLessThanOrEqualTo(coords[z2plus-1], tmpNnz, nm, ndims, dim)== 1)
         {
             writeInto(coords[z2plus], coords[z2plus-1], nm);
             z2plus --;
@@ -264,7 +290,7 @@ void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex n
         writeInto(coords[z2plus], tmpNnz, nm);
     }
 }
-static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex **newIndices, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
+static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
 {
     /*copied from the web http://ndevilla.free.fr/median/median/src/quickselect.c*/
     sptNnzIndex low, high, median, middle, ll, hh;
@@ -275,18 +301,18 @@ static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzI
         if (high<=low) return median;
         if(high == low + 1)
         {
-            if(isLessThanOrEqualTo(coords[low], coords[high], nm, newIndices, ndims, dim)== 1)
+            if(isLessThanOrEqualTo(coords[low], coords[high], nm, ndims, dim)== 1)
                 buSwap (coords[high], coords[low], nm, wspace);
             return median;
         }
         middle = (low+high)/2;
-        if(isLessThanOrEqualTo(coords[middle], coords[high], nm, newIndices, ndims, dim) == 1)
+        if(isLessThanOrEqualTo(coords[middle], coords[high], nm, ndims, dim) == 1)
             buSwap (coords[middle], coords[high], nm, wspace);
         
-        if(isLessThanOrEqualTo(coords[low], coords[high], nm, newIndices, ndims, dim) == 1)
+        if(isLessThanOrEqualTo(coords[low], coords[high], nm, ndims, dim) == 1)
             buSwap (coords[low], coords[high], nm, wspace);
         
-        if(isLessThanOrEqualTo(coords[middle], coords[low], nm, newIndices, ndims, dim) == 1)
+        if(isLessThanOrEqualTo(coords[middle], coords[low], nm, ndims, dim) == 1)
             buSwap (coords[low], coords[middle], nm, wspace);
         
         buSwap (coords[middle], coords[low+1], nm, wspace);
@@ -294,8 +320,8 @@ static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzI
         ll = low + 1;
         hh = high;
         for (;;){
-            do ll++; while (isLessThanOrEqualTo(coords[low], coords[ll], nm, newIndices, ndims, dim) == 1);
-            do hh--; while (isLessThanOrEqualTo(coords[hh], coords[low], nm, newIndices, ndims, dim) == 1);
+            do ll++; while (isLessThanOrEqualTo(coords[low], coords[ll], nm, ndims, dim) == 1);
+            do hh--; while (isLessThanOrEqualTo(coords[hh], coords[low], nm, ndims, dim) == 1);
             
             if (hh < ll) break;
             
@@ -308,7 +334,7 @@ static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzI
     
 }
 /**************************************************************/
-void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIndices, sptIndex *ndims, sptIndex dim)
+void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm, sptIndex *ndims, sptIndex dim)
 {
     /*sorts coords accourding to all dims except dim, where items are refereed with newIndices*/
     /*an iterative quicksort*/
@@ -330,7 +356,7 @@ void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIn
     {
         hi = stack[--top];
         lo = stack[--top];
-        pv = buPartition(coords, lo, hi, nm, newIndices, ndims, dim, tmpNnz, wspace);
+        pv = buPartition(coords, lo, hi, nm, ndims, dim, tmpNnz, wspace);
         
         if(pv > lo+1)
         {
@@ -340,7 +366,7 @@ void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIn
                 stack[top++] = pv-1 ;
             }
             else
-                insertionSort(coords, lo, pv-1,  nm, newIndices, ndims, dim, tmpNnz, wspace);
+                insertionSort(coords, lo, pv-1,  nm, ndims, dim, tmpNnz, wspace);
         }
         if(top >= 2 * (last+2)){
             printf("\thow come this tight?\n");
@@ -354,7 +380,7 @@ void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm,  sptIndex **newIn
                 stack[top++] = hi;
             }
             else
-                insertionSort(coords, pv+1, hi,  nm, newIndices, ndims, dim, tmpNnz, wspace);
+                insertionSort(coords, pv+1, hi,  nm, ndims, dim, tmpNnz, wspace);
         }
         if( top >= 2 * (last+2)) {
             printf("\thow come this tight?\n");
@@ -575,15 +601,18 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
 /**************************************************************/
 #define myAbs(x) (((x) < 0) ? -(x) : (x))
 
-void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex **newIndices)
+void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex **orgIds)
 {
     sptNnzIndex *rowPtrs=NULL, z, atRowPlus1, mtxNrows;
     sptIndex *colIds=NULL, c;
-    sptIndex *cprm=NULL;
+    sptIndex *cprm=NULL, *invcprm = NULL, *saveOrgIds;
     sptNnzIndex mtrxNnz;
-    double totalDisplacement;
     
-    mySort(coords,  nnz-1, nm,  newIndices, ndims, dim);
+    double t1, t0;
+    t0 = u_seconds();
+    mySort(coords,  nnz-1, nm, ndims, dim);
+    t1 = u_seconds()-t0;
+    printf("dim %u, sort time %.2f\n", dim, t1);
     /*    printCoords(coords, nnz, nm);*/
     /*we matricize this (others x thisDim), whose columns will be renumbered*/
     
@@ -604,45 +633,45 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
     atRowPlus1 = 2;
     mtrxNnz = 2;/*start filling from the second element*/
     
+    t0 = u_seconds();
     for (z = 1; z < nnz; z++)
     {
-        if(isLessThanOrEqualTo(coords[z], coords[z-1], nm, newIndices, ndims, dim) != 0)
+        if(isLessThanOrEqualTo(coords[z], coords[z-1], nm, ndims, dim) != 0)
             rowPtrs[atRowPlus1++] = mtrxNnz;/*close the previous row and start a new one.*/
         
         colIds[mtrxNnz++] = coords[z][dim]+1;
     }
+    t1 =u_seconds()-t0;
+    printf("dim %u create time %.2f\n", dim, t1);
     rowPtrs[atRowPlus1] = mtrxNnz;
     mtxNrows = atRowPlus1-1;
     
     rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows+2)));
     cprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
-    
+    invcprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
+    saveOrgIds = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
     /*    checkRepeatIndex(mtxNrows, rowPtrs, colIds, ndims[dim] );*/
     
+    t0 = u_seconds();
+
     lexOrderThem(mtxNrows, ndims[dim], rowPtrs, colIds, cprm);
-    totalDisplacement = 0;
-    /*    {
-     sptIndex negs = 0, plusses = 0;
-     for (c=1; c <= ndims[dim]; c++)
-     {
-     if(cprm[c] == 0 ) negs++;
-     if(cprm[c] >= ndims[dim]+1) plusses ++;
-     }
-     if( negs )
-     printf("dim %u: not accurate (-) sorting %d %u\n", dim, negs, ndims[dim]);
-     if(plusses)
-     printf("dim %u: not accurate (+) sorting %d %u\n", dim, plusses, ndims[dim]);
-     if (negs || plusses)
-     exit(12);
-     }
-     */
-    for (c=1; c <= ndims[dim]; c++)
+    t1 =u_seconds()-t0;
+    printf("dim %u lexorder time %.2f\n", dim, t1);
+    /*update orgIds and modify coords*/
+    for (c=0; c < ndims[dim]; c++)
     {
-        totalDisplacement +=  myAbs((double) newIndices[dim][cprm[c]-1] - (double)(c-1));
-        newIndices[dim][cprm[c]-1] = c-1;
+        invcprm[cprm[c+1]-1] = c;
+        saveOrgIds[c] = orgIds[dim][c];
     }
+    for (c=0; c < ndims[dim]; c++)
+        orgIds[dim][c] = saveOrgIds[cprm[c+1]-1];
     
-    printf("\tdim %u displacements %.4f\n", dim, totalDisplacement/((double)(ndims[dim])));
+    /*rename the dim component of nonzeros*/
+    for (z = 0; z < nnz; z++)
+        coords[z][dim] = invcprm[coords[z][dim]];
+    
+    free(saveOrgIds);
+    free(invcprm);
     free(cprm);
     free(colIds);
     free(rowPtrs);
