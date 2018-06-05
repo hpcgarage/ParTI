@@ -3,9 +3,11 @@
 import sys 
 
 intput_path = '../timing-results/parti/hicoo/cpd-uint8-single/'
-s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
+# s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
+s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
-s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+# s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 r = 16
 tb = 1
 
@@ -21,7 +23,7 @@ out_str = 'parti-cpd-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(t
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s4tsrs:
+for tsr in s3tsrs + s4tsrs:
 
 	# Set optimal sk
 	if (tk == '1'):
@@ -30,25 +32,29 @@ for tsr in s4tsrs:
 	else:
 		if(tsr == 'vast-2015-mc1'):
 			sk = 8
-		elif(tsr == 'choa700k' or tsr == 'nell2'):
+		elif(tsr == 'nell2'):
+			sk = 9
+		elif(tsr == 'choa700k'):
 			sk = 10
-		elif(tsr == '1998DARPA' or tsr == 'delicious'):
-			sk = 14
+		elif(tsr == '1998DARPA'):
+			sk = 15
 		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
-			sk = 18
+			sk = 15
 		elif(tsr == 'flickr'):
 			sk = 11
+		elif(tsr == 'delicious'):
+			sk = 16
 		elif(tsr == 'nell1'):
-			sk = 20
+			sk = 16
 		# 4-D
 		elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
-			sk = 4
+			sk = 5
 		elif(tsr == 'nips-4d'):
-			sk = 7
+			sk = 9
 		elif(tsr == 'enron-4d'):
 			sk = 8
 		elif(tsr == 'flickr-4d'):
-			sk = 15
+			sk = 16
 		elif(tsr == 'delicious-4d'):
 			sk = 16
 

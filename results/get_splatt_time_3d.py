@@ -3,8 +3,9 @@
 import numpy as np
 import sys 
 
-# intput_path = '/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-allmode/'
-intput_path = '/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/splatt/32bit-single-onemode/'
+
+intput_path="../timing-results/splatt/32bit-single-onemode/"
+# intput_path="../timing-results/splatt/32bit-single-allmode/"
 
 # s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
 s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']

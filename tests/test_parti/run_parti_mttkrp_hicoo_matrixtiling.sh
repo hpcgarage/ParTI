@@ -6,13 +6,19 @@ declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a s4tsrs=("chicago-crime-comm-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
 declare -a test_tsr_names=("flickr-4d" "delicious-4d")
-declare -a threads=("68")
+declare -a threads=("68")	# KNL
 # declare -a sk_range=("7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 declare -a sk_range=()
 
-
+# Cori
 tsr_path="${SCRATCH}/BIGTENSORS"
-out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-knl"
+out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single"
+# Cori-KNL
+# out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-knl"
+
+# wingtip-bigmem1
+# tsr_path="/dev/shm/jli458/BIGTENSORS"
+# out_path="/home/jli458/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-full"
 
 tb=1
 sc=14
@@ -30,7 +36,7 @@ do
 		# sb=7
 		# tk=1
 		# echo "./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt"
-		# ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt
+		# ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${declareev_id} -r ${R} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-seq.txt
 
 
 		# For OpenMP code
@@ -53,6 +59,13 @@ do
 		if [ ${tsr_name} = "nell1" ]; then
 			sk=20
 		fi
+		# if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
+		# 	sk_range=("15" "17")
+		# fi
+		# if [ ${tsr_name} = "patents" ]; then
+		# 	sk_range=("11" "13")
+		# fi
+
 		# 4-D tensors
 		if [ ${tsr_name} = "chicago-crime-comm-4d" ] || [ ${tsr_name} = "uber-4d" ]; then
 			sk=4
@@ -70,13 +83,6 @@ do
 			sk=16
 		fi
 
-		# if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
-		# 	sk_range=("15" "17")
-		# fi
-		# if [ ${tsr_name} = "patents" ]; then
-		# 	sk_range=("11" "13")
-		# fi
-
 		# OpenMP code
 		dev_id=-1
 		# for sk in ${sk_range[@]}
@@ -90,11 +96,17 @@ do
 
 			for tk in ${threads[@]}
 			do
+				# Cori
 				echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt"
 				# numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt
 				
+				# Cori-KNL
 				# echo "./build/tests/mttkrp_hicoo_matrixtiling_knl -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt"
 				# ./build/tests/mttkrp_hicoo_matrixtiling_knl -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt
+
+				# wingtip-bigmem1
+				# echo "numactl --interleave=0-3 ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt"
+				# numactl --interleave=0-3 ./build/tests/mttkrp_hicoo_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}.txt
 			done
 		# done
 

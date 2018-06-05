@@ -20,7 +20,7 @@
 #define PARTI_MACROS_H
 
 /* User defined system configuration */
-#define NUM_CORES 32    // for L size and determine privatilization or not
+#define NUM_CORES 56    // for L size and determine privatilization or not
 #define L1_SIZE 32000    // for B size
 #define LLC_SIZE 40960000
 #define PAR_DEGREE_REDUCE 20     // for determine privatilization or not  

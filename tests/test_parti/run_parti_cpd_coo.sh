@@ -1,14 +1,20 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_music" "flickr" "freebase_sampled" "nell1" "delicious")
+declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_music" "freebase_sampled" "nell1" "delicious")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
-declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
+declare -a s4tsrs=("chicago-crime-comm-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a test_tsr_names=("freebase_sampled" "freebase_music")
-declare -a threads=("32")
+declare -a threads=("2" "4" "8" "14" "28" "56")
 
-tsr_path="${SCRATCH}/BIGTENSORS"
-out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/coo/cpd-single"
+# Cori
+# tsr_path="${SCRATCH}/BIGTENSORS"
+# out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/coo/cpd-single"
+
+# wingtip-bigmem1
+tsr_path="/dev/shm/jli458/BIGTENSORS"
+out_path="/home/jli458/Work/ParTI-dev/timing-results/parti/coo/cpd-single"
+
 nt=32
 nmodes=3
 use_reduce=1
@@ -29,17 +35,17 @@ do
 	do
 
 			# Sequetial code
-			dev_id=-2
-			nt=1
-			echo "./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt"
-			./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt
+			# dev_id=-2
+			# nt=1
+			# echo "./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt"
+			# ./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-reduce-seq.txt
 
 			# OpenMP code
 			dev_id=-1
 			for nt in ${threads[@]}
 			do
-				echo "./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-t${nt}-reduce.txt"
-				./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-t${nt}-reduce.txt
+				echo "numactl --interleave=0-3 ./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-t${nt}-reduce.txt"
+				numactl --interleave=0-3 ./build/tests/cpd -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -t ${nt} -r ${R} -u ${use_reduce} > ${out_path}/${tsr_name}-r${R}-t${nt}-reduce.txt
 			done
 
 	done
