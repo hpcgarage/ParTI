@@ -156,9 +156,9 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
    /*
     REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations,
     but on a few cases it did not help much. Just leaving it in case we want to use it.
-    
-    orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
     */
+    // orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
+    
     for (its = 0; its < iterations; its++)
     {
         printf("Optimizing the numbering for its %u\n", its+1);
@@ -218,6 +218,7 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
     return 0; /*are equal*/
 }
 static inline int isLessThanOrEqualToNewSum(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
+// static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 {
     /*
      to sort the nonzeros first on i_1+i_2+...+i_4, if ties then on

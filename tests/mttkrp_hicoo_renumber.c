@@ -44,6 +44,8 @@ void print_usage(char ** argv) {
 }
 
 int main(int argc, char ** argv) {
+    printf("mttkrp_hicoo_renumber\n");
+
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
     sptMatrix ** U;
@@ -167,7 +169,7 @@ int main(int argc, char ** argv) {
 
         // orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
         fflush(stdout);
-        orderit(&tsr, map_inds, 5);
+        orderit(&tsr, map_inds, 10);
 
         sptSparseTensorShuffleIndices(&tsr, map_inds);
 

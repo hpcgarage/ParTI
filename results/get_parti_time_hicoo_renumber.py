@@ -2,8 +2,9 @@
 
 import sys 
 
-intput_path = '../timing-results/parti/hicoo/uint8-single-renumber-it5-matrixtiling/'
-s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
+intput_path = '../timing-results/parti/hicoo/uint8-single-renumber-it10-new/'
+# intput_path = '../timing-results/parti/hicoo/uint8-single-renumber/'
+s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 test_tsrs = ['flickr-4d']
@@ -27,13 +28,14 @@ out_str = 'parti-hicoo-renumber.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in s4tsrs:
 	sum_seq = 0
 
 	## sequential hicoo
 	if (tk == '1'):
 		if (renumber == '0'):
 			input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-e' + str(renumber) + '-seq.txt'
+			# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-e' + str(renumber) + '-renumber-seq.txt'
 		elif (renumber == '1'):
 			input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-e' + str(renumber) + '-renumber-seq.txt'
 	else:
@@ -47,9 +49,9 @@ for tsr in s3tsrs:
 		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
 			sk = 18
 		elif(tsr == 'flickr'):
-			sk = 11
+			sk = 12
 		elif(tsr == 'nell1'):
-			sk = 20
+			sk = 18
 		# 4-D
 		elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
 			sk = 4
