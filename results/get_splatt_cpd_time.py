@@ -3,14 +3,13 @@
 import numpy as np
 import sys 
 
-# intput_path="../timing-results/splatt/32bit-single-allmode/"
-intput_path="../timing-results/splatt/32bit-single-onemode/"
+intput_path="../timing-results/splatt/32bit-single-allmode/"
+# intput_path="../timing-results/splatt/32bit-single-onemode/"
 
-# s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
-s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
+s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
-# s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
-s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+test_tsrs = ['flickr-4d']
 r = 16
 
 # input parameters

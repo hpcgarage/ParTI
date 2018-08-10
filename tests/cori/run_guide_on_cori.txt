@@ -1,5 +1,7 @@
 # Interactive mode
 salloc -N 1 -C haswell -q interactive -t 04:00:00 -L SCRATCH
+or
+salloc -N 1 -C knl -q interactive -t 04:00:00 -L SCRATCH
 
 # batch mode
 sbatch submit.sl

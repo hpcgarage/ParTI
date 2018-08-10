@@ -2,7 +2,7 @@
 
 import sys 
 
-intput_path = '../timing-results/parti/hicoo/uint8-single-renumber-it10-new/'
+intput_path = '../timing-results/parti/hicoo/uint8-single-renumber-it5-matrixtiling/'
 # intput_path = '../timing-results/parti/hicoo/uint8-single-renumber/'
 s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
@@ -28,7 +28,7 @@ out_str = 'parti-hicoo-renumber.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s4tsrs:
+for tsr in s3tsrs + s4tsrs:
 	sum_seq = 0
 
 	## sequential hicoo
@@ -42,14 +42,18 @@ for tsr in s4tsrs:
 		
 		if(tsr == 'vast-2015-mc1'):
 			sk = 8
-		elif(tsr == 'choa700k' or tsr == 'nell2'):
+		elif(tsr == 'nell2'):
 			sk = 10
-		elif(tsr == '1998DARPA' or tsr == 'delicious'):
-			sk = 14
+		elif(tsr == 'choa700k'):
+			sk = 10
+		elif(tsr == '1998DARPA'):
+			sk = 15
 		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
 			sk = 18
 		elif(tsr == 'flickr'):
-			sk = 12
+			sk = 13
+		elif(tsr == 'delicious'):
+			sk = 16
 		elif(tsr == 'nell1'):
 			sk = 18
 		# 4-D

@@ -3,11 +3,11 @@
 import numpy as np
 import sys 
 
-intput_path="../timing-results/splatt/32bit-single-onemode/"
-# intput_path="../timing-results/splatt/32bit-single-allmode/"
+intput_path="../timing-results/splatt/32bit-single-allmode-bfslike/"
+# intput_path="../timing-results/splatt/32bit-single-onemode-reorder-it5/"
 
 # s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
-s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 test_tsrs = ['flickr-4d']
 r = 16
 m1_nums = []

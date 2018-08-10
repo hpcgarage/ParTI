@@ -23,6 +23,8 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
+void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations);
+
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT\n");
@@ -54,7 +56,7 @@ int main(int argc, char ** argv) {
     int nthreads;
     int impl_num = 0;
     int renumber = 0;
-    int use_reduce = 1; // Need to choose from two omp parallel approaches
+    int use_reduce = 0; // Need to choose from two omp parallel approaches
     int nt = 1;
     /* sortcase:
      * = 0 : the same with the old COO code.
@@ -186,7 +188,7 @@ int main(int argc, char ** argv) {
         // sptSparseTensorSortIndex(&X, 1);
         // printf("map_inds:\n");
         // for(sptIndex m = 0; m < X.nmodes; ++m) {
-        //     sptDumpIndexArray(map_inds[m], stdout);
+        //     sptDumpIndexArray(map_inds[m], X.ndims[m], stdout);
         // }
         // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 

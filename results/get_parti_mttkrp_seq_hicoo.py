@@ -17,8 +17,8 @@ tb = 1
 sc = 14
 
 # input parameters
-sb = sys.argv[1]
-sk = sys.argv[2]
+sb = int(sys.argv[1])
+sk = int(sys.argv[2])
 tk = sys.argv[3]
 
 
@@ -27,7 +27,7 @@ out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) +
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs + s4tsrs:
+for tsr in s4tsrs:
 	sum_seq = 0
 
 	if (tk == '1'):
@@ -35,33 +35,33 @@ for tsr in s3tsrs + s4tsrs:
 		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-seq.txt'
 	else:
 		# Set optimal sk
-		if(tsr == 'vast-2015-mc1'):
-			sk = 8
-		elif(tsr == 'nell2'):
-			sk = 9
-		elif(tsr == 'choa700k'):
-			sk = 10
-		elif(tsr == '1998DARPA'):
-			sk = 15
-		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
-			sk = 15
-		elif(tsr == 'delicious'):
-			sk = 16
-		elif(tsr == 'flickr'):
-			sk = 11
-		elif(tsr == 'nell1'):
-			sk = 16
-		# 4-D
-		elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
-			sk = 5
-		elif(tsr == 'nips-4d'):
-			sk = 9
-		elif(tsr == 'enron-4d'):
-			sk = 8
-		elif(tsr == 'flickr-4d'):
-			sk = 16
-		elif(tsr == 'delicious-4d'):
-			sk = 16
+		# if(tsr == 'vast-2015-mc1'):
+		# 	sk = 8
+		# elif(tsr == 'nell2'):
+		# 	sk = 9
+		# elif(tsr == 'choa700k'):
+		# 	sk = 10
+		# elif(tsr == '1998DARPA'):
+		# 	sk = 15
+		# elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
+		# 	sk = 15
+		# elif(tsr == 'delicious'):
+		# 	sk = 16
+		# elif(tsr == 'flickr'):
+		# 	sk = 11
+		# elif(tsr == 'nell1'):
+		# 	sk = 16
+		# # 4-D
+		# elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
+		# 	sk = 5
+		# elif(tsr == 'nips-4d'):
+		# 	sk = 9
+		# elif(tsr == 'enron-4d'):
+		# 	sk = 8
+		# elif(tsr == 'flickr-4d'):
+		# 	sk = 16
+		# elif(tsr == 'delicious-4d'):
+		# 	sk = 16
 
 		if(sk >= 7):
 			sb = 7
@@ -83,8 +83,10 @@ for tsr in s3tsrs + s4tsrs:
 			# print(time_num_m0)
 			sum_seq = sum_seq + float(time_num)
 			fo.write(time_num+'\n')
+			print(time_num)
 	
 	fo.write(str(sum_seq)+'\n')
+	print(str(sum_seq))
 	fi.close()
 
 fo.close()

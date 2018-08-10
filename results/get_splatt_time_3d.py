@@ -4,11 +4,10 @@ import numpy as np
 import sys 
 
 
-intput_path="../timing-results/splatt/32bit-single-onemode/"
-# intput_path="../timing-results/splatt/32bit-single-allmode/"
+intput_path="../timing-results/splatt/32bit-single-allmode-bfslike/"
+# intput_path="../timing-results/splatt/32bit-single-onemode-reorder-it5/"
 
-# s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
-s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
+s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 test_tsr_names = ['vast-2015-mc1', 'choa700k']
 
