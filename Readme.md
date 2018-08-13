@@ -1,6 +1,8 @@
 ParTI!
 ------
 
+(Notice: For the code used in [Optimizing sparse tensor times matrix on GPUs](https://www.sciencedirect.com/science/article/pii/S0743731518305161), please go to branch [JPDC](https://github.com/hpcgarage/ParTI/tree/jpdc).)
+
 A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse tensor operations and tensor decompositions on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition). ParTI! is formerly known as SpTOL. 
 
 
