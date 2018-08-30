@@ -33,7 +33,7 @@ void print_usage(char ** argv) {
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -e RENUMBER, --renumber=RENUMBER\n");
-    printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4)\n");
+    printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4,5)\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
     printf("         -r RANK\n");
@@ -64,6 +64,7 @@ int main(int argc, char ** argv) {
      * = 2 : worse case. Sort order: [(ordered by decreasing dimension sizes)]
      * = 3 : Z-Morton ordering (same with HiCOO format order)
      * = 4 : random shuffling.
+     * = 5 : blocking only not mode-n indices.
      */
     int sortcase = 0;
     sptElementIndex sb_bits;
@@ -253,6 +254,10 @@ int main(int argc, char ** argv) {
                     // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
                     sptGetRandomShuffleElements(&X);
                     break;
+                case 5:
+                    sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                    sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits);
+                    break;
                 default:
                     printf("Wrong sortcase number, reset by -s. \n");
             }
@@ -284,6 +289,7 @@ int main(int argc, char ** argv) {
             case 0:
             case 3:
             case 4:
+            case 5:
                 mats_order[0] = mode;
                 for(sptIndex i=1; i<nmodes; ++i)
                     mats_order[i] = (mode+i) % nmodes;
@@ -384,6 +390,9 @@ int main(int argc, char ** argv) {
                 // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
                 sptGetRandomShuffleElements(&X);
                 break;
+            case 5:
+                sptSparseTensorSortPartialIndex(&X, sb_bits);
+                break;
             default:
                 printf("Wrong sortcase number, reset by -s. \n");
         }
@@ -413,6 +422,7 @@ int main(int argc, char ** argv) {
         case 0:
         case 3:
         case 4:
+        case 5:
             mats_order[0] = mode;
             for(sptIndex i=1; i<nmodes; ++i)
                 mats_order[i] = (mode+i) % nmodes;

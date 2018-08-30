@@ -248,7 +248,7 @@ void sptGetWorstModeOrder(
 
 
 /**
- * Sort COO sparse tensor by Z-Morton order. (The same with "sptPreprocessSparseTensor" function in "convert.c" except setting kschr.) 
+ * Sort COO sparse tensor by Z-Morton order. (The same with "sptPreprocessSparseTensor" function in "convert.c" without setting kschr.) 
  * Kernels in Row-major order, blocks and elements are in Z-Morton order.
  * @param tsr    a pointer to a sparse tensor
  * @return      mode pointers
@@ -283,6 +283,44 @@ int sptSparseTensorMixedOrder(
 
     return 0;
 }
+
+
+
+/**
+ * Sort COO sparse tensor by plain blocked order for modes except mode-n. Blocks are in Row-major order.
+ * @param tsr    a pointer to a sparse tensor
+ * @return      mode pointers
+ */
+int sptSparseTensorSortPartialIndex(
+    sptSparseTensor *tsr, 
+    sptIndex const *  mode_order,
+    const sptElementIndex sb_bits)
+{
+    sptNnzIndex nnz = tsr->nnz;
+    sptIndex * ndims = tsr->ndims;
+    int result;
+
+    sptSparseTensorSortIndexCustomOrder(tsr, mode_order, 1);
+
+    sptNnzIndexVector sptr;
+    result = sptNewNnzIndexVector(&sptr, 0, 0);
+    spt_CheckError(result, "HiSpTns New", NULL);
+    result = sptSetKernelPointers(&sptr, tsr, 0);
+    spt_CheckError(result, "HiSpTns Preprocess", NULL);
+
+    sptNnzIndex s_begin, s_end;
+    // Loop for slices
+    for(sptNnzIndex s = 0; s < ndims[mode]; ++ s) {
+        s_begin = sptr.data[s];
+        s_end = sptr.data[s+1];   // exclusive
+        /* Sort blocks in each kernel in plain row-order */
+        sptSparseTensorSortIndexRowBlock(tsr, 1, s_begin, s_end, sb_bits);
+    }
+
+    return 0;
+}
+
+
 
 /**
  * Randomly shuffle all nonzeros.
