@@ -63,6 +63,10 @@ int sptSparseTensorMixedOrder(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits);
+int sptSparseTensorSortPartialIndex(
+    sptSparseTensor *tsr, 
+    sptIndex const *  mode_order,
+    const sptElementIndex sb_bits);
 void sptSparseTensorCalcIndexBounds(sptIndex inds_low[], sptIndex inds_high[], const sptSparseTensor *tsr);
 int spt_ComputeSliceSizes(
     sptNnzIndex * slice_nnzs, 

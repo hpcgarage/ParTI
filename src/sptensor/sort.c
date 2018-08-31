@@ -298,6 +298,7 @@ int sptSparseTensorSortPartialIndex(
 {
     sptNnzIndex nnz = tsr->nnz;
     sptIndex * ndims = tsr->ndims;
+    sptIndex const mode = mode_order[0];
     int result;
 
     sptSparseTensorSortIndexCustomOrder(tsr, mode_order, 1);
