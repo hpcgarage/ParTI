@@ -293,7 +293,7 @@ int sptSparseTensorMixedOrder(
  */
 int sptSparseTensorSortPartialIndex(
     sptSparseTensor *tsr, 
-    sptIndex const *  mode_order,
+    sptIndex const * mode_order,
     const sptElementIndex sb_bits)
 {
     sptNnzIndex nnz = tsr->nnz;
@@ -306,8 +306,18 @@ int sptSparseTensorSortPartialIndex(
     sptNnzIndexVector sptr;
     result = sptNewNnzIndexVector(&sptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
-    result = sptSetKernelPointers(&sptr, tsr, 0);
-    spt_CheckError(result, "HiSpTns Preprocess", NULL);
+    sptNnzIndex slice_nnz = 0;
+    sptIndex pre_idx = tsr->inds[mode].data[0];
+    result = sptAppendNnzIndexVector(&sptr, 0);
+    for (sptNnzIndex z = 0; z < nnz; ++z ) {
+        ++ slice_nnz;
+        if (tsr->inds[mode].data[z] > pre_idx ) {
+            result = sptAppendNnzIndexVector(&sptr, slice_nnz-1);
+            pre_idx = tsr->inds[mode].data[z];
+        }        
+    }
+    result = sptAppendNnzIndexVector(&sptr, nnz);
+    sptDumpNnzIndexVector(&sptr, stdout);
 
     sptNnzIndex s_begin, s_end;
     // Loop for slices

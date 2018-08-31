@@ -155,7 +155,7 @@ int main(int argc, char ** argv) {
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
-    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+    sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     /* Renumber the input tensor */
     if (renumber == 1) {
@@ -267,7 +267,7 @@ int main(int argc, char ** argv) {
             }
 
             sptSparseTensorStatus(&X, stdout);
-            // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+            sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
 
             /* Set zeros for temporary copy_U, for mode-"mode" */
@@ -391,7 +391,8 @@ int main(int argc, char ** argv) {
                 sptGetRandomShuffleElements(&X);
                 break;
             case 5:
-                sptSparseTensorSortPartialIndex(&X, sb_bits);
+                sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits);
                 break;
             default:
                 printf("Wrong sortcase number, reset by -s. \n");
@@ -400,7 +401,7 @@ int main(int argc, char ** argv) {
             printf("mode_order:\n");
             sptDumpIndexArray(mode_order, X.nmodes, stdout);
         }
-        // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+        sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
         /* Set zeros for temporary copy_U, for mode-"mode" */
         char * bytestr;
