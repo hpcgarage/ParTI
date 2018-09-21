@@ -1,12 +1,12 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_music" "freebase_sampled" "nell1" "delicious")
+declare -a s3tsrs=("vast-2015-mc1" "nell2" "choa700k" "1998DARPA" "freebase_music" "flickr" "freebase_sampled" "delicious" "nell1")
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a s4tsrs=("chicago-crime-comm-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
 declare -a test_tsr_names=("flickr-4d" "delicious-4d")
-declare -a threads=("68")	# KNL
+declare -a threads=("32")	# KNL
 # declare -a sk_range=("7" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 declare -a sk_range=()
 
@@ -24,7 +24,7 @@ tb=1
 sc=14
 
 # for R in 8 16 32 64
-for R in 16
+for R in 32
 do
 	for tsr_name in "${s3tsrs[@]}"
 	do
@@ -44,20 +44,26 @@ do
 		if [ ${tsr_name} = "vast-2015-mc1" ]; then
 			sk=8
 		fi
-		if [ ${tsr_name} = "choa700k" ] || [ ${tsr_name} = "nell2" ]; then
+		if [ ${tsr_name} = "nell2" ]; then
 			sk=10
 		fi
-		if [ ${tsr_name} = "1998DARPA" ] || [ ${tsr_name} = "delicious" ]; then
-			sk=14
+		if [ ${tsr_name} = "choa700k" ]; then
+			sk=10
+		fi
+		if [ ${tsr_name} = "1998DARPA" ]; then
+			sk=15
 		fi
 		if [ ${tsr_name} = "freebase_music" ] || [ ${tsr_name} = "freebase_sampled" ]; then
 			sk=18
 		fi
 		if [ ${tsr_name} = "flickr" ]; then
-			sk=11
+			sk=13
+		fi
+		if [ ${tsr_name} = "delicious" ]; then
+			sk=16
 		fi
 		if [ ${tsr_name} = "nell1" ]; then
-			sk=20
+			sk=18
 		fi
 		# if [ ${tsr_name} = "amazon-reviews" ] || [ ${tsr_name} = "reddit-2015" ]; then
 		# 	sk_range=("15" "17")
