@@ -12,7 +12,7 @@ declare -a sk_range=()
 
 # Cori
 tsr_path="${SCRATCH}/BIGTENSORS"
-out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single"
+out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-0924"
 # Cori-KNL
 # out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uint8-single-knl"
 
@@ -77,7 +77,7 @@ do
 			sk=4
 		fi
 		if [ ${tsr_name} = "nips-4d" ]; then
-			sk=7;
+			sk=7
 		fi
 		if [ ${tsr_name} = "enron-4d" ]; then
 			sk=8

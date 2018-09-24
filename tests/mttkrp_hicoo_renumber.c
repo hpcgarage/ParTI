@@ -147,7 +147,7 @@ int main(int argc, char ** argv) {
     // sptSparseTensorSortIndex(&tsr, 1);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
-    sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+    // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     /* Renumber the input tensor */
     if (renumber == 1) {
@@ -183,7 +183,7 @@ int main(int argc, char ** argv) {
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
             sptDumpIndexArray(map_inds[m], tsr.ndims[m], stdout);
         }
-        sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+        // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
             free(map_inds[m]);
@@ -205,7 +205,7 @@ int main(int argc, char ** argv) {
 
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
-    sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
+    // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
     /* Initialize factor matrices */
     sptIndex nmodes = hitsr.nmodes;

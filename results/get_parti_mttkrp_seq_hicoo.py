@@ -4,15 +4,15 @@ import sys
 
 # KNL
 # intput_path = '../timing-results/parti/hicoo/uint8-single-knl/'
-intput_path = '../timing-results/parti/hicoo/uint8-single/'
-s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
+intput_path = '../timing-results/parti/hicoo/uint8-single-0924/'
+s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 # s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 # s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 test_tsrs = ['delicious-4d']
 
-r = 16
+r = 32
 tb = 1
 sc = 14
 
@@ -27,7 +27,7 @@ out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) +
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s4tsrs:
+for tsr in s3tsrs:
 	sum_seq = 0
 
 	if (tk == '1'):
@@ -35,33 +35,33 @@ for tsr in s4tsrs:
 		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-seq.txt'
 	else:
 		# Set optimal sk
-		# if(tsr == 'vast-2015-mc1'):
-		# 	sk = 8
-		# elif(tsr == 'nell2'):
-		# 	sk = 9
-		# elif(tsr == 'choa700k'):
-		# 	sk = 10
-		# elif(tsr == '1998DARPA'):
-		# 	sk = 15
-		# elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
-		# 	sk = 15
-		# elif(tsr == 'delicious'):
-		# 	sk = 16
-		# elif(tsr == 'flickr'):
-		# 	sk = 11
-		# elif(tsr == 'nell1'):
-		# 	sk = 16
-		# # 4-D
-		# elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
-		# 	sk = 5
-		# elif(tsr == 'nips-4d'):
-		# 	sk = 9
-		# elif(tsr == 'enron-4d'):
-		# 	sk = 8
-		# elif(tsr == 'flickr-4d'):
-		# 	sk = 16
-		# elif(tsr == 'delicious-4d'):
-		# 	sk = 16
+		if(tsr == 'vast-2015-mc1'):
+			sk = 8
+		elif(tsr == 'nell2'):
+			sk = 10
+		elif(tsr == 'choa700k'):
+			sk = 10
+		elif(tsr == '1998DARPA'):
+			sk = 15
+		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
+			sk = 18
+		elif(tsr == 'flickr'):
+			sk = 13
+		elif(tsr == 'delicious'):
+			sk = 16
+		elif(tsr == 'nell1'):
+			sk = 18
+		# 4-D
+		elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
+			sk = 4
+		elif(tsr == 'nips-4d'):
+			sk = 7
+		elif(tsr == 'enron-4d'):
+			sk = 8
+		elif(tsr == 'flickr-4d'):
+			sk = 15
+		elif(tsr == 'delicious-4d'):
+			sk = 16
 
 		if(sk >= 7):
 			sb = 7

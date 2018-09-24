@@ -155,7 +155,7 @@ int main(int argc, char ** argv) {
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
-    sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     /* Renumber the input tensor */
     if (renumber == 1) {
@@ -176,7 +176,7 @@ int main(int argc, char ** argv) {
         sptStartTimer(renumber_timer);
 
         // orderforHiCOO((int)(X.nmodes), (sptIndex)X.nnz, X.ndims, X.inds, map_inds);
-        fflush(stdout);
+        // fflush(stdout);
         orderit(&X, map_inds, 5);
 
         sptSparseTensorShuffleIndices(&X, map_inds);
@@ -267,7 +267,7 @@ int main(int argc, char ** argv) {
             }
 
             sptSparseTensorStatus(&X, stdout);
-            sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+            // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
 
             /* Set zeros for temporary copy_U, for mode-"mode" */

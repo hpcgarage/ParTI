@@ -4,14 +4,14 @@ import numpy as np
 import sys 
 
 
-intput_path="../timing-results/splatt/32bit-single-allmode-bfslike/"
+intput_path="../timing-results/splatt/32bit-single-allmode-notiling/"
 # intput_path="../timing-results/splatt/32bit-single-onemode-reorder-it5/"
 
 s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
-test_tsr_names = ['vast-2015-mc1', 'choa700k']
+test_tsr_names = ['vast-2015-mc1']
 
-r = 16
+r = 32
 m1_nums = []
 m2_nums = []
 m3_nums = []
@@ -32,7 +32,7 @@ for tsr in s3tsrs:
 		line_array = line.strip().split(" ")
 		# print(line_array)
 
-		if(len(line_array) == 4 and line_array[0] == 'mode'):
+		if(len(line_array) == 4 and line_array[0] == 'MTTKRP'):
 			if(line_array[2] == '1'):
 				m1_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
 			elif(line_array[2] == '2'):
