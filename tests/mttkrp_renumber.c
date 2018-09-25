@@ -23,8 +23,6 @@
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
-void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations);
-
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT\n");
@@ -56,6 +54,12 @@ int main(int argc, char ** argv) {
     int nthreads;
     int impl_num = 0;
     int renumber = 0;
+    /* renumber:
+     * = 0 : no renumbering.
+     * = 1 : renumber with Lexi-order
+     * = 2 : renumber with BFS-like
+     * = 3 : randomly renumbering.
+     */
     int use_reduce = 0; // Need to choose from two omp parallel approaches
     int nt = 1;
     /* sortcase:
@@ -63,7 +67,7 @@ int main(int argc, char ** argv) {
      * = 1 : best case. Sort order: [mode, (ordered by increasing dimension sizes)]
      * = 2 : worse case. Sort order: [(ordered by decreasing dimension sizes)]
      * = 3 : Z-Morton ordering (same with HiCOO format order)
-     * = 4 : random shuffling.
+     * = 4 : random shuffling for elements.
      * = 5 : blocking only not mode-n indices.
      */
     int sortcase = 0;
@@ -151,6 +155,7 @@ int main(int argc, char ** argv) {
     printf("mode: %"PARTI_PRI_INDEX "\n", mode);
     printf("cuda_dev_id: %d\n", cuda_dev_id);
     printf("sortcase: %d\n", sortcase);
+    printf("renumber: %d\n\n", renumber);
 
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
@@ -158,7 +163,7 @@ int main(int argc, char ** argv) {
     // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     /* Renumber the input tensor */
-    if (renumber == 1) {
+    if (renumber > 0) {
         sptIndex ** map_inds = (sptIndex **)malloc(X.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
         for(sptIndex m = 0; m < X.nmodes; ++m) {
@@ -168,22 +173,33 @@ int main(int argc, char ** argv) {
                 map_inds[m][i] = i;
         }
 
-        /* Set randomly renumbering */
-        // sptGetRandomShuffledIndices(&X, map_inds);
-        /* Set the graph partitioning renumbering */
         sptTimer renumber_timer;
         sptNewTimer(&renumber_timer, 0);
         sptStartTimer(renumber_timer);
 
-        // orderforHiCOO((int)(X.nmodes), (sptIndex)X.nnz, X.ndims, X.inds, map_inds);
+        if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            orderit(&X, map_inds, renumber, 5);
+            // orderforHiCOO((int)(X.nmodes), (sptIndex)X.nnz, X.ndims, X.inds, map_inds);
+        }
+        if ( renumber == 3) { /* Set randomly renumbering */
+            printf("[Random Indexing]\n");
+            sptGetRandomShuffledIndices(&X, map_inds);
+        }
         // fflush(stdout);
-        orderit(&X, map_inds, 5);
-
-        sptSparseTensorShuffleIndices(&X, map_inds);
 
         sptStopTimer(renumber_timer);
         sptPrintElapsedTime(renumber_timer, "Renumbering");
         sptFreeTimer(renumber_timer);
+
+        sptTimer shuffle_timer;
+        sptNewTimer(&shuffle_timer, 0);
+        sptStartTimer(shuffle_timer);
+
+        sptSparseTensorShuffleIndices(&X, map_inds);
+
+        sptStopTimer(shuffle_timer);
+        sptPrintElapsedTime(shuffle_timer, "Shuffling time");
+        sptFreeTimer(shuffle_timer);
         printf("\n");
 
         // sptSparseTensorSortIndex(&X, 1);

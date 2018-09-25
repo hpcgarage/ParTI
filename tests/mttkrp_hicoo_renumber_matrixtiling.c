@@ -43,7 +43,7 @@ void print_usage(char ** argv) {
 }
 
 int main(int argc, char ** argv) {
-    printf("mttkrp_hicoo_renumber_matrixtiling\n");
+    printf("mttkrp_hicoo_renumber_matrixtiling: \n");
 
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
@@ -61,6 +61,12 @@ int main(int argc, char ** argv) {
     int nthreads;
     int impl_num = 0;
     int renumber = 0;
+    /* renumber:
+     * = 0 : no renumbering.
+     * = 1 : renumber with Lexi-order
+     * = 2 : renumber with BFS-like
+     * = 3 : randomly renumbering.
+     */
     int tk = 1;
     int tb = 1;
     int par_iters = 0;
@@ -142,6 +148,7 @@ int main(int argc, char ** argv) {
     }
     printf("mode: %"PARTI_PRI_INDEX "\n", mode);
     printf("cuda_dev_id: %d\n", cuda_dev_id);
+    printf("renumber: %d\n\n", renumber);
 
     /* A sorting included in load tensor */
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
@@ -150,7 +157,7 @@ int main(int argc, char ** argv) {
     sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     /* Renumber the input tensor */
-    if (renumber == 1) {
+    if (renumber > 0) {
         sptIndex ** map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
@@ -160,23 +167,34 @@ int main(int argc, char ** argv) {
                 map_inds[m][i] = i;
         }
 
-        /* Set randomly renumbering */
-        // sptGetRandomShuffledIndices(&tsr, map_inds);
-        /* Set the graph partitioning renumbering */
         sptTimer renumber_timer;
         sptNewTimer(&renumber_timer, 0);
         sptStartTimer(renumber_timer);
 
-        // orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
+        if ( renumber = 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            orderit(&tsr, map_inds, renumber, 5);
+            // orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
+        }
+        if ( renumber == 3) { /* Set randomly renumbering */
+            sptGetRandomShuffledIndices(&tsr, map_inds);
+        }
         fflush(stdout);
-        orderit(&tsr, map_inds, 5);
-
-        sptSparseTensorShuffleIndices(&tsr, map_inds);
 
         sptStopTimer(renumber_timer);
         sptPrintElapsedTime(renumber_timer, "Renumbering");
         sptFreeTimer(renumber_timer);
+
+        sptTimer shuffle_timer;
+        sptNewTimer(&shuffle_timer, 0);
+        sptStartTimer(shuffle_timer);
+
+        sptSparseTensorShuffleIndices(&tsr, map_inds);
+
+        sptStopTimer(shuffle_timer);
+        sptPrintElapsedTime(shuffle_timer, "Shuffling time");
+        sptFreeTimer(shuffle_timer);
         printf("\n");
+
 
         // sptSparseTensorSortIndex(&tsr, 1);
         printf("map_inds:\n");

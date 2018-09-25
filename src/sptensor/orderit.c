@@ -117,7 +117,7 @@ void checkNewIndices(sptIndex **newIndices, sptIndex nm, sptIndex *ndims)
 }
 
 
-void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
+void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int renumber, sptIndex iterations)
 {
     /*
      newIndices is of size [nmodes][ndims[modes]] and assumed to be allocted.
@@ -157,13 +157,16 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, sptIndex iterations)
     REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations,
     but on a few cases it did not help much. Just leaving it in case we want to use it.
     */
-    // orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
-    
-    for (its = 0; its < iterations; its++)
-    {
-        printf("Optimizing the numbering for its %u\n", its+1);
-        for (m = 0; m < nm; m++)
-            orderDim(coords, nnz, nm, tsr->ndims, m, orgIds);
+    if (renumber == 1) {
+        for (its = 0; its < iterations; its++)
+        {
+            printf("[Lexi-order] Optimizing the numbering for its %u\n", its+1);
+            for (m = 0; m < nm; m++)
+                orderDim(coords, nnz, nm, tsr->ndims, m, orgIds);
+        }
+    } else if (renumber == 2 ) {
+        printf("[BFS-like]\n");
+        orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
     }
     
     /*compute newIndices from orgIds. Reverse perm*/

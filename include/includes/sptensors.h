@@ -43,6 +43,7 @@ void sptGetWorstModeOrder(
 void sptGetRandomShuffleElements(sptSparseTensor *tsr);
 void sptGetRandomShuffledIndices(sptSparseTensor *tsr, sptIndex ** map_inds);
 void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds);
+void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int renumber, sptIndex iterations);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force);
 void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const *  mode_order, int force);
