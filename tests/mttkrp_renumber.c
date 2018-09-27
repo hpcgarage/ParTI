@@ -163,8 +163,9 @@ int main(int argc, char ** argv) {
     // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     /* Renumber the input tensor */
+    sptIndex ** map_inds;
     if (renumber > 0) {
-        sptIndex ** map_inds = (sptIndex **)malloc(X.nmodes * sizeof *map_inds);
+        map_inds = (sptIndex **)malloc(X.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
         for(sptIndex m = 0; m < X.nmodes; ++m) {
             map_inds[m] = (sptIndex *)malloc(X.ndims[m] * sizeof (sptIndex));
@@ -208,11 +209,6 @@ int main(int argc, char ** argv) {
         //     sptDumpIndexArray(map_inds[m], X.ndims[m], stdout);
         // }
         // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
-
-        for(sptIndex m = 0; m < X.nmodes; ++m) {
-            free(map_inds[m]);
-        }
-        free(map_inds);
     }
 
     sptIndex nmodes = X.nmodes;
@@ -232,8 +228,8 @@ int main(int argc, char ** argv) {
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     sptIndex stride = U[0]->stride;
 
-    sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
-    sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
+    sptIndex * mode_order = (sptIndex*) malloc(nmodes * sizeof(*mode_order));
+    sptIndex * mats_order = (sptIndex*) malloc(nmodes * sizeof(sptIndex));
 
     /* Initialize locks */
     sptMutexPool * lock_pool = NULL;
@@ -417,7 +413,7 @@ int main(int argc, char ** argv) {
             printf("mode_order:\n");
             sptDumpIndexArray(mode_order, X.nmodes, stdout);
         }
-        sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+        // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
         /* Set zeros for temporary copy_U, for mode-"mode" */
         char * bytestr;
@@ -512,6 +508,12 @@ int main(int argc, char ** argv) {
 
     } // End execute a specified mode
 
+    if (renumber > 0) {
+        for(sptIndex m = 0; m < X.nmodes; ++m) {
+            free(map_inds[m]);
+        }
+        free(map_inds);
+    }
     if(cuda_dev_id == -1) {
         if (use_reduce == 1) {
             for(int t=0; t<nt; ++t) {

@@ -459,6 +459,7 @@ void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptInde
     }
 }
 
+
 /**
  * Reorder the elements in a sparse tensor lexicographically in a customized order.
  * @param tsr  the sparse tensor to operate on
@@ -534,6 +535,33 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex loc1
             return -1;
         } else if(eleind1 > eleind2) {
             return 1;
+        }
+    }
+    return 0;
+}
+
+
+/**
+ * compare two indices from two identical or distinct sparse tensors lexicographically in all modes except mode
+ * @param tsr1 the first sparse tensor
+ * @param loc1 the order of the element in the first sparse tensor whose index is to be compared
+ * @param tsr2 the second sparse tensor
+ * @param loc2 the order of the element in the second sparse tensor whose index is to be compared
+ * @param mode the mode to be excluded in comparison
+ * @return -1 for less, 0 for equal, 1 for greater
+ */
+int spt_SparseTensorCompareIndicesExceptOne(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex const mode) {
+    sptIndex m;
+    assert(tsr1->nmodes == tsr2->nmodes);
+    for(m = 0; m < tsr1->nmodes; ++m) {
+        if ( m != mode ) {
+            sptIndex eleind1 = tsr1->inds[m].data[loc1];
+            sptIndex eleind2 = tsr2->inds[m].data[loc2];
+            if(eleind1 < eleind2) {
+                return -1;
+            } else if(eleind1 > eleind2) {
+                return 1;
+            }
         }
     }
     return 0;
@@ -661,38 +689,6 @@ static int spt_SparseTensorCompareIndicesMorton3D(
     }
     
 }
-
-
-static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
-
-    uint64_t i, j, p;
-    if(r-l < 2) {
-        return;
-    }
-    p = (l+r) / 2;
-    for(i = l, j = r-1; ; ++i, --j) {
-        while(spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p) < 0) {
-            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p));
-            ++i;
-        }
-        while(spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j) < 0) {
-            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j));
-            --j;
-        }
-        if(i >= j) {
-            break;
-        }
-        spt_SwapValues(tsr, i, j);
-        if(i == p) {
-            p = j;
-        } else if(j == p) {
-            p = i;
-        }
-    }
-    spt_QuickSortIndexMorton3D(tsr, l, i, sb_bits);
-    spt_QuickSortIndexMorton3D(tsr, i, r, sb_bits);
-}
-
 
 
 /**
@@ -882,6 +878,37 @@ static int spt_SparseTensorCompareIndicesMorton4D(
         return 0;
     }
     
+}
+
+
+static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
+
+    uint64_t i, j, p;
+    if(r-l < 2) {
+        return;
+    }
+    p = (l+r) / 2;
+    for(i = l, j = r-1; ; ++i, --j) {
+        while(spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p) < 0) {
+            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p));
+            ++i;
+        }
+        while(spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j) < 0) {
+            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j));
+            --j;
+        }
+        if(i >= j) {
+            break;
+        }
+        spt_SwapValues(tsr, i, j);
+        if(i == p) {
+            p = j;
+        } else if(j == p) {
+            p = i;
+        }
+    }
+    spt_QuickSortIndexMorton3D(tsr, l, i, sb_bits);
+    spt_QuickSortIndexMorton3D(tsr, i, r, sb_bits);
 }
 
 

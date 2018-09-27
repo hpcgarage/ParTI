@@ -26,13 +26,15 @@ for tsr in s3tsrs:
 
 	if tk == "1":
 		## sequential coo
-		input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-s' + str(sortcase) + '-seq.txt'
+		input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-seq.txt'
+		# input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-s' + str(sortcase) + '-seq.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-seq.txt'
 		# input_str = intput_path + tsr + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
 	else:
 		## omp coo
+		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(tk) + '.txt'
-		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-s' + str(sortcase) + '.txt'
+		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-s' + str(sortcase) + '.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')

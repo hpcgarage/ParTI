@@ -8,11 +8,11 @@
 /*Interface to everything in this file is orderit(.., ..)*/
 
 /*function declarations*/
-void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex **newIndices);
+void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptIndex * ndims, sptIndex const dim, sptIndex ** newIndices);
 
-void orderforHiCOObfsLike(sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords, sptIndex **newIndices);
+void orderforHiCOObfsLike(sptIndex const nm, sptNnzIndex const nnz, sptIndex * ndims, sptIndex ** coords, sptIndex ** newIndices);
 
-double u_seconds(void)
+static double u_seconds(void)
 {
     struct timeval tp;
     
@@ -21,7 +21,7 @@ double u_seconds(void)
     return (double) tp.tv_sec + (double) tp.tv_usec / 1000000.0;
     
 };
-void printCSR(sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols)
+static void printCSR(sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols)
 {
     sptNnzIndex r, jend, jcol;
     printf("matrix of size %llu %u with %llu\n", m, n, ia[m+1]);
@@ -36,7 +36,7 @@ void printCSR(sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols)
     }
 }
 
-void checkRepeatIndex(sptNnzIndex mtxNrows, sptNnzIndex *rowPtrs, sptIndex *cols, sptIndex n )
+static void checkRepeatIndex(sptNnzIndex mtxNrows, sptNnzIndex *rowPtrs, sptIndex *cols, sptIndex n )
 {
     printf("\tChecking repeat indices\n");
     sptIndex *marker = (sptIndex *) calloc(n+1, sizeof(sptIndex));
@@ -61,7 +61,7 @@ void checkRepeatIndex(sptNnzIndex mtxNrows, sptNnzIndex *rowPtrs, sptIndex *cols
     }
     free(marker);
 }
-void checkEmptySlices(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims)
+static void checkEmptySlices(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims)
 {
     sptIndex m, i;
     sptNnzIndex z;
@@ -89,7 +89,7 @@ void checkEmptySlices(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex 
     free(marker);
 }
 
-void checkNewIndices(sptIndex **newIndices, sptIndex nm, sptIndex *ndims)
+static void checkNewIndices(sptIndex **newIndices, sptIndex nm, sptIndex *ndims)
 {
     sptIndex m, i;
     sptIndex **marker, leftVoid;
@@ -117,7 +117,7 @@ void checkNewIndices(sptIndex **newIndices, sptIndex nm, sptIndex *ndims)
 }
 
 
-void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int renumber, sptIndex iterations)
+void orderit(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations)
 {
     /*
      newIndices is of size [nmodes][ndims[modes]] and assumed to be allocted.
@@ -127,70 +127,77 @@ void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int renumber, sptIndex
      to a local variable coords. This is sort of transposed wrt tsr: its size is nnz * n, instead of n * nnz used in tsr.
      */
     sptIndex i, m, nm = tsr->nmodes;
-    sptIndex **coords;
     sptNnzIndex z, nnz = tsr->nnz;
-    
-    sptIndex **orgIds;
-    
+    sptIndex ** coords;   
     sptIndex its;
     
-    /*copy the indices*/
+    /* copy the indices */
+    sptTimer copy_coord_timer;
+    sptNewTimer(&copy_coord_timer, 0);
+    sptStartTimer(copy_coord_timer);
+
     coords = (sptIndex **) malloc(sizeof(sptIndex*) * nnz);
     for (z = 0; z < nnz; z++)
     {
-        coords[z] = (sptIndex*) malloc(sizeof(sptIndex) * nm);
+        coords[z] = (sptIndex *) malloc(sizeof(sptIndex) * nm);
         for (m = 0; m < nm; m++)
             coords[z][m] = tsr->inds[m].data[z];
     }
-    
-    /*checkEmptySlices(coords, nnz, nm, tsr->ndims);*/
-    
-    orgIds = (sptIndex **) malloc(sizeof(sptIndex*) * nm);
 
-    for (m = 0; m < nm; m++)
-    {
-        orgIds[m] = (sptIndex*) malloc(sizeof(sptIndex) * tsr->ndims[m]);
-        for (i = 0; i < tsr->ndims[m]; i++)
-            orgIds[m][i] = i;
-    }
-   /*
-    REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations,
-    but on a few cases it did not help much. Just leaving it in case we want to use it.
-    */
-    if (renumber == 1) {
+    sptStopTimer(copy_coord_timer);
+    sptPrintElapsedTime(copy_coord_timer, "Copy coordinate time");
+    sptFreeTimer(copy_coord_timer);
+    
+    /* checkEmptySlices(coords, nnz, nm, tsr->ndims); */
+
+    if (renumber == 1) {    /* Lexi-order renumbering */
+
+        sptIndex ** orgIds = (sptIndex **) malloc(sizeof(sptIndex*) * nm);
+
+        for (m = 0; m < nm; m++)
+        {
+            orgIds[m] = (sptIndex *) malloc(sizeof(sptIndex) * tsr->ndims[m]);
+            for (i = 0; i < tsr->ndims[m]; i++)
+                orgIds[m][i] = i;
+        }
+
         for (its = 0; its < iterations; its++)
         {
             printf("[Lexi-order] Optimizing the numbering for its %u\n", its+1);
             for (m = 0; m < nm; m++)
                 orderDim(coords, nnz, nm, tsr->ndims, m, orgIds);
         }
-    } else if (renumber == 2 ) {
+
+        /* compute newIndices from orgIds. Reverse perm */
+        for (m = 0; m < nm; m++)
+            for (i = 0; i < tsr->ndims[m]; i++)
+                newIndices[m][orgIds[m][i]] = i;
+
+        for (m = 0; m < nm; m++)
+            free(orgIds[m]);
+        free(orgIds);
+
+    } else if (renumber == 2 ) {    /* BFS-like renumbering */
+       /*
+        REMARK (10 May 2018): this is the old bfs-like kind of thing. I hoped it would reduce the number of iterations,
+        but on a few cases it did not help much. Just leaving it in case we want to use it.
+        */
         printf("[BFS-like]\n");
         orderforHiCOObfsLike(nm, nnz, tsr->ndims, coords, newIndices);
     }
     
-    /*compute newIndices from orgIds. Reverse perm*/
-    for (m = 0; m < nm; m++)
-        for (i = 0; i < tsr->ndims[m]; i++)
-            newIndices[m][orgIds[m][i]] = i;
-    
-    printf("set the new indices\n");
+    // printf("set the new indices\n");
 /*    checkNewIndices(newIndices, nm, tsr->ndims);*/
     
-    for (m = 0; m < nm; m++)
-        free(orgIds[m]);
-
-    free(orgIds);
     for (z = 0; z < nnz; z++)
         free(coords[z]);
     free(coords);
-    
     
 }
 /******************** Internals begin ***********************/
 /*beyond this line savages....
  **************************************************************/
-void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
+static void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
 {
     sptNnzIndex z;
     sptIndex m;
@@ -220,6 +227,7 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
     }
     return 0; /*are equal*/
 }
+
 static inline int isLessThanOrEqualToNewSum(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 // static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 {
@@ -278,7 +286,8 @@ static inline void writeInto(sptIndex *target, sptIndex *source, sptIndex nm)
     for (m = 0; m < nm; m++)
         target[m] = source[m];
 }
-void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
+
+static void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
 {
     sptNnzIndex z, z2plus;
     for (z = lo+1; z <= hi; z++)
@@ -296,7 +305,7 @@ void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex n
 }
 static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
 {
-    /*copied from the web http://ndevilla.free.fr/median/median/src/quickselect.c*/
+    /* copied from the web http://ndevilla.free.fr/median/median/src/quickselect.c */
     sptNnzIndex low, high, median, middle, ll, hh;
     
     low = lo; high = hi; median = (low+high)/2;
@@ -338,10 +347,10 @@ static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzI
     
 }
 /**************************************************************/
-void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm, sptIndex *ndims, sptIndex dim)
+static void mySort(sptIndex ** coords,  sptNnzIndex last, sptIndex nm, sptIndex * ndims, sptIndex dim)
 {
-    /*sorts coords accourding to all dims except dim, where items are refereed with newIndices*/
-    /*an iterative quicksort*/
+    /* sorts coords accourding to all dims except dim, where items are refereed with newIndices*/
+    /* an iterative quicksort */
     sptNnzIndex *stack, top, lo, hi, pv;
     sptIndex *tmpNnz, *wspace;
     
@@ -396,7 +405,7 @@ void mySort(sptIndex **coords,  sptNnzIndex last, sptIndex nm, sptIndex *ndims, 
     free(tmpNnz);
 }
 
-sptIndex countNumItems(sptIndex *setnext, sptIndex *tailset, sptIndex firstset, sptIndex *prev)
+static sptIndex countNumItems(sptIndex *setnext, sptIndex *tailset, sptIndex firstset, sptIndex *prev)
 {
     sptIndex cnt = 0, set;
     for(set = firstset; set != 0; set = setnext[set])
@@ -412,7 +421,7 @@ sptIndex countNumItems(sptIndex *setnext, sptIndex *tailset, sptIndex firstset, 
     return cnt;
 }
 
-void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, sptIndex *cprm)
+static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, sptIndex *cprm)
 {
     /*m, n are the num of rows and cols, respectively. We lex order cols,
      given rows.
@@ -605,11 +614,11 @@ void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, s
 /**************************************************************/
 #define myAbs(x) (((x) < 0) ? -(x) : (x))
 
-void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex **orgIds)
+void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptIndex * ndims, sptIndex const dim, sptIndex ** orgIds)
 {
-    sptNnzIndex *rowPtrs=NULL, z, atRowPlus1, mtxNrows;
-    sptIndex *colIds=NULL, c;
-    sptIndex *cprm=NULL, *invcprm = NULL, *saveOrgIds;
+    sptNnzIndex * rowPtrs=NULL, z, atRowPlus1, mtxNrows;
+    sptIndex * colIds=NULL, c;
+    sptIndex * cprm=NULL, * invcprm = NULL, * saveOrgIds;
     sptNnzIndex mtrxNnz;
     
     double t1, t0;
@@ -618,12 +627,12 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
     t1 = u_seconds()-t0;
     printf("dim %u, sort time %.2f\n", dim, t1);
     /*    printCoords(coords, nnz, nm);*/
-    /*we matricize this (others x thisDim), whose columns will be renumbered*/
+    /* we matricize this (others x thisDim), whose columns will be renumbered */
     
-    /*on the matrix all arrays are from 1, and all indices are from 1.*/
+    /* on the matrix all arrays are from 1, and all indices are from 1. */
     
-    rowPtrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nnz+2));/*large space*/
-    colIds = (sptIndex *) malloc(sizeof(sptIndex) * (nnz+2));/*large space*/
+    rowPtrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nnz+2)); /*large space*/
+    colIds = (sptIndex *) malloc(sizeof(sptIndex) * (nnz+2)); /*large space*/
     
     if(rowPtrs == NULL || colIds == NULL)
     {
@@ -631,17 +640,17 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
         exit(12);
     }
     
-    rowPtrs[0] = 0; /*we should not access this, that is why.*/
+    rowPtrs[0] = 0; /* we should not access this, that is why. */
     rowPtrs [1] = 1;
     colIds[1] = coords[0][dim]+1;
     atRowPlus1 = 2;
-    mtrxNnz = 2;/*start filling from the second element*/
+    mtrxNnz = 2;/* start filling from the second element */
     
     t0 = u_seconds();
     for (z = 1; z < nnz; z++)
     {
         if(isLessThanOrEqualTo(coords[z], coords[z-1], nm, ndims, dim) != 0)
-            rowPtrs[atRowPlus1++] = mtrxNnz;/*close the previous row and start a new one.*/
+            rowPtrs[atRowPlus1++] = mtrxNnz; /* close the previous row and start a new one. */
         
         colIds[mtrxNnz++] = coords[z][dim]+1;
     }
@@ -657,11 +666,11 @@ void orderDim(sptIndex **coords, sptNnzIndex nnz, sptIndex nm, sptIndex *ndims, 
     /*    checkRepeatIndex(mtxNrows, rowPtrs, colIds, ndims[dim] );*/
     
     t0 = u_seconds();
-
     lexOrderThem(mtxNrows, ndims[dim], rowPtrs, colIds, cprm);
     t1 =u_seconds()-t0;
     printf("dim %u lexorder time %.2f\n", dim, t1);
-    /*update orgIds and modify coords*/
+
+    /* update orgIds and modify coords */
     for (c=0; c < ndims[dim]; c++)
     {
         invcprm[cprm[c+1]-1] = c;
@@ -692,7 +701,7 @@ typedef struct{
     sptNnzIndex *hptrs, *hVids; /*starts of vertices in the hedges, and the ids of the vertices*/
 } basicHypergraph;
 
-void allocateHypergraphData(basicHypergraph *hg, sptIndex nvrt, sptNnzIndex nhdg, sptNnzIndex npins)
+static void allocateHypergraphData(basicHypergraph *hg, sptIndex nvrt, sptNnzIndex nhdg, sptNnzIndex npins)
 {
     hg->nvrt = nvrt;
     hg->vptrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nvrt+1));
@@ -704,7 +713,7 @@ void allocateHypergraphData(basicHypergraph *hg, sptIndex nvrt, sptNnzIndex nhdg
 }
 
 
-void freeHypergraphData(basicHypergraph *hg)
+static void freeHypergraphData(basicHypergraph *hg)
 {
     hg->nvrt = 0;
     if (hg->vptrs) free(hg->vptrs);
@@ -716,7 +725,7 @@ void freeHypergraphData(basicHypergraph *hg)
 }
 
 
-void setVList(basicHypergraph *hg)
+static void setVList(basicHypergraph *hg)
 {
     /*PRE: We assume hg->hptrs and hg->hVids are set; hg->nvrts is set, and
      hg->vptrs and hg->vHids are allocated appropriately.
@@ -755,7 +764,7 @@ void setVList(basicHypergraph *hg)
     }
 }
 
-void fillHypergraphFromCoo(basicHypergraph *hg, sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords)
+static void fillHypergraphFromCoo(basicHypergraph *hg, sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords)
 {
     
     sptIndex  totalSizes;
@@ -801,7 +810,7 @@ static inline sptIndex locateVertex(sptNnzIndex indStart, sptNnzIndex indEnd, sp
 }
 
 #define SIZEV( vid ) vptrs[(vid)+1]-vptrs[(vid)]
-void heapIncreaseKey(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex id, sptIndex *inheap, sptNnzIndex newKey)
+static void heapIncreaseKey(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex id, sptIndex *inheap, sptNnzIndex newKey)
 {
     
     sptIndex i = inheap[id]; /*location in heap*/
@@ -823,7 +832,7 @@ void heapIncreaseKey(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sp
 }
 
 
-void heapify(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex i,  sptIndex *inheap)
+static void heapify(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex i,  sptIndex *inheap)
 {
     sptIndex largest, j, l,r, tmp;
     
@@ -860,7 +869,7 @@ void heapify(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex s
     }
 }
 
-sptIndex heapExtractMax(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex *sz, sptIndex *inheap)
+static sptIndex heapExtractMax(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex *sz, sptIndex *inheap)
 {
     sptIndex maxind ;
     if (*sz < 1){
@@ -878,14 +887,14 @@ sptIndex heapExtractMax(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs,
     
 }
 
-void heapBuild(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex *inheap)
+static void heapBuild(sptIndex *heapIds, sptNnzIndex *key, sptNnzIndex *vptrs, sptIndex sz, sptIndex *inheap)
 {
     sptIndex i;
     for (i=sz/2; i>=1; i--)
         heapify(heapIds, key, vptrs, sz, i, inheap);
 }
 
-void orderforHiCOOaDim(basicHypergraph *hg, sptIndex *newIndicesHg, sptIndex indStart, sptIndex indEnd)
+static void orderforHiCOOaDim(basicHypergraph *hg, sptIndex *newIndicesHg, sptIndex indStart, sptIndex indEnd)
 {
     /* we re-order the vertices of the hypergraph with ids in the range [indStart, indEnd]*/
     
@@ -951,7 +960,7 @@ void orderforHiCOOaDim(basicHypergraph *hg, sptIndex *newIndicesHg, sptIndex ind
 
 
 /**************************************************************/
-void orderforHiCOObfsLike(sptIndex nm, sptNnzIndex nnz, sptIndex *ndims, sptIndex **coords, sptIndex ** newIndices)
+void orderforHiCOObfsLike(sptIndex const nm, sptNnzIndex const nnz, sptIndex * ndims, sptIndex ** coords, sptIndex ** newIndices)
 {
     /*PRE: newIndices is allocated
      

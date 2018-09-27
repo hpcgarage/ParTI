@@ -5,7 +5,7 @@ declare -a s3tsrs=("vast-2015-mc1" "nell2" "choa700k" "1998DARPA" "freebase_musi
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
-declare -a test_tsr_names=("freebase_sampled")
+declare -a test_tsr_names=("vast-2015-mc1" "nell2" "freebase_sampled" "delicious" "nell1")
 declare -a threads=("32")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 # declare -a sk_range=("7")
@@ -18,32 +18,31 @@ out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/coo/singl
 sc=14
 tb=1
 sortcase=0
+renum=2
 
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${test_tsr_names[@]}"
 	do
 		# Sequential code with graph renumbering
 		dev_id=-2
+		echo "./build/tests/mttkrp_renumber_copy -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-r${R}-e${renum}-seq.txt"
+		./build/tests/mttkrp_renumber_copy -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-r${R}-e${renum}-seq.txt
 
-		renum=3
-		echo "./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-r${R}-e${renum}-seq.txt"
-		./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}.tns -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-r${R}-e${renum}-seq.txt
-
-		# renum=0
 		# echo "./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -e ${renum} -s ${sortcase} > ${out_path}/${tsr_name}-r${R}-e${renum}-s${sortcase}-seq.txt"
 		# ./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -e ${renum} -s ${sortcase} > ${out_path}/${tsr_name}-r${R}-e${renum}-s${sortcase}-seq.txt
 
 		# OpenMP code
-		# dev_id=-1
-		# # renum=1
-		# renum=0
-		# for tk in ${threads[@]}
-		# do
-		# 	echo "numactl --interleave=0-1 ./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -t ${tk} -e ${renum} -s ${sortcase} > ${out_path}/${tsr_name}-r${R}-tk${tk}-e${renum}-s${sortcase}.txt"
-		# 	numactl --interleave=0-1 ./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -t ${tk} -e ${renum} -s ${sortcase} > ${out_path}/${tsr_name}-r${R}-tk${tk}-e${renum}-s${sortcase}.txt
-		# done
+		dev_id=-1
+		for tk in ${threads[@]}
+		do
+			echo "numactl --interleave=0-1 ./build/tests/mttkrp_renumber_copy -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -t ${tk} -e ${renum} > ${out_path}/${tsr_name}-r${R}-tk${tk}-e${renum}.txt"
+			numactl --interleave=0-1 ./build/tests/mttkrp_renumber_copy -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -t ${tk} -e ${renum} > ${out_path}/${tsr_name}-r${R}-tk${tk}-e${renum}.txt
+			
+			# echo "numactl --interleave=0-1 ./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -t ${tk} -e ${renum} -s ${sortcase} > ${out_path}/${tsr_name}-r${R}-tk${tk}-e${renum}-s${sortcase}.txt"
+			# numactl --interleave=0-1 ./build/tests/mttkrp_renumber -i ${tsr_path}/${tsr_name}_nnz.tns -d ${dev_id} -r ${R} -t ${tk} -e ${renum} -s ${sortcase} > ${out_path}/${tsr_name}-r${R}-tk${tk}-e${renum}-s${sortcase}.txt
+		done
 
 
 	done

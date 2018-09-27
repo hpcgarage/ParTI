@@ -12,18 +12,17 @@ s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d'
 # s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 test_tsrs = ['delicious-4d']
 
-r = 32
+r = 16
 tb = 1
 sc = 14
 
 # input parameters
-sb = int(sys.argv[1])
-sk = int(sys.argv[2])
-tk = sys.argv[3]
+tk = sys.argv[1]
+renum = int(sys.argv[2])
 
 
 # out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
-out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
+out_str = 'parti-hicoo-uint8.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
@@ -31,20 +30,23 @@ for tsr in s3tsrs:
 	sum_seq = 0
 
 	if (tk == '1'):
-		## sequential hicoo
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-seq.txt'
+		# sequential hicoo
+		sb = 7
+		sk = 20
+		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r)+ '-e' + str(renum) + '-seq.txt'
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-e' + str(renum) + '-mattile-seq.txt'
 	else:
 		# Set optimal sk
 		if(tsr == 'vast-2015-mc1'):
 			sk = 8
 		elif(tsr == 'nell2'):
-			sk = 10
+			sk = 9
 		elif(tsr == 'choa700k'):
 			sk = 10
 		elif(tsr == '1998DARPA'):
 			sk = 15
 		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
-			sk = 18
+			sk = 16
 		elif(tsr == 'flickr'):
 			sk = 13
 		elif(tsr == 'delicious'):
@@ -59,9 +61,9 @@ for tsr in s3tsrs:
 		elif(tsr == 'enron-4d'):
 			sk = 8
 		elif(tsr == 'flickr-4d'):
-			sk = 15
+			sk = 12
 		elif(tsr == 'delicious-4d'):
-			sk = 16
+			sk = 15
 
 		if(sk >= 7):
 			sb = 7
@@ -69,7 +71,8 @@ for tsr in s3tsrs:
 			sb = sk
 			
 		## omp hicoo
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
+		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '.txt'
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-mattile.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')

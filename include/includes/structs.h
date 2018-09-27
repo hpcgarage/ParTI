@@ -112,10 +112,10 @@ typedef struct {
  */
 typedef struct {
     sptIndex nmodes;      /// # modes
-    sptIndex *sortorder;  /// the order in which the indices are sorted
-    sptIndex *ndims;      /// size of each mode, length nmodes
+    sptIndex * sortorder;  /// the order in which the indices are sorted
+    sptIndex * ndims;      /// size of each mode, length nmodes
     sptNnzIndex nnz;         /// # non-zeros
-    sptIndexVector *inds;       /// indices of each element, length [nmodes][nnz]
+    sptIndexVector * inds;       /// indices of each element, length [nmodes][nnz]
     sptValueVector values;      /// non-zero values, length nnz
 } sptSparseTensor;
 

@@ -154,11 +154,12 @@ int main(int argc, char ** argv) {
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
-    sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
+    // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     /* Renumber the input tensor */
+    sptIndex ** map_inds;
     if (renumber > 0) {
-        sptIndex ** map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
+        map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
         spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
             map_inds[m] = (sptIndex *)malloc(tsr.ndims[m] * sizeof (sptIndex));
@@ -171,9 +172,9 @@ int main(int argc, char ** argv) {
         sptNewTimer(&renumber_timer, 0);
         sptStartTimer(renumber_timer);
 
-        if ( renumber = 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
-            orderit(&tsr, map_inds, renumber, 5);
-            // orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
+        if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            // orderit(&tsr, map_inds, renumber, 5);
+            sptIndexRenumber(&tsr, map_inds, renumber, 5);
         }
         if ( renumber == 3) { /* Set randomly renumbering */
             sptGetRandomShuffledIndices(&tsr, map_inds);
@@ -197,16 +198,11 @@ int main(int argc, char ** argv) {
 
 
         // sptSparseTensorSortIndex(&tsr, 1);
-        printf("map_inds:\n");
-        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-            sptDumpIndexArray(map_inds[m], tsr.ndims[m], stdout);
-        }
-        sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
-
-        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-            free(map_inds[m]);
-        }
-        free(map_inds);
+        // printf("map_inds:\n");
+        // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+        //     sptDumpIndexArray(map_inds[m], tsr.ndims[m], stdout);
+        // }
+        // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
     }
 
     /* Convert to HiCOO tensor */
@@ -223,7 +219,7 @@ int main(int argc, char ** argv) {
 
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
-    sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
+    // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
     /* Initialize factor matrices */
     sptIndex nmodes = hitsr.nmodes;
@@ -409,6 +405,12 @@ int main(int argc, char ** argv) {
         }
     }   // End execute a specified mode
 
+    if (renumber > 0) {
+        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+            free(map_inds[m]);
+        }
+        free(map_inds);
+    }
 
     if(cuda_dev_id == -1 && par_iters == 1) {
         for(int t=0; t<tk; ++t) {

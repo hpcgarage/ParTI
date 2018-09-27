@@ -43,7 +43,6 @@ void sptGetWorstModeOrder(
 void sptGetRandomShuffleElements(sptSparseTensor *tsr);
 void sptGetRandomShuffledIndices(sptSparseTensor *tsr, sptIndex ** map_inds);
 void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds);
-void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int renumber, sptIndex iterations);
 void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
 void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force);
 void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const *  mode_order, int force);
@@ -75,6 +74,10 @@ int spt_ComputeSliceSizes(
     sptIndex const mode);
 void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp);
 double sptSparseTensorDensity(sptSparseTensor const * const tsr);
+
+/* Renumbering */
+void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations);
+void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int const renumber, sptIndex const iterations);
 
 /* Sparse tensor HiCOO */
 int sptNewSparseTensorHiCOO(
