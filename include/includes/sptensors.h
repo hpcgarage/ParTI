@@ -59,6 +59,7 @@ void sptSparseTensorSortIndexRowBlock(
     const sptNnzIndex end,
     const sptElementIndex sk_bits);
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
+void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order);
 int sptSparseTensorMixedOrder(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,

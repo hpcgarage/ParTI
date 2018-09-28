@@ -26,7 +26,8 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex 
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
 static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
-static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, size_t l, size_t r, sptIndex mode);
+static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptIndex mode);
+static void spt_QuickSortIndexExceptSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptIndex * mode_order);
 
 /* Mode order: X -> Y -> Z, x indices are sorted, y and z are Morton order sorted. */
 static const uint32_t morton256_z[256] =
@@ -461,6 +462,27 @@ void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptInde
 
 
 /**
+ * Reorder the elements in a sparse tensor lexicographically, sorting all modes except one. The except mode is NOT ordered.
+ * @param tsr  the sparse tensor to operate on
+ */
+void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order) {
+    sptIndex m;
+    int needsort = 0;
+
+    for(m = 0; m < tsr->nmodes; ++m) {
+        if(tsr->sortorder[m] != m) {
+            tsr->sortorder[m] = m;
+            needsort = 1;
+        }
+    }
+
+    if(needsort || force) {
+        spt_QuickSortIndexExceptSingleMode(tsr, 0, tsr->nnz, mode_order);
+    }
+}
+
+
+/**
  * Reorder the elements in a sparse tensor lexicographically in a customized order.
  * @param tsr  the sparse tensor to operate on
  */
@@ -550,18 +572,17 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex loc1
  * @param mode the mode to be excluded in comparison
  * @return -1 for less, 0 for equal, 1 for greater
  */
-int spt_SparseTensorCompareIndicesExceptOne(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex const mode) {
-    sptIndex m;
+int spt_SparseTensorCompareIndicesExceptSingleMode(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex * mode_order) {
+    sptIndex i, m;
     assert(tsr1->nmodes == tsr2->nmodes);
-    for(m = 0; m < tsr1->nmodes; ++m) {
-        if ( m != mode ) {
-            sptIndex eleind1 = tsr1->inds[m].data[loc1];
-            sptIndex eleind2 = tsr2->inds[m].data[loc2];
-            if(eleind1 < eleind2) {
-                return -1;
-            } else if(eleind1 > eleind2) {
-                return 1;
-            }
+    for(i = 0; i < tsr1->nmodes - 1; ++ i) {
+        m = mode_order[i];
+        sptIndex eleind1 = tsr1->inds[m].data[loc1];
+        sptIndex eleind2 = tsr2->inds[m].data[loc2];
+        if(eleind1 < eleind2) {
+            return -1;
+        } else if(eleind1 > eleind2) {
+            return 1;
         }
     }
     return 0;
@@ -999,6 +1020,36 @@ static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sp
     spt_QuickSortIndexSingleMode(tsr, l, i, mode);
     spt_QuickSortIndexSingleMode(tsr, i, r, mode);
 }
+
+
+static void spt_QuickSortIndexExceptSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptIndex * mode_order) 
+{
+    sptNnzIndex i, j, p;
+    if(r-l < 2) {
+        return;
+    }
+    p = (l+r) / 2;
+    for(i = l, j = r-1; ; ++i, --j) {
+        while(spt_SparseTensorCompareIndicesExceptSingleMode(tsr, i, tsr, p, mode_order) < 0) {
+            ++i;
+        }
+        while(spt_SparseTensorCompareIndicesExceptSingleMode(tsr, p, tsr, j, mode_order) < 0) {
+            --j;
+        }
+        if(i >= j) {
+            break;
+        }
+        spt_SwapValues(tsr, i, j);
+        if(i == p) {
+            p = j;
+        } else if(j == p) {
+            p = i;
+        }
+    }
+    spt_QuickSortIndexExceptSingleMode(tsr, l, i, mode_order);
+    spt_QuickSortIndexExceptSingleMode(tsr, i, r, mode_order);
+}
+
 
 static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r) {
     sptNnzIndex i, j, p;

@@ -140,8 +140,9 @@ void orderit(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, 
     for (z = 0; z < nnz; z++)
     {
         coords[z] = (sptIndex *) malloc(sizeof(sptIndex) * nm);
-        for (m = 0; m < nm; m++)
+        for (m = 0; m < nm; m++) {
             coords[z][m] = tsr->inds[m].data[z];
+        }
     }
 
     sptStopTimer(copy_coord_timer);
@@ -161,19 +162,20 @@ void orderit(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, 
                 orgIds[m][i] = i;
         }
 
+        // FILE * debug_fp = fopen("old.txt", "w");
+        // fprintf(stdout, "orgIds:\n");
         for (its = 0; its < iterations; its++)
         {
             printf("[Lexi-order] Optimizing the numbering for its %u\n", its+1);
             for (m = 0; m < nm; m++)
                 orderDim(coords, nnz, nm, tsr->ndims, m, orgIds);
+            
+            // fprintf(stdout, "\niter %u:\n", its);
+            // for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+            //     sptDumpIndexArray(orgIds[m], tsr->ndims[m], stdout);
+            // }
         }
-
-        FILE * debug_fp = fopen("old.txt", "w");
-        fprintf(debug_fp, "orgIds:\n");
-        for(sptIndex m = 0; m < tsr->nmodes; ++m) {
-            sptDumpIndexArray(orgIds[m], tsr->ndims[m], debug_fp);
-        }
-        fclose(debug_fp);
+        // fclose(debug_fp);
 
         /* compute newIndices from orgIds. Reverse perm */
         for (m = 0; m < nm; m++)
@@ -211,7 +213,7 @@ static void printCoords(sptIndex **coords, sptNnzIndex nnz, sptIndex nm)
     for (z = 0; z < nnz; z++)
     {
         for (m=0; m < nm; m++)
-            printf("%d ", coords[z][m]+1);
+            printf("%d ", coords[z][m]);
         printf("\n");
     }
 }
@@ -632,7 +634,7 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     t0 = u_seconds();
     mySort(coords,  nnz-1, nm, ndims, dim);
     t1 = u_seconds()-t0;
-    printf("dim %u, sort time %.2f\n", dim, t1);
+    printf("\ndim %u, sort time %.2f\n", dim, t1);
     // printCoords(coords, nnz, nm);
     /* we matricize this (others x thisDim), whose columns will be renumbered */
     
@@ -665,19 +667,24 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     mtxNrows = atRowPlus1-1;
     t1 =u_seconds()-t0;
     printf("dim %u create time %.2f\n", dim, t1);
-    printf("mtxNrows: %lu, mtrxNnz: %lu\n", mtxNrows, mtrxNnz);
-
     
     rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows+2)));
     cprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
     invcprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
     saveOrgIds = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));
     /*    checkRepeatIndex(mtxNrows, rowPtrs, colIds, ndims[dim] );*/
+
+    // printf("rowPtrs: \n");
+    // sptDumpNnzIndexArray(rowPtrs, mtxNrows + 2, stdout);
+    // printf("colIds: \n");
+    // sptDumpIndexArray(colIds, nnz + 2, stdout); 
     
     t0 = u_seconds();
     lexOrderThem(mtxNrows, ndims[dim], rowPtrs, colIds, cprm);
     t1 =u_seconds()-t0;
     printf("dim %u lexorder time %.2f\n", dim, t1);
+    // printf("cprm: \n");
+    // sptDumpIndexArray(cprm, ndims[dim] + 1, stdout);
 
     /* update orgIds and modify coords */
     for (c=0; c < ndims[dim]; c++)
@@ -688,6 +695,9 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     for (c=0; c < ndims[dim]; c++)
         orgIds[dim][c] = saveOrgIds[cprm[c+1]-1];
     
+    // printf("invcprm: \n");
+    // sptDumpIndexArray(invcprm, ndims[dim] + 1, stdout);
+
     /*rename the dim component of nonzeros*/
     for (z = 0; z < nnz; z++)
         coords[z][dim] = invcprm[coords[z][dim]];

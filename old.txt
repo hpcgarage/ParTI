@@ -1,0 +1,93 @@
+mttkrp_hicoo_renumber_matrixtiling: 
+niters: 5
+mode: 4294967295
+cuda_dev_id: -2
+renumber: 1
+niters_renum: 3
+
+COO Sparse Tensor information (use sptIndex, sptValue))---------
+DIMS=22476x22476x23776223 NNZ=28421308 DENSITY=2.366264e-09
+Average slice length (c): 1264.52 , 1264.52 , 1.20
+COO-STORAGE=433.67MB
+
+[Copy coordinate time]: 1.023647437 s
+[Lexi-order] Optimizing the numbering for its 1
+
+dim 0, sort time 10.87
+dim 0 create time 0.42
+dim 0 lexorder time 0.09
+
+dim 1, sort time 10.15
+dim 1 create time 0.22
+dim 1 lexorder time 0.07
+
+dim 2, sort time 8.40
+dim 2 create time 0.15
+dim 2 lexorder time 1.77
+[Lexi-order] Optimizing the numbering for its 2
+
+dim 0, sort time 14.09
+dim 0 create time 0.20
+dim 0 lexorder time 0.07
+
+dim 1, sort time 31.49
+dim 1 create time 0.20
+dim 1 lexorder time 0.07
+
+dim 2, sort time 9.46
+dim 2 create time 0.15
+dim 2 lexorder time 0.75
+[Lexi-order] Optimizing the numbering for its 3
+
+dim 0, sort time 27.21
+dim 0 create time 0.20
+dim 0 lexorder time 0.08
+
+dim 1, sort time 28.89
+dim 1 create time 0.21
+dim 1 lexorder time 0.08
+
+dim 2, sort time 9.78
+dim 2 create time 0.16
+dim 2 lexorder time 0.80
+[Renumbering]: 159.163609489 s
+[Shuffling time]: 0.342496920 s
+
+[HiCOO sorting (rowblock + morton)]: 13.472892006 s
+[Convert HiCOO]: 14.290666268 s
+HiCOO Sparse Tensor information ---------
+DIMS=22476x22476x23776223 NNZ=28421308
+sb=128 sk=1048576 sc=16384
+nb=525525 nk=23 nc=1741
+HiCOO-STORAGE=199.77MB
+SCHEDULE INFO [KERNEL]: 
+SCHEDULE MODE 0 : 1 x 23
+SCHEDULE MODE 1 : 1 x 23
+SCHEDULE MODE 2 : 23 x 1
+block nnzs:
+Nnzb: Max=430, Min=1, Aver=54
+cb: Max=3.359, Min=0.008, Aver=0.422
+median cb: 0.055, geometric mean cb: 0.113
+alpha_b: 0.018491
+
+Parameter configuration --------
+Suggest B (sb) <= 2666.67 / R. For cache efficiency
+Suggest alpha_b in (0,1], small is better. For tensor storage
+Suggest cb > 1, large is better. For MTTKRP performance
+Suggest num_tasks should in [128, 3200] PAR_DEGREE: [4, 100]. For parallel efficiency
+
+
+FACTORS-STORAGE=1.42GB
+
+hitsr.nkiters[mode] / num_kernel_dim: 23 (threshold: 20)
+par_iters: 1, num_tasks: 23
+[CPU  SpTns MTTKRP MODE 0]: 0.289097537 s
+
+hitsr.nkiters[mode] / num_kernel_dim: 23 (threshold: 20)
+par_iters: 1, num_tasks: 23
+[CPU  SpTns MTTKRP MODE 1]: 0.307544780 s
+
+hitsr.nkiters[mode] / num_kernel_dim: 0 (threshold: 20)
+par_iters: 0, num_tasks: 23
+[CPU  SpTns MTTKRP MODE 2]: 0.525152843 s
+

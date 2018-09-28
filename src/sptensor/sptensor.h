@@ -29,7 +29,7 @@ extern "C" {
 double spt_SparseTensorNorm(const sptSparseTensor *X);
 
 int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex ind1, const sptSparseTensor *tsr2, sptNnzIndex ind2);
-int spt_SparseTensorCompareIndicesExceptOne(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex const mode);
+int spt_SparseTensorCompareIndicesExceptSingleMode(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex const mode);
 int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, sptNnzIndex loc, sptIndex * const inds1, sptIndex * const inds2);
 void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2);
 

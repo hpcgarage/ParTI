@@ -52,19 +52,20 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
                 orgIds[m][i] = i;
         }
 
+        // FILE * debug_fp = fopen("new.txt", "w");
+        // fprintf(stdout, "orgIds:\n");
         for (its = 0; its < iterations; its++)
         {
             printf("[Lexi-order] Optimizing the numbering for its %u\n", its+1);
             for (m = 0; m < nmodes; m++)
                 sptLexiOrderPerMode(&tsr_temp, m, orgIds);
-        }
 
-        FILE * debug_fp = fopen("new.txt", "w");
-        fprintf(debug_fp, "orgIds:\n");
-        for(sptIndex m = 0; m < tsr->nmodes; ++m) {
-            sptDumpIndexArray(orgIds[m], tsr->ndims[m], debug_fp);
+            // fprintf(stdout, "\niter %u:\n", its);
+            // for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+            //     sptDumpIndexArray(orgIds[m], tsr->ndims[m], stdout);
+            // }
         }
-        fclose(debug_fp);
+        // fclose(debug_fp);
 
         /* compute newIndices from orgIds. Reverse perm */
         for (m = 0; m < nmodes; m++)
@@ -287,11 +288,12 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     sptNnzIndex const nnz = tsr->nnz;
     sptIndex const nmodes = tsr->nmodes;
     sptIndex * ndims = tsr->ndims;
+    sptIndex const mode_dim = ndims[mode];
     sptNnzIndex * rowPtrs = NULL;
     sptIndex * colIds = NULL;
     sptIndex * cprm = NULL, * invcprm = NULL, * saveOrgIds = NULL;
     sptNnzIndex atRowPlus1, mtxNrows, mtrxNnz;
-    sptIndex * mode_order = (sptIndex *) malloc (sizeof(sptIndex) * nmodes);
+    sptIndex * mode_order = (sptIndex *) malloc (sizeof(sptIndex) * (nmodes - 1));
 
     sptIndex c;
     sptNnzIndex z;
@@ -305,20 +307,17 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
             ++ i;
         }
     }
-    mode_order[nmodes - 1] = mode;
-    // printf("mode_order:\n");
-    // sptDumpIndexArray(mode_order, nmodes, stdout);
-    sptSparseTensorSortIndexCustomOrder(tsr, mode_order, 1);
+    sptSparseTensorSortIndexExceptSingleMode(tsr, 1, mode_order);
     // mySort(coords,  nnz-1, nmodes, ndims, mode);
     t1 = u_seconds()-t0;
-    printf("mode %u, sort time %.2f\n", mode, t1);
+    printf("\nmode %u, sort time %.2f\n", mode, t1);
     // sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 
     /* we matricize this (others x thisDim), whose columns will be renumbered */
     /* on the matrix all arrays are from 1, and all indices are from 1. */
     
-    rowPtrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nnz+2)); /*large space*/
-    colIds = (sptIndex *) malloc(sizeof(sptIndex) * (nnz+2)); /*large space*/
+    rowPtrs = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * (nnz + 2)); /*large space*/
+    colIds = (sptIndex *) malloc(sizeof(sptIndex) * (nnz + 2)); /*large space*/
     
     if(rowPtrs == NULL || colIds == NULL)
     {
@@ -335,7 +334,7 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     t0 = u_seconds();
     for (z = 1; z < nnz; z++)
     {
-        if(spt_SparseTensorCompareIndicesExceptOne(tsr, z, tsr, z-1, mode) != 0)
+        if(spt_SparseTensorCompareIndicesExceptSingleMode(tsr, z, tsr, z-1, mode_order) != 0)
             rowPtrs[atRowPlus1++] = mtrxNnz; /* close the previous row and start a new one. */
         
         colIds[mtrxNnz ++] = inds[mode].data[z] + 1;
@@ -344,28 +343,37 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     mtxNrows = atRowPlus1-1;
     t1 =u_seconds()-t0;
     printf("mode %u, create time %.2f\n", mode, t1);
-    printf("mtxNrows: %lu, mtrxNnz: %lu\n", mtxNrows, mtrxNnz);
     
-    rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows+2)));
-    cprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[mode]+1));
-    invcprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[mode]+1));
-    saveOrgIds = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[mode]+1));
+    rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows + 2)));
+    cprm = (sptIndex *) malloc(sizeof(sptIndex) * (mode_dim + 1));
+    invcprm = (sptIndex *) malloc(sizeof(sptIndex) * (mode_dim + 1));
+    saveOrgIds = (sptIndex *) malloc(sizeof(sptIndex) * (mode_dim + 1));
+
+    // printf("rowPtrs: \n");
+    // sptDumpNnzIndexArray(rowPtrs, mtxNrows + 2, stdout);
+    // printf("colIds: \n");
+    // sptDumpIndexArray(colIds, nnz + 2, stdout);    
     
     t0 = u_seconds();
-    lexOrderThem(mtxNrows, ndims[mode], rowPtrs, colIds, cprm);
+    lexOrderThem(mtxNrows, mode_dim, rowPtrs, colIds, cprm);
     t1 =u_seconds()-t0;
     printf("mode %u, lexorder time %.2f\n", mode, t1);
+    // printf("cprm: \n");
+    // sptDumpIndexArray(cprm, mode_dim + 1, stdout);
 
     /* update orgIds and modify coords */
-    for (c=0; c < ndims[mode]; c++)
+    for (c=0; c < mode_dim; c++)
     {
         invcprm[cprm[c+1]-1] = c;
         saveOrgIds[c] = orgIds[mode][c];
     }
-    for (c=0; c < ndims[mode]; c++)
+    for (c=0; c < mode_dim; c++)
         orgIds[mode][c] = saveOrgIds[cprm[c+1]-1];
+
+    // printf("invcprm: \n");
+    // sptDumpIndexArray(invcprm, mode_dim + 1, stdout);
     
-    /*rename the dim component of nonzeros*/
+    /* rename the dim component of nonzeros */
     for (z = 0; z < nnz; z++)
         inds[mode].data[z] = invcprm[inds[mode].data[z]];
     
