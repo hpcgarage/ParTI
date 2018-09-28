@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "ParTI.h"
+#include "sptensor.h"
 
 /*Interface to everything in this file is orderit(.., ..)*/
 
@@ -38,6 +39,9 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
     sptIndex its;
 
     if (renumber == 1) {    /* Lexi-order renumbering */
+        /* copy the indices */
+        sptSparseTensor tsr_temp;
+        sptCopySparseTensor(&tsr_temp, tsr);
 
         sptIndex ** orgIds = (sptIndex **) malloc(sizeof(sptIndex*) * nmodes);
 
@@ -52,14 +56,22 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
         {
             printf("[Lexi-order] Optimizing the numbering for its %u\n", its+1);
             for (m = 0; m < nmodes; m++)
-                sptLexiOrderPerMode(tsr, m, orgIds);
+                sptLexiOrderPerMode(&tsr_temp, m, orgIds);
         }
+
+        FILE * debug_fp = fopen("new.txt", "w");
+        fprintf(debug_fp, "orgIds:\n");
+        for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+            sptDumpIndexArray(orgIds[m], tsr->ndims[m], debug_fp);
+        }
+        fclose(debug_fp);
 
         /* compute newIndices from orgIds. Reverse perm */
         for (m = 0; m < nmodes; m++)
             for (i = 0; i < tsr->ndims[m]; i++)
                 newIndices[m][orgIds[m][i]] = i;
 
+        sptFreeSparseTensor(&tsr_temp);
         for (m = 0; m < nmodes; m++)
             free(orgIds[m]);
         free(orgIds);
@@ -71,11 +83,7 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
         */
         printf("[BFS-like]\n");
         sptBFSLike(tsr, newIndices);
-    }
-    
-    // printf("set the new indices\n");
-/*    checkNewIndices(newIndices, nm, tsr->ndims);*/
-    
+    }    
     
 }
 
@@ -304,6 +312,7 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     // mySort(coords,  nnz-1, nmodes, ndims, mode);
     t1 = u_seconds()-t0;
     printf("mode %u, sort time %.2f\n", mode, t1);
+    // sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 
     /* we matricize this (others x thisDim), whose columns will be renumbered */
     /* on the matrix all arrays are from 1, and all indices are from 1. */
@@ -331,10 +340,11 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
         
         colIds[mtrxNnz ++] = inds[mode].data[z] + 1;
     }
-    t1 =u_seconds()-t0;
-    printf("mode %u create time %.2f\n", mode, t1);
     rowPtrs[atRowPlus1] = mtrxNnz;
     mtxNrows = atRowPlus1-1;
+    t1 =u_seconds()-t0;
+    printf("mode %u, create time %.2f\n", mode, t1);
+    printf("mtxNrows: %lu, mtrxNnz: %lu\n", mtxNrows, mtrxNnz);
     
     rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows+2)));
     cprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[mode]+1));
@@ -344,7 +354,7 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     t0 = u_seconds();
     lexOrderThem(mtxNrows, ndims[mode], rowPtrs, colIds, cprm);
     t1 =u_seconds()-t0;
-    printf("mode %u lexorder time %.2f\n", mode, t1);
+    printf("mode %u, lexorder time %.2f\n", mode, t1);
 
     /* update orgIds and modify coords */
     for (c=0; c < ndims[mode]; c++)

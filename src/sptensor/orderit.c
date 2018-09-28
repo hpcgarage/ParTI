@@ -168,6 +168,13 @@ void orderit(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, 
                 orderDim(coords, nnz, nm, tsr->ndims, m, orgIds);
         }
 
+        FILE * debug_fp = fopen("old.txt", "w");
+        fprintf(debug_fp, "orgIds:\n");
+        for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+            sptDumpIndexArray(orgIds[m], tsr->ndims[m], debug_fp);
+        }
+        fclose(debug_fp);
+
         /* compute newIndices from orgIds. Reverse perm */
         for (m = 0; m < nm; m++)
             for (i = 0; i < tsr->ndims[m]; i++)
@@ -626,7 +633,7 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     mySort(coords,  nnz-1, nm, ndims, dim);
     t1 = u_seconds()-t0;
     printf("dim %u, sort time %.2f\n", dim, t1);
-    /*    printCoords(coords, nnz, nm);*/
+    // printCoords(coords, nnz, nm);
     /* we matricize this (others x thisDim), whose columns will be renumbered */
     
     /* on the matrix all arrays are from 1, and all indices are from 1. */
@@ -649,15 +656,17 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     t0 = u_seconds();
     for (z = 1; z < nnz; z++)
     {
-        if(isLessThanOrEqualTo(coords[z], coords[z-1], nm, ndims, dim) != 0)
-            rowPtrs[atRowPlus1++] = mtrxNnz; /* close the previous row and start a new one. */
+        if(isLessThanOrEqualTo( coords[z], coords[z-1], nm, ndims, dim) != 0)
+            rowPtrs[atRowPlus1 ++] = mtrxNnz; /* close the previous row and start a new one. */
         
         colIds[mtrxNnz++] = coords[z][dim]+1;
     }
-    t1 =u_seconds()-t0;
-    printf("dim %u create time %.2f\n", dim, t1);
     rowPtrs[atRowPlus1] = mtrxNnz;
     mtxNrows = atRowPlus1-1;
+    t1 =u_seconds()-t0;
+    printf("dim %u create time %.2f\n", dim, t1);
+    printf("mtxNrows: %lu, mtrxNnz: %lu\n", mtxNrows, mtrxNnz);
+
     
     rowPtrs = realloc(rowPtrs, (sizeof(sptNnzIndex) * (mtxNrows+2)));
     cprm = (sptIndex *) malloc(sizeof(sptIndex) * (ndims[dim]+1));

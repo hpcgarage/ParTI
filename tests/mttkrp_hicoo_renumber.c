@@ -59,11 +59,12 @@ int main(int argc, char ** argv) {
     int nthreads;
     int impl_num = 0;
     int renumber = 0;
+    int niters_renum = 3;
     /* renumber:
      * = 0 : no renumbering.
      * = 1 : renumber with Lexi-order
      * = 2 : renumber with BFS-like
-     * = 3 : randomly renumbering.
+     * = 3 : randomly renumbering, specify niters_renum.
      */
     int tk = 1;
     int tb = 1;
@@ -89,12 +90,14 @@ int main(int argc, char ** argv) {
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
             {"tb", optional_argument, 0, 'l'},
+            {"niters-renum", optional_argument, 0, 'n'},
+            {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
         // c = getopt_long(argc, argv, "i:o:b:k:c:m:", long_options, &option_index);
-        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:e:d:r:t:l:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:c:m:p:e:d:r:t:l:n:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -125,6 +128,9 @@ int main(int argc, char ** argv) {
         case 'e':
             sscanf(optarg, "%d", &renumber);
             break;
+        case 'n':
+            sscanf(optarg, "%d", &niters_renum);
+            break;
         case 'd':
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
@@ -146,7 +152,9 @@ int main(int argc, char ** argv) {
     }
     printf("mode: %"PARTI_PRI_INDEX "\n", mode);
     printf("cuda_dev_id: %d\n", cuda_dev_id);
-    printf("renumber: %d\n\n", renumber);
+    printf("renumber: %d\n", renumber);
+    if (renumber == 1)
+        printf("niters_renum: %d\n\n", niters_renum);
 
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     // sptSparseTensorSortIndex(&tsr, 1);
@@ -172,8 +180,8 @@ int main(int argc, char ** argv) {
         sptStartTimer(renumber_timer);
 
         if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
-            orderit(&tsr, map_inds, renumber, 5);
-            // orderforHiCOO((int)(tsr.nmodes), (sptIndex)tsr.nnz, tsr.ndims, tsr.inds, map_inds);
+            orderit(&tsr, map_inds, renumber, niters_renum);
+            // sptIndexRenumber(&tsr, map_inds, renumber, niters_renum);
         }
         if ( renumber == 3) { /* Set randomly renumbering */
             printf("[Random Indexing]\n");        
