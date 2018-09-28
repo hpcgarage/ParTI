@@ -237,6 +237,24 @@ static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, s
     return 0; /*are equal*/
 }
 
+
+static inline int isLessThanOrEqualToFast(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex * mode_order)
+{
+    /*is z1 less than or equal to z2 for all indices except dim?*/
+    sptIndex i, m;
+    
+    for (i = 0; i < nm - 1; i ++)
+    {
+        m = mode_order[i];
+        if (z1[m] < z2[m])
+            return -1;
+        if (z1[m] > z2[m])
+            return 1;
+    }
+    return 0; /*are equal*/
+}
+
+
 static inline int isLessThanOrEqualToNewSum(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 // static inline int isLessThanOrEqualTo(sptIndex *z1, sptIndex *z2, sptIndex nm, sptIndex *ndims, sptIndex dim)
 {
@@ -312,6 +330,24 @@ static void insertionSort(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, spt
         writeInto(coords[z2plus], tmpNnz, nm);
     }
 }
+
+static void insertionSortFast(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex * mode_order, sptIndex *tmpNnz, sptIndex *wspace)
+{
+    sptNnzIndex z, z2plus;
+    for (z = lo+1; z <= hi; z++)
+    {
+        writeInto(tmpNnz, coords[z], nm);
+        /*find place for z*/
+        z2plus = z;
+        while ( z2plus > 0  && isLessThanOrEqualToFast(coords[z2plus-1], tmpNnz, nm, mode_order)== 1)
+        {
+            writeInto(coords[z2plus], coords[z2plus-1], nm);
+            z2plus --;
+        }
+        writeInto(coords[z2plus], tmpNnz, nm);
+    }
+}
+
 static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex *tmpNnz, sptIndex *wspace)
 {
     /* copied from the web http://ndevilla.free.fr/median/median/src/quickselect.c */
@@ -355,9 +391,54 @@ static inline sptNnzIndex buPartition(sptIndex **coords, sptNnzIndex lo, sptNnzI
     }
     
 }
+
+static inline sptNnzIndex buPartitionFast(sptIndex **coords, sptNnzIndex lo, sptNnzIndex hi, sptIndex nm, sptIndex *ndims, sptIndex dim, sptIndex * mode_order, sptIndex *tmpNnz, sptIndex *wspace)
+{
+    /* copied from the web http://ndevilla.free.fr/median/median/src/quickselect.c */
+    sptNnzIndex low, high, median, middle, ll, hh;
+    
+    low = lo; high = hi; median = (low+high)/2;
+    for(;;)
+    {
+        if (high<=low) return median;
+        if(high == low + 1)
+        {
+            if(isLessThanOrEqualToFast(coords[low], coords[high], nm, mode_order)== 1)
+                buSwap (coords[high], coords[low], nm, wspace);
+            return median;
+        }
+        middle = (low+high)/2;
+        if(isLessThanOrEqualToFast(coords[middle], coords[high], nm, mode_order) == 1)
+            buSwap (coords[middle], coords[high], nm, wspace);
+        
+        if(isLessThanOrEqualToFast(coords[low], coords[high], nm, mode_order) == 1)
+            buSwap (coords[low], coords[high], nm, wspace);
+        
+        if(isLessThanOrEqualToFast(coords[middle], coords[low], nm, mode_order) == 1)
+            buSwap (coords[low], coords[middle], nm, wspace);
+        
+        buSwap (coords[middle], coords[low+1], nm, wspace);
+        
+        ll = low + 1;
+        hh = high;
+        for (;;){
+            do ll++; while (isLessThanOrEqualToFast(coords[low], coords[ll], nm, mode_order) == 1);
+            do hh--; while (isLessThanOrEqualToFast(coords[hh], coords[low], nm, mode_order) == 1);
+            
+            if (hh < ll) break;
+            
+            buSwap (coords[ll], coords[hh], nm, wspace);
+        }
+        buSwap (coords[low], coords[hh], nm,wspace);
+        if (hh <= median) low = ll;
+        if (hh >= median) high = hh - 1;
+    }   
+    
+}
+
 /**************************************************************/
 static void mySort(sptIndex ** coords,  sptNnzIndex last, sptIndex nm, sptIndex * ndims, sptIndex dim)
-{
+{    
     /* sorts coords accourding to all dims except dim, where items are refereed with newIndices*/
     /* an iterative quicksort */
     sptNnzIndex *stack, top, lo, hi, pv;
@@ -409,6 +490,66 @@ static void mySort(sptIndex ** coords,  sptNnzIndex last, sptIndex nm, sptIndex 
             exit(13);
         }
     }
+    free(stack);
+    free(wspace);
+    free(tmpNnz);
+}
+
+
+static void mySortFast(sptIndex ** coords,  sptNnzIndex last, sptIndex nm, sptIndex * ndims, sptIndex dim, sptIndex * mode_order)
+{
+    /* sorts coords accourding to all dims except dim, where items are refereed with newIndices*/
+    /* an iterative quicksort */
+    sptNnzIndex *stack, top, lo, hi, pv;
+    sptIndex *tmpNnz, *wspace;
+    
+    tmpNnz = (sptIndex*) malloc(sizeof(sptIndex) * nm);
+    wspace = (sptIndex*) malloc(sizeof(sptIndex) * nm);
+    stack = (sptNnzIndex *) malloc(sizeof(sptNnzIndex) * 2 * (last+2));
+    
+    if(stack == NULL) {
+        printf("could not allocated stack. returning\n");
+        exit(14);
+    }
+    top = 0;
+    stack[top++] = 0;
+    stack[top++] = last;
+    while (top>=2)
+    {
+        hi = stack[--top];
+        lo = stack[--top];
+        pv = buPartitionFast(coords, lo, hi, nm, ndims, dim, mode_order, tmpNnz, wspace);
+        
+        if(pv > lo+1)
+        {
+            if(pv - lo > 128)
+            {
+                stack[top++] = lo;
+                stack[top++] = pv-1 ;
+            }
+            else
+                insertionSortFast(coords, lo, pv-1,  nm, ndims, dim, mode_order, tmpNnz, wspace);
+        }
+        if(top >= 2 * (last+2)){
+            printf("\thow come this tight?\n");
+            exit(13);
+        }
+        if(pv + 1 < hi)
+        {
+            if(hi - pv > 128)
+            {
+                stack[top++] = pv + 1 ;
+                stack[top++] = hi;
+            }
+            else
+                insertionSortFast(coords, pv+1, hi,  nm, ndims, dim, mode_order, tmpNnz, wspace);
+        }
+        if( top >= 2 * (last+2)) {
+            printf("\thow come this tight?\n");
+            exit(13);
+        }
+    }
+
     free(stack);
     free(wspace);
     free(tmpNnz);
@@ -629,12 +770,22 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     sptIndex * colIds=NULL, c;
     sptIndex * cprm=NULL, * invcprm = NULL, * saveOrgIds;
     sptNnzIndex mtrxNnz;
+
+   sptIndex * mode_order = (sptIndex *) malloc (sizeof(sptIndex) * (nm - 1));
+    sptIndex i = 0;
+    for(sptIndex m = 0; m < nm; ++m) {
+        if (m != dim) {
+            mode_order[i] = m;
+            ++ i;
+        }
+    }
     
     double t1, t0;
     t0 = u_seconds();
-    mySort(coords,  nnz-1, nm, ndims, dim);
+    // mySort(coords,  nnz-1, nm, ndims, dim);
+    mySortFast(coords,  nnz-1, nm, ndims, dim, mode_order);
     t1 = u_seconds()-t0;
-    printf("\ndim %u, sort time %.2f\n", dim, t1);
+    printf("dim %u, sort time %.2f\n", dim, t1);
     // printCoords(coords, nnz, nm);
     /* we matricize this (others x thisDim), whose columns will be renumbered */
     
@@ -658,7 +809,8 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     t0 = u_seconds();
     for (z = 1; z < nnz; z++)
     {
-        if(isLessThanOrEqualTo( coords[z], coords[z-1], nm, ndims, dim) != 0)
+        // if(isLessThanOrEqualTo( coords[z], coords[z-1], nm, ndims, dim) != 0)
+        if(isLessThanOrEqualToFast( coords[z], coords[z-1], nm, mode_order) != 0)
             rowPtrs[atRowPlus1 ++] = mtrxNnz; /* close the previous row and start a new one. */
         
         colIds[mtrxNnz++] = coords[z][dim]+1;
@@ -702,6 +854,7 @@ void orderDim(sptIndex ** coords, sptNnzIndex const nnz, sptIndex const nm, sptI
     for (z = 0; z < nnz; z++)
         coords[z][dim] = invcprm[coords[z][dim]];
     
+    free(mode_order);
     free(saveOrgIds);
     free(invcprm);
     free(cprm);

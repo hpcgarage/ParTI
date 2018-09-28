@@ -310,7 +310,7 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     sptSparseTensorSortIndexExceptSingleMode(tsr, 1, mode_order);
     // mySort(coords,  nnz-1, nmodes, ndims, mode);
     t1 = u_seconds()-t0;
-    printf("\nmode %u, sort time %.2f\n", mode, t1);
+    printf("mode %u, sort time %.2f\n", mode, t1);
     // sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 
     /* we matricize this (others x thisDim), whose columns will be renumbered */

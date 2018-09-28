@@ -180,7 +180,7 @@ int main(int argc, char ** argv) {
         sptStartTimer(renumber_timer);
 
         if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
-            #if 1
+            #if 0
             orderit(&tsr, map_inds, renumber, niters_renum);
             #else
             sptIndexRenumber(&tsr, map_inds, renumber, niters_renum);

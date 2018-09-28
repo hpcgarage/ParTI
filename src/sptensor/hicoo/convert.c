@@ -437,15 +437,28 @@ int sptPreprocessSparseTensor(
     // TODO: possible permute modes to improve parallelism
 
     /* Sort tsr in a Row-major Block order to get all kernels. Not use Morton-order for kernels: 1. better support for higher-order tensors by limiting kernel size, because Morton key bit <= 128; */
+    sptTimer rowblock_sort_timer;
+    sptNewTimer(&rowblock_sort_timer, 0);
+    sptStartTimer(rowblock_sort_timer);
+
     sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+
+    sptStopTimer(rowblock_sort_timer);
+    sptPrintElapsedTime(rowblock_sort_timer, "rowblock sorting");
+    sptFreeTimer(rowblock_sort_timer);
 #if PARTI_DEBUG == 3
     printf("Sorted by sptSparseTensorSortIndexRowBlock.\n");
     sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 #endif
+
     result = sptSetKernelPointers(kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
     result = sptSetKernelScheduler(kschr, nkiters, kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
+
+    sptTimer morton_sort_timer;
+    sptNewTimer(&morton_sort_timer, 0);
+    sptStartTimer(morton_sort_timer);
 
     /* Sort blocks in each kernel in Morton-order */
     sptNnzIndex k_begin, k_end;
@@ -460,6 +473,10 @@ int sptPreprocessSparseTensor(
     sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 #endif
     }
+
+    sptStopTimer(morton_sort_timer);
+    sptPrintElapsedTime(morton_sort_timer, "Morton sorting");
+    sptFreeTimer(morton_sort_timer);
 
     return 0;
 }
