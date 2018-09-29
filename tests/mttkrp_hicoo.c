@@ -144,7 +144,7 @@ int main(int argc, char ** argv) {
 
     /* Convert to HiCOO tensor */
     sptNnzIndex max_nnzb = 0;
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, tk) == 0);
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);

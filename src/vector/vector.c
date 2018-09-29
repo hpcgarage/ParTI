@@ -216,6 +216,25 @@ int sptCopyIndexVector(sptIndexVector *dest, const sptIndexVector *src) {
     return 0;
 }
 
+
+/**
+ * Copy an index vector to an uninitialized index vector
+ *
+ * @param dest a pointer to an uninitialized index vector
+ * @param src  a pointer to an existing valid index vector
+ *
+ * The contents of `src` will be copied to `dest`.
+ */
+int sptCopyIndexVectorOmp(sptIndexVector *dest, const sptIndexVector *src, int const nt) {
+    int result = sptNewIndexVector(dest, src->len, src->len);
+    spt_CheckError(result, "IdxVec Copy", NULL);
+    #pragma omp parallel for num_threads(nt)
+    for (sptNnzIndex i=0; i<src->len; ++i) {
+        dest->data[i] = src->data[i];
+    }
+    return 0;
+}
+
 /**
  * Add a value to the end of a sptIndexVector
  *

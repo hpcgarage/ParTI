@@ -87,7 +87,7 @@ int main(int argc, char * const argv[]) {
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     sptNnzIndex max_nnzb = 0;
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, 1) == 0);
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     sptAssert(sptDumpSparseTensorHiCOO(&hitsr, fo) == 0);

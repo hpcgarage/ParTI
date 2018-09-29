@@ -32,6 +32,7 @@ void print_usage(char ** argv) {
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
     printf("         -e RENUMBER, --renumber=RENUMBER\n");
+    printf("         -n NITERS_RENUM\n");
     printf("         -m MODE, --mode=MODE (default -1: loop all modes)\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
@@ -183,7 +184,7 @@ int main(int argc, char ** argv) {
             #if 0
             orderit(&tsr, map_inds, renumber, niters_renum);
             #else
-            sptIndexRenumber(&tsr, map_inds, renumber, niters_renum);
+            sptIndexRenumber(&tsr, map_inds, renumber, niters_renum, tk);
             #endif
 
         }
@@ -225,7 +226,7 @@ int main(int argc, char ** argv) {
     sptNewTimer(&convert_timer, 0);
     sptStartTimer(convert_timer);
 
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, tk) == 0);
 
     sptStopTimer(convert_timer);
     sptPrintElapsedTime(convert_timer, "Convert HiCOO");

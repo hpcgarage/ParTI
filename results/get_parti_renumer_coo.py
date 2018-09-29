@@ -13,8 +13,8 @@ r = 16
 # input parameters
 tk = sys.argv[1]
 renumber = sys.argv[2]
-niters_renum = sys.argv[3]
-sortcase = sys.argv[4]
+niters_renum = int(sys.argv[3])
+sortcase = sys.argv[3]
 
 
 out_str = 'parti-coo-tk' + str(tk) + '.out'
@@ -31,10 +31,9 @@ for tsr in s3tsrs:
 		# input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-seq.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-s' + str(sortcase) + '-seq.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-seq.txt'
-		# input_str = intput_path + tsr + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
 	else:
 		## omp coo
-		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '-reduce.txt'
+		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(tk) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-s' + str(sortcase) + '.txt'
@@ -44,14 +43,12 @@ for tsr in s3tsrs:
 	for line in fi:
 		line_array = line.rstrip().split(" ")
 		# print(line_array)
-		if(len(line_array) < 4):
+		if(len(line_array) < 3):
 			continue;
-		elif(line_array[3] == 'MTTKRP'):
-			time_num = line_array[6]
-			sum_seq = sum_seq + float(time_num)
+		elif(line_array[0] == '[Renumbering]:'):
+			time_num = line_array[1]
 			fo.write(time_num+'\n')
 
-	fo.write(str(sum_seq)+'\n')
 	fi.close()
 
 fo.close()

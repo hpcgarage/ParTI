@@ -429,7 +429,8 @@ int sptPreprocessSparseTensor(
     sptIndex *nkiters,
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
-    const sptElementIndex sk_bits)
+    const sptElementIndex sk_bits,
+    int const tk)
 {
     sptNnzIndex nnz = tsr->nnz;
     int result;
@@ -441,7 +442,7 @@ int sptPreprocessSparseTensor(
     sptNewTimer(&rowblock_sort_timer, 0);
     sptStartTimer(rowblock_sort_timer);
 
-    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits, tk);
 
     sptStopTimer(rowblock_sort_timer);
     sptPrintElapsedTime(rowblock_sort_timer, "rowblock sorting");
@@ -463,6 +464,7 @@ int sptPreprocessSparseTensor(
     /* Sort blocks in each kernel in Morton-order */
     sptNnzIndex k_begin, k_end;
     /* Loop for all kernels, 0-kptr.len for OMP code */
+    #pragma omp parallel for num_threads(tk) 
     for(sptNnzIndex k=0; k<kptr->len - 1; ++k) {
         k_begin = kptr->data[k];
         k_end = kptr->data[k+1];   // exclusive
@@ -494,13 +496,14 @@ int sptPreprocessSparseTensor_RowBlock(
     sptIndex *nfibs,
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
-    const sptElementIndex sk_bits)
+    const sptElementIndex sk_bits,
+    int const tk)
 {
     sptNnzIndex nnz = tsr->nnz;
     int result;
 
     /* Sort tsr in a Row-major Block order to get all kernels. */
-    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits, tk);
     result = sptSetKernelPointers(kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
     // result = sptSetKernelScheduler(kschr, nkiters, kptr, tsr, sk_bits);
@@ -512,7 +515,7 @@ int sptPreprocessSparseTensor_RowBlock(
     for(sptNnzIndex k=0; k<kptr->len - 1; ++k) {
         k_begin = kptr->data[k];
         k_end = kptr->data[k+1];   // exclusive
-        sptSparseTensorSortIndexRowBlock(tsr, 1, k_begin, k_end, sb_bits);
+        sptSparseTensorSortIndexRowBlock(tsr, 1, k_begin, k_end, sb_bits, tk);
     }
 
     return 0;
@@ -525,7 +528,8 @@ int sptSparseTensorToHiCOO(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
-    const sptElementIndex sc_bits)
+    const sptElementIndex sc_bits,
+    int const tk)
 {
     sptAssert(sk_bits >= sb_bits);
     sptAssert(sc_bits >= sb_bits);
@@ -553,7 +557,7 @@ int sptSparseTensorToHiCOO(
     sptNewTimer(&sort_timer, 0);
     sptStartTimer(sort_timer);
 
-    sptPreprocessSparseTensor(&hitsr->kptr, hitsr->kschr, hitsr->nkiters, tsr, sb_bits, sk_bits);
+    sptPreprocessSparseTensor(&hitsr->kptr, hitsr->kschr, hitsr->nkiters, tsr, sb_bits, sk_bits, tk);
 
     sptStopTimer(sort_timer);
     sptPrintElapsedTime(sort_timer, "HiCOO sorting (rowblock + morton)");
@@ -597,6 +601,7 @@ int sptSparseTensorToHiCOO(
 
 
     /* Loop for all kernels, 0 - hitsr->kptr.len - 1 for OMP code */
+    // #pragma omp parallel for num_threads(tk) 
     for(sptNnzIndex k=0; k<hitsr->kptr.len - 1; ++k) {
         k_begin = hitsr->kptr.data[k];
         k_end = hitsr->kptr.data[k+1]; // exclusive
@@ -694,7 +699,7 @@ int sptSparseTensorToHiCOO(
 
         }   // End z loop
         
-    }
+    }   // End k loop
     sptAssert(nb <= nnz);
     sptAssert(nb == hitsr->binds[0].len); 
     // sptAssert(nc <= nb);

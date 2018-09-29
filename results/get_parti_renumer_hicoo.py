@@ -2,15 +2,11 @@
 
 import sys 
 
-# KNL
-# intput_path = '../timing-results/parti/hicoo/uint8-single-knl/'
 intput_path = '../timing-results/parti/hicoo/uint8-single-0924/'
 s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
-# s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
-# s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
-test_tsrs = ['delicious-4d']
+test_tsrs = ['vast-2015-mc1']
 
 r = 16
 tb = 1
@@ -22,8 +18,7 @@ renum = int(sys.argv[2])
 niters_renum = int(sys.argv[3])
 
 
-# out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
-out_str = 'parti-hicoo-uint8.out'
+out_str = 'parti-hicoo-renum.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
@@ -82,17 +77,14 @@ for tsr in s3tsrs:
 	for line in fi:
 		line_array = line.rstrip().split(" ")
 		# print line_array
-		if(len(line_array) < 4):
+		if(len(line_array) < 3):
 			continue;
-		elif(line_array[3] == 'MTTKRP'):
-			time_num = line_array[6]
-			# print(time_num_m0)
-			sum_seq = sum_seq + float(time_num)
+		elif(line_array[0] == '[Renumbering]:'):
+			time_num = line_array[1]
+			# print(time_num)
 			fo.write(time_num+'\n')
 			print(time_num)
 	
-	fo.write(str(sum_seq)+'\n')
-	print(str(sum_seq))
 	fi.close()
 
 fo.close()

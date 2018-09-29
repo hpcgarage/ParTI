@@ -41,6 +41,7 @@ int sptDumpValueIndexVector(sptValueVector *vec, FILE *fp);
 int sptNewIndexVector(sptIndexVector *vec, uint64_t len, uint64_t cap);
 int sptConstantIndexVector(sptIndexVector * const vec, sptIndex const num);
 int sptCopyIndexVector(sptIndexVector *dest, const sptIndexVector *src);
+int sptCopyIndexVectorOmp(sptIndexVector *dest, const sptIndexVector *src, int const nt);
 int sptAppendIndexVector(sptIndexVector *vec, sptIndex const value);
 int sptAppendIndexVectorWithVector(sptIndexVector *vec, const sptIndexVector *append_vec);
 int sptResizeIndexVector(sptIndexVector *vec, sptNnzIndex const size);

@@ -9,7 +9,7 @@
 /*Interface to everything in this file is orderit(.., ..)*/
 
 /*function declarations*/
-void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex ** orgIds);
+void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex ** orgIds, int const tk);
 void sptBFSLike(sptSparseTensor * tsr, sptIndex ** newIndices);
 
 static double u_seconds(void)
@@ -22,7 +22,7 @@ static double u_seconds(void)
     
 };
 
-void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations)
+void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations, int const tk)
 {
     /*
      newIndices is of size [nmodes][ndims[modes]] and assumed to be allocted.
@@ -48,6 +48,7 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
         for (m = 0; m < nmodes; m++)
         {
             orgIds[m] = (sptIndex *) malloc(sizeof(sptIndex) * tsr->ndims[m]);
+            #pragma omp parallel for num_threads(tk) private(i)
             for (i = 0; i < tsr->ndims[m]; i++)
                 orgIds[m][i] = i;
         }
@@ -58,7 +59,7 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
         {
             printf("[Lexi-order] Optimizing the numbering for its %u\n", its+1);
             for (m = 0; m < nmodes; m++)
-                sptLexiOrderPerMode(&tsr_temp, m, orgIds);
+                sptLexiOrderPerMode(&tsr_temp, m, orgIds, tk);
 
             // fprintf(stdout, "\niter %u:\n", its);
             // for(sptIndex m = 0; m < tsr->nmodes; ++m) {
@@ -282,7 +283,7 @@ static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *
 /**************************************************************/
 #define myAbs(x) (((x) < 0) ? -(x) : (x))
 
-void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex ** orgIds)
+void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex ** orgIds, int const tk)
 {
     sptIndexVector * inds = tsr->inds;
     sptNnzIndex const nnz = tsr->nnz;
@@ -307,7 +308,7 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
             ++ i;
         }
     }
-    sptSparseTensorSortIndexExceptSingleMode(tsr, 1, mode_order);
+    sptSparseTensorSortIndexExceptSingleMode(tsr, 1, mode_order, tk);
     // mySort(coords,  nnz-1, nmodes, ndims, mode);
     t1 = u_seconds()-t0;
     printf("mode %u, sort time %.2f\n", mode, t1);

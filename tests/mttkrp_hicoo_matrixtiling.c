@@ -147,7 +147,7 @@ int main(int argc, char ** argv) {
     sptNewTimer(&convert_timer, 0);
     sptStartTimer(convert_timer);
 
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, tk) == 0);
 
     sptStopTimer(convert_timer);
     sptPrintElapsedTime(convert_timer, "Convert HiCOO");

@@ -57,17 +57,20 @@ void sptSparseTensorSortIndexRowBlock(
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptElementIndex sk_bits);
+    const sptElementIndex sk_bits,
+    int const tk);
 void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
-void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order);
+void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order, int const tk);
 int sptSparseTensorMixedOrder(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
-    const sptElementIndex sk_bits);
+    const sptElementIndex sk_bits,
+    int const tk);
 int sptSparseTensorSortPartialIndex(
     sptSparseTensor *tsr, 
     sptIndex const *  mode_order,
-    const sptElementIndex sb_bits);
+    const sptElementIndex sb_bits,
+    int const tk);
 void sptSparseTensorCalcIndexBounds(sptIndex inds_low[], sptIndex inds_high[], const sptSparseTensor *tsr);
 int spt_ComputeSliceSizes(
     sptNnzIndex * slice_nnzs, 
@@ -77,7 +80,7 @@ void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp);
 double sptSparseTensorDensity(sptSparseTensor const * const tsr);
 
 /* Renumbering */
-void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations);
+void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations, int const tk);
 void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int const renumber, sptIndex const iterations);
 
 /* Sparse tensor HiCOO */
@@ -103,7 +106,8 @@ int sptSparseTensorToHiCOO(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
-    const sptElementIndex sc_bits);
+    const sptElementIndex sc_bits,
+    int const tk);
 int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp);
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
 double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr);

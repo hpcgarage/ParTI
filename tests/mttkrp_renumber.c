@@ -31,6 +31,7 @@ void print_usage(char ** argv) {
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -e RENUMBER, --renumber=RENUMBER\n");
+    printf("         -n NITERS_RENUM\n");
     printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4,5)\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
@@ -186,8 +187,11 @@ int main(int argc, char ** argv) {
         sptStartTimer(renumber_timer);
 
         if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            #if 0
             orderit(&X, map_inds, renumber, niters_renum);
-            // sptIndexRenumber(&X, map_inds, renumber, niters_renum);
+            #else
+            sptIndexRenumber(&X, map_inds, renumber, niters_renum, nt);
+            #endif
             // orderforHiCOO((int)(X.nmodes), (sptIndex)X.nnz, X.ndims, X.inds, map_inds);
         }
         if ( renumber == 3) { /* Set randomly renumbering */
@@ -268,7 +272,7 @@ int main(int argc, char ** argv) {
                     /* Pre-process tensor, the same with the one used in HiCOO.
                      * Only difference is not setting kptr and kschr in this function.
                      */
-                    sptSparseTensorMixedOrder(&X, sb_bits, sk_bits);
+                    sptSparseTensorMixedOrder(&X, sb_bits, sk_bits, nt);
                     break;
                 case 4:
                     // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
@@ -276,7 +280,7 @@ int main(int argc, char ** argv) {
                     break;
                 case 5:
                     sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
-                    sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits);
+                    sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits, nt);
                     break;
                 default:
                     printf("Wrong sortcase number, reset by -s. \n");
@@ -404,7 +408,7 @@ int main(int argc, char ** argv) {
                 /* Pre-process tensor, the same with the one used in HiCOO.
                  * Only difference is not setting kptr and kschr in this function.
                  */
-                sptSparseTensorMixedOrder(&X, sb_bits, sk_bits);
+                sptSparseTensorMixedOrder(&X, sb_bits, sk_bits, nt);
                 break;
             case 4:
                 // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
@@ -412,7 +416,7 @@ int main(int argc, char ** argv) {
                 break;
             case 5:
                 sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
-                sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits);
+                sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits, nt);
                 break;
             default:
                 printf("Wrong sortcase number, reset by -s. \n");

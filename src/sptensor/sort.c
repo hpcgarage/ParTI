@@ -257,13 +257,14 @@ void sptGetWorstModeOrder(
 int sptSparseTensorMixedOrder(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
-    const sptElementIndex sk_bits)
+    const sptElementIndex sk_bits,
+    int const tk)
 {
     sptNnzIndex nnz = tsr->nnz;
     int result;
 
     /* Sort tsr in a Row-major Block order to get all kernels. Not use Morton-order for kernels: 1. better support for higher-order tensors by limiting kernel size, because Morton key bit <= 128; */
-    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits);
+    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits, tk);
 
     sptNnzIndexVector kptr;
     result = sptNewNnzIndexVector(&kptr, 0, 0);
@@ -295,7 +296,8 @@ int sptSparseTensorMixedOrder(
 int sptSparseTensorSortPartialIndex(
     sptSparseTensor *tsr, 
     sptIndex const * mode_order,
-    const sptElementIndex sb_bits)
+    const sptElementIndex sb_bits,
+    int const tk)
 {
     sptNnzIndex nnz = tsr->nnz;
     sptIndex * ndims = tsr->ndims;
@@ -326,7 +328,7 @@ int sptSparseTensorSortPartialIndex(
         s_begin = sptr.data[s];
         s_end = sptr.data[s+1];   // exclusive
         /* Sort blocks in each kernel in plain row-order */
-        sptSparseTensorSortIndexRowBlock(tsr, 1, s_begin, s_end, sb_bits);
+        sptSparseTensorSortIndexRowBlock(tsr, 1, s_begin, s_end, sb_bits, tk);
     }
 
     return 0;
@@ -423,7 +425,8 @@ void sptSparseTensorSortIndexRowBlock(
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptElementIndex sk_bits) 
+    const sptElementIndex sk_bits,
+    int const tk) 
 {
     size_t m;
     int needsort = 0;
@@ -435,7 +438,13 @@ void sptSparseTensorSortIndexRowBlock(
         }
     }
     if(needsort || force) {
-        spt_QuickSortIndexRowBlock(tsr, begin, end, sk_bits);
+        #pragma omp parallel num_threads(tk)
+        {
+            #pragma omp single nowait
+            {
+                spt_QuickSortIndexRowBlock(tsr, begin, end, sk_bits);
+            }
+        }
     }
 }
 
@@ -465,7 +474,7 @@ void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptInde
  * Reorder the elements in a sparse tensor lexicographically, sorting all modes except one. The except mode is NOT ordered.
  * @param tsr  the sparse tensor to operate on
  */
-void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order) {
+void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order, int const tk) {
     sptIndex m;
     int needsort = 0;
 
@@ -477,7 +486,13 @@ void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, s
     }
 
     if(needsort || force) {
-        spt_QuickSortIndexExceptSingleMode(tsr, 0, tsr->nnz, mode_order);
+        #pragma omp parallel num_threads(tk) 
+        {
+            #pragma omp single nowait 
+            {
+                spt_QuickSortIndexExceptSingleMode(tsr, 0, tsr->nnz, mode_order);
+            }
+        }
     }
 }
 
@@ -988,8 +1003,14 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptN
             p = i;
         }
     }
-    spt_QuickSortIndexRowBlock(tsr, l, i, sk_bits);
-    spt_QuickSortIndexRowBlock(tsr, i, r, sk_bits);
+    #pragma omp task 
+    {
+        spt_QuickSortIndexRowBlock(tsr, l, i, sk_bits);
+    }
+    #pragma omp task 
+    {
+        spt_QuickSortIndexRowBlock(tsr, i, r, sk_bits);
+    }
 }
 
 
@@ -1046,8 +1067,14 @@ static void spt_QuickSortIndexExceptSingleMode(sptSparseTensor *tsr, sptNnzIndex
             p = i;
         }
     }
-    spt_QuickSortIndexExceptSingleMode(tsr, l, i, mode_order);
-    spt_QuickSortIndexExceptSingleMode(tsr, i, r, mode_order);
+    #pragma omp task 
+    {
+        spt_QuickSortIndexExceptSingleMode(tsr, l, i, mode_order);
+    }
+    #pragma omp task 
+    {
+        spt_QuickSortIndexExceptSingleMode(tsr, i, r, mode_order);
+    }
 }
 
 
