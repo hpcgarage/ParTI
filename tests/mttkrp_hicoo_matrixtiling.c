@@ -95,7 +95,7 @@ int main(int argc, char ** argv) {
             sptAssert(fi != NULL);
             break;
         case 'o':
-            fo = fopen(optarg, "w");
+            fo = fopen(optarg, "aw");
             sptAssert(fo != NULL);
             break;
         case 'b':
@@ -191,6 +191,7 @@ int main(int argc, char ** argv) {
         for(sptIndex mode=0; mode<nmodes; ++mode) {
             par_iters = 0;
             /* Reset U[nmodes] */
+            U[nmodes]->nrows = hitsr.ndims[mode];
             sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
 
             /* determine niters or num_kernel_dim to be parallelized */
@@ -263,6 +264,11 @@ int main(int argc, char ** argv) {
             sptPrintAverageElapsedTime(timer, niters, prg_name);
             printf("\n");
             sptFreeTimer(timer);
+
+            if(fo != NULL) {
+                sptAssert(sptDumpRankMatrix(U[nmodes], fo) == 0);
+            }
+            
         }   // End nmodes
 
     } else {
@@ -341,7 +347,9 @@ int main(int argc, char ** argv) {
         }
     }   // End execute a specified mode
 
-
+    if(fo != NULL) {
+        fclose(fo);
+    }
     if(cuda_dev_id == -1 && par_iters == 1) {
         for(int t=0; t<tk; ++t) {
             sptFreeRankMatrix(copy_U[t]);

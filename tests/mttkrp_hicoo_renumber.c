@@ -107,7 +107,7 @@ int main(int argc, char ** argv) {
             sptAssert(fi != NULL);
             break;
         case 'o':
-            fo = fopen(optarg, "w");
+            fo = fopen(optarg, "aw");
             sptAssert(fo != NULL);
             break;
         case 'b':
@@ -262,6 +262,7 @@ int main(int argc, char ** argv) {
     if (mode == PARTI_INDEX_MAX) {
         for(sptIndex mode=0; mode<nmodes; ++mode) {
             /* Reset U[nmodes] */
+            U[nmodes]->nrows = hitsr.ndims[mode];
             sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
 
             mats_order[0] = mode;
@@ -299,6 +300,14 @@ int main(int argc, char ** argv) {
             sptPrintAverageElapsedTime(timer, niters, prg_name);
             printf("\n");
             sptFreeTimer(timer);
+
+            if(fo != NULL) {
+                if (renumber > 0) {
+                    sptMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+                }
+                sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+            }
+
         }   // End nmodes
 
     } else {
@@ -341,6 +350,9 @@ int main(int argc, char ** argv) {
         }
     }   // End execute a specified mode
 
+    if(fo != NULL) {
+        fclose(fo);
+    }
     if (renumber > 0) {
         for(sptIndex m = 0; m < tsr.nmodes; ++m) {
             free(map_inds[m]);

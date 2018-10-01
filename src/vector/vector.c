@@ -68,10 +68,17 @@ int sptConstantValueVector(sptValueVector * const vec, sptValue const val) {
  *
  * The contents of `src` will be copied to `dest`.
  */
-int sptCopyValueVector(sptValueVector *dest, const sptValueVector *src) {
+int sptCopyValueVector(sptValueVector *dest, const sptValueVector *src, int const nt) {
     int result = sptNewValueVector(dest, src->len, src->len);
     spt_CheckError(result, "ValVec Copy", NULL);
+#ifdef PARTI_USE_OPENMP
+    #pragma omp parallel for num_threads(nt)
+    for (sptNnzIndex i=0; i<src->len; ++i) {
+        dest->data[i] = src->data[i];
+    }
+#else
     memcpy(dest->data, src->data, src->len * sizeof *src->data);
+#endif
     return 0;
 }
 
@@ -209,31 +216,20 @@ int sptConstantIndexVector(sptIndexVector * const vec, sptIndex const num) {
  *
  * The contents of `src` will be copied to `dest`.
  */
-int sptCopyIndexVector(sptIndexVector *dest, const sptIndexVector *src) {
+int sptCopyIndexVector(sptIndexVector *dest, const sptIndexVector *src, int const nt) {
     int result = sptNewIndexVector(dest, src->len, src->len);
     spt_CheckError(result, "IdxVec Copy", NULL);
-    memcpy(dest->data, src->data, src->len * sizeof *src->data);
-    return 0;
-}
-
-
-/**
- * Copy an index vector to an uninitialized index vector
- *
- * @param dest a pointer to an uninitialized index vector
- * @param src  a pointer to an existing valid index vector
- *
- * The contents of `src` will be copied to `dest`.
- */
-int sptCopyIndexVectorOmp(sptIndexVector *dest, const sptIndexVector *src, int const nt) {
-    int result = sptNewIndexVector(dest, src->len, src->len);
-    spt_CheckError(result, "IdxVec Copy", NULL);
+#ifdef PARTI_USE_OPENMP
     #pragma omp parallel for num_threads(nt)
     for (sptNnzIndex i=0; i<src->len; ++i) {
         dest->data[i] = src->data[i];
     }
+#else
+    memcpy(dest->data, src->data, src->len * sizeof *src->data);
+#endif
     return 0;
 }
+
 
 /**
  * Add a value to the end of a sptIndexVector

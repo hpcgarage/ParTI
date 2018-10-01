@@ -442,7 +442,7 @@ int sptPreprocessSparseTensor(
     sptNewTimer(&rowblock_sort_timer, 0);
     sptStartTimer(rowblock_sort_timer);
 
-    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits, tk);
+    sptSparseTensorSortIndexRowBlock(tsr, 1, 0, nnz, sk_bits, tk);  // Parallelized inside
 
     sptStopTimer(rowblock_sort_timer);
     sptPrintElapsedTime(rowblock_sort_timer, "rowblock sorting");
@@ -452,10 +452,18 @@ int sptPreprocessSparseTensor(
     sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);
 #endif
 
+    sptTimer set_kernel_timer;
+    sptNewTimer(&set_kernel_timer, 0);
+    sptStartTimer(set_kernel_timer);
+
     result = sptSetKernelPointers(kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
     result = sptSetKernelScheduler(kschr, nkiters, kptr, tsr, sk_bits);
     spt_CheckError(result, "HiSpTns Preprocess", NULL);
+
+    sptStopTimer(set_kernel_timer);
+    sptPrintElapsedTime(set_kernel_timer, "Set Kernel Ptrs");
+    sptFreeTimer(set_kernel_timer);
 
     sptTimer morton_sort_timer;
     sptNewTimer(&morton_sort_timer, 0);
@@ -568,6 +576,10 @@ int sptSparseTensorToHiCOO(
     printf("hitsr->kptr:\n");
     sptDumpNnzIndexVector(&hitsr->kptr, stdout);
 #endif
+
+    sptTimer gen_timer;
+    sptNewTimer(&gen_timer, 0);
+    sptStartTimer(gen_timer);
 
     /* Temporary storage */
     sptIndex * block_begin = (sptIndex *)malloc(nmodes * sizeof(*block_begin));
@@ -710,11 +722,6 @@ int sptSparseTensorToHiCOO(
     sptAppendNnzIndexVector(&hitsr->cptr, hitsr->bptr.len);
     sptAppendNnzIndexVector(&hitsr->bptr, nnz);
 
-    free(block_begin);
-    free(block_end);
-    free(block_begin_prior);
-    free(block_coord);
-
 
     *max_nnzb = hitsr->bptr.data[1] - hitsr->bptr.data[0];
     sptNnzIndex sum_nnzb = 0;
@@ -726,6 +733,16 @@ int sptSparseTensorToHiCOO(
         }
     }
     sptAssert(sum_nnzb == hitsr->nnz);
+
+    sptStopTimer(gen_timer);
+    sptPrintElapsedTime(gen_timer, "Generate HiCOO");
+    sptFreeTimer(gen_timer);
+
+
+    free(block_begin);
+    free(block_end);
+    free(block_begin_prior);
+    free(block_coord);
 
 	return 0;
 }

@@ -93,6 +93,30 @@ int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val) {
 
 
 /**
+ * Shuffle matrix row indices.
+ *
+ * @param[in] mtx matrix to be shuffled
+ * @param[out] map_inds is the renumbering mapping 
+ *
+ */
+void sptRankMatrixInverseShuffleIndices(sptRankMatrix *mtx, sptIndex * mode_map_inds) {
+    /* Renumber matrix rows */
+    sptIndex new_i;
+    sptValue * tmp_values = malloc(mtx->cap * mtx->stride * sizeof (sptValue));
+
+    for(sptIndex i=0; i<mtx->nrows; ++i) {
+        new_i = mode_map_inds[i];
+        for(sptElementIndex j=0; j<mtx->ncols; ++j) {
+            tmp_values[i * mtx->stride + j] = mtx->values[new_i * mtx->stride + j];
+        }
+    }
+
+    free(mtx->values);
+    mtx->values = tmp_values;
+}
+
+
+/**
  * Release the memory buffer a dense rank matrix is holding
  *
  * @param mtx a pointer to a valid matrix

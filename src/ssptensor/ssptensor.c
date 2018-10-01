@@ -71,7 +71,7 @@ int sptCopySemiSparseTensor(sptSemiSparseTensor *dest, const sptSemiSparseTensor
     dest->inds = malloc(dest->nmodes * sizeof *dest->inds);
     spt_CheckOSError(!dest->inds, "SspTns Copy");
     for(i = 0; i < dest->nmodes; ++i) {
-        result = sptCopyIndexVector(&dest->inds[i], &src->inds[i]);
+        result = sptCopyIndexVector(&dest->inds[i], &src->inds[i], 1);
         spt_CheckError(result, "SspTns Copy", NULL);
     }
     dest->stride = src->stride;

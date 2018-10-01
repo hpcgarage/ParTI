@@ -100,7 +100,7 @@ int main(int argc, char ** argv) {
             printf("input file: %s\n", optarg); fflush(stdout);
             break;
         case 'o':
-            fo = fopen(optarg, "w");
+            fo = fopen(optarg, "aw");
             sptAssert(fo != NULL);
             printf("output file: %s\n", optarg); fflush(stdout);
             break;
@@ -178,6 +178,9 @@ int main(int argc, char ** argv) {
     if (mode == PARTI_INDEX_MAX) {
 
         for(sptIndex mode=0; mode<nmodes; ++mode) {
+            /* Reset U[nmodes] */
+            U[nmodes]->nrows = X.ndims[mode];
+            sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
 
             /* Sort sparse tensor */
             memset(mode_order, 0, X.nmodes * sizeof(*mode_order));
@@ -307,6 +310,10 @@ int main(int argc, char ** argv) {
             }
             sptFreeTimer(timer);
 
+            if(fo != NULL) {
+                sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+            }
+
         } // End nmodes
 
     } else {
@@ -435,8 +442,16 @@ int main(int argc, char ** argv) {
         }
         sptFreeTimer(timer);
 
+        if(fo != NULL) {
+            sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+            fclose(fo);
+        }
+
     } // End execute a specified mode
 
+    if(fo != NULL) {
+        fclose(fo);
+    }
     if(cuda_dev_id == -1) {
         if (use_reduce == 1) {
             for(int t=0; t<nt; ++t) {
@@ -454,12 +469,6 @@ int main(int argc, char ** argv) {
     sptFreeSparseTensor(&X);
     free(mats_order);
     free(mode_order);
-
-    if(fo != NULL) {
-        sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
-        fclose(fo);
-    }
-
     sptFreeMatrix(U[nmodes]);
     free(U);
 

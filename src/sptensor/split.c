@@ -78,7 +78,7 @@ int spt_StartSplitSparseTensor(spt_SplitHandle *handle, const sptSparseTensor *t
     (*handle)->cut_idx = (*handle)->max_size_by_mode + 3 * tsr->nmodes;
     (*handle)->cut_low = (*handle)->max_size_by_mode + 4 * tsr->nmodes;
 
-    result = sptCopySparseTensor(&(*handle)->tsr[0], tsr);
+    result = sptCopySparseTensor(&(*handle)->tsr[0], tsr, 1);
     spt_CheckError(result, "SpTns Splt", NULL);
 
     if(max_size_by_mode != NULL) {

@@ -55,7 +55,7 @@ int sptNewSparseTensor(sptSparseTensor *tsr, sptIndex nmodes, const sptIndex ndi
  * @param[out] dest a pointer to an uninitialized sparse tensor
  * @param[in]  src  a pointer to a valid sparse tensor
  */
-int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
+int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src, int const nt) {
     sptIndex i;
     int result;
     dest->nmodes = src->nmodes;
@@ -68,10 +68,10 @@ int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src) {
     dest->inds = malloc(dest->nmodes * sizeof *dest->inds);
     spt_CheckOSError(!dest->inds, "SpTns Copy");
     for(i = 0; i < dest->nmodes; ++i) {
-        result = sptCopyIndexVector(&dest->inds[i], &src->inds[i]);
+        result = sptCopyIndexVector(&dest->inds[i], &src->inds[i], nt);
         spt_CheckError(result, "SpTns Copy", NULL);
     }
-    result = sptCopyValueVector(&dest->values, &src->values);
+    result = sptCopyValueVector(&dest->values, &src->values, nt);
     spt_CheckError(result, "SpTns Copy", NULL);
     return 0;
 }
@@ -204,7 +204,7 @@ int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const
  * Shuffle all indices.
  *
  * @param[in] tsr tensor to be shuffled
- * @param[out] map_inds is the renumbering 
+ * @param[out] map_inds is the renumbering mapping
  *
  */
 void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds) {

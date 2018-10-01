@@ -75,7 +75,7 @@ for tsr in s3tsrs:
 		## omp hicoo
 		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '.txt'
 		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-mattile.txt'
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-n' + str(niters_renum) + '-mattile.txt'
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-n' + str(niters_renum) + '-mattile-parsort.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')

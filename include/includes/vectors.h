@@ -30,7 +30,7 @@ void sptQuickSortNnzIndexArray(sptNnzIndex * array, sptNnzIndex l, sptNnzIndex r
 /* Dense vector, with sptValueVector type */
 int sptNewValueVector(sptValueVector *vec, uint64_t len, uint64_t cap);
 int sptConstantValueVector(sptValueVector * const vec, sptValue const val);
-int sptCopyValueVector(sptValueVector *dest, const sptValueVector *src);
+int sptCopyValueVector(sptValueVector *dest, const sptValueVector *src, int const nt);
 int sptAppendValueVector(sptValueVector *vec, sptValue const value);
 int sptAppendValueVectorWithVector(sptValueVector *vec, const sptValueVector *append_vec);
 int sptResizeValueVector(sptValueVector *vec, sptNnzIndex const size);
@@ -40,8 +40,7 @@ int sptDumpValueIndexVector(sptValueVector *vec, FILE *fp);
 /* Dense vector, with sptIndexVector type */
 int sptNewIndexVector(sptIndexVector *vec, uint64_t len, uint64_t cap);
 int sptConstantIndexVector(sptIndexVector * const vec, sptIndex const num);
-int sptCopyIndexVector(sptIndexVector *dest, const sptIndexVector *src);
-int sptCopyIndexVectorOmp(sptIndexVector *dest, const sptIndexVector *src, int const nt);
+int sptCopyIndexVector(sptIndexVector *dest, const sptIndexVector *src, int const nt);
 int sptAppendIndexVector(sptIndexVector *vec, sptIndex const value);
 int sptAppendIndexVectorWithVector(sptIndexVector *vec, const sptIndexVector *append_vec);
 int sptResizeIndexVector(sptIndexVector *vec, sptNnzIndex const size);

@@ -113,7 +113,7 @@ int main(int argc, char ** argv) {
             printf("input file: %s\n", optarg); fflush(stdout);
             break;
         case 'o':
-            fo = fopen(optarg, "w");
+            fo = fopen(optarg, "aw");
             sptAssert(fo != NULL);
             printf("output file: %s\n", optarg); fflush(stdout);
             break;
@@ -254,6 +254,10 @@ int main(int argc, char ** argv) {
 
         for(sptIndex mode=0; mode<nmodes; ++mode) {
 
+            /* Reset U[nmodes] */
+            U[nmodes]->nrows = X.ndims[mode];
+            sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
+
             /* Sort sparse tensor */
             memset(mode_order, 0, X.nmodes * sizeof(*mode_order));
             switch (sortcase) {
@@ -387,6 +391,13 @@ int main(int argc, char ** argv) {
             }
             sptFreeTimer(timer);
 
+            if(fo != NULL) {
+                if (renumber > 0) {
+                    sptMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+                }
+                    sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+            }
+
         } // End nmodes
 
     } else {
@@ -518,8 +529,16 @@ int main(int argc, char ** argv) {
         }
         sptFreeTimer(timer);
 
+        if(fo != NULL) {
+            sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+            fclose(fo);
+        }
+
     } // End execute a specified mode
 
+    if(fo != NULL) {
+        fclose(fo);
+    }
     if (renumber > 0) {
         for(sptIndex m = 0; m < X.nmodes; ++m) {
             free(map_inds[m]);
@@ -543,12 +562,6 @@ int main(int argc, char ** argv) {
     sptFreeSparseTensor(&X);
     free(mats_order);
     free(mode_order);
-
-    if(fo != NULL) {
-        sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
-        fclose(fo);
-    }
-
     sptFreeMatrix(U[nmodes]);
     free(U);
 

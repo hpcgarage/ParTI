@@ -53,11 +53,11 @@ int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src) {
     dest->nrows = src->nrows;
     dest->ncols = src->ncols;
     dest->nnz = src->nnz;
-    result = sptCopyIndexVector(&dest->rowind, &src->rowind);
+    result = sptCopyIndexVector(&dest->rowind, &src->rowind, 1);
     spt_CheckError(result, "SpMtx Copy", NULL);
-    result = sptCopyIndexVector(&dest->colind, &src->colind);
+    result = sptCopyIndexVector(&dest->colind, &src->colind, 1);
     spt_CheckError(result, "SpMtx Copy", NULL);
-    result = sptCopyValueVector(&dest->values, &src->values);
+    result = sptCopyValueVector(&dest->values, &src->values, 1);
     spt_CheckError(result, "SpMtx Copy", NULL);
     return 0;
 }

@@ -109,7 +109,7 @@ int main(int argc, char ** argv) {
             sptAssert(fi != NULL);
             break;
         case 'o':
-            fo = fopen(optarg, "w");
+            fo = fopen(optarg, "aw");
             sptAssert(fo != NULL);
             break;
         case 'b':
@@ -212,11 +212,10 @@ int main(int argc, char ** argv) {
         // sptSparseTensorSortIndex(&tsr, 1);   // debug purpose only
         // FILE * debug_fp = fopen("new.txt", "w");
         // sptAssert(sptDumpSparseTensor(&tsr, 0, debug_fp) == 0);
-        // fprintf(debug_fp, "\nmap_inds:\n");
+        // fprintf(stdout, "\nmap_inds:\n");
         // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
-        //     sptDumpIndexArray(map_inds[m], tsr.ndims[m], debug_fp);
+        //     sptDumpIndexArray(map_inds[m], tsr.ndims[m], stdout);
         // }
-        // sptAssert(sptDumpSparseTensor(&tsr, 0, debug_fp) == 0);
         // fclose(debug_fp);
     }
 
@@ -251,11 +250,11 @@ int main(int argc, char ** argv) {
       if(hitsr.ndims[m] > max_ndims)
         max_ndims = hitsr.ndims[m];
       factor_bytes += hitsr.ndims[m] * R * sizeof(sptValue);
-      // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
+      // sptAssert(sptDumpRankMatrix(U[m], stdout) == 0);
     }
     sptAssert(sptNewRankMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
-    // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
+    // sptAssert(sptDumpRankMatrix(U[nmodes], stdout) == 0);
 
     /* output factor size */
     char * bytestr;
@@ -267,9 +266,10 @@ int main(int argc, char ** argv) {
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
 
     if (mode == PARTI_INDEX_MAX) {
-        for(sptIndex mode=0; mode<nmodes; ++mode) {
+        for(sptIndex mode=0; mode < nmodes; ++mode) {
             par_iters = 0;
             /* Reset U[nmodes] */
+            U[nmodes]->nrows = hitsr.ndims[mode];
             sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
 
             /* determine niters or num_kernel_dim to be parallelized */
@@ -342,6 +342,14 @@ int main(int argc, char ** argv) {
             sptPrintAverageElapsedTime(timer, niters, prg_name);
             printf("\n");
             sptFreeTimer(timer);
+
+            if(fo != NULL) {
+                if (renumber > 0) {
+                    sptRankMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+                }
+                sptAssert(sptDumpRankMatrix(U[nmodes], fo) == 0);
+            }
+
         }   // End nmodes
 
     } else {
@@ -427,6 +435,9 @@ int main(int argc, char ** argv) {
         free(map_inds);
     }
 
+    if(fo != NULL) {
+        fclose(fo);
+    }
     if(cuda_dev_id == -1 && par_iters == 1) {
         for(int t=0; t<tk; ++t) {
             sptFreeRankMatrix(copy_U[t]);

@@ -43,7 +43,7 @@ int sptOmpSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, con
     }
     sptNnzIndex nnz = X->nnz;
 
-    sptCopySparseTensor(Z, X);
+    sptCopySparseTensor(Z, X, 1);
 
     sptTimer timer;
     sptNewTimer(&timer, 0);

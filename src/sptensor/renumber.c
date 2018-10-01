@@ -41,14 +41,14 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
     if (renumber == 1) {    /* Lexi-order renumbering */
         /* copy the indices */
         sptSparseTensor tsr_temp;
-        sptCopySparseTensor(&tsr_temp, tsr);
+        sptCopySparseTensor(&tsr_temp, tsr, tk);
 
         sptIndex ** orgIds = (sptIndex **) malloc(sizeof(sptIndex*) * nmodes);
 
         for (m = 0; m < nmodes; m++)
         {
             orgIds[m] = (sptIndex *) malloc(sizeof(sptIndex) * tsr->ndims[m]);
-            #pragma omp parallel for num_threads(tk) private(i)
+            // #pragma omp parallel for num_threads(tk) private(i)
             for (i = 0; i < tsr->ndims[m]; i++)
                 orgIds[m][i] = i;
         }
@@ -90,7 +90,7 @@ void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const r
 }
 
 
-static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, sptIndex *cprm)
+static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *cols, sptIndex *cprm, int const tk)
 {
     /*m, n are the num of rows and cols, respectively. We lex order cols,
      given rows.
@@ -99,7 +99,7 @@ static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *
      */
     
     sptNnzIndex *flag, j, jcol, jend;
-    sptIndex *svar,  *var, numBlocks, jj;
+    sptIndex *svar,  *var, numBlocks;
     sptIndex *prev, *next, *sz, *setnext, *setprev, *tailset;
     
     sptIndex *freeIdList, freeIdTop;
@@ -127,7 +127,8 @@ static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *
     flag[1] = flag[n] = flag[n+1] = 0;
     cprm[1] = cprm[n] = 2 * n ;
     setprev[1] = setnext[1] = 0;
-    for(jj = 2; jj<=n-1; jj++)/*init all in a single svar*/
+    #pragma omp parallel for num_threads(tk)
+    for(sptIndex jj = 2; jj<=n-1; jj++)/*init all in a single svar*/
     {
         svar[jj] = 1;
         next[jj] = jj+1;
@@ -149,7 +150,8 @@ static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *
     firstset = 1;
     freeIdList[0] = 0;
     
-    for(jj= 1; jj<=n; jj++)
+    #pragma omp parallel for num_threads(tk)
+    for(sptIndex jj= 1; jj<=n; jj++)
         freeIdList[jj] = jj+1;/*1 is used as a set id*/
     
     freeIdTop = 1;
@@ -280,6 +282,8 @@ static void lexOrderThem( sptNnzIndex m, sptIndex n, sptNnzIndex *ia, sptIndex *
     
     return ;
 }
+
+
 /**************************************************************/
 #define myAbs(x) (((x) < 0) ? -(x) : (x))
 
@@ -356,7 +360,7 @@ void sptLexiOrderPerMode(sptSparseTensor * tsr, sptIndex const mode, sptIndex **
     // sptDumpIndexArray(colIds, nnz + 2, stdout);    
     
     t0 = u_seconds();
-    lexOrderThem(mtxNrows, mode_dim, rowPtrs, colIds, cprm);
+    lexOrderThem(mtxNrows, mode_dim, rowPtrs, colIds, cprm, tk);
     t1 =u_seconds()-t0;
     printf("mode %u, lexorder time %.2f\n", mode, t1);
     // printf("cprm: \n");

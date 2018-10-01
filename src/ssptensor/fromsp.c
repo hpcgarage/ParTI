@@ -44,7 +44,7 @@ int sptSparseTensorToSemiSparseTensor(sptSemiSparseTensor *dest, const sptSparse
     spt_CheckOSError(!dest->inds, "SpTns -> SspTns");
     for(i = 0; i < nmodes; ++i) {
         if(i != mode) {
-            result = sptCopyIndexVector(&dest->inds[i], &src->inds[i]);
+            result = sptCopyIndexVector(&dest->inds[i], &src->inds[i], 1);
         } else {
             result = sptNewIndexVector(&dest->inds[i], 0, 0);
         }

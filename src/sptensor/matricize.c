@@ -57,7 +57,7 @@ int sptMatricize(sptSparseTensor const * const X,
             A->ncols *= ndims[new_i];
         }
 
-        sptCopyIndexVector(&(A->rowind), &(X->inds[m]));
+        sptCopyIndexVector(&(A->rowind), &(X->inds[m]), 1);
         for(sptNnzIndex x=0; x<nnz; ++x) {
             sptNnzIndex col = 0;
             for(sptIndex i=0; i<nmodes-1; ++i) {
@@ -77,7 +77,7 @@ int sptMatricize(sptSparseTensor const * const X,
             A->nrows *= ndims[new_i];
         }
 
-        sptCopyIndexVector(&(A->colind), &(X->inds[m]));
+        sptCopyIndexVector(&(A->colind), &(X->inds[m]), 1);
         for(sptNnzIndex x=0; x<nnz; ++x) {
             sptNnzIndex row = 0;
             for(sptIndex i=0; i<nmodes-1; ++i) {

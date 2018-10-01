@@ -27,6 +27,7 @@ int sptNewMatrix(sptMatrix *mtx, sptIndex const nrows, sptIndex const ncols);
 int sptRandomizeMatrix(sptMatrix *mtx, sptIndex const nrows, sptIndex const ncols);
 int sptIdentityMatrix(sptMatrix *mtx);
 int sptConstantMatrix(sptMatrix * const mtx, sptValue const val);
+void sptMatrixInverseShuffleIndices(sptMatrix *mtx, sptIndex * mode_map_inds);
 int sptCopyMatrix(sptMatrix *dest, const sptMatrix *src);
 int sptAppendMatrix(sptMatrix *mtx, const sptValue values[]);
 int sptResizeMatrix(sptMatrix *mtx, sptIndex const new_nrows);
@@ -68,6 +69,7 @@ int sptSparseTensorToMatrix(sptMatrix *dest, const sptSparseTensor *src);
 int sptNewRankMatrix(sptRankMatrix *mtx, sptIndex const nrows, sptElementIndex const ncols);
 int sptRandomizeRankMatrix(sptRankMatrix *mtx, sptIndex const nrows, sptElementIndex const ncols);
 int sptConstantRankMatrix(sptRankMatrix *mtx, sptValue const val);
+void sptRankMatrixInverseShuffleIndices(sptRankMatrix *mtx, sptIndex * mode_map_inds);
 void sptFreeRankMatrix(sptRankMatrix *mtx);
 int sptDumpRankMatrix(sptRankMatrix *mtx, FILE *fp);
 

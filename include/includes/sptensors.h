@@ -21,7 +21,7 @@
 
 /* Sparse tensor */
 int sptNewSparseTensor(sptSparseTensor *tsr, sptIndex nmodes, const sptIndex ndims[]);
-int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src);
+int sptCopySparseTensor(sptSparseTensor *dest, const sptSparseTensor *src, int const nt);
 void sptFreeSparseTensor(sptSparseTensor *tsr);
 double SparseTensorFrobeniusNormSquared(sptSparseTensor const * const spten);
 int sptLoadSparseTensor(sptSparseTensor *tsr, sptIndex start_index, FILE *fp);

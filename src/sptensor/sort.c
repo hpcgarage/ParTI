@@ -1003,14 +1003,16 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptN
             p = i;
         }
     }
-    #pragma omp task 
+    #pragma omp task firstprivate(l,i) shared(tsr, sk_bits)
     {
         spt_QuickSortIndexRowBlock(tsr, l, i, sk_bits);
     }
-    #pragma omp task 
-    {
+    // #pragma omp task firstprivate(i,r)
+    // {
         spt_QuickSortIndexRowBlock(tsr, i, r, sk_bits);
-    }
+    // }
+
+    #pragma omp taskwait
 }
 
 
@@ -1067,14 +1069,15 @@ static void spt_QuickSortIndexExceptSingleMode(sptSparseTensor *tsr, sptNnzIndex
             p = i;
         }
     }
-    #pragma omp task 
+    #pragma omp task firstprivate(l,i) shared(tsr, mode_order)
     {
         spt_QuickSortIndexExceptSingleMode(tsr, l, i, mode_order);
     }
-    #pragma omp task 
-    {
+    // #pragma omp task 
+    // {
         spt_QuickSortIndexExceptSingleMode(tsr, i, r, mode_order);
-    }
+    // }
+    #pragma omp taskwait
 }
 
 
