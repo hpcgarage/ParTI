@@ -22,7 +22,7 @@ out_str = 'parti-hicoo-renum.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in s4tsrs:
 	sum_seq = 0
 
 	if (tk == '1'):
@@ -70,13 +70,15 @@ for tsr in s3tsrs:
 		## omp hicoo
 		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '.txt'
 		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-mattile.txt'
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-n' + str(niters_renum) + '-mattile.txt'
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-n' + str(niters_renum) + '-mattile-parsort.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')
 	for line in fi:
 		line_array = line.rstrip().split(" ")
 		# print line_array
+
+		# Renumbering time
 		if(len(line_array) < 3):
 			continue;
 		elif(line_array[0] == '[Renumbering]:'):
@@ -84,7 +86,16 @@ for tsr in s3tsrs:
 			# print(time_num)
 			fo.write(time_num+'\n')
 			print(time_num)
-	
+
+		# Converting time
+		# if(len(line_array) < 4):
+		# 	continue;
+		# elif(line_array[0] == '[Convert'):
+		# 	time_num = line_array[2]
+		# 	# print(time_num)
+		# 	fo.write(time_num+'\n')
+		# 	print(time_num)
+
 	fi.close()
 
 fo.close()

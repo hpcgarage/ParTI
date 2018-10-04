@@ -34,6 +34,34 @@ int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex 
 	return 0;
 }
 
+
+/**
+ * Shuffle factor matrices row indices.
+ *
+ * @param[in] ktsr Kruskal tensor to be shuffled
+ * @param[out] map_inds is the renumbering mapping 
+ *
+ */
+void sptKruskalTensorInverseShuffleIndices(sptKruskalTensor * ktsr, sptIndex ** map_inds) {
+    /* Renumber factor matrices rows */
+    sptIndex new_i;
+    for(sptIndex m=0; m < ktsr->nmodes; ++m) {
+        sptMatrix * mtx = ktsr->factors[m];
+        sptIndex * mode_map_inds = map_inds[m];
+        sptValue * tmp_values = malloc(mtx->cap * mtx->stride * sizeof (sptValue));
+
+        for(sptIndex i=0; i<mtx->nrows; ++i) {
+            new_i = mode_map_inds[i];
+            for(sptIndex j=0; j<mtx->ncols; ++j) {
+                tmp_values[i * mtx->stride + j] = mtx->values[new_i * mtx->stride + j];
+            }
+        }
+        free(mtx->values);
+        mtx->values = tmp_values;
+    }    
+}
+
+
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr)
 {
 	ktsr->rank = 0;

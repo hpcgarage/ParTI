@@ -210,7 +210,7 @@ int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const
 void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds) {
     /* Renumber nonzero elements */
     sptIndex tmp_ind;
-    for(sptIndex z = 0; z < tsr->nnz; ++z) {
+    for(sptNnzIndex z = 0; z < tsr->nnz; ++z) {
         for(sptIndex m = 0; m < tsr->nmodes; ++m) {
             tmp_ind = tsr->inds[m].data[z];
             tsr->inds[m].data[z] = map_inds[m][tmp_ind];

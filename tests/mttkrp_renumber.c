@@ -93,11 +93,11 @@ int main(int argc, char ** argv) {
             {"sortcase", optional_argument, 0, 's'},
             {"impl-num", optional_argument, 0, 'p'},
             {"renumber", optional_argument, 0, 'e'},
+            {"niters-renum", optional_argument, 0, 'n'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},
             {"use-reduce", optional_argument, 0, 'u'},
-            {"niters-renum", optional_argument, 0, 'n'},
             {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
@@ -530,8 +530,10 @@ int main(int argc, char ** argv) {
         sptFreeTimer(timer);
 
         if(fo != NULL) {
+            if (renumber > 0) {
+                sptMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+            }
             sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
-            fclose(fo);
         }
 
     } // End execute a specified mode

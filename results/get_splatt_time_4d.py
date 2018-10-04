@@ -3,12 +3,11 @@
 import numpy as np
 import sys 
 
-intput_path="../timing-results/splatt/32bit-single-allmode-bfslike/"
+intput_path="../timing-results/splatt/32bit-single-1002/"
 # intput_path="../timing-results/splatt/32bit-single-onemode-reorder-it5/"
-
-# s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
 test_tsrs = ['flickr-4d']
+
 r = 16
 m1_nums = []
 m2_nums = []
@@ -23,7 +22,7 @@ print("Output "+out_str)
 fo = open(out_str, 'w')
 
 for tsr in s4tsrs:
-	input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(t) + '.txt'
+	input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(t) + '-allmode-bfs' + '.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')
@@ -31,15 +30,15 @@ for tsr in s4tsrs:
 		line_array = line.strip().split(" ")
 		# print(line_array)
 
-		if(len(line_array) == 4 and line_array[0] == 'mode'):
-			if(line_array[2] == '1'):
-				m1_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
-			elif(line_array[2] == '2'):
-				m2_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
-			elif(line_array[2] == '3'):
-				m3_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
-			elif(line_array[2] == '4'):
-				m4_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
+		if(len(line_array) == 5 and line_array[1] == 'MTTKRP'):
+			if(line_array[3] == '1'):
+				m1_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
+			elif(line_array[3] == '2'):
+				m2_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
+			elif(line_array[3] == '3'):
+				m3_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
+			elif(line_array[3] == '4'):
+				m4_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
 		elif( (line_array[0] == '**' and line_array[1] == 'TTBOX') or line_array[0] == 'thd:' or line_array[0] == 'Timing'):
 			m1_nums = map(float, m1_nums)
 			m2_nums = map(float, m2_nums)

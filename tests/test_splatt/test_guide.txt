@@ -11,6 +11,8 @@ Test ONEMODE/ALLMODE:
 Some changes made by jli:
 * Added printfs in "stats.c"
 
+
+
 splatt-1.1.1:
 * ./configure --cc=icc --cxx=icpc --prefix=/global/homes/j/jiajiali/Software/Install/splatt/int32-single-xx
 * types of integers and values: change "splatt.h"

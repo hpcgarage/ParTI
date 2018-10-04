@@ -19,10 +19,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <omp.h>
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 #include "../src/sptensor/hicoo/hicoo.h"
+#ifdef PARTI_USE_OPENMP
+    #include <omp.h>
+#endif
+
 
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
@@ -89,11 +92,11 @@ int main(int argc, char ** argv) {
             {"output", optional_argument, 0, 'o'},
             {"impl-num", optional_argument, 0, 'p'},
             {"renumber", optional_argument, 0, 'e'},
+            {"niters-renum", optional_argument, 0, 'n'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
             {"tb", optional_argument, 0, 'l'},
-            {"niters-renum", optional_argument, 0, 'n'},
             {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
@@ -423,8 +426,10 @@ int main(int argc, char ** argv) {
         sptFreeTimer(timer);
 
         if(fo != NULL) {
+            if (renumber > 0) {
+                sptRankMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+            }
             sptAssert(sptDumpRankMatrix(U[nmodes], fo) == 0);
-            fclose(fo);
         }
     }   // End execute a specified mode
 

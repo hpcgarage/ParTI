@@ -22,20 +22,20 @@ input_str = ""
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s3tsrs:
+for tsr in s4tsrs:
 	sum_seq = 0
 
 	if tk == "1":
 		## sequential coo
-		input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-n' + str(niters_renum) + '-seq.txt'
-		# input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-seq.txt'
+		# input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-n' + str(niters_renum) + '-seq.txt'
+		input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-seq.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-e' + str(renumber) + '-s' + str(sortcase) + '-seq.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-seq.txt'
 		# input_str = intput_path + tsr + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
 	else:
 		## omp coo
-		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '-reduce.txt'
-		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '.txt'
+		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '.txt'
+		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-reduce.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(tk) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-s' + str(sortcase) + '.txt'
 	# print(input_str)

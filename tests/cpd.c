@@ -21,13 +21,16 @@
 #include <getopt.h>
 #include <ParTI.h>
 #ifdef PARTI_USE_OPENMP
-#include <omp.h>
+    #include <omp.h>
 #endif
+#include "../src/sptensor/hicoo/hicoo.h"
 
-void print_usage(int argc, char ** argv) {
+void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT\n");
     printf("         -o OUTPUT, --output=OUTPUT\n");
+    printf("         -e RENUMBER, --renumber=RENUMBER\n");
+    printf("         -n NITERS_RENUM\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
     printf("         -r RANK\n");
@@ -47,12 +50,20 @@ int main(int argc, char ** argv) {
     sptKruskalTensor ktensor;
     int nloops = 0;
     int cuda_dev_id = -2;
-    int nthreads;
-    int use_reduce = 1;
+    int nthreads = 1;
+    int use_reduce = 0;
     int impl_num = 0;
+    int renumber = 0;
+    int niters_renum = 3;
+    /* renumber:
+     * = 0 : no renumbering.
+     * = 1 : renumber with Lexi-order
+     * = 2 : renumber with BFS-like
+     * = 3 : randomly renumbering, specify niters_renum.
+     */
 
     if(argc < 2) {
-        print_usage(argc, argv);
+        print_usage(argv);
         exit(1);
     }
 
@@ -62,6 +73,8 @@ int main(int argc, char ** argv) {
             {"input", required_argument, 0, 'i'},
             {"output", optional_argument, 0, 'o'},
             {"impl-num", optional_argument, 0, 'p'},
+            {"renumber", optional_argument, 0, 'e'},
+            {"niters-renum", optional_argument, 0, 'n'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},
@@ -70,7 +83,7 @@ int main(int argc, char ** argv) {
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "i:o:p:d:r:t:u:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:p:e:n:d:r:t:u:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -88,6 +101,12 @@ int main(int argc, char ** argv) {
         case 'p':
             sscanf(optarg, "%d", &impl_num);
             break;
+        case 'e':
+            sscanf(optarg, "%d", &renumber);
+            break;
+        case 'n':
+            sscanf(optarg, "%d", &niters_renum);
+            break;
         case 'd':
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
@@ -103,15 +122,73 @@ int main(int argc, char ** argv) {
         case '?':   /* invalid option */
         case 'h':
         default:
-            print_usage(argc, argv);
+            print_usage(argv);
             exit(1);
         }
     }
+    printf("cuda_dev_id: %d\n", cuda_dev_id);
+    printf("renumber: %d\n", renumber);
+    if (renumber == 1)
+        printf("niters_renum: %d\n\n", niters_renum);
 
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&X, stdout);
     // sptDumpSparseTensor(&X, 0, stdout);
+
+
+    /* Renumber the input tensor */
+    sptIndex ** map_inds;
+    if (renumber > 0) {
+        map_inds = (sptIndex **)malloc(X.nmodes * sizeof *map_inds);
+        spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
+        for(sptIndex m = 0; m < X.nmodes; ++m) {
+            map_inds[m] = (sptIndex *)malloc(X.ndims[m] * sizeof (sptIndex));
+            spt_CheckError(!map_inds[m], "MTTKRP HiCOO", NULL);
+            for(sptIndex i = 0; i < X.ndims[m]; ++i) 
+                map_inds[m][i] = i;
+        }
+
+        sptTimer renumber_timer;
+        sptNewTimer(&renumber_timer, 0);
+        sptStartTimer(renumber_timer);
+
+        if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            #if 0
+            orderit(&X, map_inds, renumber, niters_renum);
+            #else
+            sptIndexRenumber(&X, map_inds, renumber, niters_renum, nthreads);
+            #endif
+            // orderforHiCOO((int)(X.nmodes), (sptIndex)X.nnz, X.ndims, X.inds, map_inds);
+        }
+        if ( renumber == 3) { /* Set randomly renumbering */
+            printf("[Random Indexing]\n");
+            sptGetRandomShuffledIndices(&X, map_inds);
+        }
+        // fflush(stdout);
+
+        sptStopTimer(renumber_timer);
+        sptPrintElapsedTime(renumber_timer, "Renumbering");
+        sptFreeTimer(renumber_timer);
+
+        sptTimer shuffle_timer;
+        sptNewTimer(&shuffle_timer, 0);
+        sptStartTimer(shuffle_timer);
+
+        sptSparseTensorShuffleIndices(&X, map_inds);
+
+        sptStopTimer(shuffle_timer);
+        sptPrintElapsedTime(shuffle_timer, "Shuffling time");
+        sptFreeTimer(shuffle_timer);
+        printf("\n");
+
+        // sptSparseTensorSortIndex(&X, 1);
+        // printf("map_inds:\n");
+        // for(sptIndex m = 0; m < X.nmodes; ++m) {
+        //     sptDumpIndexArray(map_inds[m], X.ndims[m], stdout);
+        // }
+        // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
+    }    
 
     sptIndex nmodes = X.nmodes;
     sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
@@ -131,26 +208,35 @@ int main(int argc, char ** argv) {
         sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
     }
 
-    for(int it=0; it<nloops; ++it) {
-        if(cuda_dev_id == -2) {
-            nthreads = 1;
-            sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-        } else if(cuda_dev_id == -1) {
-            #pragma omp parallel
-            {
-                nthreads = omp_get_num_threads();
-            }
-            printf("nthreads: %d\n", nthreads);
-            sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
-        }
-    }
+    // for(int it=0; it<nloops; ++it) {
+    //     if(cuda_dev_id == -2) {
+    //         nthreads = 1;
+    //         sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
+    //     } else if(cuda_dev_id == -1) {
+    //         #pragma omp parallel
+    //         {
+    //             nthreads = omp_get_num_threads();
+    //         }
+    //         printf("nthreads: %d\n", nthreads);
+    //         sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
+    //     }
+    // }
 
     if(fo != NULL) {
         // Dump ktensor to files
+        if (renumber > 0) {
+            sptKruskalTensorInverseShuffleIndices(&ktensor, map_inds);
+        }
         sptAssert( sptDumpKruskalTensor(&ktensor, fo) == 0 );
         fclose(fo);
     }
 
+    if (renumber > 0) {
+        for(sptIndex m = 0; m < X.nmodes; ++m) {
+            free(map_inds[m]);
+        }
+        free(map_inds);
+    }
     sptFreeSparseTensor(&X);
     sptFreeKruskalTensor(&ktensor);
 

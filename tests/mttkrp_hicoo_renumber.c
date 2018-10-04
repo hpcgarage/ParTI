@@ -345,8 +345,10 @@ int main(int argc, char ** argv) {
         sptFreeTimer(timer);
 
         if(fo != NULL) {
+            if (renumber > 0) {
+                sptMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+            }
             sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
-            fclose(fo);
         }
     }   // End execute a specified mode
 

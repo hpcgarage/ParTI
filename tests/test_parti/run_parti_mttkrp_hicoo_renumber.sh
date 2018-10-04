@@ -5,7 +5,7 @@ declare -a s3tsrs=("vast-2015-mc1" "nell2" "choa700k" "1998DARPA" "freebase_musi
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
-declare -a test_tsr_names=("1998DARPA")
+declare -a test_tsr_names=("delicious-4d")
 declare -a threads=("32")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 # declare -a sk_range=("7")
@@ -20,10 +20,10 @@ tb=1
 renum=1
 niters_renum=5
 
-# for R in 8 16 32 64
-for R in 16
+for R in 8 32 64
+# for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${s3tsrs[@]}" "${s4tsrs[@]}"
 	do
 		# Sequential code
 		# dev_id=-2
@@ -35,8 +35,8 @@ do
 		# echo "./build/tests/mttkrp_hicoo_renumber -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-e${renum}-seq.txt"
 		# ./build/tests/mttkrp_hicoo_renumber -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-e${renum}-seq.txt
 
-		# echo "./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-e${renum}-n${niters_renum}-mattile-seq.txt"
-		# ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-e${renum}-n${niters_renum}-mattile-seq.txt
+		# echo "./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-e${renum}-n${niters_renum}-mattile-seq.txt"
+		# ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-e${renum}-n${niters_renum}-mattile-seq.txt
 
 
 		# For OpenMP code
@@ -103,8 +103,8 @@ do
 				# echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}.txt"
 				# numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}.txt
 
-				echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt"
-				numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt
+				echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt"
+				numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt
 
 			done
 		# done

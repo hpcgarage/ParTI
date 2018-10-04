@@ -33,7 +33,7 @@ for tsr in s3tsrs:
 		# input_str = intput_path + tsr + '-r' + str(r) + '-seq.txt'
 	else:
 		## omp coo
-		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '.txt'
+		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '-reduce.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(tk) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-s' + str(sortcase) + '.txt'

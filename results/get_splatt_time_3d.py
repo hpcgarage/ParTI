@@ -3,15 +3,13 @@
 import numpy as np
 import sys 
 
-
-intput_path="../timing-results/splatt/32bit-single-allmode-notiling/"
+intput_path="../timing-results/splatt/32bit-single-1002/"
 # intput_path="../timing-results/splatt/32bit-single-onemode-reorder-it5/"
-
 s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 test_tsr_names = ['vast-2015-mc1']
 
-r = 32
+r = 16
 m1_nums = []
 m2_nums = []
 m3_nums = []
@@ -24,7 +22,7 @@ print("Output "+out_str)
 fo = open(out_str, 'w')
 
 for tsr in s3tsrs:
-	input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(t) + '.txt'
+	input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(t) + '-allmode-lexi-it5-tile' + '.txt'
 	# print(input_str)
 
 	fi = open(input_str, 'r')
@@ -32,13 +30,13 @@ for tsr in s3tsrs:
 		line_array = line.strip().split(" ")
 		# print(line_array)
 
-		if(len(line_array) == 4 and line_array[0] == 'MTTKRP'):
-			if(line_array[2] == '1'):
-				m1_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
-			elif(line_array[2] == '2'):
-				m2_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
-			elif(line_array[2] == '3'):
-				m3_nums.append(line_array[3].split("(")[1].split(")")[0].split("s")[0])
+		if(len(line_array) == 5 and line_array[1] == 'MTTKRP'):
+			if(line_array[3] == '1'):
+				m1_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
+			elif(line_array[3] == '2'):
+				m2_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
+			elif(line_array[3] == '3'):
+				m3_nums.append(line_array[4].split("(")[1].split(")")[0].split("s")[0])
 		elif( (line_array[0] == '**' and line_array[1] == 'TTBOX') or line_array[0] == 'thd:' or line_array[0] == 'Timing'):
 			m1_nums = map(float, m1_nums)
 			m2_nums = map(float, m2_nums)

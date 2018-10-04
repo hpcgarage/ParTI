@@ -20,7 +20,8 @@
 #define PARTI_KTENSORS_H
 
 /* Kruskal tensor */
-int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptIndex rank); 
+int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptIndex rank);
+void sptKruskalTensorInverseShuffleIndices(sptKruskalTensor * ktsr, sptIndex ** map_inds);
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
 int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp);
 double KruskalTensorFit(
@@ -40,6 +41,7 @@ double SparseKruskalTensorInnerProduct(
 
 /* Rank Kruskal tensor, ncols = small rank (<= 256)  */
 int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptElementIndex rank);
+void sptRankKruskalTensorInverseShuffleIndices(sptRankKruskalTensor * ktsr, sptIndex ** map_inds);
 void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr);
 int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp);
 double KruskalTensorFitHiCOO(

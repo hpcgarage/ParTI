@@ -31,16 +31,21 @@ void print_usage(char ** argv) {
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
+    printf("         -e RENUMBER, --renumber=RENUMBER\n");
+    printf("         -n NITERS_RENUM\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
     printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
     printf("         -r RANK\n");
     printf("         -t TK, --tk=TK\n");
-    printf("         -h TB, --tb=TB\n");
+    printf("         -l TB, --tb=TB\n");
+    printf("         --help\n");
     printf("\n");
 }
 
 
 int main(int argc, char ** argv) {
+    printf("CPD HiCOO: \n");
+
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor tsr;
     sptSparseTensorHiCOO hitsr;
@@ -55,10 +60,18 @@ int main(int argc, char ** argv) {
     sptIndex niters = 5; // 50
     double tol = 1e-5;
     int impl_num = 0;
+    int renumber = 0;
+    int niters_renum = 3;
+    /* renumber:
+     * = 0 : no renumbering.
+     * = 1 : renumber with Lexi-order
+     * = 2 : renumber with BFS-like
+     * = 3 : randomly renumbering, specify niters_renum.
+     */
     int tk = 1;
     int tb = 1;
 
-    if(argc < 2) {
+    if(argc < 5) { // #Required arguments
         print_usage(argv);
         exit(1);
     }
@@ -67,20 +80,23 @@ int main(int argc, char ** argv) {
     for(;;) {
         static struct option long_options[] = {
             {"input", required_argument, 0, 'i'},
-            {"output", required_argument, 0, 'o'},
             {"bs", required_argument, 0, 'b'},
             {"ks", required_argument, 0, 'k'},
             {"cs", required_argument, 0, 'c'},
+            {"output", optional_argument, 0, 'o'},
             {"impl-num", optional_argument, 0, 'p'},
+            {"renumber", optional_argument, 0, 'e'},
+            {"niters-renum", optional_argument, 0, 'n'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"tk", optional_argument, 0, 't'},
-            {"tb", optional_argument, 0, 'h'},
+            {"tb", optional_argument, 0, 'l'},
+            {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
-        c = getopt_long(argc, argv, "i:o:b:k:c:p:d:r:t:h:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:b:k:c:o:p:e:n:d:r:t:l:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -105,6 +121,12 @@ int main(int argc, char ** argv) {
         case 'p':
             sscanf(optarg, "%d", &impl_num);
             break;
+        case 'e':
+            sscanf(optarg, "%d", &renumber);
+            break;
+        case 'n':
+            sscanf(optarg, "%d", &niters_renum);
+            break;
         case 'd':
             sscanf(optarg, "%d", &cuda_dev_id);
             break;
@@ -114,22 +136,94 @@ int main(int argc, char ** argv) {
         case 't':
             sscanf(optarg, "%d", &tk);
             break;
-        case 'h':
+        case 'l':
             sscanf(optarg, "%d", &tb);
             break;
+        case '?':   /* invalid option */
+        case 'h':
         default:
-            abort();
+            print_usage(argv);
+            exit(1);
         }
     }
+    printf("cuda_dev_id: %d\n", cuda_dev_id);
+    printf("renumber: %d\n", renumber);
+    if (renumber == 1)
+        printf("niters_renum: %d\n\n", niters_renum);
 
+    /* A sorting included in load tensor */
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
     fclose(fi);
     sptSparseTensorStatus(&tsr, stdout);
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
+    /* Renumber the input tensor */
+    sptIndex ** map_inds;
+    if (renumber > 0) {
+        map_inds = (sptIndex **)malloc(tsr.nmodes * sizeof *map_inds);
+        spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
+        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+            map_inds[m] = (sptIndex *)malloc(tsr.ndims[m] * sizeof (sptIndex));
+            spt_CheckError(!map_inds[m], "MTTKRP HiCOO", NULL);
+            for(sptIndex i = 0; i < tsr.ndims[m]; ++i) 
+                map_inds[m][i] = i;
+        }
+
+        sptTimer renumber_timer;
+        sptNewTimer(&renumber_timer, 0);
+        sptStartTimer(renumber_timer);
+
+        if ( renumber == 1 || renumber == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            #if 0
+            orderit(&tsr, map_inds, renumber, niters_renum);
+            #else
+            sptIndexRenumber(&tsr, map_inds, renumber, niters_renum, tk);
+            #endif
+
+        }
+        if ( renumber == 3) { /* Set randomly renumbering */
+            sptGetRandomShuffledIndices(&tsr, map_inds);
+        }
+        fflush(stdout);
+
+        sptStopTimer(renumber_timer);
+        sptPrintElapsedTime(renumber_timer, "Renumbering");
+        sptFreeTimer(renumber_timer);
+
+        sptTimer shuffle_timer;
+        sptNewTimer(&shuffle_timer, 0);
+        sptStartTimer(shuffle_timer);
+
+        sptSparseTensorShuffleIndices(&tsr, map_inds);
+
+        sptStopTimer(shuffle_timer);
+        sptPrintElapsedTime(shuffle_timer, "Shuffling time");
+        sptFreeTimer(shuffle_timer);
+        printf("\n");
+
+
+        // sptSparseTensorSortIndex(&tsr, 1);   // debug purpose only
+        // FILE * debug_fp = fopen("new.txt", "w");
+        // sptAssert(sptDumpSparseTensor(&tsr, 0, debug_fp) == 0);
+        // fprintf(stdout, "\nmap_inds:\n");
+        // for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+        //     sptDumpIndexArray(map_inds[m], tsr.ndims[m], stdout);
+        // }
+        // fclose(debug_fp);
+    }
+
     /* Convert to HiCOO tensor */
     sptNnzIndex max_nnzb = 0;
+    sptTimer convert_timer;
+    sptNewTimer(&convert_timer, 0);
+    sptStartTimer(convert_timer);
+
     sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, tk) == 0);
+
+    sptStopTimer(convert_timer);
+    sptPrintElapsedTime(convert_timer, "Convert HiCOO");
+    sptFreeTimer(convert_timer);
+
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
@@ -156,10 +250,19 @@ int main(int argc, char ** argv) {
 
     if(fo != NULL) {
         // Dump ktensor to files
+        if (renumber > 0) {
+            sptRankKruskalTensorInverseShuffleIndices(&ktensor, map_inds);
+        }
         sptAssert( sptDumpRankKruskalTensor(&ktensor, fo) == 0 );
         fclose(fo);
     }
 
+    if (renumber > 0) {
+        for(sptIndex m = 0; m < tsr.nmodes; ++m) {
+            free(map_inds[m]);
+        }
+        free(map_inds);
+    }
     sptFreeSparseTensorHiCOO(&hitsr);
     sptFreeRankKruskalTensor(&ktensor);
 
