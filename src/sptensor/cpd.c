@@ -87,7 +87,7 @@ double CpdAlsStep(
     sptStartTimer(timer);
 
     for(sptIndex m=0; m < nmodes; ++m) {
-      // printf("\nmode %lu \n", m);
+      // printf("\nmode %u \n", m);
       tmp_mat->nrows = mats[m]->nrows;
 
       /* Factor Matrices order */
@@ -106,7 +106,7 @@ double CpdAlsStep(
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       sptAssert ( sptMatrixSolveNormals(m, nmodes, ata, mats[m]) == 0 );
       // printf("Inverse mats[m]:\n");
-      // sptDumpRankMatrix(mats[m], stdout);
+      // sptDumpMatrix(mats[m], stdout);
 
       /* Normalized mats[m], store the norms in lambda. Use different norms to avoid precision explosion. */
       if (it == 0 ) {
@@ -178,8 +178,8 @@ int sptCpdAls(
   }
   for(sptIndex m=0; m < nmodes; ++m) {
     sptAssert(sptNewMatrix(mats[m], spten->ndims[m], rank) == 0);
-    // sptAssert(sptConstantMatrix(mats[m], 1) == 0);
-    sptAssert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
+    sptAssert(sptConstantMatrix(mats[m], 1) == 0);
+    // sptAssert(sptRandomizeMatrix(mats[m], spten->ndims[m], rank) == 0);
   }
   sptAssert(sptNewMatrix(mats[nmodes], max_dim, rank) == 0);
   sptAssert(sptConstantMatrix(mats[nmodes], 0) == 0);

@@ -127,7 +127,7 @@ double KruskalTensorFrobeniusNormSquared(
   #pragma omp parallel for
 #endif
     for(sptIndex i=0; i < rank; ++i) {
-        for(sptIndex j=0; j < rank; ++j) {
+        for(sptIndex j=i; j < rank; ++j) {
             tmp_atavals[j * stride + i] *= atavals[j * stride + i];
         }
     }

@@ -68,9 +68,9 @@ double CpdAlsStepHiCOO(
   // printf("Initial mats:\n");
   // for(size_t m=0; m < nmodes+1; ++m)
   //   sptDumpRankMatrix(mats[m], stdout);
-  // printf("Initial ata:\n");
-  // for(sptIndex m=0; m < nmodes+1; ++m)
-  //   sptDumpRankMatrix(ata[m], stdout);
+  printf("Initial ata:\n");
+  for(sptIndex m=0; m < nmodes+1; ++m)
+    sptDumpRankMatrix(ata[m], stdout);
 
   double oldfit = 0;
   sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(*mats_order));
@@ -82,7 +82,7 @@ double CpdAlsStepHiCOO(
     sptStartTimer(timer);
 
     for(sptIndex m=0; m < nmodes; ++m) {
-      // printf("\nmode %lu \n", m);
+      printf("\nmode %u \n", m);
       tmp_mat->nrows = mats[m]->nrows;
 
       /* Factor Matrices order */
@@ -91,14 +91,14 @@ double CpdAlsStepHiCOO(
           mats_order[i] = (m+i) % nmodes;     
 
       sptAssert (sptMTTKRPHiCOO_MatrixTiling(hitsr, mats, mats_order, m) == 0);
-      // printf("sptMTTKRPHiCOO_MatrixTiling mats[nmodes]:\n");
-      // sptDumpRankMatrix(mats[nmodes], stdout);
+      printf("sptMTTKRPHiCOO_MatrixTiling mats[nmodes]:\n");
+      sptDumpRankMatrix(mats[nmodes], stdout);
 
       memcpy(mats[m]->values, tmp_mat->values, mats[m]->nrows * stride * sizeof(sptValue));
       /* Solve ? * ata[nmodes] = mats[nmodes] (tmp_mat) */
       sptAssert ( sptRankMatrixSolveNormals(m, nmodes, ata, mats[m]) == 0 );
-      // printf("Inverse mats[m]:\n");
-      // sptDumpRankMatrix(mats[m], stdout);
+      printf("Inverse mats[m]:\n");
+      sptDumpRankMatrix(mats[m], stdout);
 
       /* Normalized mats[m], store the norms in lambda. Use different norms to avoid precision explosion. */
       if (it == 0 ) {
@@ -106,19 +106,19 @@ double CpdAlsStepHiCOO(
       } else {
         sptRankMatrixMaxNorm(mats[m], lambda);
       }
-      // printf("Normalize mats[m]:\n");
-      // sptDumpRankMatrix(mats[m], stdout);
-      // printf("lambda:\n");
-      // for(size_t i=0; i<rank; ++i)
-      //   printf("%lf  ", lambda[i]);
-      // printf("\n\n");
+      printf("Normalize mats[m]:\n");
+      sptDumpRankMatrix(mats[m], stdout);
+      printf("lambda:\n");
+      for(size_t i=0; i<rank; ++i)
+        printf("%lf  ", lambda[i]);
+      printf("\n\n");
 
       /* ata[m] = mats[m]^T * mats[m]) */
       int blas_nrows = (int)(mats[m]->nrows);
       ssyrk_(&uplo, &notrans, &blas_rank, &blas_nrows, &alpha,
         mats[m]->values, &blas_stride, &beta, ata[m]->values, &blas_stride);
-      // printf("Update ata[m]:\n");
-      // sptDumpRankMatrix(ata[m], stdout);
+      printf("Update ata[m]:\n");
+      sptDumpRankMatrix(ata[m], stdout);
 
     } // Loop nmodes
 
@@ -174,8 +174,8 @@ int sptCpdAlsHiCOO(
   }
   for(sptIndex m=0; m < nmodes; ++m) {
     sptAssert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
-    // sptAssert(sptConstantRankMatrix(mats[m], 1) == 0);
-    sptAssert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    sptAssert(sptConstantRankMatrix(mats[m], 1) == 0);
+    // sptAssert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
   }
   sptAssert(sptNewRankMatrix(mats[nmodes], max_dim, rank) == 0);
   sptAssert(sptConstantRankMatrix(mats[nmodes], 0) == 0);

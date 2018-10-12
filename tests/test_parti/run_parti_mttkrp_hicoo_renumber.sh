@@ -5,7 +5,7 @@ declare -a s3tsrs=("vast-2015-mc1" "nell2" "choa700k" "1998DARPA" "freebase_musi
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
 declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
 declare -a dense3dtsrs=("128" "192" "256" "320" "384" "448" "512")
-declare -a test_tsr_names=("delicious-4d")
+declare -a test_tsr_names=("flickr-4d" "delicious-4d")
 declare -a threads=("32")
 # declare -a sk_range=("8" "9" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20")
 # declare -a sk_range=("7")
@@ -17,13 +17,13 @@ out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/uin
 
 sc=14
 tb=1
-renum=1
+renum=3
 niters_renum=5
 
-for R in 8 32 64
-# for R in 16
+# for R in 8 32 64
+for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}" "${s4tsrs[@]}"
+	for tsr_name in "${test_tsr_names[@]}"
 	do
 		# Sequential code
 		# dev_id=-2
@@ -45,7 +45,8 @@ do
 			sk=8
 		fi
 		if [ ${tsr_name} = "nell2" ]; then
-			sk=9
+			# sk=9	# Optimal for lexiorder
+			sk=10
 		fi
 		if [ ${tsr_name} = "choa700k" ]; then
 			sk=10
@@ -54,10 +55,12 @@ do
 			sk=15
 		fi
 		if [ ${tsr_name} = "freebase_music" ] || [ ${tsr_name} = "freebase_sampled" ]; then
-			sk=16
+			# sk=16	# Optimal for lexiorder
+			sk=18
 		fi
 		if [ ${tsr_name} = "flickr" ]; then
-			sk=13
+			# sk=13	# Optimal for lexiorder
+			sk=15
 		fi
 		if [ ${tsr_name} = "delicious" ]; then
 			sk=16
@@ -76,10 +79,12 @@ do
 			sk=8
 		fi
 		if [ ${tsr_name} = "flickr-4d" ]; then
-			sk=12
+			# sk=12	# Optimal for lexiorder
+			sk=15
 		fi
 		if [ ${tsr_name} = "delicious-4d" ]; then
-			sk=15
+			# sk=15	# Optimal for lexiorder
+			sk=16
 		fi
 
 
@@ -103,8 +108,8 @@ do
 				# echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}.txt"
 				# numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}.txt
 
-				echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt"
-				numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt
+				echo "numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-mattile-parsort.txt"
+				numactl --interleave=0-1 ./build/tests/mttkrp_hicoo_renumber_matrixtiling -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-mattile-parsort.txt
 
 			done
 		# done

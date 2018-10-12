@@ -83,16 +83,16 @@ double KruskalTensorFitHiCOO(
   sptIndex const nmodes = hitsr->nmodes;
 
   double spten_normsq = SparseTensorFrobeniusNormSquaredHiCOO(hitsr);
-  // printf("spten_normsq: %lf\n", spten_normsq);
+  printf("spten_normsq: %lf\n", spten_normsq);
   double const norm_mats = KruskalTensorFrobeniusNormSquaredRank(nmodes, lambda, ata);
-  // printf("norm_mats: %lf\n", norm_mats);
+  printf("norm_mats: %lf\n", norm_mats);
   double const inner = SparseKruskalTensorInnerProductRank(nmodes, lambda, mats);
-  // printf("inner: %lf\n", inner);
+  printf("inner: %lf\n", inner);
   double residual = spten_normsq + norm_mats - 2 * inner;
   if (residual > 0.0) {
     residual = sqrt(residual);
   }
-  // printf("residual: %lf\n", residual);
+  printf("residual: %lf\n", residual);
   double fit = 1 - (residual / sqrt(spten_normsq));
 
   return fit;
@@ -117,6 +117,8 @@ double KruskalTensorFrobeniusNormSquaredRank(
   for(sptIndex x=0; x < rank*stride; ++x) {
     tmp_atavals[x] = 1.;
   }
+  printf("KruskalTensorFrobeniusNormSquaredRank: \n");
+  sptDumpRankMatrix(ata[nmodes], stdout);
 
   /* Compute Hadamard product for all "ata"s */
   for(sptIndex m=0; m < nmodes; ++m) {
@@ -130,16 +132,19 @@ double KruskalTensorFrobeniusNormSquaredRank(
         }
     }
   }
+  printf("KruskalTensorFrobeniusNormSquaredRank: \n");
+  sptDumpRankMatrix(ata[nmodes], stdout);
 
   /* compute lambda^T * aTa[MAX_NMODES] * lambda, only compute a half of them because of its symmetric */
-#ifdef PARTI_USE_OPENMP
-  #pragma omp parallel for schedule(static) reduction(+:norm_mats)
-#endif
+// #ifdef PARTI_USE_OPENMP
+//   #pragma omp parallel for schedule(static) reduction(+:norm_mats)
+// #endif
   for(sptElementIndex i=0; i < rank; ++i) {
     norm_mats += tmp_atavals[i+(i*stride)] * lambda[i] * lambda[i];
     for(sptElementIndex j=i+1; j < rank; ++j) {
       norm_mats += tmp_atavals[i+(j*stride)] * lambda[i] * lambda[j] * 2;
     }
+    printf("inter norm_mats: %lf\n", norm_mats);
   }
 
   return fabs(norm_mats);

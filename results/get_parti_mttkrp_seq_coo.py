@@ -22,7 +22,7 @@ input_str = ""
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
-for tsr in s4tsrs:
+for tsr in s3tsrs:
 	sum_seq = 0
 
 	if tk == "1":
@@ -34,7 +34,7 @@ for tsr in s4tsrs:
 		# input_str = intput_path + tsr + '-m' + str(m) + '-r' + str(r) + '-seq.txt'
 	else:
 		## omp coo
-		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '.txt'
+		input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-n' + str(niters_renum) + '-parsort-reduce.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-reduce.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-t' + str(tk) + '.txt'
 		# input_str = intput_path + tsr + '-r' + str(r) + '-tk' + str(tk) + '-e' + str(renumber) + '-s' + str(sortcase) + '.txt'
