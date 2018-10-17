@@ -1,10 +1,10 @@
 #!/bin/bash
 
 declare -a array=("one" "two" "three")
-declare -a s3tsrs=("vast-2015-mc1" "choa700k" "1998DARPA" "nell2" "freebase_music" "freebase_sampled" "nell1" "delicious")
+declare -a s3tsrs=("vast-2015-mc1" "nell2" "choa700k" "1998DARPA" "freebase_music" "freebase_sampled" "flickr" "delicious" "nell1" )
 declare -a l3tsrs=("amazon-reviews" "patents" "reddit-2015")
-declare -a s4tsrs=("chicago-crime-comm-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
-declare -a test_tsr_names=("freebase_sampled" "freebase_music")
+declare -a s4tsrs=("chicago-crime-comm-4d" "uber-4d" "nips-4d" "enron-4d" "flickr-4d" "delicious-4d")
+declare -a test_tsr_names=("flickr")
 declare -a threads=("32")
 declare -a sk_range=()
 
@@ -19,14 +19,14 @@ out_path="/global/homes/j/jiajiali/Work/ParTI-dev/timing-results/parti/hicoo/cpd
 tb=1
 sb=7
 sc=14
-renum=3
+renum=1
 niters_renum=5
 
 
 # for R in 8 16 32 64
 for R in 16
 do
-	for tsr_name in "${s3tsrs[@]}"
+	for tsr_name in "${test_tsr_names[@]}"
 	do
 
 		# Sequetial code with matrix tiling
@@ -96,7 +96,7 @@ do
 				# echo "numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt"
 				# numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt
 
-				echo "numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-mattile-parsort.txt"
+				echo "numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} -n ${niters_renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-n${niters_renum}-mattile-parsort.txt"
 				# numactl --interleave=0-1 ./build/tests/cpd_hicoo -i ${tsr_path}/${tsr_name}_nnz.tns -b ${sb} -k ${sk} -c ${sc} -d ${dev_id} -r ${R} -t ${tk} -l ${tb} -e ${renum} > ${out_path}/${tsr_name}-b${sb}-k${sk}-c${sc}-r${R}-tk${tk}-tb${tb}-e${renum}-mattile-parsort.txt
 
 				# wingtip-bigmem1

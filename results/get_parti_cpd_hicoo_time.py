@@ -2,24 +2,24 @@
 
 import sys 
 
-intput_path = '../timing-results/parti/hicoo/cpd-uint8-single/'
+intput_path = '../timing-results/parti/hicoo/cpd-uint8-single-1009/'
 # s3tsrs = ['vast-2015-mc1', 'choa700k', '1998DARPA', 'nell2', 'freebase_music', 'flickr', 'freebase_sampled', 'nell1', 'delicious']
-s3tsrs = ['nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'delicious', 'nell1']
+s3tsrs = ['vast-2015-mc1', 'nell2', 'choa700k', '1998DARPA', 'freebase_music', 'freebase_sampled', 'flickr', 'delicious', 'nell1']
 l3tsrs = ['amazon-reviews', 'patents', 'reddit-2015']
 # s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
-s4tsrs = ['chicago-crime-comm-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+s4tsrs = ['chicago-crime-comm-4d', 'uber-4d', 'nips-4d', 'enron-4d', 'flickr-4d', 'delicious-4d']
+
 r = 16
 tb = 1
-
 sc = 14
 
 # input parameters
-sb = sys.argv[1]
-sk = sys.argv[2]
-tk = sys.argv[3]
+tk = sys.argv[1]
+renum = int(sys.argv[2])
+niters_renum = int(sys.argv[3])
 
 # out_str = 'parti-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
-out_str = 'parti-cpd-hicoo-uint8-sb' + str(sb) + '-sk' + str(sk) + '-tk' + str(tk) + '.out'
+out_str = 'parti-cpd-hicoo-uint8' + '-tk' + str(tk) + '.out'
 print("output file: " + "\"" + out_str + "\"")
 fo = open(out_str, 'w')
 
@@ -39,24 +39,24 @@ for tsr in s3tsrs + s4tsrs:
 		elif(tsr == '1998DARPA'):
 			sk = 15
 		elif(tsr == 'freebase_music' or tsr == 'freebase_sampled'):
-			sk = 15
+			sk = 16
 		elif(tsr == 'flickr'):
-			sk = 11
+			sk = 13
 		elif(tsr == 'delicious'):
 			sk = 16
 		elif(tsr == 'nell1'):
-			sk = 16
+			sk = 18
 		# 4-D
 		elif(tsr == 'chicago-crime-comm-4d' or tsr == 'uber-4d'):
-			sk = 5
+			sk = 4
 		elif(tsr == 'nips-4d'):
-			sk = 9
+			sk = 7
 		elif(tsr == 'enron-4d'):
 			sk = 8
 		elif(tsr == 'flickr-4d'):
-			sk = 16
+			sk = 12
 		elif(tsr == 'delicious-4d'):
-			sk = 16
+			sk = 15
 
 		if(sk >= 7):
 			sb = 7
@@ -64,7 +64,9 @@ for tsr in s3tsrs + s4tsrs:
 			sb = sk
 
 		## omp hicoo
-		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
+		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '.txt'
+		input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-n' + str(niters_renum) + '-mattile-parsort.txt'
+		# input_str = intput_path + tsr + '-b' + str(sb) + '-k' + str(sk) + '-c' + str(sc) + '-r' + str(r) + '-tk' + str(tk) + '-tb' + str(tb) + '-e' + str(renum) + '-mattile-parsort.txt'
 	# print(input_str)
 
 	count = 0
