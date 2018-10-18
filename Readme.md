@@ -72,5 +72,6 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Contributiors
 
+* Jiajia Li (Contact: jiajiali@pnnl.gov)
 * Yuchen Ma (Contact: m13253@hotmail.com)
-* Jiajia Li (Contact: jiajiali@gatech.edu)
+* Nick Liu
