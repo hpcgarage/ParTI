@@ -25,10 +25,10 @@
 /* jli: (Future TODO) Add Khatri-Rao product for two sparse matrices. */
 
 int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B) {
-    size_t nmodes;
-    size_t mode;
-    size_t *inds;
-    size_t i, j;
+    sptIndex nmodes;
+    sptIndex mode;
+    sptIndex *inds;
+    sptNnzIndex i, j;
     int result;
     if(A->nmodes != B->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "Khatri-Rao", "shape mismatch");
@@ -58,10 +58,10 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
                     where f(in, jn) = jn + in * Jn
                 */
                 for(mode = 0; mode < nmodes-1; ++mode) {
-                    sptAppendSizeVector(&Y->inds[mode], A->inds[mode].data[i] * B->ndims[mode] + B->inds[mode].data[j]);
+                    sptAppendIndexVector(&Y->inds[mode], A->inds[mode].data[i] * B->ndims[mode] + B->inds[mode].data[j]);
                 }
-                sptAppendSizeVector(&Y->inds[nmodes-1], A->inds[nmodes-1].data[i]);
-                sptAppendVector(&Y->values, A->values.data[i] * B->values.data[j]);
+                sptAppendIndexVector(&Y->inds[nmodes-1], A->inds[nmodes-1].data[i]);
+                sptAppendValueVector(&Y->values, A->values.data[i] * B->values.data[j]);
                 ++Y->nnz;
             }
         }

@@ -47,7 +47,8 @@ def main(argv):
     if len(argv) < 3:
         print('Usage:   %s output.tns [nonzero_rate%%]mode_dimension ...' % argv[0])
         print()
-        print('Example: %s output.tns 256 50%%1024 2%%4096' % argv[0])
+        # print('Example: %s output.tns 256 50%%1024 2%%4096' % argv[0])
+        print('Example: %s output.tns 50%%1024 2%%4096' % argv[0])
         print()
         print('Each non-zero element will be a gaussian random number (mu=0, sigma=1).')
         print()

@@ -29,10 +29,10 @@
  * @param[in]  src     a pointer to a valid semi sparse tensor
  * @param      epsilon a small positive value, usually 1e-6, which is considered approximately equal to zero
  */
-int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptScalar epsilon) {
-    size_t i;
+int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparseTensor *src, sptValue epsilon) {
+    sptNnzIndex i;
     int result;
-    size_t nmodes = src->nmodes;
+    sptIndex nmodes = src->nmodes;
     assert(epsilon > 0);
     dest->nmodes = nmodes;
     dest->sortorder = malloc(nmodes * sizeof dest->sortorder[0]);
@@ -43,31 +43,31 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
     dest->inds = malloc(nmodes * sizeof *dest->inds);
     spt_CheckOSError(!dest->inds, "SspTns -> SpTns");
     for(i = 0; i < nmodes; ++i) {
-        result = sptNewSizeVector(&dest->inds[i], 0, src->nnz);
+        result = sptNewIndexVector(&dest->inds[i], 0, src->nnz);
         spt_CheckError(result, "SspTns -> SpTns", NULL);
     }
-    result = sptNewVector(&dest->values, 0, src->nnz);
+    result = sptNewValueVector(&dest->values, 0, src->nnz);
     spt_CheckError(result, "SspTns -> SpTns", NULL);
     for(i = 0; i < src->nnz; ++i) {
-        size_t j;
+        sptIndex j;
         for(j = 0; j < src->ndims[src->mode]; ++j) {
-            sptScalar data = src->values.values[i*src->stride + j];
+            sptValue data = src->values.values[i*src->stride + j];
             int data_class = fpclassify(data);
             if(
                 data_class == FP_NAN ||
                 data_class == FP_INFINITE ||
                 (data_class == FP_NORMAL && !(data < epsilon && data > -epsilon))
             ) {
-                size_t m;
+                sptIndex m;
                 for(m = 0; m < nmodes; ++m) {
                     if(m != src->mode) {
-                        result = sptAppendSizeVector(&dest->inds[m], src->inds[m].data[i]);
+                        result = sptAppendIndexVector(&dest->inds[m], src->inds[m].data[i]);
                     } else {
-                        result = sptAppendSizeVector(&dest->inds[src->mode], j);
+                        result = sptAppendIndexVector(&dest->inds[src->mode], j);
                     }
                     spt_CheckError(result, "SspTns -> SpTns", NULL);
                 }
-                result = sptAppendVector(&dest->values, data);
+                result = sptAppendValueVector(&dest->values, data);
                 spt_CheckError(result, "SspTns -> SpTns", NULL);
                 ++dest->nnz;
             }

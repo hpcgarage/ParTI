@@ -28,10 +28,10 @@
  * @param[in]  B the input B
  */
 int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, const sptSparseTensor *B) {
-    size_t nmodes;
-    size_t mode;
-    size_t *inds;
-    size_t i, j;
+    sptIndex nmodes;
+    sptIndex mode;
+    sptIndex *inds;
+    sptNnzIndex i, j;
     int result;
     if(A->nmodes != B->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "SpTns Kronecker", "shape mismatch");
@@ -61,10 +61,10 @@ int sptSparseTensorKroneckerMul(sptSparseTensor *Y, const sptSparseTensor *A, co
                sb: sptAppendSizeVector already do acculumating
             */
             for(mode = 0; mode < nmodes; ++mode) {
-                result = sptAppendSizeVector(&Y->inds[mode], A->inds[mode].data[i] * B->ndims[mode] + B->inds[mode].data[j]);
+                result = sptAppendIndexVector(&Y->inds[mode], A->inds[mode].data[i] * B->ndims[mode] + B->inds[mode].data[j]);
                 spt_CheckError(result, "SpTns Kronecker", NULL);
             }
-            result = sptAppendVector(&Y->values, A->values.data[i] * B->values.data[j]);
+            result = sptAppendValueVector(&Y->values, A->values.data[i] * B->values.data[j]);
             spt_CheckError(result, "SpTns Kronecker", NULL);
             ++Y->nnz;
         }

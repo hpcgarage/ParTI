@@ -1,0 +1,2 @@
+
+./configure 'CXX=mpiicpc' 'CXXFLAGS=-qopenmp -O3'

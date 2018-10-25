@@ -1,102 +1,101 @@
 /*
-    This file is part of ParTI!.
-
-    ParTI! is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of
-    the License, or (at your option) any later version.
-
-    ParTI! is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with ParTI!.
-    If not, see <http://www.gnu.org/licenses/>.
+    Internal code for ParTI!
+    (c) Sam Bliss, 2018, all rights reserved.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ParTI.h>
 
-int main(int argc, char const *argv[]) {
-    FILE *fX, *fY;
-    sptSparseTensor X, spY;
-    sptSemiSparseTensor Y;
-    sptMatrix U;
-    size_t mode = 0;
-    size_t R = 16;
-    int cuda_dev_id = -2;
-    int niters = 5;
+#define spt_CheckError(errcode, module, reason) \
+    if((errcode) != 0) { \
+        spt_ComplainError(module, (errcode), __FILE__, __LINE__, (reason)); \
+        return (errcode); \
+    }
+extern "C" void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason);
 
-    if(argc < 5) {
-        printf("Usage: %s X mode impl_num smem_size [cuda_dev_id, R, Y]\n\n", argv[0]);
-        return 1;
+static int do_ttm(sptSparseTensor *X, sptMatrix *U, sptIndex mode, int cuda_dev_id) {
+    sptSemiSparseTensor Y;
+    int result;
+    if(cuda_dev_id == -2) {
+        result = sptSparseTensorMulMatrix(&Y, X, U, mode);
+    } else if(cuda_dev_id == -1) {
+        result = sptOmpSparseTensorMulMatrix(&Y, X, U, mode);
+    } else {
+        result = sptCudaSparseTensorMulMatrix(&Y, X, U, mode);
+    }
+    spt_CheckError(result, "do_ttm", NULL);
+    sptFreeSemiSparseTensor(&Y);
+    return 0;
+}
+
+static int spt_LoadMatrixTranspose(sptMatrix *X, FILE *f) {
+    int result = 0;
+    sptIndex nmodes, nrows, ncols;
+    fscanf(f, "%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX, &nmodes, &ncols, &nrows);
+    if(nmodes != 2) {
+        spt_CheckError(SPTERR_SHAPE_MISMATCH, "LoadMtx", "nmodes != 2");
+    }
+    result = sptNewMatrix(X, nrows, ncols);
+    spt_CheckError(result, "LoadMtx", NULL);
+    memset(X->values, 0, X->nrows * X->stride * sizeof (sptValue));
+    sptIndex i, j;
+    for(i = 0; i < X->ncols; ++i) {
+        for(j = 0; j < X->nrows; ++j) {
+            double value;
+            fscanf(f, "%lf", &value);
+            X->values[j * X->stride + i] = value;
+        }
+    }
+    return 0;
+}
+
+int main(int argc, char const *argv[]) {
+    FILE *fX, *fU;
+    sptSparseTensor X;
+    sptMatrix U;
+    sptIndex mode = 0;
+    int cuda_dev_id = -2;
+    int result = 0;
+
+    if(argc != 5) {
+        fprintf(stderr, "Usage: %s X U mode cuda_dev_id\n", argv[0]);
+        return 0;
     }
 
     fX = fopen(argv[1], "r");
-    sptAssert(fX != NULL);
-    printf("input file: %s\n", argv[1]); fflush(stdout);
-    sptAssert(sptLoadSparseTensor(&X, 1, fX) == 0);
+    if(!fX) {
+        spt_CheckError(SPTERR_OS_ERROR, "fopen", NULL);
+    }
+    result = sptLoadSparseTensor(&X, 1, fX);
+    spt_CheckError(result, "main", NULL);
     fclose(fX);
 
-    sscanf(argv[2], "%zu", &mode);
-    size_t impl_num = 0;
-    sscanf(argv[3], "%zu", &impl_num);
-    size_t smem_size = 0;
-    sscanf(argv[4], "%zu", &smem_size);
-
-    if(argc > 5) {
-        sscanf(argv[5], "%d", &cuda_dev_id);
+    fU = fopen(argv[2], "r");
+    if(!fU) {
+        spt_CheckError(SPTERR_OS_ERROR, "fopen", NULL);
     }
-    if(argc > 6) {
-        sscanf(argv[6], "%zu", &R);
-    }
+    result = spt_LoadMatrixTranspose(&U, fU);
+    spt_CheckError(result, "main", NULL);
+    fclose(fU);
 
-    sptAssert(sptRandomizeMatrix(&U, X.ndims[mode], R) == 0);
-    sptAssert(sptNewMatrix(&U, X.ndims[mode], R) == 0);
-    sptAssert(sptConstantMatrix(&U, 1) == 0);
+    sscanf(argv[3], "%"PARTI_SCN_INDEX, &mode);
+    sscanf(argv[4], "%d", &cuda_dev_id);
 
-    /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
-        sptAssert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-    } else if(cuda_dev_id == -1) {
-        sptAssert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-    } else {
-        sptCudaSetDevice(cuda_dev_id);
-        // sptAssert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-        sptAssert(sptCudaSparseTensorMulMatrixOneKernel(&Y, &X, &U, mode, impl_num, smem_size) == 0);
+    printf("Preheating...\n");
+    fflush(stdout);
+    int i;
+    for(i = 0; i < 2; i++) {
+        result = do_ttm(&X, &U, mode, cuda_dev_id);
+        spt_CheckError(result, "main", NULL);
     }
 
-    for(int it=0; it<niters; ++it) {
-        // sptFreeSemiSparseTensor(&Y);
-        if(cuda_dev_id == -2) {
-            sptAssert(sptSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-        } else if(cuda_dev_id == -1) {
-            sptAssert(sptOmpSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-        } else {
-            sptCudaSetDevice(cuda_dev_id);
-            // sptAssert(sptCudaSparseTensorMulMatrix(&Y, &X, &U, mode) == 0);
-            sptAssert(sptCudaSparseTensorMulMatrixOneKernel(&Y, &X, &U, mode, impl_num, smem_size) == 0);
-        }
+    printf("Calculating...\n");
+    fflush(stdout);
+    for(i = 0; i < 5; i++) {
+        result = do_ttm(&X, &U, mode, cuda_dev_id);
+        spt_CheckError(result, "main", NULL);
     }
-
-
-    if(argc > 7) {
-        sptAssert(sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-9) == 0);
-
-        fY = fopen(argv[7], "w");
-        sptAssert(fY != NULL);
-        sptAssert(sptDumpSparseTensor(&spY, 0, fY) == 0);
-        fclose(fY);
-
-        sptFreeSparseTensor(&spY);
-    }
-
-    sptFreeSemiSparseTensor(&Y);
-    sptFreeMatrix(&U);
-    sptFreeSparseTensor(&X);
 
     return 0;
 }

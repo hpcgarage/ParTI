@@ -30,5 +30,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptVector *vec = spt_mxGetPointer(prhs[0], 0);
     size_t size = mxGetScalar(prhs[2]);
 
-    sptResizeVector(vec, size);
+    int result = sptResizeVector(vec, size);
 }

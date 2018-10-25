@@ -69,6 +69,7 @@ void spt_ComplainError(const char *module, int errcode, const char *file, unsign
     }
 }
 
+
 /**
  * Print out an assertion error and stop the program
  * Should not be called directly, use the macro `sptAssert`.

@@ -27,6 +27,10 @@
 extern "C" {
 #endif
 
+#ifndef unlikely
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#endif
+
 /**
  * Check if a value is not zero, print error message and return.
  * @param errcode the value to be checked
@@ -35,26 +39,26 @@ extern "C" {
  */
 #ifndef NDEBUG
 #define spt_CheckError(errcode, module, reason) \
-    if((errcode) != 0) { \
+    if(unlikely((errcode) != 0)) { \
         spt_ComplainError(module, (errcode), __FILE__, __LINE__, (reason)); \
         return (errcode); \
     }
 #else
 #define spt_CheckError(errcode, module, reason) \
-    if((errcode) != 0) { \
+    if(unlikely((errcode) != 0)) { \
         return (errcode); \
     }
 #endif
 
 #ifndef NDEBUG
 #define spt_CheckOmpError(errcode, module, reason) \
-    if((errcode) != 0) { \
+    if(unlikely((errcode) != 0)) { \
         spt_ComplainError(module, (errcode), __FILE__, __LINE__, (reason)); \
         exit(errcode); \
     }
 #else
 #define spt_CheckOmpError(errcode, module, reason) \
-    if((errcode) != 0) { \
+    if(unlikely((errcode) != 0)) { \
         exit(errcode); \
     }
 #endif
@@ -65,7 +69,7 @@ extern "C" {
  * @param module the module name of current procedure
  */
 #define spt_CheckOSError(cond, module) \
-    if((cond)) { \
+    if(unlikely((cond))) { \
         spt_CheckError(errno + SPTERR_OS_ERROR, (module), strerror(errno)); \
     }
 
@@ -75,7 +79,7 @@ extern "C" {
  * @param module the module name of current procedure
  */
 #define spt_CheckCudaError(cond, module) \
-    if((cond)) { \
+    if(unlikely((cond))) { \
         cudaError_t _cuda_error = cudaGetLastError(); \
         spt_CheckError(_cuda_error + SPTERR_CUDA_ERROR, (module), cudaGetErrorString(_cuda_error)); \
     }

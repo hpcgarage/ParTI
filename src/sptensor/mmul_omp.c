@@ -20,24 +20,11 @@
 #include <stdlib.h>
 #include "sptensor.h"
 
-/**
- * OpenMP parallelized Sparse tensor times a dense matrix (SpTTM)
- * @param[out] Y    the result of X*U, should be uninitialized
- * @param[in]  X    the sparse tensor input X
- * @param[in]  U    the dense matrix input U
- * @param      mode the mode on which the multiplication is done on
- *
- * This function will sort Y with `sptSparseTensorSortIndexAtMode`
- * automatically, this operation can be undone with `sptSparseTensorSortIndex`
- * if you need to access raw data.
- * Anyway, you do not have to take this side-effect into consideration if you
- * do not need to access raw data.
- */
-int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, size_t mode) {
+int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, const sptMatrix *U, sptIndex const mode) {
     int result;
-    size_t *ind_buf;
-    size_t m, i;
-    sptSizeVector fiberidx;
+    sptIndex *ind_buf;
+    sptIndex m;
+    sptNnzIndexVector fiberidx;
     if(mode >= X->nmodes) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP  SpTns * Mtx", "shape mismatch");
     }
@@ -63,14 +50,13 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     sptStartTimer(timer);
 
     #pragma omp parallel for
-    for(i = 0; i < Y->nnz; ++i) {
-        size_t inz_begin = fiberidx.data[i];
-        size_t inz_end = fiberidx.data[i+1];
-        size_t j, k;
+    for(sptNnzIndex i = 0; i < Y->nnz; ++i) {
+        sptNnzIndex inz_begin = fiberidx.data[i];
+        sptNnzIndex inz_end = fiberidx.data[i+1];
         // jli: exchange two loops
-        for(j = inz_begin; j < inz_end; ++j) {
-            size_t r = X->inds[mode].data[j];
-            for(k = 0; k < U->ncols; ++k) {
+        for(sptNnzIndex j = inz_begin; j < inz_end; ++j) {
+            sptIndex r = X->inds[mode].data[j];
+            for(sptIndex k = 0; k < U->ncols; ++k) {
                 Y->values.values[i*Y->stride + k] += X->values.data[j] * U->values[r*U->stride + k];
             }
         }
@@ -80,6 +66,6 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     sptPrintElapsedTime(timer, "OMP  SpTns * Mtx");
     sptFreeTimer(timer);
 
-    sptFreeSizeVector(&fiberidx);
+    sptFreeNnzIndexVector(&fiberidx);
     return 0;
 }

@@ -28,5 +28,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptVector *vec = spt_mxGetPointer(prhs[0], 0);
     sptScalar val = mxGetScalar(prhs[1]);
 
-    sptConstantVector(vec, val);
+    int result = sptConstantVector(vec, val);
 }

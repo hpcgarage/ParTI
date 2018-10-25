@@ -8,6 +8,9 @@ build.config
 *.mex*
 
 backup/
+tests/backup/
+examples/backup/
+
 results/*.out
 timing_*/
 timing/

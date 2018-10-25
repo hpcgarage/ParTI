@@ -18,19 +18,20 @@
 
 #include <ParTI.h>
 #include "sptensor.h"
-#include "sort.h"
 #include <assert.h>
 
-static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t mode);
-static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode);
+/* TODO: delete these functions below, this function is different from "sptSparseTensorSortIndexSingleMode" */
+    
+static void spt_QuickSortAtMode(sptSparseTensor *tsr, sptNnzIndex const l, sptNnzIndex const r, sptIndex const mode);
+static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, sptNnzIndex const ind1, const sptSparseTensor *tsr2, sptNnzIndex const ind2, sptIndex const mode);
 
 /**
  * Reorder the elements in a sparse tensor lexicographically, but consider mode `mode` the last one
  * @param tsr  the sparse tensor to operate on
  * @param mode the mode to be considered the last
  */
-void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force) {
-    size_t m;
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force) {
+    sptIndex m;
     int needsort = 0;
 
     for(m = 0; m < mode; ++m) {
@@ -55,8 +56,8 @@ void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, size_t mode, int force
     }
 }
 
-static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t mode) {
-    size_t i, j, p;
+static void spt_QuickSortAtMode(sptSparseTensor *tsr, sptNnzIndex const l, sptNnzIndex const r, sptIndex const mode) {
+    sptNnzIndex i, j, p;
     if(r-l < 2) {
         return;
     }
@@ -82,9 +83,9 @@ static void spt_QuickSortAtMode(sptSparseTensor *tsr, size_t l, size_t r, size_t
     spt_QuickSortAtMode(tsr, i, r, mode);
 }
 
-static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, size_t ind1, const sptSparseTensor *tsr2, size_t ind2, size_t mode) {
-    size_t i;
-    size_t eleind1, eleind2;
+static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, sptNnzIndex const ind1, const sptSparseTensor *tsr2, sptNnzIndex const ind2, sptIndex const mode) {
+    sptIndex i;
+    sptIndex eleind1, eleind2;
     assert(tsr1->nmodes == tsr2->nmodes);
     for(i = 0; i < tsr1->nmodes; ++i) {
         if(i != mode) {

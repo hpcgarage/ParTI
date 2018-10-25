@@ -23,6 +23,8 @@
 #include "mex.h"
 #include "../sptmx.h"
 
+spt_DefineSetScalar(spt_mxSetScalar, sptScalar)
+
 void mexFunction1(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     spt_mxCheckArgs("sptSparseTensor:inds", 1, "One", 1, "One");
 

@@ -35,6 +35,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgIdAndTxt("ParTI:sptDumpSparseTensor", "Cannot open file.");
     }
 
-    sptDumpSparseTensor(tsr, start_idx, fp);
+    int result = sptDumpSparseTensor(tsr, start_idx, fp);
     fclose(fp);
 }

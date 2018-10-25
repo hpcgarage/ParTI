@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)  # CMake 3.2 supports CUDA 7.0
 project(ParTI)
 
 if(USE_CUDA)
@@ -6,6 +6,8 @@ if(USE_CUDA)
 else()
     file(GLOB_RECURSE TEST_SRCS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.c")
 endif()
+    file(GLOB_RECURSE IGNORED_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "backup/*.c" "backup/*.cu")
+    list(REMOVE_ITEM TEST_SRCS ${IGNORED_FILES})
 
 
 foreach(TEST_SRC IN LISTS TEST_SRCS)
@@ -16,5 +18,9 @@ foreach(TEST_SRC IN LISTS TEST_SRCS)
         add_executable("${TEST_EXE}" "${TEST_SRC}")
     endif()
     set_target_properties("${TEST_EXE}" PROPERTIES C_STANDARD 99)
-    target_link_libraries("${TEST_EXE}" ParTI_s)
+    if(BUILD_STATIC)
+        target_link_libraries("${TEST_EXE}" ParTI_s)
+    else()
+        target_link_libraries("${TEST_EXE}" ParTI)
+    endif()
 endforeach(TEST_SRC)

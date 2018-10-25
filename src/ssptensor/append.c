@@ -20,8 +20,8 @@
 #include "ssptensor.h"
 #include <string.h>
 
-static int spt_CompareIndices(const sptSemiSparseTensor *tsr, size_t el_idx, const size_t indices[]) {
-    size_t i;
+static int spt_CompareIndices(const sptSemiSparseTensor *tsr, sptNnzIndex el_idx, const sptIndex indices[]) {
+    sptIndex i;
     for(i = 0; i < tsr->nmodes; ++i) {
         if(i != tsr->mode) {
             if(tsr->inds[i].data[el_idx] < indices[i]) {
@@ -40,7 +40,7 @@ static int spt_CompareIndices(const sptSemiSparseTensor *tsr, size_t el_idx, con
  * @param indices the indices to locate the element to insert
  * @param value   the value of the element to insert
  */
-int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[], sptScalar value) {
+int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const sptIndex indices[], sptValue value) {
     int result;
     int need_resize = 0;
     if(tsr->nnz == 0) {
@@ -49,16 +49,16 @@ int spt_SemiSparseTensorAppend(sptSemiSparseTensor *tsr, const size_t indices[],
         need_resize = 1;
     }
     if(need_resize) {
-        size_t i;
+        sptIndex i;
         for(i = 0; i < tsr->nmodes; ++i) {
             if(i != tsr->mode) {
-                result = sptAppendSizeVector(&tsr->inds[i], indices[i]);
+                result = sptAppendIndexVector(&tsr->inds[i], indices[i]);
                 spt_CheckError(result, "SspTns Append", NULL);
             }
         }
         result = sptAppendMatrix(&tsr->values, NULL);
         spt_CheckError(result, "SspTns Append", NULL);
-        memset(&tsr->values.values[tsr->nnz * tsr->stride], 0, tsr->nmodes * sizeof (sptScalar));
+        memset(&tsr->values.values[tsr->nnz * tsr->stride], 0, tsr->nmodes * sizeof (sptValue));
         ++tsr->nnz;
     }
     tsr->values.values[(tsr->nnz-1) * tsr->stride + indices[tsr->mode]] = value;

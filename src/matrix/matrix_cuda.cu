@@ -27,22 +27,22 @@
 
 
 __global__ static void spt_MatrixDotMulSeqKernel(
-    size_t const mode,
-    size_t const nmodes, 
-    const size_t rank, 
-    const size_t stride, 
-    sptScalar ** dev_ata)
+    sptIndex const mode,
+    sptIndex const nmodes, 
+    sptIndex const rank, 
+    sptIndex const stride, 
+    sptValue ** dev_ata)
 {
-    const size_t tidx = threadIdx.x;
-    const size_t tidy = threadIdx.y;
+    const sptIndex tidx = (sptIndex)threadIdx.x;
+    const sptIndex tidy = (sptIndex)threadIdx.y;
 
-    sptScalar * ovals = dev_ata[nmodes];
+    sptValue * ovals = dev_ata[nmodes];
     ovals[tidx * stride + tidy] = 1;
     __syncthreads();
 
-    for(size_t m=1; m < nmodes; ++m) {
-        size_t const pm = (mode + m) % nmodes;
-        sptScalar const * vals = dev_ata[pm];
+    for(sptIndex m=1; m < nmodes; ++m) {
+        sptIndex const pm = (mode + m) % nmodes;
+        sptValue const * vals = dev_ata[pm];
         ovals[tidx * stride + tidy] *= vals[tidx * stride + tidy];
     }
     __syncthreads();
@@ -50,11 +50,11 @@ __global__ static void spt_MatrixDotMulSeqKernel(
 
 
 int sptCudaMatrixDotMulSeq(
-    size_t const mode,
-    size_t const nmodes, 
-    const size_t rank, 
-    const size_t stride, 
-    sptScalar ** dev_ata)
+    sptIndex const mode,
+    sptIndex const nmodes, 
+    sptIndex const rank, 
+    sptIndex const stride, 
+    sptValue ** dev_ata)
 {
     dim3 nthreads(rank, rank);  // rank <=  16
     dim3 nblocks(1, 1);
@@ -70,16 +70,16 @@ int sptCudaMatrixDotMulSeq(
 
 
 __global__ static void spt_Matrix2NormKernel(
-    size_t const nrows,
-    size_t const ncols,
-    size_t const stride,
-    sptScalar * const dev_vals,
-    sptScalar * const dev_lambda)
+    sptIndex const nrows,
+    sptIndex const ncols,
+    sptIndex const stride,
+    sptValue * const dev_vals,
+    sptValue * const dev_lambda)
 {
-    const size_t tidx = threadIdx.x;
-    const size_t tidy = threadIdx.y;
-    const size_t bidx = blockIdx.x;
-    const size_t i = bidx * blockDim.x + tidx;
+    const sptIndex tidx = (sptIndex)threadIdx.x;
+    const sptIndex tidy = (sptIndex)threadIdx.y;
+    const sptIndex bidx = (sptIndex)blockIdx.x;
+    const sptIndex i = bidx * blockDim.x + tidx;
 
     if(i < nrows)
         atomicAdd(&(dev_lambda[tidy]), dev_vals[i*stride + tidy] * dev_vals[i*stride + tidy]);
@@ -97,11 +97,11 @@ __global__ static void spt_Matrix2NormKernel(
 
 
 int sptCudaMatrix2Norm(
-    size_t const nrows,
-    size_t const ncols,
-    size_t const stride,
-    sptScalar * const dev_vals,
-    sptScalar * const dev_lambda)
+    sptIndex const nrows,
+    sptIndex const ncols,
+    sptIndex const stride,
+    sptValue * const dev_vals,
+    sptValue * const dev_lambda)
 {
     dim3 nthreads(16, ncols);  // ncols <=  16
     dim3 nblocks((nrows + 16 -1) / 16);
@@ -113,30 +113,3 @@ int sptCudaMatrix2Norm(
     return 0;
 }
 
-__global__ static void spt_IdentityMatrixKernel(
-    size_t const nrows,
-    size_t const ncols,
-    size_t const stride,
-    sptScalar * const dev_vals)
-{
-    const size_t tidx = threadIdx.x;
-    const size_t tidy = threadIdx.y;
-
-    dev_vals[tidx * stride + tidy] = 0;
-    __syncthreads();
-    if (tidx == tidy)
-        dev_vals[tidx * stride + tidy] = 1;
-    __syncthreads();
-}
-
-
-
-int sptCudaIdentityMatrix(size_t const nrows, size_t const ncols, size_t const stride, sptScalar * const dev_vals)
-{
-    assert(nrows <= 16 && ncols <= 16);
-    spt_IdentityMatrixKernel<<<nrows, ncols>>>(nrows, ncols, stride, dev_vals);
-    int result = cudaThreadSynchronize();
-    spt_CheckCudaError(result != 0, "CUDA Matrix sptCudaIdentityMatrix");
-
-    return 0;
-}

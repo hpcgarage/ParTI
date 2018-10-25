@@ -18,7 +18,6 @@
 
 // This file will be compiled only if CUDA is not enabled,
 // or cuda_timer.cu will be compiled instead.
-#ifndef PARTI_USE_CUDA
 
 #include <ParTI.h>
 #include <stdio.h>
@@ -75,9 +74,17 @@ double sptElapsedTime(const sptTimer timer) {
 
 double sptPrintElapsedTime(const sptTimer timer, const char *name) {
     double elapsed_time = sptElapsedTime(timer);
-    fprintf(stderr, "[%s]: %.9lf s\n", name, elapsed_time);
+    fprintf(stdout, "[%s]: %.9lf s\n", name, elapsed_time);
     return elapsed_time;
 }
+
+
+double sptPrintAverageElapsedTime(const sptTimer timer, const int niters, const char *name) {
+    double elapsed_time = sptElapsedTime(timer) / niters;
+    fprintf(stdout, "[%s]: %.9lf s\n", name, elapsed_time);
+    return elapsed_time;
+}
+
 
 int sptFreeTimer(sptTimer timer) {
     if(timer->use_cuda) {
@@ -87,4 +94,3 @@ int sptFreeTimer(sptTimer timer) {
     return 0;
 }
 
-#endif

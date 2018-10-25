@@ -34,6 +34,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgIdAndTxt("ParTI:sptDumpMatrix", "Cannot open file.");
     }
 
-    sptDumpMatrix(mtx, fp);
+    int result = sptDumpMatrix(mtx, fp);
     fclose(fp);
 }

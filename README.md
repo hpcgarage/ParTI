@@ -15,24 +15,27 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 * Element-wise tensor add/sub/mul/div (CPU, OMP, GPU)
 * Sparse tensor-times-dense matrix (SpTTM) (CPU, OMP, GPU)
 * Sparse matricized tensor times Khatri-Rao product (SpMTTKRP) (CPU, OMP, GPU)
+* Sparse tensor matricization
+* Sparse CANDECOMP/PARAFAC decomposition
+* Sparse Tucker decomposition (refer to branch JPDC)
 
 
 ## Build requirements:
 
-- C Compiler (GCC or Clang)
+- C Compiler (GCC or ICC or Clang)
 
-- [CUDA SDK](https://developer.nvidia.com/cuda-downloads)
+- [CMake](https://cmake.org) (>v3.2)
 
-- [CMake](https://cmake.org) (>v3.0)
+- [CUDA SDK](https://developer.nvidia.com/cuda-downloads) [Optional]
 
-- [OpenBLAS](http://www.openblas.net)
+- [OpenBLAS](http://www.openblas.net) (Or an alternative BLAS and Lapack library) [Optional]
 
-- [MAGMA](http://icl.cs.utk.edu/magma/) (not required)
+- [MAGMA](http://icl.cs.utk.edu/magma/) [Optional]
 
 
 ## Build:
 
-1. Create a file by `touch build.config' to define OpenBLAS_DIR and MAGMA_DIR
+1. Create a file by `cp build.config build-sample.config' and change the settings appropriately
 
 2. Type `./build.sh`
 
@@ -108,8 +111,9 @@ url="https://github.com/hpcgarage/ParTI"
 
 ## Contributiors
 
-* Jiajia Li (Contact: jiajiali@gatech.edu)
+* Jiajia Li (Contact: jiajia.li@pnnl.gov)
 * Yuchen Ma (Contact: m13253@hotmail.com)
+* Nick Liu
 
 ## License
 

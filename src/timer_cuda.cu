@@ -23,6 +23,8 @@
 #include <time.h>
 #include "error/error.h"
 
+#ifndef PARTI_USE_CUDA
+
 struct sptTagTimer {
     int use_cuda;
     struct timespec start_timespec;
@@ -87,7 +89,14 @@ double sptElapsedTime(const sptTimer timer) {
 
 double sptPrintElapsedTime(const sptTimer timer, const char *name) {
     double elapsed_time = sptElapsedTime(timer);
-    fprintf(stderr, "[%s]: %.9lf s\n", name, elapsed_time);
+    fprintf(stdout, "[%s]: %.9lf s\n", name, elapsed_time);
+    return elapsed_time;
+}
+
+
+double sptPrintAverageElapsedTime(const sptTimer timer, const int niters, const char *name) {
+    double elapsed_time = sptElapsedTime(timer) / niters;
+    fprintf(stdout, "[%s]: %.9lf s\n", name, elapsed_time);
     return elapsed_time;
 }
 
@@ -102,3 +111,5 @@ int sptFreeTimer(sptTimer timer) {
     free(timer);
     return 0;
 }
+
+#endif

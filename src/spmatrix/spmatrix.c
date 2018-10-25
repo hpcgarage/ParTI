@@ -26,16 +26,16 @@
  * @param nrows the number of rows
  * @param ncols the number of columns
  */
-int sptNewSparseMatrix(sptSparseMatrix *mtx, size_t nrows, size_t ncols) {
+int sptNewSparseMatrix(sptSparseMatrix *mtx, sptIndex const nrows, sptIndex const ncols) {
     int result;
     mtx->nrows = nrows;
     mtx->ncols = ncols;
     mtx->nnz = 0;
-    result = sptNewSizeVector(&mtx->rowind, 0, 0);
+    result = sptNewIndexVector(&mtx->rowind, 0, 0);
     spt_CheckError(result, "SpMtx New", NULL);
-    result = sptNewSizeVector(&mtx->colind, 0, 0);
+    result = sptNewIndexVector(&mtx->colind, 0, 0);
     spt_CheckError(result, "SpMtx New", NULL);
-    result = sptNewVector(&mtx->values, 0, 0);
+    result = sptNewValueVector(&mtx->values, 0, 0);
     spt_CheckError(result, "SpMtx New", NULL);
     return 0;
 }
@@ -53,11 +53,11 @@ int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src) {
     dest->nrows = src->nrows;
     dest->ncols = src->ncols;
     dest->nnz = src->nnz;
-    result = sptCopySizeVector(&dest->rowind, &src->rowind);
+    result = sptCopyIndexVector(&dest->rowind, &src->rowind, 1);
     spt_CheckError(result, "SpMtx Copy", NULL);
-    result = sptCopySizeVector(&dest->colind, &src->colind);
+    result = sptCopyIndexVector(&dest->colind, &src->colind, 1);
     spt_CheckError(result, "SpMtx Copy", NULL);
-    result = sptCopyVector(&dest->values, &src->values);
+    result = sptCopyValueVector(&dest->values, &src->values, 1);
     spt_CheckError(result, "SpMtx Copy", NULL);
     return 0;
 }
@@ -71,7 +71,10 @@ int sptCopySparseMatrix(sptSparseMatrix *dest, const sptSparseMatrix *src) {
  * uninitialized and should not be used anymore prior to another initialization
  */
 void sptFreeSparseMatrix(sptSparseMatrix *mtx) {
-    sptFreeSizeVector(&mtx->rowind);
-    sptFreeSizeVector(&mtx->colind);
-    sptFreeVector(&mtx->values);
+    sptFreeIndexVector(&mtx->rowind);
+    sptFreeIndexVector(&mtx->colind);
+    sptFreeValueVector(&mtx->values);
+    mtx->nrows = 0;
+    mtx->ncols = 0;
+    mtx->nnz = 0;
 }

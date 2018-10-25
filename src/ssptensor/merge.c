@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <string.h>
 
-static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]);
+static void spt_SwapValues(sptSemiSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2, sptValue buffer[]);
 
 /**
  * Merge fibers with identical indices of an invalid semi sparse tensor, making it valid
@@ -29,18 +29,18 @@ static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, s
  */
 int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     int result;
-    size_t i;
-    sptSizeVector collided;
-    sptScalar *buffer;
+    sptNnzIndex i;
+    sptNnzIndexVector collided;
+    sptValue *buffer;
 
     if(tsr->nnz == 0) {
         return 0;
     }
 
-    buffer = malloc(tsr->stride * sizeof (sptScalar));
+    buffer = malloc(tsr->stride * sizeof (sptValue));
     spt_CheckOSError(!buffer, "SspTns Merge");
 
-    result = sptNewSizeVector(&collided, 0, 0);
+    result = sptNewNnzIndexVector(&collided, 0, 0);
     if(result) {
         free(buffer);
         spt_CheckError(result, "SspTns Merge", NULL);
@@ -49,12 +49,12 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     for(i = 0; i < tsr->nnz-1; ++i) {
         // If two nnz has the same indices
         if(spt_SemiSparseTensorCompareIndices(tsr, i, tsr, i+1) == 0) {
-            size_t col;
+            sptIndex col;
             for(col = 0; col < tsr->stride; ++col) {
                 // Add them together
                 tsr->values.values[(i+1)*tsr->stride + col] += tsr->values.values[i*tsr->stride + col];
             }
-            sptAppendSizeVector(&collided, i);
+            sptAppendNnzIndexVector(&collided, i);
         }
     }
 
@@ -75,7 +75,7 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     }
     tsr->values.nrows = tsr->nnz;
 
-    sptFreeSizeVector(&collided);
+    sptFreeNnzIndexVector(&collided);
     free(buffer);
 
     result = sptSemiSparseTensorSortIndex(tsr);
@@ -83,19 +83,19 @@ int spt_SemiSparseTensorMergeValues(sptSemiSparseTensor *tsr) {
     return 0;
 }
 
-static void spt_SwapValues(sptSemiSparseTensor *tsr, size_t ind1, size_t ind2, sptScalar buffer[]) {
-    size_t i;
+static void spt_SwapValues(sptSemiSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2, sptValue buffer[]) {
+    sptIndex i;
     for(i = 0; i < tsr->nmodes; ++i) {
         if(i != tsr->mode) {
-            size_t eleind1 = tsr->inds[i].data[ind1];
-            size_t eleind2 = tsr->inds[i].data[ind2];
+            sptIndex eleind1 = tsr->inds[i].data[ind1];
+            sptIndex eleind2 = tsr->inds[i].data[ind2];
             tsr->inds[i].data[ind1] = eleind2;
             tsr->inds[i].data[ind2] = eleind1;
         }
     }
     if(ind1 != ind2) {
-        memcpy(buffer, &tsr->values.values[ind1*tsr->stride], tsr->stride * sizeof (sptScalar));
-        memmove(&tsr->values.values[ind1*tsr->stride], &tsr->values.values[ind2*tsr->stride], tsr->stride * sizeof (sptScalar));
-        memcpy(&tsr->values.values[ind2*tsr->stride], buffer, tsr->stride * sizeof (sptScalar));
+        memcpy(buffer, &tsr->values.values[ind1*tsr->stride], tsr->stride * sizeof (sptValue));
+        memmove(&tsr->values.values[ind1*tsr->stride], &tsr->values.values[ind2*tsr->stride], tsr->stride * sizeof (sptValue));
+        memcpy(&tsr->values.values[ind2*tsr->stride], buffer, tsr->stride * sizeof (sptValue));
     }
 }

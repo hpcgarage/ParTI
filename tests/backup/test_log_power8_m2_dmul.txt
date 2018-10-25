@@ -1,0 +1,288 @@
+Number of CPU cores (including hyperthreads): 128
+Architecture:          ppc64le
+Byte Order:            Little Endian
+CPU(s):                128
+On-line CPU(s) list:   0-127
+Thread(s) per core:    8
+Core(s) per socket:    8
+Socket(s):             2
+NUMA node(s):          2
+Model:                 8335-GTA
+L1d cache:             64K
+L1i cache:             32K
+L2 cache:              512K
+L3 cache:              8192K
+NUMA node0 CPU(s):     0-63
+NUMA node8 CPU(s):     64-127
+/usr/local/cuda/samples/1_Utilities/deviceQuery/deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 4 CUDA Capable device(s)
+
+Device 0: "Tesla K80"
+  CUDA Driver Version / Runtime Version          7.5 / 7.5
+  CUDA Capability Major/Minor version number:    3.7
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (13) Multiprocessors, (192) CUDA Cores/MP:     2496 CUDA Cores
+  GPU Max Clock rate:                            824 MHz (0.82 GHz)
+  Memory Clock rate:                             2505 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 3 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+Device 1: "Tesla K80"
+  CUDA Driver Version / Runtime Version          7.5 / 7.5
+  CUDA Capability Major/Minor version number:    3.7
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (13) Multiprocessors, (192) CUDA Cores/MP:     2496 CUDA Cores
+  GPU Max Clock rate:                            824 MHz (0.82 GHz)
+  Memory Clock rate:                             2505 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   0 / 4 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+Device 2: "Tesla K80"
+  CUDA Driver Version / Runtime Version          7.5 / 7.5
+  CUDA Capability Major/Minor version number:    3.7
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (13) Multiprocessors, (192) CUDA Cores/MP:     2496 CUDA Cores
+  GPU Max Clock rate:                            824 MHz (0.82 GHz)
+  Memory Clock rate:                             2505 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   2 / 3 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+Device 3: "Tesla K80"
+  CUDA Driver Version / Runtime Version          7.5 / 7.5
+  CUDA Capability Major/Minor version number:    3.7
+  Total amount of global memory:                 11520 MBytes (12079136768 bytes)
+  (13) Multiprocessors, (192) CUDA Cores/MP:     2496 CUDA Cores
+  GPU Max Clock rate:                            824 MHz (0.82 GHz)
+  Memory Clock rate:                             2505 Mhz
+  Memory Bus Width:                              384-bit
+  L2 Cache Size:                                 1572864 bytes
+  Maximum Texture Dimension Size (x,y,z)         1D=(65536), 2D=(65536, 65536), 3D=(4096, 4096, 4096)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(16384), 2048 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(16384, 16384), 2048 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       49152 bytes
+  Total number of registers available per block: 65536
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  2048
+  Maximum number of threads per block:           1024
+  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             512 bytes
+  Concurrent copy and kernel execution:          Yes with 2 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Enabled
+  Device supports Unified Addressing (UVA):      Yes
+  Device PCI Domain ID / Bus ID / location ID:   2 / 4 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+> Peer access from Tesla K80 (GPU0) -> Tesla K80 (GPU1) : No
+> Peer access from Tesla K80 (GPU0) -> Tesla K80 (GPU2) : No
+> Peer access from Tesla K80 (GPU0) -> Tesla K80 (GPU3) : No
+> Peer access from Tesla K80 (GPU1) -> Tesla K80 (GPU0) : No
+> Peer access from Tesla K80 (GPU1) -> Tesla K80 (GPU2) : No
+> Peer access from Tesla K80 (GPU1) -> Tesla K80 (GPU3) : No
+> Peer access from Tesla K80 (GPU2) -> Tesla K80 (GPU0) : No
+> Peer access from Tesla K80 (GPU2) -> Tesla K80 (GPU1) : No
+> Peer access from Tesla K80 (GPU2) -> Tesla K80 (GPU3) : No
+> Peer access from Tesla K80 (GPU3) -> Tesla K80 (GPU0) : No
+> Peer access from Tesla K80 (GPU3) -> Tesla K80 (GPU1) : No
+> Peer access from Tesla K80 (GPU3) -> Tesla K80 (GPU2) : No
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 7.5, CUDA Runtime Version = 7.5, NumDevs = 4, Device0 = Tesla K80, Device1 = Tesla K80, Device2 = Tesla K80, Device3 = Tesla K80
+Result = PASS
+
+File: /nethome/jli458/BIGTENSORS/brainq.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.078688939 s
+[CPU  SpTns DotMul] operation took 0.078176181 s
+[CPU  SpTns DotMul] operation took 0.078045377 s
+[CPU  SpTns DotMul] operation took 0.078075042 s
+[CPU  SpTns DotMul] operation took 0.077996579 s
+[CPU  SpTns DotMul] operation took 0.078159216 s
+
+File: /nethome/jli458/BIGTENSORS/brainq.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.009643679 s
+[CPU  SpTns DotMul] operation took 0.013864929 s
+[CPU  SpTns DotMul] operation took 0.010696830 s
+[CPU  SpTns DotMul] operation took 0.009929943 s
+[CPU  SpTns DotMul] operation took 0.008157210 s
+[CPU  SpTns DotMul] operation took 0.008818187 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+
+File: /nethome/jli458/BIGTENSORS/brainq.tns, mode 2, dev 1, normal kernel
+[CUDA  SpTns DotMul] operation took 0.000243481 s
+[CUDA  SpTns DotMul] operation took 0.000294479 s
+[CUDA  SpTns DotMul] operation took 0.000296551 s
+[CUDA  SpTns DotMul] operation took 0.000294950 s
+[CUDA  SpTns DotMul] operation took 0.000295174 s
+[CUDA  SpTns DotMul] operation took 0.000294501 s
+
+File: /nethome/jli458/BIGTENSORS/nell2.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.544113902 s
+[CPU  SpTns DotMul] operation took 0.542407660 s
+[CPU  SpTns DotMul] operation took 0.542851733 s
+[CPU  SpTns DotMul] operation took 0.541784873 s
+[CPU  SpTns DotMul] operation took 0.559843708 s
+[CPU  SpTns DotMul] operation took 0.544358941 s
+
+File: /nethome/jli458/BIGTENSORS/nell2.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.042060659 s
+[CPU  SpTns DotMul] operation took 0.034483647 s
+[CPU  SpTns DotMul] operation took 0.033363175 s
+[CPU  SpTns DotMul] operation took 0.038089896 s
+[CPU  SpTns DotMul] operation took 0.038135182 s
+[CPU  SpTns DotMul] operation took 0.036363656 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+
+File: /nethome/jli458/BIGTENSORS/nell2.tns, mode 2, dev 1, normal kernel
+[CUDA  SpTns DotMul] operation took 0.001926915 s
+[CUDA  SpTns DotMul] operation took 0.001953921 s
+[CUDA  SpTns DotMul] operation took 0.001736060 s
+[CUDA  SpTns DotMul] operation took 0.001738597 s
+[CUDA  SpTns DotMul] operation took 0.001740911 s
+[CUDA  SpTns DotMul] operation took 0.001660854 s
+
+File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2
+[CPU  SpTns DotMul] operation took 1.036456055 s
+[CPU  SpTns DotMul] operation took 1.017810182 s
+[CPU  SpTns DotMul] operation took 1.016284931 s
+[CPU  SpTns DotMul] operation took 1.070706801 s
+[CPU  SpTns DotMul] operation took 1.015379541 s
+[CPU  SpTns DotMul] operation took 1.013069346 s
+
+File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.064284793 s
+[CPU  SpTns DotMul] operation took 0.060867634 s
+[CPU  SpTns DotMul] operation took 0.059092608 s
+[CPU  SpTns DotMul] operation took 0.058893897 s
+[CPU  SpTns DotMul] operation took 0.061538322 s
+[CPU  SpTns DotMul] operation took 0.062296107 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+
+File: /nethome/jli458/BIGTENSORS/nell1.tns, mode 2, dev 1, normal kernel
+[CUDA  SpTns DotMul] operation took 0.003634341 s
+[CUDA  SpTns DotMul] operation took 0.003233116 s
+[CUDA  SpTns DotMul] operation took 0.003098186 s
+[CUDA  SpTns DotMul] operation took 0.003094621 s
+[CUDA  SpTns DotMul] operation took 0.003090715 s
+[CUDA  SpTns DotMul] operation took 0.003087519 s
+
+File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.993383490 s
+[CPU  SpTns DotMul] operation took 1.008995838 s
+[CPU  SpTns DotMul] operation took 0.992955748 s
+[CPU  SpTns DotMul] operation took 1.044231472 s
+[CPU  SpTns DotMul] operation took 0.993604903 s
+[CPU  SpTns DotMul] operation took 0.988652246 s
+
+File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2
+[CPU  SpTns DotMul] operation took 0.065460342 s
+[CPU  SpTns DotMul] operation took 0.063835100 s
+[CPU  SpTns DotMul] operation took 0.065802183 s
+[CPU  SpTns DotMul] operation took 0.061291007 s
+[CPU  SpTns DotMul] operation took 0.052263280 s
+[CPU  SpTns DotMul] operation took 0.055037444 s
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+nthreads: 128
+
+File: /nethome/jli458/BIGTENSORS/delicious.tns, mode 2, dev 1, normal kernel
+[CUDA  SpTns DotMul] operation took 0.003539983 s
+[CUDA  SpTns DotMul] operation took 0.003151907 s
+[CUDA  SpTns DotMul] operation took 0.003015498 s
+[CUDA  SpTns DotMul] operation took 0.003019041 s
+[CUDA  SpTns DotMul] operation took 0.003018385 s
+[CUDA  SpTns DotMul] operation took 0.003017443 s

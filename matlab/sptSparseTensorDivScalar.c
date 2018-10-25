@@ -28,5 +28,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     sptSparseTensor *X = spt_mxGetPointer(prhs[0], 0);
     sptScalar a = mxGetScalar(prhs[1]);
 
-    sptSparseTensorDivScalar(X, a);
+    int result = sptSparseTensorDivScalar(X, a);
 }

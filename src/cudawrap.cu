@@ -31,6 +31,25 @@ int sptCudaGetLastError(void) {
     return (int) cudaGetLastError();
 }
 
+int spt_cusparseCreate(cusparseHandle_t *handle) {
+    static cusparseHandle_t h = NULL;
+    int result = 0;
+    if(!h) {
+        result = cusparseCreate(&h);
+    }
+    *handle = h;
+    return result;
+}
+
+int spt_cusolverSpCreate(cusolverSpHandle_t *handle) {
+    static cusolverSpHandle_t h = NULL;
+    int result = 0;
+    if(!h) {
+        result = cusolverSpCreate(&h);
+    }
+    *handle = h;
+    return result;
+}
 
 int spt_CudaDuplicateMemoryGenerics(void **dest, const void *src, size_t size, int direction) {
     int result;
