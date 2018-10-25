@@ -30,12 +30,9 @@ void print_usage(char ** argv) {
     printf("         -o OUTPUT, --output=OUTPUT\n");
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-    printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits, <=9)\n");
-    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID\n");
     printf("         -r RANK\n");
-    printf("         -t TK, --tk=TK\n");
-    printf("         -l TB, --tb=TB\n");
+    printf("         -t NTHREADS, --nt=NT\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -50,16 +47,13 @@ int main(int argc, char ** argv) {
     sptRankKruskalTensor ktensor;
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
-    sptElementIndex sc_bits;
 
     sptIndex R = 16;
-    int cuda_dev_id = -2;
+    int dev_id = -2;
     int nloops = 5;
     sptIndex niters = 5; // 50
     double tol = 1e-5;
-    int impl_num = 0;
-    int tk = 1;
-    int tb = 1;
+    int nt = 1;
 
     if(argc < 5) { // #Required arguments
         print_usage(argv);
@@ -75,16 +69,15 @@ int main(int argc, char ** argv) {
             {"cs", required_argument, 0, 'c'},
             {"output", optional_argument, 0, 'o'},
             {"impl-num", optional_argument, 0, 'p'},
-            {"cuda-dev-id", optional_argument, 0, 'd'},
+            {"dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
-            {"tk", optional_argument, 0, 't'},
-            {"tb", optional_argument, 0, 'l'},
+            {"nt", optional_argument, 0, 't'},
             {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 0;
-        c = getopt_long(argc, argv, "i:b:k:c:o:p:d:r:t:l:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:b:k:o:d:r:t:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -103,23 +96,14 @@ int main(int argc, char ** argv) {
         case 'k':
             sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sk_bits);
             break;
-        case 'c':
-            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sc_bits);
-            break;
-        case 'p':
-            sscanf(optarg, "%d", &impl_num);
-            break;
         case 'd':
-            sscanf(optarg, "%d", &cuda_dev_id);
+            sscanf(optarg, "%d", &dev_id);
             break;
         case 'r':
             sscanf(optarg, "%"PARTI_SCN_INDEX, &R);
             break;
         case 't':
-            sscanf(optarg, "%d", &tk);
-            break;
-        case 'l':
-            sscanf(optarg, "%d", &tb);
+            sscanf(optarg, "%d", &nt);
             break;
         case '?':   /* invalid option */
         case 'h':
@@ -128,7 +112,7 @@ int main(int argc, char ** argv) {
             exit(1);
         }
     }
-    printf("cuda_dev_id: %d\n", cuda_dev_id);
+    printf("dev_id: %d\n", dev_id);
 
     /* A sorting included in load tensor */
     sptAssert(sptLoadSparseTensor(&tsr, 1, fi) == 0);
@@ -142,7 +126,7 @@ int main(int argc, char ** argv) {
     sptNewTimer(&convert_timer, 0);
     sptStartTimer(convert_timer);
 
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, tk) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, nt) == 0);
 
     sptStopTimer(convert_timer);
     sptPrintElapsedTime(convert_timer, "Convert HiCOO");
@@ -156,33 +140,19 @@ int main(int argc, char ** argv) {
     sptFreeSparseTensor(&tsr);
 
     /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
-        tk = 1;
+    if(dev_id == -2) {
+        nt = 1;
         sptAssert(sptCpdAlsHiCOO(&hitsr, R, niters, tol, &ktensor) == 0);
-    } else if(cuda_dev_id == -1) {
-        omp_set_num_threads(tk);
+    } else if(dev_id == -1) {
+        omp_set_num_threads(nt);
         #pragma omp parallel
         {
-            tk = omp_get_num_threads();
+            nt = omp_get_num_threads();
         }
-        printf("tk: %d, tb: %d\n", tk, tb);
-        sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, tk, tb, &ktensor) == 0);
+        printf("nt: %d \n", nt);
+        sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, nt, &ktensor) == 0);
     }
 
-    for(int it=0; it<nloops; ++it) {
-        if(cuda_dev_id == -2) {
-            tk = 1;
-            sptAssert(sptCpdAlsHiCOO(&hitsr, R, niters, tol, &ktensor) == 0);
-        } else if(cuda_dev_id == -1) {
-            omp_set_num_threads(tk);
-            #pragma omp parallel
-            {
-                tk = omp_get_num_threads();
-            }
-            printf("tk: %d, tb: %d\n", tk, tb);
-            sptAssert(sptOmpCpdAlsHiCOO(&hitsr, R, niters, tol, tk, tb, &ktensor) == 0);
-        }
-    }
 
     if(fo != NULL) {
         // Dump ktensor to files

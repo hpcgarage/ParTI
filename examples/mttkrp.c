@@ -32,7 +32,7 @@ void print_usage(char ** argv) {
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
     printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4)\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID\n");
     printf("         -r RANK\n");
     printf("         -t NTHREADS, --nt=NT\n");
     printf("         -u use_reduce, --ur=use_reduce\n");
@@ -48,7 +48,7 @@ int main(int argc, char ** argv) {
 
     sptIndex mode = PARTI_INDEX_MAX;
     sptIndex R = 16;
-    int cuda_dev_id = -2;
+    int dev_id = -2;
     int niters = 5;
     int nthreads;
     int impl_num = 0;
@@ -81,7 +81,7 @@ int main(int argc, char ** argv) {
             {"ks", required_argument, 0, 'k'},
             {"sortcase", optional_argument, 0, 's'},
             {"impl-num", optional_argument, 0, 'p'},
-            {"cuda-dev-id", optional_argument, 0, 'd'},
+            {"dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},
             {"use-reduce", optional_argument, 0, 'u'},
@@ -120,7 +120,7 @@ int main(int argc, char ** argv) {
             sscanf(optarg, "%d", &impl_num);
             break;
         case 'd':
-            sscanf(optarg, "%d", &cuda_dev_id);
+            sscanf(optarg, "%d", &dev_id);
             break;
         case 'r':
             sscanf(optarg, "%u"PARTI_SCN_INDEX, &R);
@@ -140,7 +140,7 @@ int main(int argc, char ** argv) {
     }
 
     printf("mode: %"PARTI_PRI_INDEX "\n", mode);
-    printf("cuda_dev_id: %d\n", cuda_dev_id);
+    printf("dev_id: %d\n", dev_id);
     printf("sortcase: %d\n", sortcase);
 
     /* Load a sparse tensor from file as it is */
@@ -170,7 +170,7 @@ int main(int argc, char ** argv) {
 
     /* Initialize locks */
     sptMutexPool * lock_pool = NULL;
-    if(cuda_dev_id == -1 && use_reduce == 0) {
+    if(dev_id == -1 && use_reduce == 0) {
         lock_pool = sptMutexAlloc();
     }
 
@@ -220,7 +220,7 @@ int main(int argc, char ** argv) {
 
             /* Set zeros for temporary copy_U, for mode-"mode" */
             char * bytestr;
-            if(cuda_dev_id == -1 && use_reduce == 1) {
+            if(dev_id == -1 && use_reduce == 1) {
                 copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
                 for(int t=0; t<nt; ++t) {
                     copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
@@ -256,10 +256,10 @@ int main(int argc, char ** argv) {
 
 
             /* For warm-up caches, timing not included */
-            if(cuda_dev_id == -2) {
+            if(dev_id == -2) {
                 nthreads = 1;
                 sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-            } else if(cuda_dev_id == -1) {
+            } else if(dev_id == -1) {
                 printf("nt: %d\n", nt);
                 if(use_reduce == 1) {
                     printf("sptOmpMTTKRP_Reduce:\n");
@@ -279,10 +279,10 @@ int main(int argc, char ** argv) {
 
             for(int it=0; it<niters; ++it) {
                 // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-                if(cuda_dev_id == -2) {
+                if(dev_id == -2) {
                     nthreads = 1;
                     sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-                } else if(cuda_dev_id == -1) {
+                } else if(dev_id == -1) {
                     if(use_reduce == 1) {
                         sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
                     } else {
@@ -295,7 +295,7 @@ int main(int argc, char ** argv) {
 
             sptStopTimer(timer);
 
-            if(cuda_dev_id == -2 || cuda_dev_id == -1) {
+            if(dev_id == -2 || dev_id == -1) {
                 char * prg_name;
                 asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
                 double aver_time = sptPrintAverageElapsedTime(timer, niters, prg_name);
@@ -354,7 +354,7 @@ int main(int argc, char ** argv) {
 
         /* Set zeros for temporary copy_U, for mode-"mode" */
         char * bytestr;
-        if(cuda_dev_id == -1 && use_reduce == 1) {
+        if(dev_id == -1 && use_reduce == 1) {
             copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
             for(int t=0; t<nt; ++t) {
                 copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
@@ -390,10 +390,10 @@ int main(int argc, char ** argv) {
         // sptDumpIndexArray(mats_order, nmodes, stdout);
 
         /* For warm-up caches, timing not included */
-        if(cuda_dev_id == -2) {
+        if(dev_id == -2) {
             nthreads = 1;
             sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-        } else if(cuda_dev_id == -1) {
+        } else if(dev_id == -1) {
             printf("nt: %d\n", nt);
             if(use_reduce == 1) {
                 printf("sptOmpMTTKRP_Reduce:\n");
@@ -413,10 +413,10 @@ int main(int argc, char ** argv) {
 
         for(int it=0; it<niters; ++it) {
             // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-            if(cuda_dev_id == -2) {
+            if(dev_id == -2) {
                 nthreads = 1;
                 sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-            } else if(cuda_dev_id == -1) {
+            } else if(dev_id == -1) {
                 if(use_reduce == 1) {
                     sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
                 } else {
@@ -429,7 +429,7 @@ int main(int argc, char ** argv) {
 
         sptStopTimer(timer);
 
-        if(cuda_dev_id == -2 || cuda_dev_id == -1) {
+        if(dev_id == -2 || dev_id == -1) {
             double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU SpTns MTTKRP");
 
             double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
@@ -452,7 +452,7 @@ int main(int argc, char ** argv) {
     if(fo != NULL) {
         fclose(fo);
     }
-    if(cuda_dev_id == -1) {
+    if(dev_id == -1) {
         if (use_reduce == 1) {
             for(int t=0; t<nt; ++t) {
                 sptFreeMatrix(copy_U[t]);

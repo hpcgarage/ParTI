@@ -180,25 +180,6 @@ int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
 }
 
 
-int spt_SparseTensorDumpAllSplits(const spt_SplitResult * splits, sptIndex const nsplits, FILE *fp) {
-    sptIndex i = 0;
-    for(i=0; i<nsplits; ++i) {
-    // while(split_i) {
-        const spt_SplitResult *split_i = splits + i;
-        printf("Printing split #%"PARTI_PRI_INDEX " of %"PARTI_PRI_INDEX "lu:\n", i + 1, nsplits);
-        printf("Index: \n");
-        sptDumpIndexArray(split_i->inds_low, split_i->tensor.nmodes, fp);
-        printf(" .. \n");
-        sptDumpIndexArray(split_i->inds_high, split_i->tensor.nmodes, fp);
-        sptDumpSparseTensor(&split_i->tensor, 0, fp);
-        printf("\n");
-        fflush(fp);
-        // ++ i;
-        // split_i = split_i->next;
-    }
-    return 0;
-}
-
 
 /**
  * Shuffle all indices.

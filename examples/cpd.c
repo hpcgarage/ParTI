@@ -30,7 +30,7 @@ void print_usage(char ** argv) {
     printf("Options: -i INPUT, --input=INPUT\n");
     printf("         -o OUTPUT, --output=OUTPUT\n");
     printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID\n");
     printf("         -r RANK\n");
     printf("         -t NTHREADS, --nt=NT\n");
     printf("         -u use_reduce, --ur=use_reduce\n");
@@ -47,7 +47,7 @@ int main(int argc, char ** argv) {
     double tol = 1e-5;
     sptKruskalTensor ktensor;
     int nloops = 5;
-    int cuda_dev_id = -2;
+    int dev_id = -2;
     int nthreads = 1;
     int use_reduce = 0;
     int impl_num = 0;
@@ -63,7 +63,7 @@ int main(int argc, char ** argv) {
             {"input", required_argument, 0, 'i'},
             {"output", optional_argument, 0, 'o'},
             {"impl-num", optional_argument, 0, 'p'},
-            {"cuda-dev-id", optional_argument, 0, 'd'},
+            {"dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},
             {"use-reduce", optional_argument, 0, 'u'},
@@ -90,7 +90,7 @@ int main(int argc, char ** argv) {
             sscanf(optarg, "%d", &impl_num);
             break;
         case 'd':
-            sscanf(optarg, "%d", &cuda_dev_id);
+            sscanf(optarg, "%d", &dev_id);
             break;
         case 'r':
             sscanf(optarg, "%u"PARTI_SCN_INDEX, &R);
@@ -108,7 +108,7 @@ int main(int argc, char ** argv) {
             exit(1);
         }
     }
-    printf("cuda_dev_id: %d\n", cuda_dev_id);
+    printf("dev_id: %d\n", dev_id);
 
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
@@ -119,10 +119,10 @@ int main(int argc, char ** argv) {
     sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
 
     /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
+    if(dev_id == -2) {
         nthreads = 1;
         sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } else if(cuda_dev_id == -1) {
+    } else if(dev_id == -1) {
         omp_set_num_threads(nthreads);
         #pragma omp parallel
         {
@@ -133,21 +133,6 @@ int main(int argc, char ** argv) {
         sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
     }
 
-    for(int it=0; it<nloops; ++it) {
-        if(cuda_dev_id == -2) {
-            nthreads = 1;
-            sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-        } else if(cuda_dev_id == -1) {
-            omp_set_num_threads(nthreads);
-            #pragma omp parallel
-            {
-                nthreads = omp_get_num_threads();
-            }
-            printf("nthreads: %d\n", nthreads);
-            printf("use_reduce: %d\n", use_reduce);
-            sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
-        }
-    }
 
     if(fo != NULL) {
         // Dump ktensor to files

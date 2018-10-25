@@ -20,6 +20,11 @@
 #include "hicoo.h"
 #include <assert.h>
 
+/**
+ * Show the status of a HiCOO sparse tensor
+ * @param[in] hitsr         th sparse tensor in HiCOO format
+ * @param[in] fp          the file to write into
+ */
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp)
 {
   sptIndex nmodes = hitsr->nmodes;

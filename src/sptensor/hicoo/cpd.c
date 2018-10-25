@@ -26,7 +26,10 @@
 #include "hicoo.h"
 
 
-double CpdAlsStepHiCOO(
+/*************************************************
+ * PRIVATE FUNCTIONS
+ *************************************************/
+double spt_CpdAlsStepHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptIndex const rank,
   sptIndex const niters,
@@ -75,7 +78,6 @@ double CpdAlsStepHiCOO(
     sptStartTimer(timer);
 
     for(sptIndex m=0; m < nmodes; ++m) {
-      printf("\nmode %u \n", m);
       tmp_mat->nrows = mats[m]->nrows;
 
       /* Factor Matrices order */
@@ -103,7 +105,7 @@ double CpdAlsStepHiCOO(
 
     } // Loop nmodes
 
-    fit = KruskalTensorFitHiCOO(hitsr, lambda, mats, ata);
+    fit = sptKruskalTensorFitHiCOO(hitsr, lambda, mats, ata);
 
     sptStopTimer(timer);
     double its_time = sptElapsedTime(timer);
@@ -131,6 +133,9 @@ double CpdAlsStepHiCOO(
 }
 
 
+/*************************************************
+ * PUBLIC FUNCTIONS
+ *************************************************/
 /**
  * Sequential CANDECOMP/PARAFAC decomposition (CPD) using alternating least squares for HiCOO formatted sparse tensors.
  * @param[out] ktensor the Kruskal tensor
@@ -171,7 +176,7 @@ int sptCpdAlsHiCOO(
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = CpdAlsStepHiCOO(hitsr, rank, niters, tol, mats, ktensor->lambda);
+  ktensor->fit = spt_CpdAlsStepHiCOO(hitsr, rank, niters, tol, mats, ktensor->lambda);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  HiCOO SpTns CPD-ALS");

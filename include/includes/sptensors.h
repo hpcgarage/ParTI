@@ -79,10 +79,6 @@ int spt_ComputeSliceSizes(
 void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp);
 double sptSparseTensorDensity(sptSparseTensor const * const tsr);
 
-/* Renumbering */
-void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int const renumber, sptIndex const iterations, int const tk);
-void orderit(sptSparseTensor *tsr, sptIndex **newIndices, int const renumber, sptIndex const iterations);
-
 /* Sparse tensor HiCOO */
 int sptNewSparseTensorHiCOO(
     sptSparseTensorHiCOO *hitsr, 
@@ -106,11 +102,10 @@ int sptSparseTensorToHiCOO(
     sptSparseTensor *tsr, 
     const sptElementIndex sb_bits,
     const sptElementIndex sk_bits,
-    const sptElementIndex sc_bits,
     int const tk);
 int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp);
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
-double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr);
+double sptSparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr);
 int sptSetKernelPointers(
     sptNnzIndexVector *kptr,
     sptSparseTensor *tsr, 
@@ -189,39 +184,8 @@ int sptCudaMTTKRPOneKernel(
     sptIndex * const mats_order,    // Correspond to the mode order of X.
     sptIndex const mode,
     sptIndex const impl_num);
-int sptCudaMTTKRPSM(
-    sptSparseTensor const * const X,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptIndex * const mats_order,    // Correspond to the mode order of X.
-    sptIndex const mode,
-    sptIndex const impl_num);
-int sptCudaMTTKRPDevice(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex nnz,
-    const sptIndex rank,
-    const sptIndex stride,
-    const sptIndex * Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats,
-    sptValue * dev_scratch);
-int sptSplittedMTTKRP(
-    sptSparseTensor const *const X,
-    sptMatrix *mats[],
-    sptIndex const mats_order[],
-    sptIndex const mode,
-    sptValueVector *scratch,
-    sptIndex const split_count[]
-);
 
-/* Coarse GPU */
-int sptCudaCoarseMTTKRP(
-    sptSparseTensor const * const X,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptIndexVector const * const mats_order,    // Correspond to the mode order of X.
-    sptIndex const mode);
+
 
 /**
  * Matricized tensor times Khatri-Rao product for HiCOO tensors
@@ -241,71 +205,26 @@ int sptOmpMTTKRPHiCOO(
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    const int tk,
-    const int tb);
+    const int nt);
 int sptOmpMTTKRPHiCOO_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    const int tk,
-    const int tb);
+    const int nt);
 int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    const int tk,
-    const int tb);
+    const int nt);
 int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptRankMatrix * copy_mats[],    // temporary matrices for reduction
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    const int tk,
-    const int tb);
-int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce_Two(
-    sptSparseTensorHiCOO const * const hitsr,
-    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
-    sptRankMatrix * copy_mats[],    // temporary matrices for reduction
-    sptIndex const mats_order[],    // Correspond to the mode order of X.
-    sptIndex const mode,
-    const int tk,
-    const int tb);
-int sptCudaMTTKRPHiCOO(
-    sptSparseTensorHiCOO const * const hitsr,
-    sptMatrix ** const mats,     // mats[nmodes] as temporary space.
-    sptIndex * const mats_order,    // Correspond to the mode order of X.
-    sptIndex const mode,
-    sptNnzIndex const max_nnzb,
-    int const impl_num);
-int sptMTTKRPKernelHiCOO(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex nnz,
-    const sptNnzIndex max_nnzb,
-    const sptIndex R,
-    const sptIndex stride,
-    const sptElementIndex sb_bits,
-    const sptElementIndex sc_bits,
-    const sptIndex blength,
-    const int impl_num,
-    const sptNnzIndex kptr_begin,
-    const sptNnzIndex kptr_end,
-    sptIndex * const dev_ndims,
-    sptNnzIndex * const dev_cptr,
-    sptNnzIndex * const dev_bptr,
-    sptBlockIndex ** const dev_binds,
-    sptElementIndex ** const dev_einds,
-    sptValue * const dev_values,
-    sptIndex * const dev_mats_order,
-    sptValue ** const dev_mats);
-int sptTTMHiCOO_MatrixTiling(
-    sptSparseTensorHiCOO * const Y,
-    sptSparseTensorHiCOO const * const X,
-    sptRankMatrix * U,     // mats[nmodes] as temporary space.
-    sptIndex const mode);
+    const int nt);
 
 
 #endif

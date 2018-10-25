@@ -55,7 +55,6 @@ int sptOmpCpdAlsHiCOO(
   sptIndex const niters,
   double const tol,
   const int tk,
-  const int tb,
   sptRankKruskalTensor * ktensor);
 
 #endif

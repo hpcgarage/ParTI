@@ -96,79 +96,6 @@ int sptNewSparseTensorHiCOO(
 
 
 /**
- * Create a new sparse tensor in HiCOO format
- * @param hitsr    a pointer to an uninitialized sparse tensor
- * @param nmodes number of modes the tensor will have
- * @param ndims  the dimension of each mode the tensor will have
- */
-int sptNewSparseTensorHiCOO_NoNnz(
-    sptSparseTensorHiCOO *hitsr,
-    const sptIndex nmodes, 
-    const sptIndex ndims[],
-    const sptElementIndex sb_bits,
-    const sptElementIndex sk_bits,
-    const sptElementIndex sc_bits)
-{
-    sptIndex i;
-    int result;
-
-    hitsr->nmodes = nmodes;
-    hitsr->sortorder = malloc(nmodes * sizeof hitsr->sortorder[0]);
-    for(i = 0; i < nmodes; ++i) {
-        hitsr->sortorder[i] = i;
-    }
-    hitsr->ndims = malloc(nmodes * sizeof *hitsr->ndims);
-    spt_CheckOSError(!hitsr->ndims, "HiSpTns New");
-    memcpy(hitsr->ndims, ndims, nmodes * sizeof *hitsr->ndims);
-
-    /* Parameters */
-    hitsr->sb_bits = sb_bits; // block size by nnz
-    hitsr->sk_bits = sk_bits; // kernel size by nnz
-    hitsr->sc_bits = sc_bits; // chunk size by blocks
-    sptIndex sk = (sptIndex)pow(2, sk_bits);
-
-    hitsr->kschr = (sptIndexVector**)malloc(nmodes * sizeof *hitsr->kschr);
-    spt_CheckOSError(!hitsr->kschr, "HiSpTns New");
-    for(sptIndex m = 0; m < nmodes; ++m) {
-        sptIndex kernel_ndim = (ndims[m] + sk - 1)/sk;
-        hitsr->kschr[m] = (sptIndexVector*)malloc(kernel_ndim * sizeof(*(hitsr->kschr[m])));
-        spt_CheckOSError(!hitsr->kschr[m], "HiSpTns New");
-        for(sptIndex i = 0; i < kernel_ndim; ++i) {
-            result = sptNewIndexVector(&(hitsr->kschr[m][i]), 0, 0);
-            spt_CheckError(result, "HiSpTns New", NULL);
-        }
-    }
-    hitsr->nkiters = (sptIndex*)malloc(nmodes * sizeof *hitsr->nkiters);
-
-    result = sptNewNnzIndexVector(&hitsr->kptr, 0, 0);
-    spt_CheckError(result, "HiSpTns New", NULL);
-    result = sptNewNnzIndexVector(&hitsr->cptr, 0, 0);
-    spt_CheckError(result, "HiSpTns New", NULL);
-
-    result = sptNewNnzIndexVector(&hitsr->bptr, 0, 0);
-    spt_CheckError(result, "HiSpTns New", NULL);
-    hitsr->binds = malloc(nmodes * sizeof *hitsr->binds);
-    spt_CheckOSError(!hitsr->binds, "HiSpTns New");
-    for(i = 0; i < nmodes; ++i) {
-        result = sptNewBlockIndexVector(&hitsr->binds[i], 0, 0);
-        spt_CheckError(result, "HiSpTns New", NULL);
-    }
-
-    hitsr->einds = malloc(nmodes * sizeof *hitsr->einds);
-    spt_CheckOSError(!hitsr->einds, "HiSpTns New");
-    for(i = 0; i < nmodes; ++i) {
-        result = sptNewElementIndexVector(&hitsr->einds[i], 0, 0);
-        spt_CheckError(result, "HiSpTns New", NULL);
-    }
-    result = sptNewValueVector(&hitsr->values, 0, 0);
-    spt_CheckError(result, "HiSpTns New", NULL);
-
-
-    return 0;
-}
-
-
-/**
  * Release any memory the HiCOO sparse tensor is holding
  * @param hitsr the tensor to release
  */
@@ -211,7 +138,11 @@ void sptFreeSparseTensorHiCOO(sptSparseTensorHiCOO *hitsr)
 }
 
 
-double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr) 
+/**
+ * Compute the Frobenius squared norm of a HiCOO sparse tensor.
+ * @param hitsr the HiCOO tensor 
+ */
+double sptSparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr) 
 {
   double norm = 0;
   sptValue const * const restrict vals = hitsr->values.data;
@@ -224,3 +155,4 @@ double SparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const 
   }
   return norm;
 }
+

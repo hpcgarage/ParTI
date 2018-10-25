@@ -21,6 +21,15 @@
 #include <string.h>
 #include "../error/error.h"
 
+/**
+ * Assign a new Kruskal tensor.
+ *
+ * @param[out] ktsr Kruskal tensor
+ * @param[in] nmodes the number of dimensions/modes/tensor order
+ * @param[in] ndims the mode sizes
+ * @param[in] rank tensor rank or the number of columns of factor matrices
+ *
+ */
 int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptIndex rank)
 {
     ktsr->nmodes = nmodes;
@@ -38,8 +47,8 @@ int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex 
 /**
  * Shuffle factor matrices row indices.
  *
- * @param[in] ktsr Kruskal tensor to be shuffled
  * @param[out] map_inds is the renumbering mapping 
+ * @param[in] ktsr Kruskal tensor to be shuffled
  *
  */
 void sptKruskalTensorInverseShuffleIndices(sptKruskalTensor * ktsr, sptIndex ** map_inds) {
@@ -61,7 +70,12 @@ void sptKruskalTensorInverseShuffleIndices(sptKruskalTensor * ktsr, sptIndex ** 
     }    
 }
 
-
+/**
+ * Free a new Kruskal tensor.
+ *
+ * @param[in] ktsr Kruskal tensor
+ *
+ */
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr)
 {
 	ktsr->rank = 0;
@@ -75,7 +89,17 @@ void sptFreeKruskalTensor(sptKruskalTensor *ktsr)
 }
 
 
-double KruskalTensorFit(
+/**
+ * Compute the fit of a Kruskal tensor to a sparse tensor.
+ *
+ * @param[in] spten   a COO sparse tensor.
+ * @param[in] lambda  the weight array
+ * @param[in] mats    factor matrices
+ * @param[in] ata    the results of ATA, A is a factor matrix
+ * @return fit  a double-precision float-point value
+ *
+ */
+double sptKruskalTensorFit(
   sptSparseTensor const * const spten,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats,
@@ -84,13 +108,9 @@ double KruskalTensorFit(
   sptIndex const nmodes = spten->nmodes;
 
   double spten_normsq = SparseTensorFrobeniusNormSquared(spten);
-  // printf("spten_normsq: %lf\n", spten_normsq);
-  double const norm_mats = KruskalTensorFrobeniusNormSquared(nmodes, lambda, ata);
-  // printf("norm_mats: %lf\n", norm_mats);
-  double const inner = SparseKruskalTensorInnerProduct(nmodes, lambda, mats);
-  // printf("inner: %lf\n", inner);
+  double const norm_mats = sptKruskalTensorFrobeniusNormSquared(nmodes, lambda, ata);
+  double const inner = sptSparseKruskalTensorInnerProduct(nmodes, lambda, mats);
   double residual = spten_normsq + norm_mats - 2 * inner;
-  // printf("residual: %lf\n", residual);
   if (residual > 0.0) {
     residual = sqrt(residual);
   }
@@ -103,7 +123,7 @@ double KruskalTensorFit(
 
 // Column-major. 
 /* Compute a Kruskal tensor's norm is compute on "ata"s. Check Tammy's sparse  */
-double KruskalTensorFrobeniusNormSquared(
+double sptKruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptMatrix ** ata) // ata: column-major
@@ -150,7 +170,7 @@ double KruskalTensorFrobeniusNormSquared(
 
 
 // Row-major, compute via MTTKRP result (mats[nmodes]) and mats[nmodes-1].
-double SparseKruskalTensorInnerProduct(
+double sptSparseKruskalTensorInnerProduct(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats) 
@@ -159,11 +179,6 @@ double SparseKruskalTensorInnerProduct(
   sptIndex const stride = mats[0]->stride;
   sptIndex const last_mode = nmodes - 1;
   sptIndex const I = mats[last_mode]->nrows;
-
-  // printf("mats[nmodes-1]:\n");
-  // sptDumpMatrix(mats[nmodes-1], stdout);
-  // printf("mats[nmodes]:\n");
-  // sptDumpMatrix(mats[nmodes], stdout);
   
   sptValue const * const last_vals = mats[last_mode]->values;
   sptValue const * const tmp_vals = mats[nmodes]->values;

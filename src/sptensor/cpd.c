@@ -107,7 +107,7 @@ double CpdAlsStep(
 
     } // Loop nmodes
 
-    fit = KruskalTensorFit(spten, lambda, mats, ata);
+    fit = sptKruskalTensorFit(spten, lambda, mats, ata);
 
     sptStopTimer(timer);
     double its_time = sptElapsedTime(timer);

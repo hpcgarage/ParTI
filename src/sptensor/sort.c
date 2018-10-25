@@ -22,12 +22,38 @@
 #include <ParTI.h>
 #include "sptensor.h"
 
+
+/*************************************************
+ * PRIVATE FUNCTIONS
+ *************************************************/
 static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r);
 static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sk_bits);
-static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
-static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
 static void spt_QuickSortIndexSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptIndex mode);
 static void spt_QuickSortIndexExceptSingleMode(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, sptIndex * mode_order);
+static void spt_QuickSortAtMode(sptSparseTensor *tsr, sptNnzIndex const l, sptNnzIndex const r, sptIndex const mode);
+
+static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
+static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits);
+
+static int spt_SparseTensorCompareIndicesExceptSingleMode(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex * mode_order);
+static int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, sptNnzIndex loc, sptIndex * const inds1, sptIndex * const inds2);
+static int spt_SparseTensorCompareIndicesRowBlock(
+    const sptSparseTensor *tsr1, 
+    sptNnzIndex loc1, 
+    const sptSparseTensor *tsr2, 
+    sptNnzIndex loc2,
+    const sptElementIndex sk_bits);
+static int spt_SparseTensorCompareIndicesMorton3D(
+    const sptSparseTensor *tsr1, 
+    uint64_t loc1, 
+    const sptSparseTensor *tsr2, 
+    uint64_t loc2);
+static int spt_SparseTensorCompareIndicesMorton4D(
+    const sptSparseTensor *tsr1, 
+    uint64_t loc1, 
+    const sptSparseTensor *tsr2, 
+    uint64_t loc2);
+static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, sptNnzIndex const ind1, const sptSparseTensor *tsr2, sptNnzIndex const ind2, sptIndex const mode);
 
 /* Mode order: X -> Y -> Z, x indices are sorted, y and z are Morton order sorted. */
 static const uint32_t morton256_z[256] =
@@ -142,7 +168,7 @@ static const uint32_t morton256_x[256] = {
 };
 
 
-void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2) {
+static inline void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2) {
 
     for(sptIndex i = 0; i < tsr->nmodes; ++i) {
         sptIndex eleind1 = tsr->inds[i].data[ind1];
@@ -154,6 +180,10 @@ void spt_SwapValues(sptSparseTensor *tsr, sptNnzIndex ind1, sptNnzIndex ind2) {
     tsr->values.data[ind2] = val1;
 }
 
+
+/*************************************************
+ * PUBLIC FUNCTIONS
+ *************************************************/
 
 /**
  * Determine the best mode order. Sort order: [mode, (ordered by increasing dimension sizes)]
@@ -378,6 +408,38 @@ void sptGetRandomShuffledIndices(sptSparseTensor *tsr, sptIndex ** map_inds) {
 
 
 /**
+ * Reorder the elements in a sparse tensor lexicographically, but consider mode `mode` the last one
+ * @param tsr  the sparse tensor to operate on
+ * @param mode the mode to be considered the last
+ */
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force) {
+    sptIndex m;
+    int needsort = 0;
+
+    for(m = 0; m < mode; ++m) {
+        if(tsr->sortorder[m] != m) {
+            tsr->sortorder[m] = m;
+            needsort = 1;
+        }
+    }
+    for(m = mode+1; m < tsr->nmodes; ++m) {
+        if(tsr->sortorder[m-1] != m) {
+            tsr->sortorder[m-1] = m;
+            needsort = 1;
+        }
+    }
+    if(tsr->sortorder[tsr->nmodes-1] != mode) {
+        tsr->sortorder[tsr->nmodes-1] = mode;
+        needsort = 1;
+    }
+
+    if(needsort || force) {
+        spt_QuickSortAtMode(tsr, 0, tsr->nnz, mode);
+    }
+}
+
+
+/**
  * Reorder the elements in a COO sparse tensor lexicographically, sorting by Morton-order.
  * @param hitsr  the sparse tensor to operate on
  */
@@ -497,6 +559,7 @@ void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, s
 }
 
 
+
 /**
  * Reorder the elements in a sparse tensor lexicographically in a customized order.
  * @param tsr  the sparse tensor to operate on
@@ -531,6 +594,7 @@ void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const * 
         tsr->sortorder[m] = mode_order[m];
     }
 }
+
 
 /**
  * Reorder the elements in a sparse tensor lexicographically
@@ -578,6 +642,9 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex loc1
 }
 
 
+/*************************************************
+ * PRIVATE FUNCTIONS
+ *************************************************/
 /**
  * compare two indices from two identical or distinct sparse tensors lexicographically in all modes except mode
  * @param tsr1 the first sparse tensor
@@ -587,7 +654,11 @@ int spt_SparseTensorCompareIndices(const sptSparseTensor *tsr1, sptNnzIndex loc1
  * @param mode the mode to be excluded in comparison
  * @return -1 for less, 0 for equal, 1 for greater
  */
-int spt_SparseTensorCompareIndicesExceptSingleMode(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex * mode_order) {
+
+/*************************************************
+ * Comparison functions
+ *************************************************/
+static int spt_SparseTensorCompareIndicesExceptSingleMode(const sptSparseTensor *tsr1, sptNnzIndex loc1, const sptSparseTensor *tsr2, sptNnzIndex loc2, sptIndex * mode_order) {
     sptIndex i, m;
     assert(tsr1->nmodes == tsr2->nmodes);
     for(i = 0; i < tsr1->nmodes - 1; ++ i) {
@@ -610,7 +681,7 @@ int spt_SparseTensorCompareIndicesExceptSingleMode(const sptSparseTensor *tsr1, 
  * @param len the length of both inds1 and inds2
  * @return 1 for in the range; otherwise return -1.
  */
-int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, sptNnzIndex loc, sptIndex * const inds1, sptIndex * const inds2) {
+static int spt_SparseTensorCompareIndicesRange(const sptSparseTensor *tsr, sptNnzIndex loc, sptIndex * const inds1, sptIndex * const inds2) {
 
     sptIndex i;
     for(i = 0; i < tsr->nmodes; ++i) {
@@ -646,7 +717,6 @@ static int spt_SparseTensorCompareIndicesRowBlock(
         sptIndex eleind2 = tsr2->inds[i].data[loc2];
         sptIndex blkind1 = eleind1 >> sk_bits;
         sptIndex blkind2 = eleind2 >> sk_bits;
-        // printf("blkind1: %lu, blkind2: %lu\n", blkind1, blkind2);
 
         if(blkind1 < blkind2) {
             return -1;
@@ -917,6 +987,37 @@ static int spt_SparseTensorCompareIndicesMorton4D(
 }
 
 
+static int spt_SparseTensorCompareAtMode(const sptSparseTensor *tsr1, sptNnzIndex const ind1, const sptSparseTensor *tsr2, sptNnzIndex const ind2, sptIndex const mode) {
+    sptIndex i;
+    sptIndex eleind1, eleind2;
+    assert(tsr1->nmodes == tsr2->nmodes);
+    for(i = 0; i < tsr1->nmodes; ++i) {
+        if(i != mode) {
+            eleind1 = tsr1->inds[i].data[ind1];
+            eleind2 = tsr2->inds[i].data[ind2];
+            if(eleind1 < eleind2) {
+                return -1;
+            } else if(eleind1 > eleind2) {
+                return 1;
+            }
+        }
+    }
+    eleind1 = tsr1->inds[mode].data[ind1];
+    eleind2 = tsr2->inds[mode].data[ind2];
+    if(eleind1 < eleind2) {
+        return -1;
+    } else if(eleind1 > eleind2) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
+/*************************************************
+ * Quicksort functions
+ *************************************************/
+
 static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex r, const sptElementIndex sb_bits) {
 
     uint64_t i, j, p;
@@ -926,11 +1027,9 @@ static void spt_QuickSortIndexMorton3D(sptSparseTensor *tsr, sptNnzIndex l, sptN
     p = (l+r) / 2;
     for(i = l, j = r-1; ; ++i, --j) {
         while(spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p) < 0) {
-            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton3D(tsr, i, tsr, p));
             ++i;
         }
         while(spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j) < 0) {
-            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton3D(tsr, p, tsr, j));
             --j;
         }
         if(i >= j) {
@@ -957,11 +1056,9 @@ static void spt_QuickSortIndexMorton4D(sptSparseTensor *tsr, sptNnzIndex l, sptN
     p = (l+r) / 2;
     for(i = l, j = r-1; ; ++i, --j) {
         while(spt_SparseTensorCompareIndicesMorton4D(tsr, i, tsr, p) < 0) {
-            // printf("(%lu, %lu) result: %d\n", i, p, spt_SparseTensorCompareIndicesMorton(tsr, i, tsr, p));
             ++i;
         }
         while(spt_SparseTensorCompareIndicesMorton4D(tsr, p, tsr, j) < 0) {
-            // printf("(%lu, %lu) result: %d\n", p, j,spt_SparseTensorCompareIndicesMorton(tsr, p, tsr, j));
             --j;
         }
         if(i >= j) {
@@ -1007,10 +1104,7 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptN
     {
         spt_QuickSortIndexRowBlock(tsr, l, i, sk_bits);
     }
-    // #pragma omp task firstprivate(i,r)
-    // {
-        spt_QuickSortIndexRowBlock(tsr, i, r, sk_bits);
-    // }
+    spt_QuickSortIndexRowBlock(tsr, i, r, sk_bits);
 
     #pragma omp taskwait
 }
@@ -1073,10 +1167,7 @@ static void spt_QuickSortIndexExceptSingleMode(sptSparseTensor *tsr, sptNnzIndex
     {
         spt_QuickSortIndexExceptSingleMode(tsr, l, i, mode_order);
     }
-    // #pragma omp task 
-    // {
-        spt_QuickSortIndexExceptSingleMode(tsr, i, r, mode_order);
-    // }
+    spt_QuickSortIndexExceptSingleMode(tsr, i, r, mode_order);
     #pragma omp taskwait
 }
 
@@ -1106,5 +1197,33 @@ static void spt_QuickSortIndex(sptSparseTensor *tsr, sptNnzIndex l, sptNnzIndex 
     }
     spt_QuickSortIndex(tsr, l, i);
     spt_QuickSortIndex(tsr, i, r);
+}
+
+
+static void spt_QuickSortAtMode(sptSparseTensor *tsr, sptNnzIndex const l, sptNnzIndex const r, sptIndex const mode) {
+    sptNnzIndex i, j, p;
+    if(r-l < 2) {
+        return;
+    }
+    p = (l+r) / 2;
+    for(i = l, j = r-1; ; ++i, --j) {
+        while(spt_SparseTensorCompareAtMode(tsr, i, tsr, p, mode) < 0) {
+            ++i;
+        }
+        while(spt_SparseTensorCompareAtMode(tsr, p, tsr, j, mode) < 0) {
+            --j;
+        }
+        if(i >= j) {
+            break;
+        }
+        spt_SwapValues(tsr, i, j);
+        if(i == p) {
+            p = j;
+        } else if(j == p) {
+            p = i;
+        }
+    }
+    spt_QuickSortAtMode(tsr, l, i, mode);
+    spt_QuickSortAtMode(tsr, i, r, mode);
 }
 

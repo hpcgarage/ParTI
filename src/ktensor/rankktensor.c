@@ -21,6 +21,15 @@
 #include <string.h>
 #include "../error/error.h"
 
+/**
+ * Assign a new Kruskal tensor with sptElementIndex as the columns of their factor matrices.
+ *
+ * @param[out] ktsr Kruskal tensor
+ * @param[in] nmodes the number of dimensions/modes/tensor order
+ * @param[in] ndims the mode sizes
+ * @param[in] rank tensor rank or the number of columns of factor matrices
+ *
+ */
 int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const sptIndex ndims[], sptElementIndex rank)
 {
     ktsr->nmodes = nmodes;
@@ -37,8 +46,8 @@ int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const s
 /**
  * Shuffle factor matrices row indices.
  *
- * @param[in] ktsr Kruskal tensor to be shuffled
  * @param[out] map_inds is the renumbering mapping 
+ * @param[in] ktsr Kruskal tensor to be shuffled
  *
  */
 void sptRankKruskalTensorInverseShuffleIndices(sptRankKruskalTensor * ktsr, sptIndex ** map_inds) {
@@ -60,6 +69,12 @@ void sptRankKruskalTensorInverseShuffleIndices(sptRankKruskalTensor * ktsr, sptI
     }    
 }
 
+/**
+ * Free a new Kruskal tensor with sptElementIndex as the columns of their factor matrices.
+ *
+ * @param[in] ktsr Kruskal tensor
+ *
+ */
 void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr)
 {
 	ktsr->rank = 0;
@@ -73,8 +88,17 @@ void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr)
 }
 
 
-
-double KruskalTensorFitHiCOO(
+/**
+ * Compute the fit of a Kruskal tensor (with sptElementIndex as the columns of their factor matrices) to a sparse tensor.
+ *
+ * @param[in] hitsr   a HiCOO sparse tensor.
+ * @param[in] lambda  the weight array
+ * @param[in] mats    factor matrices
+ * @param[in] ata    the results of ATA, A is a factor matrix
+ * @return fit  a double-precision float-point value
+ *
+ */
+double sptKruskalTensorFitHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** mats,
@@ -82,17 +106,13 @@ double KruskalTensorFitHiCOO(
 {
   sptIndex const nmodes = hitsr->nmodes;
 
-  double spten_normsq = SparseTensorFrobeniusNormSquaredHiCOO(hitsr);
-  // printf("spten_normsq: %lf\n", spten_normsq);
-  double const norm_mats = KruskalTensorFrobeniusNormSquaredRank(nmodes, lambda, ata);
-  // printf("norm_mats: %lf\n", norm_mats);
-  double const inner = SparseKruskalTensorInnerProductRank(nmodes, lambda, mats);
-  // printf("inner: %lf\n", inner);
+  double spten_normsq = sptSparseTensorFrobeniusNormSquaredHiCOO(hitsr);
+  double const norm_mats = sptKruskalTensorFrobeniusNormSquaredRank(nmodes, lambda, ata);
+  double const inner = sptSparseKruskalTensorInnerProductRank(nmodes, lambda, mats);
   double residual = spten_normsq + norm_mats - 2 * inner;
   if (residual > 0.0) {
     residual = sqrt(residual);
   }
-  // printf("residual: %lf\n", residual);
   double fit = 1 - (residual / sqrt(spten_normsq));
 
   return fit;
@@ -101,7 +121,7 @@ double KruskalTensorFitHiCOO(
 
 // Column-major. 
 /* Compute a Kruskal tensor's norm is compute on "ata"s. Check Tammy's sparse  */
-double KruskalTensorFrobeniusNormSquaredRank(
+double sptKruskalTensorFrobeniusNormSquaredRank(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** ata) // ata: column-major
@@ -117,8 +137,6 @@ double KruskalTensorFrobeniusNormSquaredRank(
   for(sptIndex x=0; x < rank*stride; ++x) {
     tmp_atavals[x] = 1.;
   }
-  // printf("KruskalTensorFrobeniusNormSquaredRank: \n");
-  // sptDumpRankMatrix(ata[nmodes], stdout);
 
   /* Compute Hadamard product for all "ata"s */
   for(sptIndex m=0; m < nmodes; ++m) {
@@ -132,8 +150,6 @@ double KruskalTensorFrobeniusNormSquaredRank(
         }
     }
   }
-  // printf("KruskalTensorFrobeniusNormSquaredRank: \n");
-  // sptDumpRankMatrix(ata[nmodes], stdout);
 
   /* compute lambda^T * aTa[MAX_NMODES] * lambda, only compute a half of them because of its symmetric */
 // #ifdef PARTI_USE_OPENMP
@@ -144,7 +160,6 @@ double KruskalTensorFrobeniusNormSquaredRank(
     for(sptElementIndex j=i+1; j < rank; ++j) {
       norm_mats += tmp_atavals[i+(j*stride)] * lambda[i] * lambda[j] * 2;
     }
-    // printf("inter norm_mats: %lf\n", norm_mats);
   }
 
   return fabs(norm_mats);
@@ -153,7 +168,7 @@ double KruskalTensorFrobeniusNormSquaredRank(
 
 
 // Row-major, compute via MTTKRP result (mats[nmodes]) and mats[nmodes-1].
-double SparseKruskalTensorInnerProductRank(
+double sptSparseKruskalTensorInnerProductRank(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** mats) 
@@ -162,11 +177,6 @@ double SparseKruskalTensorInnerProductRank(
   sptElementIndex const stride = mats[0]->stride;
   sptIndex const last_mode = nmodes - 1;
   sptIndex const I = mats[last_mode]->nrows;
-
-  // printf("mats[nmodes-1]:\n");
-  // sptDumpMatrix(mats[nmodes-1], stdout);
-  // printf("mats[nmodes]:\n");
-  // sptDumpMatrix(mats[nmodes], stdout);
   
   sptValue const * const last_vals = mats[last_mode]->values;
   sptValue const * const tmp_vals = mats[nmodes]->values;

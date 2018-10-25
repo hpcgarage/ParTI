@@ -28,7 +28,6 @@ int main(int argc, char * const argv[]) {
     sptSparseTensorHiCOO hitsr;
     sptElementIndex sb_bits;
     sptElementIndex sk_bits;
-    sptElementIndex sc_bits;
 
 
     for(;;) {
@@ -37,12 +36,11 @@ int main(int argc, char * const argv[]) {
             {"output", required_argument, 0, 'o'},
             {"bs", required_argument, 0, 'b'},
             {"ks", required_argument, 0, 'k'},
-            {"cs", required_argument, 0, 'c'},
             {0, 0, 0, 0}
         };
         int option_index = 0;
         int c = 1;
-        c = getopt_long(argc, argv, "i:o:b:k:c:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:b:k:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -62,9 +60,6 @@ int main(int argc, char * const argv[]) {
         case 'k':
             sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sk_bits);
             break;
-        case 'c':
-            sscanf(optarg, "%"PARTI_SCN_ELEMENT_INDEX, &sc_bits);
-            break;
         default:
             abort();
         }
@@ -76,7 +71,6 @@ int main(int argc, char * const argv[]) {
         printf("         -o OUTPUT, --output=OUTPUT\n");
         printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
         printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-        printf("         -c CHUNKSIZE (bits), --chunksize=CHUNKSIZE (bits)\n");
         printf("\n");
         return 1;
     }
@@ -87,7 +81,7 @@ int main(int argc, char * const argv[]) {
     // sptAssert(sptDumpSparseTensor(&tsr, 0, stdout) == 0);
 
     sptNnzIndex max_nnzb = 0;
-    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, sc_bits, 1) == 0);
+    sptAssert(sptSparseTensorToHiCOO(&hitsr, &max_nnzb, &tsr, sb_bits, sk_bits, 1) == 0);
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
     sptAssert(sptDumpSparseTensorHiCOO(&hitsr, fo) == 0);

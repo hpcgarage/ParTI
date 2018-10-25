@@ -24,16 +24,16 @@ int sptNewKruskalTensor(sptKruskalTensor *ktsr, sptIndex nmodes, const sptIndex 
 void sptKruskalTensorInverseShuffleIndices(sptKruskalTensor * ktsr, sptIndex ** map_inds);
 void sptFreeKruskalTensor(sptKruskalTensor *ktsr);
 int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp);
-double KruskalTensorFit(
+double sptKruskalTensorFit(
   sptSparseTensor const * const spten,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats,
   sptMatrix ** ata);
-double KruskalTensorFrobeniusNormSquared(
+double sptKruskalTensorFrobeniusNormSquared(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptMatrix ** ata);
-double SparseKruskalTensorInnerProduct(
+double sptSparseKruskalTensorInnerProduct(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptMatrix ** mats);
@@ -44,16 +44,16 @@ int sptNewRankKruskalTensor(sptRankKruskalTensor *ktsr, sptIndex nmodes, const s
 void sptRankKruskalTensorInverseShuffleIndices(sptRankKruskalTensor * ktsr, sptIndex ** map_inds);
 void sptFreeRankKruskalTensor(sptRankKruskalTensor *ktsr);
 int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp);
-double KruskalTensorFitHiCOO(
+double sptKruskalTensorFitHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** mats,
   sptRankMatrix ** ata);
-double KruskalTensorFrobeniusNormSquaredRank(
+double sptKruskalTensorFrobeniusNormSquaredRank(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** ata);
-double SparseKruskalTensorInnerProductRank(
+double sptSparseKruskalTensorInnerProductRank(
   sptIndex const nmodes,
   sptValue const * const __restrict lambda,
   sptRankMatrix ** mats);

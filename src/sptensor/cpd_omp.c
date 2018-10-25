@@ -124,7 +124,7 @@ double OmpCpdAlsStep(
     } // Loop nmodes
 
     // PrintDenseValueVector(lambda, rank, "lambda", "debug.txt");
-    fit = KruskalTensorFit(spten, lambda, mats, ata);
+    fit = sptKruskalTensorFit(spten, lambda, mats, ata);
 
     sptStopTimer(timer);
     double its_time = sptElapsedTime(timer);

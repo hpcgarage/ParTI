@@ -19,26 +19,33 @@
 #include <ParTI.h>
 #include "hicoo.h"
 
-int sptMTTKRPHiCOO_3D(
+/*************************************************
+ * PRIVATE FUNCTIONS
+ *************************************************/
+int spt_MTTKRPHiCOO_3D(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode);
-int sptMTTKRPHiCOO_3D_MatrixTiling(
+int spt_MTTKRPHiCOO_3D_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode);
 
+
+
+/*************************************************
+ * PUBLIC FUNCTIONS
+ *************************************************/
+
 /**
  * Matriced sparse tensor in HiCOO format times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode
- * @param[out] mats[nmodes]    the result of MTTKRP, a dense matrix, with size
- * ndims[mode] * R
+ * @param[out] mats[nmodes]    the result of MTTKRP, a dense matrix, with size * ndims[mode] * R
  * @param[in]  hitsr    the HiCOO sparse tensor input
- * @param[in]  mats    (N+1) dense matrices, with mats[nmodes] as temporary
+ * @param[in]  mats    (nmodes+1) dense matrices, with mats[nmodes] as temporary
  * @param[in]  mats_order    the order of the Khatri-Rao products
  * @param[in]  mode   the mode on which the MTTKRP is performed
- * @param[in]  scratch an temporary array to store intermediate results, space assigned before this function
  *
  * This function uses support arbitrary-order sparse tensors with Khatri-Rao
  * products of dense factor matrices, the output is the updated dense matrix for the "mode".
@@ -52,7 +59,7 @@ int sptMTTKRPHiCOO(
     sptIndex const nmodes = hitsr->nmodes;
 
     if(nmodes == 3) {
-        sptAssert(sptMTTKRPHiCOO_3D(hitsr, mats, mats_order, mode) == 0);
+        sptAssert(spt_MTTKRPHiCOO_3D(hitsr, mats, mats_order, mode) == 0);
         return 0;
     }
 
@@ -137,7 +144,111 @@ int sptMTTKRPHiCOO(
 }
 
 
-int sptMTTKRPHiCOO_3D(
+/**
+ * Matriced sparse tensor in HiCOO format times a sequence of dense matrix Khatri-Rao products (MTTKRP) on a specified mode. The tensor rank and columns of dense matrices are stored in less bits, in sptElementIndex type.
+ * @param[out] mats[nmodes]    the result of MTTKRP, a dense matrix, with size * ndims[mode] * R
+ * @param[in]  hitsr    the HiCOO sparse tensor input
+ * @param[in]  mats    (nmodes+1) dense matrices, with mats[nmodes] as temporary
+ * @param[in]  mats_order    the order of the Khatri-Rao products
+ * @param[in]  mode   the mode on which the MTTKRP is performed
+ *
+ * This function uses support arbitrary-order sparse tensors with Khatri-Rao
+ * products of dense factor matrices, the output is the updated dense matrix for the "mode".
+ */
+int sptMTTKRPHiCOO_MatrixTiling(
+    sptSparseTensorHiCOO const * const hitsr,
+    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
+    sptIndex const mats_order[],    // Correspond to the mode order of X.
+    sptIndex const mode) 
+{
+    sptIndex const nmodes = hitsr->nmodes;
+
+    if(nmodes == 3) {
+        sptAssert(spt_MTTKRPHiCOO_3D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
+        return 0;
+    } 
+
+    sptIndex const * const ndims = hitsr->ndims;
+    sptValue const * const restrict vals = hitsr->values.data;
+    sptElementIndex const stride = mats[0]->stride;
+    sptValueVector scratch;  // Temporary array
+
+    /* Check the mats. */
+    for(sptIndex i=0; i<nmodes; ++i) {
+        if(mats[i]->ncols != mats[nmodes]->ncols) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+        }
+        if(mats[i]->nrows != ndims[i]) {
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+        }
+    }
+
+    sptIndex const tmpI = mats[mode]->nrows;
+    sptElementIndex const R = mats[mode]->ncols;
+    sptRankMatrix * const restrict M = mats[nmodes];
+    sptValue * const restrict mvals = M->values;
+    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
+    sptNewValueVector(&scratch, R, R);
+
+    sptValue ** blocked_times_mat = (sptValue**)malloc(nmodes * sizeof(*blocked_times_mat));
+
+    /* Loop kernels */
+    for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
+        sptNnzIndex kptr_begin = hitsr->kptr.data[k];
+        sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
+
+        /* Loop blocks in a kernel */
+        for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
+            /* Block indices */
+            for(sptIndex m=0; m<nmodes; ++m)
+                blocked_times_mat[m] = mats[m]->values + (hitsr->binds[m].data[b] << hitsr->sb_bits) * stride;
+            sptValue * blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
+
+            sptNnzIndex bptr_begin = hitsr->bptr.data[b];
+            sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
+            /* Loop entries in a block */
+            for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
+
+                /* Multiply the 1st matrix */
+                sptIndex times_mat_index = mats_order[1];
+                sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
+                sptValue const entry = vals[z];
+                #pragma omp simd
+                for(sptElementIndex r=0; r<R; ++r) {
+                    scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
+                }
+                /* Multiply the rest matrices */
+                for(sptIndex m=2; m<nmodes; ++m) {
+                    times_mat_index = mats_order[m];
+                    tmp_i = hitsr->einds[times_mat_index].data[z];
+                    #pragma omp simd
+                    for(sptElementIndex r=0; r<R; ++r) {
+                        scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
+                    }
+                }
+
+                sptElementIndex const mode_i = hitsr->einds[mode].data[z];
+                #pragma omp simd
+                for(sptElementIndex r=0; r<R; ++r) {
+                    blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
+                }
+            }   // End loop entries
+        }   // End loop blocks
+
+    }   // End loop kernels
+
+
+    free(blocked_times_mat);
+    sptFreeValueVector(&scratch);
+
+    return 0;
+}
+
+
+/*************************************************
+ * PRIVATE FUNCTIONS
+ *************************************************/
+int spt_MTTKRPHiCOO_3D(
     sptSparseTensorHiCOO const * const hitsr,
     sptMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
@@ -218,96 +329,7 @@ int sptMTTKRPHiCOO_3D(
 }
 
 
-int sptMTTKRPHiCOO_MatrixTiling(
-    sptSparseTensorHiCOO const * const hitsr,
-    sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
-    sptIndex const mats_order[],    // Correspond to the mode order of X.
-    sptIndex const mode) 
-{
-    sptIndex const nmodes = hitsr->nmodes;
-
-    if(nmodes == 3) {
-        sptAssert(sptMTTKRPHiCOO_3D_MatrixTiling(hitsr, mats, mats_order, mode) == 0);
-        return 0;
-    } 
-
-    sptIndex const * const ndims = hitsr->ndims;
-    sptValue const * const restrict vals = hitsr->values.data;
-    sptElementIndex const stride = mats[0]->stride;
-    sptValueVector scratch;  // Temporary array
-
-    /* Check the mats. */
-    for(sptIndex i=0; i<nmodes; ++i) {
-        if(mats[i]->ncols != mats[nmodes]->ncols) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
-        }
-        if(mats[i]->nrows != ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  HiCOO SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
-        }
-    }
-
-    sptIndex const tmpI = mats[mode]->nrows;
-    sptElementIndex const R = mats[mode]->ncols;
-    sptRankMatrix * const restrict M = mats[nmodes];
-    sptValue * const restrict mvals = M->values;
-    memset(mvals, 0, tmpI*stride*sizeof(*mvals));
-    sptNewValueVector(&scratch, R, R);
-
-    sptValue ** blocked_times_mat = (sptValue**)malloc(nmodes * sizeof(*blocked_times_mat));
-
-    /* Loop kernels */
-    for(sptIndex k=0; k<hitsr->kptr.len - 1; ++k) {
-        sptNnzIndex kptr_begin = hitsr->kptr.data[k];
-        sptNnzIndex kptr_end = hitsr->kptr.data[k+1];
-
-        /* Loop blocks in a kernel */
-        for(sptIndex b=kptr_begin; b<kptr_end; ++b) {
-            /* Block indices */
-            for(sptIndex m=0; m<nmodes; ++m)
-                blocked_times_mat[m] = mats[m]->values + (hitsr->binds[m].data[b] << hitsr->sb_bits) * stride;
-            sptValue * blocked_mvals = mvals + (hitsr->binds[mode].data[b] << hitsr->sb_bits) * stride;
-
-            sptNnzIndex bptr_begin = hitsr->bptr.data[b];
-            sptNnzIndex bptr_end = hitsr->bptr.data[b+1];
-            /* Loop entries in a block */
-            for(sptIndex z=bptr_begin; z<bptr_end; ++z) {
-
-                /* Multiply the 1st matrix */
-                sptIndex times_mat_index = mats_order[1];
-                sptElementIndex tmp_i = hitsr->einds[times_mat_index].data[z];
-                sptValue const entry = vals[z];
-                #pragma omp simd
-                for(sptElementIndex r=0; r<R; ++r) {
-                    scratch.data[r] = entry * blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
-                }
-                /* Multiply the rest matrices */
-                for(sptIndex m=2; m<nmodes; ++m) {
-                    times_mat_index = mats_order[m];
-                    tmp_i = hitsr->einds[times_mat_index].data[z];
-                    #pragma omp simd
-                    for(sptElementIndex r=0; r<R; ++r) {
-                        scratch.data[r] *= blocked_times_mat[times_mat_index][(sptBlockMatrixIndex)tmp_i * stride + r];
-                    }
-                }
-
-                sptElementIndex const mode_i = hitsr->einds[mode].data[z];
-                #pragma omp simd
-                for(sptElementIndex r=0; r<R; ++r) {
-                    blocked_mvals[(sptBlockMatrixIndex)mode_i * stride + r] += scratch.data[r];
-                }
-            }   // End loop entries
-        }   // End loop blocks
-
-    }   // End loop kernels
-
-
-    free(blocked_times_mat);
-    sptFreeValueVector(&scratch);
-
-    return 0;
-}
-
-int sptMTTKRPHiCOO_3D_MatrixTiling(
+int spt_MTTKRPHiCOO_3D_MatrixTiling(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
