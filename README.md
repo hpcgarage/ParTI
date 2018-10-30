@@ -8,14 +8,14 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Supported sparse tensor operations:
 
-* Scala-tensor mul/div (CPU)
-* Kronecker product (CPU)
-* Khatri-Rao product (CPU)
-* Sparse tensor matricization (CPU)
-* Element-wise tensor add/sub/mul/div (CPU, Multicore, GPU)
-* Sparse tensor-times-dense matrix (SpTTM) (CPU, Multicore, GPU)
-* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP) (CPU, Multicore, GPU)
-* Sparse tensor matricization (CPU)
+* Scala-tensor mul/div [CPU]
+* Kronecker product [CPU]
+* Khatri-Rao product [CPU]
+* Sparse tensor matricization [CPU]
+* Element-wise tensor add/sub/mul/div [CPU, Multicore, GPU]
+* Sparse tensor-times-dense matrix (SpTTM) [CPU, Multicore, GPU]
+* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP) [CPU, Multicore, GPU]
+* Sparse tensor matricization [CPU]
 * Sparse CANDECOMP/PARAFAC decomposition
 * Sparse Tucker decomposition (refer to branch JPDC)
 
@@ -23,7 +23,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 ## Supported sparse tensor formats:
 
 * Coordinate (COO) format
-* Hierarchical coordinate (HiCOO) format [[Paper](http://fruitfly1026.github.io/static/files/sc18-li.pdf)
+* Hierarchical coordinate (HiCOO) format [[Paper]](http://fruitfly1026.github.io/static/files/sc18-li.pdf)
 
 
 ## Build requirements:
@@ -32,7 +32,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 - [CMake](https://cmake.org) (>v3.2)
 
-- [CUDA SDK](https://developer.nvidia.com/cuda-downloads) [Optional]
+- [CUDA SDK](https://developer.nvidia.com/cuda-downloads) [Required for GPU algorithms]
 
 - [OpenBLAS](http://www.openblas.net) (Or an alternative BLAS and Lapack library) [Required for tensor decomposition]
 
@@ -51,7 +51,8 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 5. Check `build/examples` for example programs including MTTKRP, TTM, CP decomposition
 
-## Build MATLAB interface (Not quite ready for this version:
+
+## Build MATLAB interface (Not ready for new functions):
 
 1. `cd matlab`
 
@@ -78,9 +79,22 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 ## Run examples:
 
 **_MTTKRP_**: 
-1. COO-MTTKRP (CPU, Multicore, GPU)
+1. COO-MTTKRP (CPU, Multicore)
 
-    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
+    * Usage: ./build/examples/mttkrp [options], Options:
+    * -i INPUT, --input=INPUT (.tns file)
+    * -o OUTPUT, --output=OUTPUT
+    * -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)
+    * -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4)
+    * -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)
+    * -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)
+    * -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)
+    * -r RANK
+    * OpenMP options: 
+    * -t NTHREADS, --nt=NT
+    * -u use_reduce, --ur=use_reduce (use privatization or not)
+
+    tsr mode impl_num [cuda_dev_id, R, output]
     * tsr: input sparse tensor
     * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
     * impl_num: 11, 12, 15, where 15 should be the best case
@@ -89,7 +103,10 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
     * output: the file name for output. [Optinal]
     * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
 
-2. HiCOO-MTTKRP (CPU, Multicore)
+2. COO-MTTKRP (GPU)
+
+
+3. HiCOO-MTTKRP (CPU, Multicore)
 
     * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
     * tsr: input sparse tensor

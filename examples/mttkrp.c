@@ -25,17 +25,17 @@
 
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
-    printf("Options: -i INPUT, --input=INPUT\n");
+    printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
     printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -m MODE, --mode=MODE (default -1: loop all modes)\n");
-    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
-    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-    printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4)\n");
-    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d DEV_ID, --dev-id=DEV_ID\n");
+    printf("         -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)\n");
+    printf("         -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4)\n");
+    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)\n");
+    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)\n");
     printf("         -r RANK\n");
+    printf("         OpenMP options: \n");
     printf("         -t NTHREADS, --nt=NT\n");
-    printf("         -u use_reduce, --ur=use_reduce\n");
+    printf("         -u use_reduce, --ur=use_reduce (use privatization or not)\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -51,7 +51,6 @@ int main(int argc, char ** argv) {
     int dev_id = -2;
     int niters = 5;
     int nthreads;
-    int impl_num = 0;
     int use_reduce = 1; // Need to choose from two omp parallel approaches
     int nt = 1;
     /* sortcase:
@@ -89,7 +88,7 @@ int main(int argc, char ** argv) {
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "i:m:o:b:k:s:p:d:r:t:u:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:m:o:b:k:s:d:r:t:u:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -115,9 +114,6 @@ int main(int argc, char ** argv) {
             break;
         case 's':
             sscanf(optarg, "%d", &sortcase);
-            break;
-        case 'p':
-            sscanf(optarg, "%d", &impl_num);
             break;
         case 'd':
             sscanf(optarg, "%d", &dev_id);
