@@ -25,17 +25,16 @@
 
 void print_usage(int argc, char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
-    printf("Options: -i INPUT, --input=INPUT\n");
-    printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -m MODE, --mode=MODE\n");
-    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
-    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-    printf("         -s sortcase, --sortcase=SORTCASE (1,2,3,4)\n");
-    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
-    printf("         -r RANK\n");
-    printf("         -t NTHREADS, --nt=NT\n");
-    printf("         -u use_reduce, --ur=use_reduce\n");
+    printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
+    printf("         -o OUTPUT, --output=OUTPUT (output file name)\n");
+    printf("         -m MODE, --mode=MODE (specify a mode, e.g., 0 or 1 or 2 for third-order tensors. Default:0.)\n");
+    printf("         -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4. Different tensor sorting.)\n");
+    printf("         -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (only for sortcase=3)\n");
+    printf("         -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (only for sortcase=3)\n");
+    printf("         -d CUDA_DEV_ID, --cuda-dev-id=CUDA_DEV_ID (>=0:GPU device id)\n");
+    printf("         -r RANK (the number of matrix columns, 16:default)\n");
+    printf("         GPU options: \n");
+    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM (11, 12, 15, where 15 should be the best case)\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -44,7 +43,6 @@ int main(int argc, char ** argv) {
     FILE *fi = NULL, *fo = NULL;
     sptSparseTensor X;
     sptMatrix ** U;
-    sptMatrix ** copy_U;
 
     sptIndex mode = 0;
     sptIndex R = 16;
@@ -83,13 +81,11 @@ int main(int argc, char ** argv) {
             {"impl-num", optional_argument, 0, 'p'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
-            {"nt", optional_argument, 0, 't'},
-            {"use-reduce", optional_argument, 0, 'u'},
             {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "i:m:o:b:k:s:p:d:r:t:u:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:m:o:b:k:s:p:d:r:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -125,12 +121,6 @@ int main(int argc, char ** argv) {
         case 'r':
             sscanf(optarg, "%u"PARTI_SCN_INDEX, &R);
             break;
-        case 'u':
-            sscanf(optarg, "%d", &use_reduce);
-            break;
-        case 't':
-            sscanf(optarg, "%d", &nt);
-            break;
         case '?':   /* invalid option */
         case 'h':
         default:
@@ -142,6 +132,7 @@ int main(int argc, char ** argv) {
     printf("mode: %"PARTI_PRI_INDEX "\n", mode);
     printf("cuda_dev_id: %d\n", cuda_dev_id);
     printf("sortcase: %d\n", sortcase);
+    sptAssert(cuda_dev_id >= 0);
 
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
@@ -201,20 +192,6 @@ int main(int argc, char ** argv) {
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     sptIndex stride = U[0]->stride;
 
-    /* Set zeros for temporary copy_U, for mode-"mode" */
-    char * bytestr;
-    if(cuda_dev_id == -1 && use_reduce == 1) {
-        copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
-        for(int t=0; t<nt; ++t) {
-            copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
-            sptAssert(sptNewMatrix(copy_U[t], X.ndims[mode], R) == 0);
-            sptAssert(sptConstantMatrix(copy_U[t], 0) == 0);
-        }
-        sptNnzIndex bytes = nt * X.ndims[mode] * R * sizeof(sptValue);
-        bytestr = sptBytesString(bytes);
-        printf("MODE MATRIX COPY=%s\n\n", bytestr);
-    }
-
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
     switch (sortcase) {
     case 0:
@@ -234,31 +211,9 @@ int main(int argc, char ** argv) {
             mats_order[i] = mode_order[nmodes - i];
         break;
     }
-    // printf("mats_order:\n");
-    // sptDumpIndexArray(mats_order, nmodes, stdout);
-
-    /* Initialize locks */
-    sptMutexPool * lock_pool = NULL;
-    if(cuda_dev_id == -1 && use_reduce == 0) {
-        lock_pool = sptMutexAlloc();
-    }
 
     /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
-        nthreads = 1;
-        sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-    } else if(cuda_dev_id == -1) {
-        printf("nt: %d\n", nt);
-        if(use_reduce == 1) {
-            printf("sptOmpMTTKRP_Reduce:\n");
-            sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
-        } else {
-            printf("sptOmpMTTKRP:\n");
-            sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-            // printf("sptOmpMTTKRP_Lock:\n");
-            // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
-        }
-    } else {
+    if(cuda_dev_id >= 0) {
         sptCudaSetDevice(cuda_dev_id);
         // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
         sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
@@ -284,60 +239,21 @@ int main(int argc, char ** argv) {
     sptTimer timer;
     sptNewTimer(&timer, 0);
     sptStartTimer(timer);
-
     for(int it=0; it<niters; ++it) {
         // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-        if(cuda_dev_id == -2) {
-            nthreads = 1;
-            sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-        } else if(cuda_dev_id == -1) {
-            printf("nt: %d\n", nt);
-            if(use_reduce == 1) {
-                printf("sptOmpMTTKRP_Reduce:\n");
-                sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
-            } else {
-                printf("sptOmpMTTKRP:\n");
-                sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                // printf("sptOmpMTTKRP_Lock:\n");
-                // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
-            }
-        } else {
+        if(cuda_dev_id >= 0) {
             sptCudaSetDevice(cuda_dev_id);
             // sptAssert(sptCudaMTTKRP(&X, U, mats_order, mode, impl_num) == 0);
             sptAssert(sptCudaMTTKRPOneKernel(&X, U, mats_order, mode, impl_num) == 0);
         }
     }
-
     sptStopTimer(timer);
 
-    if(cuda_dev_id == -2 || cuda_dev_id == -1) {
-        double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU SpTns MTTKRP");
-
-        double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
-        uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
-        for (sptIndex m=0; m<nmodes; ++m) {
-            bytes += X.ndims[m] * R * sizeof(sptValue);
-        }
-        double gbw = (double)bytes / aver_time / 1e9;
-        printf("Performance: %.2lf GFlop/s, Bandwidth: %.2lf GB/s\n", gflops, gbw);
-    } else if (cuda_dev_id >=0) {
+    if (cuda_dev_id >=0) {
         double aver_time = sptPrintAverageElapsedTime(timer, niters, "GPU SpTns MTTKRP");
     }
+
     sptFreeTimer(timer);
-
-
-    if(cuda_dev_id == -1) {
-        if (use_reduce == 1) {
-            for(int t=0; t<nt; ++t) {
-                sptFreeMatrix(copy_U[t]);
-            }
-            free(copy_U);
-            free(bytestr);
-        }
-        if(lock_pool != NULL) {
-            sptMutexFree(lock_pool);
-        }
-    }
     for(sptIndex m=0; m<nmodes; ++m) {
         sptFreeMatrix(U[m]);
     }

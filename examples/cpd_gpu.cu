@@ -26,13 +26,12 @@
 
 void print_usage(int argc, char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
-    printf("Options: -i INPUT, --input=INPUT\n");
-    printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d CUDA_DEV_ID, --cuda-dev-id=DEV_ID\n");
-    printf("         -r RANK\n");
-    printf("         -t NTHREADS, --nt=NT\n");
-    printf("         -u use_reduce, --ur=use_reduce\n");
+    printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
+    printf("         -o OUTPUT, --output=OUTPUT (output file name)\n");
+    printf("         -d CUDA_DEV_ID, --cuda-dev-id=CUDA_DEV_ID (>=0:GPU device id)\n");
+    printf("         -r RANK (CPD rank, 16:default)\n");
+    printf("         GPU options: \n");
+    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM (11, 12, 15, where 15 should be the best case)\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -47,8 +46,6 @@ int main(int argc, char ** argv) {
     sptKruskalTensor ktensor;
     int nloops = 1;
     int cuda_dev_id = -2;
-    int nthreads;
-    int use_reduce = 1;
     int impl_num = 0;
 
     if(argc < 2) {
@@ -64,13 +61,11 @@ int main(int argc, char ** argv) {
             {"impl-num", optional_argument, 0, 'p'},
             {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
-            {"nt", optional_argument, 0, 't'},
-            {"use-reduce", optional_argument, 0, 'u'},
             {"help", no_argument, 0, 0},
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "i:o:p:d:r:t:u:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:p:d:r:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -94,12 +89,6 @@ int main(int argc, char ** argv) {
         case 'r':
             sscanf(optarg, "%u"PARTI_SCN_INDEX, &R);
             break;
-        case 'u':
-            sscanf(optarg, "%d", &use_reduce);
-            break;
-        case 't':
-            sscanf(optarg, "%d", &nthreads);
-            break;
         case '?':   /* invalid option */
         case 'h':
         default:
@@ -117,21 +106,9 @@ int main(int argc, char ** argv) {
     sptNewKruskalTensor(&ktensor, nmodes, X.ndims, R);
 
     /* For warm-up caches, timing not included */
-    if(cuda_dev_id == -2) {
-        nthreads = 1;
-        sptAssert(sptCpdAls(&X, R, niters, tol, &ktensor) == 0);
-    } else if(cuda_dev_id == -1) {
-        omp_set_num_threads(nthreads);
-        #pragma omp parallel
-        {
-            nthreads = omp_get_num_threads();
-        }
-        printf("nthreads: %d\n", nthreads);
-        printf("use_reduce: %d\n", use_reduce);
-        sptAssert(sptOmpCpdAls(&X, R, niters, tol, nthreads, use_reduce, &ktensor) == 0);
-    } else {
+    if(cuda_dev_id >= 0) {
          sptCudaSetDevice(cuda_dev_id);
-         // sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
+         sptAssert(sptCudaCpdAls(&X, R, niters, tol, &ktensor) == 0);
     } 
 
 

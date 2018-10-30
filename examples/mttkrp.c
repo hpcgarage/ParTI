@@ -26,15 +26,15 @@
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
     printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
-    printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)\n");
+    printf("         -o OUTPUT, --output=OUTPUT (output file name)\n");
+    printf("         -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode, e.g., 0 or 1 or 2 for third-order tensors.)\n");
     printf("         -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4. Different tensor sorting.)\n");
-    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)\n");
-    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)\n");
-    printf("         -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)\n");
-    printf("         -r RANK\n");
+    printf("         -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (only for sortcase=3)\n");
+    printf("         -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (only for sortcase=3)\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)\n");
+    printf("         -r RANK (the number of matrix columns, 16:default)\n");
     printf("         OpenMP options: \n");
-    printf("         -t NTHREADS, --nt=NT\n");
+    printf("         -t NTHREADS, --nt=NT (1:default)\n");
     printf("         -u use_reduce, --ur=use_reduce (use privatization or not)\n");
     printf("         --help\n");
     printf("\n");
@@ -79,7 +79,6 @@ int main(int argc, char ** argv) {
             {"bs", required_argument, 0, 'b'},
             {"ks", required_argument, 0, 'k'},
             {"sortcase", optional_argument, 0, 's'},
-            {"impl-num", optional_argument, 0, 'p'},
             {"dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},

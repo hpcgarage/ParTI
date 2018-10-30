@@ -27,13 +27,13 @@
 
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
-    printf("Options: -i INPUT, --input=INPUT\n");
-    printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -p IMPL_NUM, --impl-num=IMPL_NUM\n");
-    printf("         -d DEV_ID, --dev-id=DEV_ID\n");
-    printf("         -r RANK\n");
-    printf("         -t NTHREADS, --nt=NT\n");
-    printf("         -u use_reduce, --ur=use_reduce\n");
+    printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
+    printf("         -o OUTPUT, --output=OUTPUT (output file name)\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)\n");
+    printf("         -r RANK (CPD rank, 16:default)\n");
+    printf("         OpenMP options: \n");
+    printf("         -t NTHREADS, --nt=NT (1:default)\n");
+    printf("         -u use_reduce, --ur=use_reduce (use privatization or not)\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -50,7 +50,6 @@ int main(int argc, char ** argv) {
     int dev_id = -2;
     int nthreads = 1;
     int use_reduce = 0;
-    int impl_num = 0;
 
     if(argc < 2) {
         print_usage(argv);
@@ -62,7 +61,6 @@ int main(int argc, char ** argv) {
         static struct option long_options[] = {
             {"input", required_argument, 0, 'i'},
             {"output", optional_argument, 0, 'o'},
-            {"impl-num", optional_argument, 0, 'p'},
             {"dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},
@@ -71,7 +69,7 @@ int main(int argc, char ** argv) {
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "i:o:p:d:r:t:u:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:o:d:r:t:u:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -85,9 +83,6 @@ int main(int argc, char ** argv) {
             fo = fopen(optarg, "w");
             sptAssert(fo != NULL);
             printf("output file: %s\n", optarg); fflush(stdout);
-            break;
-        case 'p':
-            sscanf(optarg, "%d", &impl_num);
             break;
         case 'd':
             sscanf(optarg, "%d", &dev_id);

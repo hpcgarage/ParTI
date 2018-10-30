@@ -26,14 +26,15 @@
 
 void print_usage(char ** argv) {
     printf("Usage: %s [options] \n\n", argv[0]);
-    printf("Options: -i INPUT, --input=INPUT\n");
-    printf("         -o OUTPUT, --output=OUTPUT\n");
-    printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits)\n");
-    printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits)\n");
-    printf("         -m MODE, --mode=MODE (default -1: loop all modes)\n");
-    printf("         -d DEV_ID, --dev-id=DEV_ID\n");
-    printf("         -r RANK\n");
-    printf("         -t NTHREADS, --nt=NT\n");
+    printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
+    printf("         -o OUTPUT, --output=OUTPUT (output file name)\n");
+    printf("         -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode, e.g., 0 or 1 or 2 for third-order tensors.)\n");
+    printf("         -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (required)\n");
+    printf("         -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (required)\n");
+    printf("         -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)\n");
+    printf("         -r RANK (the number of matrix columns, 16:default)\n");
+    printf("         OpenMP options: \n");
+    printf("         -t NTHREADS, --nt=NT (1:default)\n");
     printf("         --help\n");
     printf("\n");
 }
@@ -68,7 +69,6 @@ int main(int argc, char ** argv) {
             {"ks", required_argument, 0, 'k'},
             {"mode", required_argument, 0, 'm'},
             {"output", optional_argument, 0, 'o'},
-            {"impl-num", optional_argument, 0, 'p'},
             {"dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},

@@ -83,16 +83,17 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
     * Usage: ./build/examples/mttkrp [options], Options:
       * -i INPUT, --input=INPUT (.tns file)
-      * -o OUTPUT, --output=OUTPUT
-      * -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)
+      * -o OUTPUT, --output=OUTPUT (output file name)
+      * -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode, e.g., 0 or 1 or 2 for third-order tensors.)
       * -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4. Different tensor sorting.)
-      * -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)
-      * -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)
-      * -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)
-      * -r RANK
+      * -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (Only for sortcase=3)
+      * -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (Only for sortcase=3)
+      * -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)
+      * -r RANK (the number of matrix columns, 16:default)
       * OpenMP options: 
-      * -t NTHREADS, --nt=NT
+      * -t NTHREADS, --nt=NT (1:default)
       * -u use_reduce, --ur=use_reduce (use privatization or not)
+      * --help
 
     tsr mode impl_num [cuda_dev_id, R, output]
     * tsr: input sparse tensor
@@ -105,41 +106,74 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 2. COO-MTTKRP (GPU)
 
+    * Usage: ./build/examples/mttkrp_gpu [options], Options:
+      * -i INPUT, --input=INPUT (.tns file)
+      * -o OUTPUT, --output=OUTPUT (output file name)
+      * -m MODE, --mode=MODE (specify a mode, e.g., 0 or 1 or 2 for third-order tensors. Default:0.)
+      * -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4. Different tensor sorting.)
+      * -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (Only for sortcase=3)
+      * -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (Only for sortcase=3)
+      * -d CUDA_DEV_ID,, --cuda-dev-id=CUDA_DEV_ID (>0:GPU device id)
+      * -r RANK (the number of matrix columns, 16:default)
+      * GPU options: 
+      * -p IMPL_NUM, --impl-num=IMPL_NUM (11, 12, 15, where 15 should be the best case)
+      * --help
+
 
 3. HiCOO-MTTKRP (CPU, Multicore)
 
-    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
-    * tsr: input sparse tensor
-    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
-    * impl_num: 11, 12, 15, where 15 should be the best case
-    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
-    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
-    * output: the file name for output. [Optinal]
-    * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+    * Usage: ./build/examples/mttkrp_hicoo [options], Options:
+      * -i INPUT, --input=INPUT (.tns file)
+      * -o OUTPUT, --output=OUTPUT (output file name)
+      * -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode, e.g., 0 or 1 or 2 for third-order tensors.)
+      * -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (required)
+      * -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (required)
+      * -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)
+      * -r RANK (the number of matrix columns, 16:default)
+      * OpenMP options: 
+      * -t NTHREADS, --nt=NT (1:default)
+      * --help
+
 
 
 **_CPD_**: 
-1. COO-CPD (CPU, Multicore, GPU)
+1. COO-CPD (CPU, Multicore)
 
-    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
-    * tsr: input sparse tensor
-    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
-    * impl_num: 11, 12, 15, where 15 should be the best case
-    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
-    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
-    * output: the file name for output. [Optinal]
-    * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+    * Usage: ./build/examples/cpd [options], Options:
+      * -i INPUT, --input=INPUT (.tns file)
+      * -o OUTPUT, --output=OUTPUT (output file name)
+      * -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)
+      * -r RANK (CPD rank, 16:default)
+      * OpenMP options: 
+      * -t NTHREADS, --nt=NT (1:default)
+      * -u use_reduce, --ur=use_reduce (use privatization or not)
+      * --help
+
+2. COO-CPD (GPU)
+
+    * Usage: ./build/examples/cpd_gpu [options], Options:
+      * -i INPUT, --input=INPUT (.tns file)
+      * -o OUTPUT, --output=OUTPUT (output file name)
+      * -d CUDA_DEV_ID, --cuda-dev-id=CUDA_DEV_ID (>=0:GPU device id)
+      * -r RANK (CPD rank, 16:default)
+      * GPU options: 
+      * -p IMPL_NUM, --impl-num=IMPL_NUM (11, 12, 15, where 15 should be the best case)v
+      * --help
+
 
 2. HiCOO-CPD (CPU, Multicore)
 
-    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
-    * tsr: input sparse tensor
-    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
-    * impl_num: 11, 12, 15, where 15 should be the best case
-    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
-    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
-    * output: the file name for output. [Optinal]
-    * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+    * Usage: ./build/examples/cpd_hicoo [options], Options:
+      * -i INPUT, --input=INPUT (.tns file)
+      * -o OUTPUT, --output=OUTPUT (output file name)
+      * -b BLOCKSIZE, --blocksize=BLOCKSIZE (in bits) (required)
+      * -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (required)
+      * -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)
+      * -r RANK (CPD rank, 16:default)
+      * OpenMP options: 
+      * -t NTHREADS, --nt=NT (1:default)
+      * --help
+
     
 **_TTM_**: 
 1. COO-TTM (CPU, Multicore, GPU)
