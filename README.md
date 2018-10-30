@@ -12,12 +12,18 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 * Kronecker product (CPU)
 * Khatri-Rao product (CPU)
 * Sparse tensor matricization (CPU)
-* Element-wise tensor add/sub/mul/div (CPU, OMP, GPU)
-* Sparse tensor-times-dense matrix (SpTTM) (CPU, OMP, GPU)
-* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP) (CPU, OMP, GPU)
-* Sparse tensor matricization
+* Element-wise tensor add/sub/mul/div (CPU, Multicore, GPU)
+* Sparse tensor-times-dense matrix (SpTTM) (CPU, Multicore, GPU)
+* Sparse matricized tensor times Khatri-Rao product (SpMTTKRP) (CPU, Multicore, GPU)
+* Sparse tensor matricization (CPU)
 * Sparse CANDECOMP/PARAFAC decomposition
 * Sparse Tucker decomposition (refer to branch JPDC)
+
+
+## Supported sparse tensor formats:
+
+* Coordinate (COO) format
+* Hierarchical coordinate (HiCOO) format [[Paper](http://fruitfly1026.github.io/static/files/sc18-li.pdf)
 
 
 ## Build requirements:
@@ -28,7 +34,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 - [CUDA SDK](https://developer.nvidia.com/cuda-downloads) [Optional]
 
-- [OpenBLAS](http://www.openblas.net) (Or an alternative BLAS and Lapack library) [Optional]
+- [OpenBLAS](http://www.openblas.net) (Or an alternative BLAS and Lapack library) [Required for tensor decomposition]
 
 - [MAGMA](http://icl.cs.utk.edu/magma/) [Optional]
 
@@ -41,11 +47,11 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 3. Check `build` for resulting library
 
-4. Check `build/tests` for testing programs
+4. Check `build/tests` for testing programs, for basic functionality
 
-5. Check `build/examples` for example programs
+5. Check `build/examples` for example programs including MTTKRP, TTM, CP decomposition
 
-## Build MATLAB interface:
+## Build MATLAB interface (Not quite ready for this version:
 
 1. `cd matlab`
 
@@ -71,7 +77,44 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Run examples:
 
-1. MTTKRP: 
+**_MTTKRP_**: 
+1. COO-MTTKRP (CPU, Multicore, GPU)
+
+    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
+    * tsr: input sparse tensor
+    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
+    * impl_num: 11, 12, 15, where 15 should be the best case
+    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
+    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
+    * output: the file name for output. [Optinal]
+    * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+
+2. HiCOO-MTTKRP (CPU, Multicore)
+
+    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
+    * tsr: input sparse tensor
+    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
+    * impl_num: 11, 12, 15, where 15 should be the best case
+    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
+    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
+    * output: the file name for output. [Optinal]
+    * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+
+
+**_CPD_**: 
+1. COO-CPD (CPU, Multicore, GPU)
+
+    * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
+    * tsr: input sparse tensor
+    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
+    * impl_num: 11, 12, 15, where 15 should be the best case
+    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
+    * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
+    * output: the file name for output. [Optinal]
+    * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+
+2. HiCOO-CPD (CPU, Multicore)
+
     * Usage: ./build/examples/mttkrp tsr mode impl_num [cuda_dev_id, R, output]
     * tsr: input sparse tensor
     * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
@@ -81,20 +124,29 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
     * output: the file name for output. [Optinal]
     * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
     
-2. TTM: 
+**_TTM_**: 
+1. COO-TTM (CPU, Multicore, GPU)
+
     * Usage: ./build/examples/ttm tsr mode impl_num smem_size [cuda_dev_id, R, output]
     * tsr: input sparse tensor
     * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
     * impl_num: 11, 12, 13, 14, 15, where either 14 or 15 should be the best case
     * smem_size: shared memory size in bytes (0, or 16000, or 32000, or 48000) 
-    * cuda_dev_id: -2, -1, or 0, 1, -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
+    * cuda_dev_id: -2, -1, or 0, 1, ... -2: sequential code; -1: omp code; 0, or other possible integer: GPU devide id. [Optinal, -2 by default]
     * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
     * output: the file name for output. [Optinal]
     * An example: ./build/examples/ttm example.tns 0 15 16000 0 16 result.txt
     
 
 <br/>The algorithms and details are described in the following publications.
+
 ## Publication
+* **Scalable Tensor Decompositions in High Performance Computing Environments**. Jiajia Li. PhD Dissertation. Georgia Institute of Technology, Atlanta, GA, USA. July 2018. [[pdf]](http://fruitfly1026.github.io/static/files/LI-DISSERTATION-2018.pdf) [[bib]](http://fruitfly1026.github.io/static/files/LI-DISSERTATION-2018-bib.txt) 
+
+* **HiCOO: Hierarchical Storage of Sparse Tensors**. Jiajia Li, Jimeng Sun, Richard Vuduc. ACM/IEEE International Conference for High-Performance Computing, Networking, Storage, and Analysis (SC). 2018 (accepted). [[pdf]](http://fruitfly1026.github.io/static/files/sc18-li.pdf) [[bib]](http://fruitfly1026.github.io/static/files/sc18-li-bib.txt)
+
+* **Optimizing Sparse Tensor Times Matrix on GPUs**. Yuchen Ma, Jiajia Li, Xiaolong Wu, Chenggang Yan, Jimeng Sun, Richard Vuduc. Journal of Parallel and Distributed Computing (Special Issue on Systems for Learning, Inferencing, and Discovering). [[pdf]](http://fruitfly1026.github.io/static/files/jpdc-ma.pdf) [[bib]](http://fruitfly1026.github.io/static/files/jpdc-ma-bib.txt) 
+
 * **Optimizing Sparse Tensor Times Matrix on multi-core and many-core architectures**. Jiajia Li, Yuchen Ma, Chenggang Yan, Richard Vuduc. The sixth Workshop on Irregular Applications: Architectures and Algorithms (IA^3), co-located with SC’16. 2016. [[pdf]](http://fruitfly1026.github.io/static/files/sc16-ia3.pdf)
 
 * **ParTI!: a Parallel Tensor Infrastructure for Data Analysis**. Jiajia Li, Yuchen Ma, Chenggang Yan, Jimeng Sun, Richard Vuduc. Tensor-Learn Workshop @ NIPS'16. [[pdf]](http://fruitfly1026.github.io/static/files/nips16-tensorlearn.pdf)
@@ -104,7 +156,8 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 @misc{parti,
 author="Jiajia Li, Yuchen Ma, Richard Vuduc",
 title="{ParTI!} : A Parallel Tensor Infrastructure",
-year="2017",
+month="Oct",
+year="2018",
 url="https://github.com/hpcgarage/ParTI"
 }
 ```
@@ -113,7 +166,6 @@ url="https://github.com/hpcgarage/ParTI"
 
 * Jiajia Li (Contact: jiajia.li@pnnl.gov)
 * Yuchen Ma (Contact: m13253@hotmail.com)
-* Nick Liu
 
 ## License
 
