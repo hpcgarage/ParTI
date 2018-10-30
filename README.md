@@ -95,6 +95,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
       * -u use_reduce, --ur=use_reduce (use privatization or not)
       * --help
 
+<!---
     tsr mode impl_num [cuda_dev_id, R, output]
     * tsr: input sparse tensor
     * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
@@ -103,6 +104,7 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
     * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
     * output: the file name for output. [Optinal]
     * An example: ./build/examples/mttkrp example.tns 0 15 0 16 result.txt
+--->
 
 2. COO-MTTKRP (GPU)
 
