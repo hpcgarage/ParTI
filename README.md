@@ -82,17 +82,17 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 1. COO-MTTKRP (CPU, Multicore)
 
     * Usage: ./build/examples/mttkrp [options], Options:
-    * -i INPUT, --input=INPUT (.tns file)
-    * -o OUTPUT, --output=OUTPUT
-    * -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)
-    * -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4)
-    * -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)
-    * -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)
-    * -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)
-    * -r RANK
-    * OpenMP options: 
-    * -t NTHREADS, --nt=NT
-    * -u use_reduce, --ur=use_reduce (use privatization or not)
+    ..* -i INPUT, --input=INPUT (.tns file)
+    ..* -o OUTPUT, --output=OUTPUT
+    ..* -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)
+    ..* -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4. Different tensor sorting.)
+    ..* -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)
+    ..* -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)
+    ..* -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)
+    ..* -r RANK
+    ..* OpenMP options: 
+    ..* -t NTHREADS, --nt=NT
+    ..* -u use_reduce, --ur=use_reduce (use privatization or not)
 
     tsr mode impl_num [cuda_dev_id, R, output]
     * tsr: input sparse tensor

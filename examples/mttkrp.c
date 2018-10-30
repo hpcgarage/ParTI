@@ -28,7 +28,7 @@ void print_usage(char ** argv) {
     printf("Options: -i INPUT, --input=INPUT (.tns file)\n");
     printf("         -o OUTPUT, --output=OUTPUT\n");
     printf("         -m MODE, --mode=MODE (default -1: loop all modes, or specify a mode)\n");
-    printf("         -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4)\n");
+    printf("         -s sortcase, --sortcase=SORTCASE (0:default,1,2,3,4. Different tensor sorting.)\n");
     printf("         -b BLOCKSIZE (bits), --blocksize=BLOCKSIZE (bits) (Only for sortcase=3)\n");
     printf("         -k KERNELSIZE (bits), --kernelsize=KERNELSIZE (bits) (Only for sortcase=3)\n");
     printf("         -d DEV_ID, --dev-id=DEV_ID (-2:Sequential,default; -1:OpenMP parallel)\n");
