@@ -158,7 +158,7 @@ int main(int argc, char ** argv) {
             /* Pre-process tensor, the same with the one used in HiCOO.
              * Only difference is not setting kptr and kschr in this function.
              */
-            sptSparseTensorMixedOrder(&X, sb_bits, sk_bits);
+            sptSparseTensorMixedOrder(&X, sb_bits, sk_bits, 1);
             break;
         case 4:
             // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);

@@ -1100,7 +1100,7 @@ static void spt_QuickSortIndexRowBlock(sptSparseTensor *tsr, sptNnzIndex l, sptN
             p = i;
         }
     }
-    #pragma omp task firstprivate(l,i) shared(tsr, sk_bits)
+    #pragma omp task firstprivate(l,i) shared(tsr)
     {
         spt_QuickSortIndexRowBlock(tsr, l, i, sk_bits);
     }
