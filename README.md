@@ -189,7 +189,30 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
     * R: rank number (matrix column size), an integer. [Optinal, 16 by default]
     * output: the file name for output. [Optinal]
     * An example: ./build/examples/ttm example.tns 0 15 16000 0 16 result.txt
-    
+
+2. SCOO-TTM (CPU, GPU)
+
+    * Usage: ./build/examples/sttm tsr U Y mode [cuda_dev_id]
+    * tsr: input semi-sparse tensor
+    * U: input dense matrix
+    * Y: output semi-sparse tensor
+    * mode: specify tensor mode, e.g. (0, or 1, or 2) for third-order tensors
+    * cuda_dev_id: -1, or 0, 1, ... -1: sequential code; 0, or other possible integer: GPU devide id. [Optinal, -1 by default]
+
+**_Tucker Decomposition_**
+1. COO-Tucker (CPU, GPU)
+
+    The code is in the `jpdc` branch, which is a complete different and imcompatible codebase in C++.
+
+    * Usage: ./build/examples/tucker --dev device [options] tsr R1 R2 ... dimorder1 dimorder2 ...
+    * device: CPU core ID or GPU ID, obtain with ./build/examples/detect_devices (Currently multicore CPU is not implemented)
+    * tsr: input sparse tensor
+    * R1, R2, ...: the shape of expected output core tensor
+    * dimorder1, dimorder2, ...: the order of the TTM chain operation
+    * Options:
+    * -o, --output: output the core tensor into a text file
+    * -d, --dense-format: print the result to screen in dense format, instead of sparse format
+    * -l, --limit: limit how much result to print to screen
 
 <br/>The algorithms and details are described in the following publications.
 

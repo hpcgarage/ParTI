@@ -56,7 +56,7 @@ int sptCudaSparseTensorDotMulEq(sptSparseTensor *Z, const sptSparseTensor *X, co
     }
     sptNnzIndex nnz = X->nnz;
 
-    sptCopySparseTensor(Z, X);
+    sptCopySparseTensor(Z, X, 1);
 
     sptValue *X_val = NULL;
     result = cudaMalloc((void **) &X_val, X->nnz * sizeof (sptValue));
