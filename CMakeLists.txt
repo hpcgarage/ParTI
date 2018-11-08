@@ -1,14 +1,18 @@
 # Requires
 cmake_minimum_required(VERSION 3.2)  # CMake 3.2 supports CUDA 7.0
 project(ParTI)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
 
 # Enable unit test
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
 include(CTest)
-option(CODE_COVERAGE "Enable code coverage test" OFF)
-if(CODE_COVERAGE)
-  include(CodeCoverage)
-  APPEND_COVERAGE_COMPILER_FLAGS()
+if(BUILD_TESTING)
+  find_program(MEMORYCHECK_COMMAND valgrind)
+  option(CODE_COVERAGE "Enable code coverage test" OFF)
+  if(CODE_COVERAGE)
+    find_program(CTEST_COVERAGE_COMMAND gcov)
+    include(CodeCoverage)
+    APPEND_COVERAGE_COMPILER_FLAGS()
+  endif()
 endif()
 
 # Define build ParTI library
