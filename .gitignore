@@ -18,8 +18,4 @@ timing-*/
 
 tmp*
 out*
-
-build.sh
-CMakeLists.txt
-example/CMakeLists.txt
-tests/CMakeLists.txt
+tags

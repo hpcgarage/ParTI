@@ -2,6 +2,15 @@
 cmake_minimum_required(VERSION 3.2)  # CMake 3.2 supports CUDA 7.0
 project(ParTI)
 
+# Enable unit test
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
+include(CTest)
+option(CODE_COVERAGE "Enable code coverage test" OFF)
+if(CODE_COVERAGE)
+  include(CodeCoverage)
+  APPEND_COVERAGE_COMPILER_FLAGS()
+endif()
+
 # Define build ParTI library
 option(BUILD_STATIC "Build static library" OFF)
 option(BUILD_SHARED "Build shared library" ON)
