@@ -23,7 +23,11 @@
 #include <time.h>
 #include <math.h>
 #include "../error/error.h"
-// #include "magma_lapack.h"
+#ifdef PARTI_USE_MAGMA
+  #include "magma_lapack.h"
+#else
+  #include "clapack.h"
+#endif
 
 int sptRankMatrixSolveNormals(
   sptIndex const mode,

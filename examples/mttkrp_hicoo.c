@@ -245,8 +245,13 @@ int main(int argc, char ** argv) {
 
             sptStopTimer(timer);
             char * prg_name;
-            asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+            int ret = asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+            if(ret < 0) {
+                perror("asprintf");
+                abort();
+            }
             sptPrintAverageElapsedTime(timer, niters, prg_name);
+            free(prg_name);
             printf("\n");
             sptFreeTimer(timer);
 

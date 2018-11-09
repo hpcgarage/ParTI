@@ -25,6 +25,8 @@
 #include "../error/error.h"
 #ifdef PARTI_USE_MAGMA
   #include "magma_lapack.h"
+#else
+  #include "clapack.h"
 #endif
 
 int sptMatrixSolveNormals(

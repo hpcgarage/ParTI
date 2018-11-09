@@ -17,6 +17,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <ParTI.h>
 
 int main(int argc, char *argv[]) {

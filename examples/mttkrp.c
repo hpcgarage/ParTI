@@ -292,8 +292,13 @@ int main(int argc, char ** argv) {
 
             if(dev_id == -2 || dev_id == -1) {
                 char * prg_name;
-                asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+                int ret = asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+                if(ret < 0) {
+                    perror("asprintf");
+                    abort();
+                }
                 double aver_time = sptPrintAverageElapsedTime(timer, niters, prg_name);
+                free(prg_name);
 
                 double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
                 uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
