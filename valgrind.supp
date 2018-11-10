@@ -1,0 +1,21 @@
+{
+   <cuda1>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   ...
+   obj:/usr/*lib*/libcuda*
+}
+{
+   <cuda2>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   obj:/usr/*lib*/libcuda*
+}
+{
+   <cuda3>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:_ZN6cudart*
+}
