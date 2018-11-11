@@ -128,6 +128,7 @@ double CpdAlsStep(
 
   for(sptIndex m=0; m < nmodes+1; ++m) {
     sptFreeMatrix(ata[m]);
+    free(ata[m]);
   }
   free(ata);
   free(mats_order);
@@ -186,6 +187,9 @@ int sptCpdAls(
   magma_finalize();
 #endif
   sptFreeMatrix(mats[nmodes]);
+  for(sptIndex m=0; m < nmodes+1; ++m) {
+    free(mats[m]);
+  }
 
   return 0;
 }

@@ -44,7 +44,7 @@ static int spt_LoadMatrixTranspose(sptMatrix *X, FILE *f) {
     return 0;
 }
 
-int main() {
+int main(void) {
     {
         static char bufX[] = "3\n"
             "2 2 2\n"
