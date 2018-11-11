@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <omp.h>
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
@@ -162,13 +161,6 @@ int main(int argc, char ** argv) {
 
     sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
-
-    /* Initialize locks */
-    sptMutexPool * lock_pool = NULL;
-    if(dev_id == -1 && use_reduce == 0) {
-        lock_pool = sptMutexAlloc();
-    }
-
 
     if (mode == PARTI_INDEX_MAX) {
 
@@ -458,9 +450,6 @@ int main(int argc, char ** argv) {
                 sptFreeMatrix(copy_U[t]);
             }
             free(copy_U);
-        }
-        if(lock_pool != NULL) {
-            sptMutexFree(lock_pool);
         }
     }
     for(sptIndex m=0; m<nmodes; ++m) {
