@@ -23,6 +23,8 @@
 #ifdef PARTI_USE_MAGMA
   #include "magma_v2.h"
   #include "magma_lapack.h"
+#else
+  #include "clapack.h"
 #endif
 #include "sptensor.h"
 
@@ -52,9 +54,9 @@ double OmpCpdAlsStep(
   }
 
   sptValue alpha = 1.0, beta = 0.0;
-  char const notrans = 'N';
-  char const trans = 'T';
-  char const uplo = 'L';
+  char notrans = 'N';
+  char trans = 'T';
+  char uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;
 

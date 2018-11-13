@@ -252,5 +252,6 @@ double sptSparseKruskalTensorInnerProduct(
   free(buffer_accum);
 #endif
 
+  free(accum);
   return inner;
 }

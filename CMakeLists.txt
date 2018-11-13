@@ -1,6 +1,20 @@
 # Requires
 cmake_minimum_required(VERSION 3.2)  # CMake 3.2 supports CUDA 7.0
 project(ParTI)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake-modules")
+
+# Enable unit test
+include(CTest)
+if(BUILD_TESTING)
+  find_program(MEMORYCHECK_COMMAND valgrind)
+  set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --show-reachable=yes --suppressions=${CMAKE_CURRENT_LIST_DIR}/valgrind.supp")
+  option(CODE_COVERAGE "Enable code coverage test" OFF)
+  if(CODE_COVERAGE)
+    find_program(CTEST_COVERAGE_COMMAND gcov)
+    include(CodeCoverage)
+    APPEND_COVERAGE_COMPILER_FLAGS()
+  endif()
+endif()
 
 # Define build ParTI library
 option(BUILD_STATIC "Build static library" OFF)
@@ -26,14 +40,14 @@ option(USE_MAGMA "Use MAGMA library" OFF)
 option(USE_MKL "Use Intel MKL library" OFF)
 
 # Check for debug mode
-if (DEFINED DEBUG)                                                     
+if (DEFINED DEBUG)
   message("Building in DEBUG mode. Expect for plenty of prints.")
-  add_definitions(-DPARTI_DEBUG=${DEBUG})                   
-  set(CMAKE_BUILD_TYPE Debug)                        
-else()                     
+  add_definitions(-DPARTI_DEBUG=${DEBUG})
+  set(CMAKE_BUILD_TYPE Debug)
+else()
   message("Building in RELEASE mode.")
   set(CMAKE_BUILD_TYPE Release)
-endif() 
+endif()
 
 
 if(USE_MPI)

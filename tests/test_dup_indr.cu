@@ -60,6 +60,16 @@ static void print_dev_data(const char *title, const short *const *dev_data) {
     printf("\n");
 }
 
+static void compare_data(const short *const *data1, const short *const *data2) {
+    for(size_t i = 0; i < 7; ++i) {
+        for(size_t j = 0; j < length[i]; ++j) {
+            if(data1[i][j] != data2[i][j]) {
+                abort();
+            }
+        }
+    }
+}
+
 int main() {
     print_data("Original data", header);
 

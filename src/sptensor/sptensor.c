@@ -90,7 +90,6 @@ void sptFreeSparseTensor(sptSparseTensor *tsr) {
     free(tsr->inds);
     sptFreeValueVector(&tsr->values);
     tsr->nmodes = 0;
-    tsr->nmodes = 0;
 }
 
 

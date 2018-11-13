@@ -7,19 +7,8 @@ build.config
 *.ptx
 *.mex*
 
-backup/
-tests/backup/
-examples/backup/
-
-results/*.out
-timing_*/
-timing/
-timing-*/
+timing-results/
 
 tmp*
 out*
-
-build.sh
-CMakeLists.txt
-example/CMakeLists.txt
-tests/CMakeLists.txt
+tags

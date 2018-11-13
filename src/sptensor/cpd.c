@@ -23,6 +23,8 @@
 #ifdef PARTI_USE_MAGMA
   #include "magma_v2.h"
   #include "magma_lapack.h"
+#else
+  #include "clapack.h"
 #endif
 #include "sptensor.h"
 
@@ -45,9 +47,9 @@ double CpdAlsStep(
   }
 
   sptValue alpha = 1.0, beta = 0.0;
-  char const notrans = 'N';
-  char const trans = 'T';
-  char const uplo = 'L';
+  char notrans = 'N';
+  char trans = 'T';
+  char uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;
 
@@ -126,6 +128,7 @@ double CpdAlsStep(
 
   for(sptIndex m=0; m < nmodes+1; ++m) {
     sptFreeMatrix(ata[m]);
+    free(ata[m]);
   }
   free(ata);
   free(mats_order);
@@ -184,6 +187,9 @@ int sptCpdAls(
   magma_finalize();
 #endif
   sptFreeMatrix(mats[nmodes]);
+  for(sptIndex m=0; m < nmodes+1; ++m) {
+    free(mats[m]);
+  }
 
   return 0;
 }

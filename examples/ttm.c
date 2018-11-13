@@ -6,13 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ParTI.h>
-
-#define spt_CheckError(errcode, module, reason) \
-    if((errcode) != 0) { \
-        spt_ComplainError(module, (errcode), __FILE__, __LINE__, (reason)); \
-        return (errcode); \
-    }
-extern "C" void spt_ComplainError(const char *module, int errcode, const char *file, unsigned line, const char *reason);
+#include "../src/error/error.h"
 
 static int do_ttm(sptSparseTensor *X, sptMatrix *U, sptIndex mode, int cuda_dev_id) {
     sptSemiSparseTensor Y;
@@ -22,7 +16,9 @@ static int do_ttm(sptSparseTensor *X, sptMatrix *U, sptIndex mode, int cuda_dev_
     } else if(cuda_dev_id == -1) {
         result = sptOmpSparseTensorMulMatrix(&Y, X, U, mode);
     } else {
-        result = sptCudaSparseTensorMulMatrix(&Y, X, U, mode);
+        fprintf(stderr, "This build does not support GPU. Refer to ttm_gpu for GPU-enabled build.\n");
+        abort();
+        //result = sptCudaSparseTensorMulMatrix(&Y, X, U, mode);
     }
     spt_CheckError(result, "do_ttm", NULL);
     sptFreeSemiSparseTensor(&Y);
@@ -32,7 +28,8 @@ static int do_ttm(sptSparseTensor *X, sptMatrix *U, sptIndex mode, int cuda_dev_
 static int spt_LoadMatrixTranspose(sptMatrix *X, FILE *f) {
     int result = 0;
     sptIndex nmodes, nrows, ncols;
-    fscanf(f, "%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX, &nmodes, &ncols, &nrows);
+    result = fscanf(f, "%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX"%"PARTI_SCN_INDEX, &nmodes, &ncols, &nrows);
+    spt_CheckOSError(result < 3, "LoadMtx");
     if(nmodes != 2) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "LoadMtx", "nmodes != 2");
     }
@@ -43,7 +40,8 @@ static int spt_LoadMatrixTranspose(sptMatrix *X, FILE *f) {
     for(i = 0; i < X->ncols; ++i) {
         for(j = 0; j < X->nrows; ++j) {
             double value;
-            fscanf(f, "%lf", &value);
+            result = fscanf(f, "%lf", &value);
+            spt_CheckOSError(result < 1, "LoadMtx");
             X->values[j * X->stride + i] = value;
         }
     }

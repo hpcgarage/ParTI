@@ -78,6 +78,8 @@ A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse t
 
 ## Run examples:
 
+Please refer to `GettingStarted.md` for more general cases. Only some major functions are shown below.
+
 **_MTTKRP_**: 
 1. COO-MTTKRP (CPU, Multicore)
 

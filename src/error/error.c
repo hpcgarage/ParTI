@@ -42,14 +42,12 @@ void spt_ComplainError(const char *module, int errcode, const char *file, unsign
     g_last_error.module = module;
     g_last_error.file = file;
     g_last_error.line = line;
-    free(g_last_error.reason);
     if(reason) {
-        size_t len = strlen(reason);
-        g_last_error.reason = malloc(len+1);
+        free(g_last_error.reason);
+        g_last_error.reason = strdup(reason);
         if(!g_last_error.reason) {
             abort();
         }
-        memcpy(g_last_error.reason, reason, len+1);
     }
     if(g_last_error.reason && g_last_error.reason[0] != '\0') {
         fprintf(stderr, "[%s] error 0x%08x at %s:%u, %s\n",

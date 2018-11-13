@@ -137,7 +137,6 @@ int main(int argc, char ** argv) {
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
-    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     /* Sort sparse tensor */
     sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
@@ -173,7 +172,6 @@ int main(int argc, char ** argv) {
     }
 
     sptSparseTensorStatus(&X, stdout);
-    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     sptIndex nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));

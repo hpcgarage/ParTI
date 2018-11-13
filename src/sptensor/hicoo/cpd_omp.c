@@ -22,6 +22,8 @@
 #ifdef PARTI_USE_MAGMA
   #include "magma_v2.h"
   #include "magma_lapack.h"
+#else
+  #include "clapack.h"
 #endif
 #include "hicoo.h"
 
@@ -60,8 +62,8 @@ double spt_OmpCpdAlsStepHiCOO(
   }
 
   sptValue alpha = 1.0, beta = 0.0;
-  char const notrans = 'N';
-  char const uplo = 'L';
+  char notrans = 'N';
+  char uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;
 

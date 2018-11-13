@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <omp.h>
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
@@ -141,7 +140,6 @@ int main(int argc, char ** argv) {
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
-    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     sptIndex nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -162,13 +160,6 @@ int main(int argc, char ** argv) {
 
     sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
     sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
-
-    /* Initialize locks */
-    sptMutexPool * lock_pool = NULL;
-    if(dev_id == -1 && use_reduce == 0) {
-        lock_pool = sptMutexAlloc();
-    }
-
 
     if (mode == PARTI_INDEX_MAX) {
 
@@ -210,7 +201,6 @@ int main(int argc, char ** argv) {
             }
 
             sptSparseTensorStatus(&X, stdout);
-            // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
 
             /* Set zeros for temporary copy_U, for mode-"mode" */
@@ -246,8 +236,6 @@ int main(int argc, char ** argv) {
                     mats_order[i] = mode_order[nmodes - i];
                 break;
             }
-            // printf("mats_order:\n");
-            // sptDumpIndexArray(mats_order, nmodes, stdout);
 
 
             /* For warm-up caches, timing not included */
@@ -262,8 +250,6 @@ int main(int argc, char ** argv) {
                 } else {
                     printf("sptOmpMTTKRP:\n");
                     sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                    // printf("sptOmpMTTKRP_Lock:\n");
-                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
                 }
             }
 
@@ -292,8 +278,13 @@ int main(int argc, char ** argv) {
 
             if(dev_id == -2 || dev_id == -1) {
                 char * prg_name;
-                asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+                int ret = asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
+                if(ret < 0) {
+                    perror("asprintf");
+                    abort();
+                }
                 double aver_time = sptPrintAverageElapsedTime(timer, niters, prg_name);
+                free(prg_name);
 
                 double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
                 uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
@@ -345,7 +336,6 @@ int main(int argc, char ** argv) {
         }
 
         sptSparseTensorStatus(&X, stdout);
-        // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
         /* Set zeros for temporary copy_U, for mode-"mode" */
         char * bytestr;
@@ -381,8 +371,6 @@ int main(int argc, char ** argv) {
                 mats_order[i] = mode_order[nmodes - i];
             break;
         }
-        // printf("mats_order:\n");
-        // sptDumpIndexArray(mats_order, nmodes, stdout);
 
         /* For warm-up caches, timing not included */
         if(dev_id == -2) {
@@ -396,8 +384,6 @@ int main(int argc, char ** argv) {
             } else {
                 printf("sptOmpMTTKRP:\n");
                 sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                // printf("sptOmpMTTKRP_Lock:\n");
-                // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
             }
         }
 
@@ -416,8 +402,6 @@ int main(int argc, char ** argv) {
                     sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
                 } else {
                     sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                    // printf("sptOmpMTTKRP_Lock:\n");
-                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
                 }
             }
         }
@@ -453,9 +437,6 @@ int main(int argc, char ** argv) {
                 sptFreeMatrix(copy_U[t]);
             }
             free(copy_U);
-        }
-        if(lock_pool != NULL) {
-            sptMutexFree(lock_pool);
         }
     }
     for(sptIndex m=0; m<nmodes; ++m) {

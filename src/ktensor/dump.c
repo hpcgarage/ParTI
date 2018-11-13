@@ -42,7 +42,7 @@ int sptDumpKruskalTensor(sptKruskalTensor *ktsr, FILE *fp)
     fprintf(fp, "lambda:\n");    
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
         iores = fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
-        spt_CheckOSError(iores != 0, "KruskalTns Dump");
+        spt_CheckOSError(iores < 0, "KruskalTns Dump");
     }
 
     fprintf(fp, "Factor matrices:\n");
@@ -76,7 +76,7 @@ int sptDumpRankKruskalTensor(sptRankKruskalTensor *ktsr, FILE *fp)
     fprintf(fp, "lambda:\n");    
     for(mode = 0; mode < ktsr->nmodes; ++mode) {
         iores = fprintf(fp, "%"PARTI_PRI_VALUE " ", ktsr->lambda[mode]);
-        spt_CheckOSError(iores != 0, "KruskalTns Dump");
+        spt_CheckOSError(iores < 0, "KruskalTns Dump");
     }
 
     fprintf(fp, "Factor matrices:\n");
