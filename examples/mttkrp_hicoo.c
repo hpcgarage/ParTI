@@ -138,7 +138,6 @@ int main(int argc, char ** argv) {
 
     sptFreeSparseTensor(&tsr);
     sptSparseTensorStatusHiCOO(&hitsr, stdout);
-    // sptAssert(sptDumpSparseTensorHiCOO(&hitsr, stdout) == 0);
 
     /* Initialize factor matrices */
     sptIndex nmodes = hitsr.nmodes;
@@ -155,11 +154,9 @@ int main(int argc, char ** argv) {
       if(hitsr.ndims[m] > max_ndims)
         max_ndims = hitsr.ndims[m];
       factor_bytes += hitsr.ndims[m] * R * sizeof(sptValue);
-      // sptAssert(sptDumpMatrix(U[m], stdout) == 0);
     }
     sptAssert(sptNewRankMatrix(U[nmodes], max_ndims, R) == 0);
     sptAssert(sptConstantRankMatrix(U[nmodes], 0) == 0);
-    // sptAssert(sptDumpMatrix(U[nmodes], stdout) == 0);
 
     /* output factor size */
     char * bytestr;

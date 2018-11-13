@@ -140,7 +140,6 @@ int main(int argc, char ** argv) {
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
-    // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
     sptIndex nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -202,7 +201,6 @@ int main(int argc, char ** argv) {
             }
 
             sptSparseTensorStatus(&X, stdout);
-            // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
 
             /* Set zeros for temporary copy_U, for mode-"mode" */
@@ -238,8 +236,6 @@ int main(int argc, char ** argv) {
                     mats_order[i] = mode_order[nmodes - i];
                 break;
             }
-            // printf("mats_order:\n");
-            // sptDumpIndexArray(mats_order, nmodes, stdout);
 
 
             /* For warm-up caches, timing not included */
@@ -254,8 +250,6 @@ int main(int argc, char ** argv) {
                 } else {
                     printf("sptOmpMTTKRP:\n");
                     sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                    // printf("sptOmpMTTKRP_Lock:\n");
-                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
                 }
             }
 
@@ -342,7 +336,6 @@ int main(int argc, char ** argv) {
         }
 
         sptSparseTensorStatus(&X, stdout);
-        // sptAssert(sptDumpSparseTensor(&X, 0, stdout) == 0);
 
         /* Set zeros for temporary copy_U, for mode-"mode" */
         char * bytestr;
@@ -378,8 +371,6 @@ int main(int argc, char ** argv) {
                 mats_order[i] = mode_order[nmodes - i];
             break;
         }
-        // printf("mats_order:\n");
-        // sptDumpIndexArray(mats_order, nmodes, stdout);
 
         /* For warm-up caches, timing not included */
         if(dev_id == -2) {
@@ -393,8 +384,6 @@ int main(int argc, char ** argv) {
             } else {
                 printf("sptOmpMTTKRP:\n");
                 sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                // printf("sptOmpMTTKRP_Lock:\n");
-                // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
             }
         }
 
@@ -413,8 +402,6 @@ int main(int argc, char ** argv) {
                     sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
                 } else {
                     sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
-                    // printf("sptOmpMTTKRP_Lock:\n");
-                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
                 }
             }
         }
