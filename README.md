@@ -233,7 +233,7 @@ Please refer to `GettingStarted.md` for more general cases. Only some major func
 ```
 @misc{parti,
 author="Jiajia Li and Yuchen Ma and Richard Vuduc",
-title="{ParTI!} : A Parallel Tensor Infrastructure",
+title="{ParTI!} : A Parallel Tensor Infrastructure for multicore CPUs and GPUs",
 month="Oct",
 year="2018",
 url="https://github.com/hpcgarage/ParTI"
