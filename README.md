@@ -232,7 +232,7 @@ Please refer to `GettingStarted.md` for more general cases. Only some major func
 ## Citation
 ```
 @misc{parti,
-author="Jiajia Li, Yuchen Ma, Richard Vuduc",
+author="Jiajia Li and Yuchen Ma and Richard Vuduc",
 title="{ParTI!} : A Parallel Tensor Infrastructure",
 month="Oct",
 year="2018",
