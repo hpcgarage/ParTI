@@ -170,6 +170,19 @@ __global__ void spt_MTTKRPKernelRankSplitNnz3DOneKernel(
     const sptIndex * dev_mats_order,
     sptValue ** dev_mats);
 
+/* impl_num = 15 */
+__global__ void spt_MTTKRPKernelRankSplitNnz4DOneKernel(
+    const sptIndex mode,
+    const sptIndex nmodes,
+    const sptNnzIndex nnz,
+    const sptIndex R,
+    const sptIndex stride,
+    const sptIndex * Xndims,
+    sptIndex ** const Xinds,
+    const sptValue * Xvals,
+    const sptIndex * dev_mats_order,
+    sptValue ** dev_mats);
+
 /* impl_num = 16 */
 __global__ void spt_MTTKRPKernelRankSplitNnzRB3DOneKernel(
     const sptIndex mode,
@@ -184,164 +197,5 @@ __global__ void spt_MTTKRPKernelRankSplitNnzRB3DOneKernel(
     sptValue ** dev_mats);
 
 
-
-/**** impl_num = 2x: Stream One GPU: cache blocking ****/
-/* impl_num = 21. */
-__global__ void spt_MTTKRPKernelBlockNnz3D(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-
-/* impl_num = 25 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-
-/* impl_num = 26 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnzRB3D(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-
-
-/**** impl_num = 3x: Stream One GPU: shared memory blocking for coarse grain ****/
-/* impl_num = 35 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarse(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const inds_low,
-    sptIndex ** const Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-/* impl_num = 36 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMCoarseRB(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const inds_low,
-    sptIndex ** const Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-
-/**** impl_num = 4x: Stream One GPU: shared memory blocking for medium grain ****/
-/* impl_num = 45 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMedium(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const inds_low,
-    sptIndex ** const Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-
-/* impl_num = 46 */
-__global__ void spt_MTTKRPKernelBlockRankSplitNnz3D_SMMediumRB(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex * nnz,
-    const sptNnzIndex * dev_nnz_blk_begin,
-    const sptIndex R,
-    const sptIndex stride,
-    sptIndex * const inds_low_allblocks,
-    sptIndex ** const inds_low,
-    sptIndex ** const Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-
-/**** impl_num = 5x: multiple GPUs ****/
-/* impl_num = 59, only the interface is a bit different. */
-__global__ void spt_MTTKRPKernelScratchDist(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex nnz,
-    const sptIndex R,
-    const sptIndex stride,
-    const sptIndex * Xndims,
-    const sptIndex * inds_low,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats,
-    sptValue * dev_scratch);
-
-
-
-/* impl_num = 31 */
-__global__ void spt_MTTKRPKernelNnz3DOneKernel(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex nnz,
-    const sptIndex R,
-    const sptIndex stride,
-    const sptIndex * Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
-
-__global__ void spt_MTTKRPKernelRankSplitNnz3DOneKernel(
-    const sptIndex mode,
-    const sptIndex nmodes,
-    const sptNnzIndex nnz,
-    const sptIndex R,
-    const sptIndex stride,
-    const sptIndex * Xndims,
-    sptIndex ** const Xinds,
-    const sptValue * Xvals,
-    const sptIndex * dev_mats_order,
-    sptValue ** dev_mats);
 
 #endif

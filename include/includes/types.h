@@ -24,8 +24,6 @@
 /**
  * Define types, TODO: check the bit size of them, add branch for different settings
  */
-#define PARTI_INDEX_TYPEWIDTH 32
-#define PARTI_VALUE_TYPEWIDTH 32
 #define PARTI_ELEMENT_INDEX_TYPEWIDTH 8
 
 #if PARTI_INDEX_TYPEWIDTH == 32

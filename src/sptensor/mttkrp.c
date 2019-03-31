@@ -57,10 +57,10 @@ int sptMTTKRP(sptSparseTensor const * const X,
     /* Check the mats. */
     for(sptIndex i=0; i<nmodes; ++i) {
         if(mats[i]->ncols != mats[nmodes]->ncols) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "Cpu SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
         if(mats[i]->nrows != ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "Cpu SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
         }
     }
 
@@ -73,6 +73,10 @@ int sptMTTKRP(sptSparseTensor const * const X,
     sptNewValueVector(&scratch, R, R);
     sptConstantValueVector(&scratch, 0);
 
+
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
 
     for(sptNnzIndex x=0; x<nnz; ++x) {
 
@@ -101,7 +105,10 @@ int sptMTTKRP(sptSparseTensor const * const X,
             mvals[mode_i * stride + r] += scratch.data[r];
         }
     }
-
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "Cpu SpTns MTTKRP");
+    
+    sptFreeTimer(timer);
     sptFreeValueVector(&scratch);
 
     return 0;
@@ -123,10 +130,10 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
     sptAssert(nmodes ==3);
     for(sptIndex i=0; i<nmodes; ++i) {
         if(mats[i]->ncols != mats[nmodes]->ncols) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "Cpu SpTns MTTKRP", "mats[i]->cols != mats[nmodes]->ncols");
         }
         if(mats[i]->nrows != ndims[i]) {
-            spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
+            spt_CheckError(SPTERR_SHAPE_MISMATCH, "Cpu SpTns MTTKRP", "mats[i]->nrows != ndims[i]");
         }
     }
     
@@ -148,6 +155,10 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
     sptIndex mode_i;
     sptIndex tmp_i_1, tmp_i_2;
     sptValue entry;
+
+    sptTimer timer;
+    sptNewTimer(&timer, 0);
+    sptStartTimer(timer);
     for(sptNnzIndex x=0; x<nnz; ++x) {
         mode_i = mode_ind[x];
         tmp_i_1 = times_inds_1[x];
@@ -158,6 +169,9 @@ int sptMTTKRP_3D(sptSparseTensor const * const X,
             mvals[mode_i * stride + r] += entry * times_mat_1->values[tmp_i_1 * stride + r] * times_mat_2->values[tmp_i_2 * stride + r];
         }
     }
+    sptStopTimer(timer);
+    sptPrintElapsedTime(timer, "Cpu SpTns MTTKRP");
+    sptFreeTimer(timer);
 
     return 0;
 }

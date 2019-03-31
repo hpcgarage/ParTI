@@ -40,6 +40,15 @@ extern "C" {
 /*************************************************
  * TYPES
  *************************************************/
+#ifdef PARTI_INDEX_TYPEWIDTH
+    #undef PARTI_INDEX_TYPEWIDTH
+    #define PARTI_INDEX_TYPEWIDTH 32
+#endif
+#ifdef PARTI_VALUE_TYPEWIDTH
+    #undef PARTI_VALUE_TYPEWIDTH
+    #define PARTI_VALUE_TYPEWIDTH 64
+#endif
+
 #include "includes/types.h"
 
 

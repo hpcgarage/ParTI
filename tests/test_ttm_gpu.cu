@@ -79,7 +79,7 @@ int main() {
         result = sptSemiSparseTensorToSparseTensor(&spY, &Y, 1e-6);
         spt_CheckError(result, "convert", NULL);
 
-        char *bufY = calloc(1, 1024);
+        char *bufY = (char*) calloc(1, 1024);
         stream = fmemopen(bufY, 1023, "w");
         result = sptDumpSparseTensor(&spY, 0, stream);
         spt_CheckError(result, "convert", NULL);
