@@ -211,7 +211,7 @@ int spt_PreprocessSparseTensor(
         k_begin = kptr->data[k];
         k_end = kptr->data[k+1];   // exclusive
         /* Sort blocks in each kernel in Morton-order */
-        sptSparseTensorSortIndexMorton(tsr, 1, k_begin, k_end, sb_bits);
+        sptSparseTensorSortIndexMorton(tsr, 1, k_begin, k_end, sb_bits, tk);
 #if PARTI_DEBUG == 3
     printf("Kernel %"PARTI_PRI_NNZ_INDEX ": Sorted by sptSparseTensorSortIndexMorton.\n", k);
     sptAssert(sptDumpSparseTensor(tsr, 0, stdout) == 0);

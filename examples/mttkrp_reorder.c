@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <omp.h>
 #include <ParTI.h>
 #include "../src/sptensor/sptensor.h"
 
@@ -32,6 +33,9 @@ void print_usage(char ** argv) {
     printf("         -k KERNELSIZE, --kernelsize=KERNELSIZE (in bits) (only for sortcase=3)\n");
     printf("         -d DEV_ID, --dev-id=DEV_ID (-2:sequential,default; -1:OpenMP parallel)\n");
     printf("         -r RANK (the number of matrix columns, 16:default)\n");
+    printf("         Reordering options: \n");
+    printf("         -e RELABEL, --relabel=RELABEL (0:no-relabeling,default; 1:relabel with Lexi-order; 2:relabel with BFS-MCS; 3:randomly relabel)\n");
+    printf("         -n NITERS_RENUM (default: 3, required when -e 1)\n");
     printf("         OpenMP options: \n");
     printf("         -t NTHREADS, --nt=NT (1:default)\n");
     printf("         -u use_reduce, --ur=use_reduce (use privatization or not)\n");
@@ -47,16 +51,25 @@ int main(int argc, char ** argv) {
 
     sptIndex mode = PARTI_INDEX_MAX;
     sptIndex R = 16;
-    int dev_id = -2;
+    int cuda_dev_id = -2;
     int niters = 5;
-    int use_reduce = 1; // Need to choose from two omp parallel approaches
+    int relabel = 0;
+    int niters_renum = 3;
+    /* relabel:
+     * = 0 : no relabel.
+     * = 1 : relabel with Lexi-order
+     * = 2 : relabel with BFS-like
+     * = 3 : randomly relabel, specify niters_renum.
+     */
+    int use_reduce = 0; // Need to choose from two omp parallel approaches
     int nt = 1;
     /* sortcase:
      * = 0 : the same with the old COO code.
      * = 1 : best case. Sort order: [mode, (ordered by increasing dimension sizes)]
      * = 2 : worse case. Sort order: [(ordered by decreasing dimension sizes)]
      * = 3 : Z-Morton ordering (same with HiCOO format order)
-     * = 4 : random shuffling.
+     * = 4 : random shuffling for elements.
+     * = 5 : blocking only not mode-n indices.
      */
     int sortcase = 0;
     sptElementIndex sb_bits;
@@ -77,7 +90,10 @@ int main(int argc, char ** argv) {
             {"bs", required_argument, 0, 'b'},
             {"ks", required_argument, 0, 'k'},
             {"sortcase", optional_argument, 0, 's'},
-            {"dev-id", optional_argument, 0, 'd'},
+            {"impl-num", optional_argument, 0, 'p'},
+            {"relabel", optional_argument, 0, 'e'},
+            {"niters-renum", optional_argument, 0, 'n'},
+            {"cuda-dev-id", optional_argument, 0, 'd'},
             {"rank", optional_argument, 0, 'r'},
             {"nt", optional_argument, 0, 't'},
             {"use-reduce", optional_argument, 0, 'u'},
@@ -85,7 +101,7 @@ int main(int argc, char ** argv) {
             {0, 0, 0, 0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "i:m:o:b:k:s:d:r:t:u:", long_options, &option_index);
+        c = getopt_long(argc, argv, "i:m:o:b:k:s:e:d:r:t:u:n:", long_options, &option_index);
         if(c == -1) {
             break;
         }
@@ -112,8 +128,14 @@ int main(int argc, char ** argv) {
         case 's':
             sscanf(optarg, "%d", &sortcase);
             break;
+        case 'e':
+            sscanf(optarg, "%d", &relabel);
+            break;
+        case 'n':
+            sscanf(optarg, "%d", &niters_renum);
+            break;
         case 'd':
-            sscanf(optarg, "%d", &dev_id);
+            sscanf(optarg, "%d", &cuda_dev_id);
             break;
         case 'r':
             sscanf(optarg, "%u"PARTI_SCN_INDEX, &R);
@@ -134,12 +156,54 @@ int main(int argc, char ** argv) {
 
     if(mode == PARTI_INDEX_MAX) printf("mode: all\n");
     else printf("mode: %"PARTI_PRI_INDEX "\n", mode);
-    printf("dev_id: %d\n", dev_id);
+    printf("cuda_dev_id: %d\n", cuda_dev_id);
     printf("sortcase: %d\n", sortcase);
+    printf("relabel: %d\n", relabel);
+    if (relabel == 1)
+        printf("niters_renum: %d\n\n", niters_renum);
 
     /* Load a sparse tensor from file as it is */
     sptAssert(sptLoadSparseTensor(&X, 1, fi) == 0);
     fclose(fi);
+
+    /* relabel the input tensor */
+    sptIndex ** map_inds;
+    if (relabel > 0) {
+        map_inds = (sptIndex **)malloc(X.nmodes * sizeof *map_inds);
+        spt_CheckOSError(!map_inds, "MTTKRP HiCOO");
+        for(sptIndex m = 0; m < X.nmodes; ++m) {
+            map_inds[m] = (sptIndex *)malloc(X.ndims[m] * sizeof (sptIndex));
+            spt_CheckError(!map_inds[m], "MTTKRP HiCOO", NULL);
+            for(sptIndex i = 0; i < X.ndims[m]; ++i) 
+                map_inds[m][i] = i;
+        }
+
+        sptTimer renumber_timer;
+        sptNewTimer(&renumber_timer, 0);
+        sptStartTimer(renumber_timer);
+
+        if ( relabel == 1 || relabel == 2) { /* Set the Lexi-order or BFS-like renumbering */
+            sptIndexRenumber(&X, map_inds, relabel, niters_renum, nt);
+        }
+        if ( relabel == 3) { /* Set randomly renumbering */
+            sptGetRandomShuffledIndices(&X, map_inds);
+        }
+
+        sptStopTimer(renumber_timer);
+        sptPrintElapsedTime(renumber_timer, "Renumbering");
+        sptFreeTimer(renumber_timer);
+
+        sptTimer shuffle_timer;
+        sptNewTimer(&shuffle_timer, 0);
+        sptStartTimer(shuffle_timer);
+
+        sptSparseTensorShuffleIndices(&X, map_inds);
+
+        sptStopTimer(shuffle_timer);
+        sptPrintElapsedTime(shuffle_timer, "Shuffling time");
+        sptFreeTimer(shuffle_timer);
+        printf("\n");
+    }
 
     sptIndex nmodes = X.nmodes;
     U = (sptMatrix **)malloc((nmodes+1) * sizeof(sptMatrix*));
@@ -158,12 +222,20 @@ int main(int argc, char ** argv) {
     sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
     sptIndex stride = U[0]->stride;
 
-    sptIndex * mode_order = (sptIndex*) malloc(X.nmodes * sizeof(*mode_order));
-    sptIndex * mats_order = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
+    sptIndex * mode_order = (sptIndex*) malloc(nmodes * sizeof(*mode_order));
+    sptIndex * mats_order = (sptIndex*) malloc(nmodes * sizeof(sptIndex));
+
+    /* Initialize locks */
+    sptMutexPool * lock_pool = NULL;
+    if(cuda_dev_id == -1 && use_reduce == 0) {
+        lock_pool = sptMutexAlloc();
+    }
+
 
     if (mode == PARTI_INDEX_MAX) {
 
         for(sptIndex mode=0; mode<nmodes; ++mode) {
+
             /* Reset U[nmodes] */
             U[nmodes]->nrows = X.ndims[mode];
             sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
@@ -191,6 +263,10 @@ int main(int argc, char ** argv) {
                 case 4:
                     sptGetRandomShuffleElements(&X);
                     break;
+                case 5:
+                    sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                    sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits, nt);
+                    break;
                 default:
                     printf("Wrong sortcase number, reset by -s. \n");
             }
@@ -201,10 +277,9 @@ int main(int argc, char ** argv) {
 
             sptSparseTensorStatus(&X, stdout);
 
-
             /* Set zeros for temporary copy_U, for mode-"mode" */
             char * bytestr;
-            if(dev_id == -1 && use_reduce == 1) {
+            if(cuda_dev_id == -1 && use_reduce == 1) {
                 copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
                 for(int t=0; t<nt; ++t) {
                     copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
@@ -221,6 +296,7 @@ int main(int argc, char ** argv) {
             case 0:
             case 3:
             case 4:
+            case 5:
                 mats_order[0] = mode;
                 for(sptIndex i=1; i<nmodes; ++i)
                     mats_order[i] = (mode+i) % nmodes;
@@ -236,11 +312,10 @@ int main(int argc, char ** argv) {
                 break;
             }
 
-
             /* For warm-up caches, timing not included */
-            if(dev_id == -2) {
+            if(cuda_dev_id == -2) {
                 sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-            } else if(dev_id == -1) {
+            } else if(cuda_dev_id == -1) {
                 printf("nt: %d\n", nt);
                 if(use_reduce == 1) {
                     printf("sptOmpMTTKRP_Reduce:\n");
@@ -248,6 +323,8 @@ int main(int argc, char ** argv) {
                 } else {
                     printf("sptOmpMTTKRP:\n");
                     sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                    // printf("sptOmpMTTKRP_Lock:\n");
+                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
                 }
             }
 
@@ -258,9 +335,9 @@ int main(int argc, char ** argv) {
 
             for(int it=0; it<niters; ++it) {
                 // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-                if(dev_id == -2) {
+                if(cuda_dev_id == -2) {
                     sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-                } else if(dev_id == -1) {
+                } else if(cuda_dev_id == -1) {
                     if(use_reduce == 1) {
                         sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
                     } else {
@@ -273,7 +350,7 @@ int main(int argc, char ** argv) {
 
             sptStopTimer(timer);
 
-            if(dev_id == -2 || dev_id == -1) {
+            if(cuda_dev_id == -2 || cuda_dev_id == -1) {
                 char * prg_name;
                 int ret = asprintf(&prg_name, "CPU  SpTns MTTKRP MODE %"PARTI_PRI_INDEX, mode);
                 if(ret < 0) {
@@ -281,7 +358,6 @@ int main(int argc, char ** argv) {
                     abort();
                 }
                 double aver_time = sptPrintAverageElapsedTime(timer, niters, prg_name);
-                free(prg_name);
 
                 double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
                 uint64_t bytes = ( nmodes * sizeof(sptIndex) + sizeof(sptValue) ) * X.nnz; 
@@ -294,7 +370,10 @@ int main(int argc, char ** argv) {
             sptFreeTimer(timer);
 
             if(fo != NULL) {
-                sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
+                if (relabel > 0) {
+                    sptMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+                }
+                    sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
             }
 
         } // End nmodes
@@ -323,6 +402,10 @@ int main(int argc, char ** argv) {
             case 4:
                 sptGetRandomShuffleElements(&X);
                 break;
+            case 5:
+                sptGetBestModeOrder(mode_order, mode, X.ndims, X.nmodes);
+                sptSparseTensorSortPartialIndex(&X, mode_order, sb_bits, nt);
+                break;
             default:
                 printf("Wrong sortcase number, reset by -s. \n");
         }
@@ -331,11 +414,9 @@ int main(int argc, char ** argv) {
             sptDumpIndexArray(mode_order, X.nmodes, stdout);
         }
 
-        sptSparseTensorStatus(&X, stdout);
-
         /* Set zeros for temporary copy_U, for mode-"mode" */
         char * bytestr;
-        if(dev_id == -1 && use_reduce == 1) {
+        if(cuda_dev_id == -1 && use_reduce == 1) {
             copy_U = (sptMatrix **)malloc(nt * sizeof(sptMatrix*));
             for(int t=0; t<nt; ++t) {
                 copy_U[t] = (sptMatrix *)malloc(sizeof(sptMatrix));
@@ -353,6 +434,7 @@ int main(int argc, char ** argv) {
         case 0:
         case 3:
         case 4:
+        case 5:
             mats_order[0] = mode;
             for(sptIndex i=1; i<nmodes; ++i)
                 mats_order[i] = (mode+i) % nmodes;
@@ -369,9 +451,9 @@ int main(int argc, char ** argv) {
         }
 
         /* For warm-up caches, timing not included */
-        if(dev_id == -2) {
+        if(cuda_dev_id == -2) {
             sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-        } else if(dev_id == -1) {
+        } else if(cuda_dev_id == -1) {
             printf("nt: %d\n", nt);
             if(use_reduce == 1) {
                 printf("sptOmpMTTKRP_Reduce:\n");
@@ -379,6 +461,8 @@ int main(int argc, char ** argv) {
             } else {
                 printf("sptOmpMTTKRP:\n");
                 sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                // printf("sptOmpMTTKRP_Lock:\n");
+                // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
             }
         }
 
@@ -389,20 +473,22 @@ int main(int argc, char ** argv) {
 
         for(int it=0; it<niters; ++it) {
             // sptAssert(sptConstantMatrix(U[nmodes], 0) == 0);
-            if(dev_id == -2) {
+            if(cuda_dev_id == -2) {
                 sptAssert(sptMTTKRP(&X, U, mats_order, mode) == 0);
-            } else if(dev_id == -1) {
+            } else if(cuda_dev_id == -1) {
                 if(use_reduce == 1) {
                     sptAssert(sptOmpMTTKRP_Reduce(&X, U, copy_U, mats_order, mode, nt) == 0);
                 } else {
                     sptAssert(sptOmpMTTKRP(&X, U, mats_order, mode, nt) == 0);
+                    // printf("sptOmpMTTKRP_Lock:\n");
+                    // sptAssert(sptOmpMTTKRP_Lock(&X, U, mats_order, mode, nt, lock_pool) == 0);
                 }
             }
         }
 
         sptStopTimer(timer);
 
-        if(dev_id == -2 || dev_id == -1) {
+        if(cuda_dev_id == -2 || cuda_dev_id == -1) {
             double aver_time = sptPrintAverageElapsedTime(timer, niters, "CPU SpTns MTTKRP");
 
             double gflops = (double)nmodes * R * X.nnz / aver_time / 1e9;
@@ -416,6 +502,9 @@ int main(int argc, char ** argv) {
         sptFreeTimer(timer);
 
         if(fo != NULL) {
+            if (relabel > 0) {
+                sptMatrixInverseShuffleIndices(U[nmodes], map_inds[mode]);
+            }
             sptAssert(sptDumpMatrix(U[nmodes], fo) == 0);
         }
 
@@ -424,12 +513,21 @@ int main(int argc, char ** argv) {
     if(fo != NULL) {
         fclose(fo);
     }
-    if(dev_id == -1) {
+    if (relabel > 0) {
+        for(sptIndex m = 0; m < X.nmodes; ++m) {
+            free(map_inds[m]);
+        }
+        free(map_inds);
+    }
+    if(cuda_dev_id == -1) {
         if (use_reduce == 1) {
             for(int t=0; t<nt; ++t) {
                 sptFreeMatrix(copy_U[t]);
             }
             free(copy_U);
+        }
+        if(lock_pool != NULL) {
+            sptMutexFree(lock_pool);
         }
     }
     for(sptIndex m=0; m<nmodes; ++m) {

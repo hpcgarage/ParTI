@@ -39,11 +39,11 @@ double spt_OmpCpdAlsStepHiCOO(
   sptIndex const niters,
   double const tol,
   const int tk,
-  const int tb,
   const int * par_iters,
   sptRankMatrix ** mats,
   sptRankMatrix *** copy_mats,
-  sptValue * const lambda)
+  sptValue * const lambda,
+  int balanced)
 {
   sptIndex const nmodes = hitsr->nmodes;
   sptIndex const stride = mats[0]->stride;
@@ -63,6 +63,7 @@ double spt_OmpCpdAlsStepHiCOO(
 
   sptValue alpha = 1.0, beta = 0.0;
   char notrans = 'N';
+  // char trans = 'T';
   char uplo = 'L';
   int blas_rank = (int) rank;
   int blas_stride = (int) stride;
@@ -88,7 +89,7 @@ double spt_OmpCpdAlsStepHiCOO(
 
   sptTimer tmp_timer;
   sptNewTimer(&tmp_timer, 0);
-  double mttkrp_time, solver_time, norm_time, ata_time, fit_time;
+  // double mttkrp_time, solver_time, norm_time, ata_time, fit_time;
 
   for(sptIndex it=0; it < niters; ++it) {
     sptTimer timer;
@@ -103,14 +104,15 @@ double spt_OmpCpdAlsStepHiCOO(
       for(sptIndex i=1; i<nmodes; ++i)
           mats_order[i] = (m+i) % nmodes;     
 
+      // sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling(hitsr, mats, mats_order, m) == 0);  
       sptStartTimer(tmp_timer);
       if(par_iters[m] == 1) {
-        sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(hitsr, mats, copy_mats[m], mats_order, m, tk) == 0);
+        sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(hitsr, mats, copy_mats[m], mats_order, m, tk, balanced) == 0);
       } else {
-        sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(hitsr, mats, mats_order, m, tk) == 0);
+        sptAssert (sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(hitsr, mats, mats_order, m, tk, balanced) == 0);
       }
       sptStopTimer(tmp_timer);
-      // mttkrp_time = sptPrintElapsedTime(tmp_timer, "MTTKRP");
+      sptPrintElapsedTime(tmp_timer, "MTTKRP");
 
       sptStartTimer(tmp_timer);
 #ifdef PARTI_USE_OPENMP
@@ -145,6 +147,7 @@ double spt_OmpCpdAlsStepHiCOO(
     sptStartTimer(tmp_timer);
     fit = sptKruskalTensorFitHiCOO(hitsr, lambda, mats, ata);
     sptStopTimer(tmp_timer);
+    // fit_time = sptPrintElapsedTime(tmp_timer, "KruskalTensorFitHiCOO");
 
     sptStopTimer(timer);
     double its_time = sptElapsedTime(timer);
@@ -171,6 +174,7 @@ double spt_OmpCpdAlsStepHiCOO(
 }
 
 
+
 /*************************************************
  * PUBLIC FUNCTIONS
  *************************************************/
@@ -182,7 +186,6 @@ double spt_OmpCpdAlsStepHiCOO(
  * @param[in]  niters the maximum number of iterations
  * @param[in]  tol the tolerance value for convergence
  * @param[in]  tk the number of threads for superblock parallelism
- * @param[in]  tb the number of threads for block parallelism
  */
 int sptOmpCpdAlsHiCOO(
   sptSparseTensorHiCOO const * const hitsr,
@@ -190,10 +193,10 @@ int sptOmpCpdAlsHiCOO(
   sptIndex const niters,
   double const tol,
   const int tk,
+  int balanced,
   sptRankKruskalTensor * ktensor)
 {
   sptIndex nmodes = hitsr->nmodes;
-  const int tb = 1;
 #ifdef PARTI_USE_MAGMA
   magma_init();
 #endif
@@ -209,6 +212,7 @@ int sptOmpCpdAlsHiCOO(
   }
   for(sptIndex m=0; m < nmodes; ++m) {
     sptAssert(sptNewRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
+    // assert(sptConstantRankMatrix(mats[m], 1) == 0);
     sptAssert(sptRandomizeRankMatrix(mats[m], hitsr->ndims[m], rank) == 0);
   }
   sptAssert(sptNewRankMatrix(mats[nmodes], max_dim, rank) == 0);
@@ -224,11 +228,11 @@ int sptOmpCpdAlsHiCOO(
         par_iters[m] = 1;
     }
   }
-  // printf("par_iters:\n");
-  // for(sptIndex m=0; m < nmodes; ++m) {
-  //   printf("%d, ", par_iters[m]);
-  // }
-  // printf("\n");
+  printf("par_iters:\n");
+  for(sptIndex m=0; m < nmodes; ++m) {
+    printf("%d, ", par_iters[m]);
+  }
+  printf("\n");
 
   sptRankMatrix *** copy_mats = (sptRankMatrix ***)malloc(nmodes * sizeof(*copy_mats));
   for(sptIndex m=0; m < nmodes; ++m) {
@@ -246,7 +250,7 @@ int sptOmpCpdAlsHiCOO(
   sptNewTimer(&timer, 0);
   sptStartTimer(timer);
 
-  ktensor->fit = spt_OmpCpdAlsStepHiCOO(hitsr, rank, niters, tol, tk, tb, par_iters,  mats, copy_mats, ktensor->lambda);
+  ktensor->fit = spt_OmpCpdAlsStepHiCOO(hitsr, rank, niters, tol, tk, par_iters, mats, copy_mats, ktensor->lambda, balanced);
 
   sptStopTimer(timer);
   sptPrintElapsedTime(timer, "CPU  HiCOO SpTns CPD-ALS");
@@ -273,3 +277,4 @@ int sptOmpCpdAlsHiCOO(
 }
 
 #endif
+

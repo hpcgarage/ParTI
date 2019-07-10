@@ -72,6 +72,40 @@ int sptNewSparseTensorHiCOO(
     result = sptNewNnzIndexVector(&hitsr->cptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
 
+    /* Balanced structures */
+    hitsr->kschr_balanced = (sptIndexVector**)malloc(nmodes * sizeof *hitsr->kschr_balanced);
+    spt_CheckOSError(!hitsr->kschr_balanced, "HiSpTns New");
+    for(sptIndex m = 0; m < nmodes; ++m) {
+        sptIndex kernel_ndim = (ndims[m] + sk - 1)/sk;
+        hitsr->kschr_balanced[m] = (sptIndexVector*)malloc(kernel_ndim * sizeof(*(hitsr->kschr_balanced[m])));
+        spt_CheckOSError(!hitsr->kschr_balanced[m], "HiSpTns New");
+        for(sptIndex i = 0; i < kernel_ndim; ++i) {
+            result = sptNewIndexVector(&(hitsr->kschr_balanced[m][i]), 0, 0);
+            spt_CheckError(result, "HiSpTns New", NULL);
+        }
+    }
+    hitsr->kschr_balanced_pos = (sptIndexVector**)malloc(nmodes * sizeof *hitsr->kschr_balanced_pos);
+    spt_CheckOSError(!hitsr->kschr_balanced_pos, "HiSpTns New");
+    for(sptIndex m = 0; m < nmodes; ++m) {
+        sptIndex kernel_ndim = (ndims[m] + sk - 1)/sk;
+        hitsr->kschr_balanced_pos[m] = (sptIndexVector*)malloc(kernel_ndim * sizeof(*(hitsr->kschr_balanced_pos[m])));
+        spt_CheckOSError(!hitsr->kschr_balanced_pos[m], "HiSpTns New");
+        for(sptIndex i = 0; i < kernel_ndim; ++i) {
+            result = sptNewIndexVector(&(hitsr->kschr_balanced_pos[m][i]), 0, 0);
+            spt_CheckError(result, "HiSpTns New", NULL);
+        }
+    }
+    hitsr->nkpars = (sptIndex*)malloc(nmodes * sizeof(sptIndex));
+    spt_CheckOSError(!hitsr->nkpars, "HiSpTns New");
+    hitsr->kschr_rest = (sptIndexVector*)malloc(nmodes * sizeof *hitsr->kschr_rest);
+    spt_CheckOSError(!hitsr->kschr_rest, "HiSpTns New");
+    for(sptIndex m = 0; m < nmodes; ++m) {
+        result = sptNewIndexVector(&(hitsr->kschr_rest[m]), 0, 0);
+        spt_CheckError(result, "HiSpTns New", NULL);
+    }
+    result = sptNewNnzIndexVector(&hitsr->knnzs, 0, 0);
+    spt_CheckError(result, "HiSpTns New", NULL);
+
     result = sptNewNnzIndexVector(&hitsr->bptr, 0, 0);
     spt_CheckError(result, "HiSpTns New", NULL);
     hitsr->binds = malloc(nmodes * sizeof *hitsr->binds);

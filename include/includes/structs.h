@@ -138,8 +138,15 @@ typedef struct {
     /* Scheduling information */
     sptNnzIndexVector         kptr;      /// Nonzero kernel pointers in 1-D array, indexing blocks. sptIndexVector may be enough
     sptIndexVector            **kschr;    /// Kernel scheduler
-    sptIndex                  *nkiters;
+    sptIndex                  *nkiters;     /// max-length of iterations
     sptNnzIndexVector         cptr;      /// Chunk pointers to evenly split or combine blocks in a group, indexing blocks. sptIndexVector may be enough
+
+    /* Balanced scheduler */
+    sptIndexVector            **kschr_balanced;    /// Balanced kernel scheduler, nmodes * ndims / sk * even_nks
+    sptIndexVector            **kschr_balanced_pos;     /// indicators of partitions
+    sptIndex                  *nkpars;     /// max-length of partitions
+    sptIndexVector            *kschr_rest;    /// The rest imbalanced kernels
+    sptNnzIndexVector         knnzs;        /// Record the nnzs of each kernel
 
     /* Index data arrays */
     sptNnzIndexVector         bptr;      /// Block pointers to all nonzeros

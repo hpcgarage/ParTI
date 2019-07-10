@@ -80,7 +80,7 @@ int sptSparseTensorDotMul(sptSparseTensor *Z, const sptSparseTensor *X, const sp
     */
     spt_SparseTensorCollectZeros(Z);
     /* Sort the indices */
-    sptSparseTensorSortIndex(Z, 1);
+    sptSparseTensorSortIndex(Z, 1, 1);
     
     return 0;
 }

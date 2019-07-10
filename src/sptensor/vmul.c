@@ -33,7 +33,7 @@ int sptSparseTensorMulVector(sptSemiSparseTensor *Y, sptSparseTensor *X, const s
     if(X->ndims[mode] != V->len) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "CPU  SpTns * Vec", "shape mismatch");
     }
-    sptSparseTensorSortIndexAtMode(X, mode, 0);
+    sptSparseTensorSortIndexAtMode(X, mode, 0, 1);
     // jli: try to avoid malloc in all operation functions.
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     spt_CheckOSError(!ind_buf, "CPU  SpTns * Vec");

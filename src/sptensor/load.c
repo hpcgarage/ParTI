@@ -83,3 +83,24 @@ int sptLoadSparseTensor(sptSparseTensor *tsr, sptIndex start_index, FILE *fp) {
     
     return 0;
 }
+
+void sptLoadShuffleFile(sptSparseTensor *tsr, FILE *fs, sptIndex ** map_inds)
+{
+    sptNnzIndex line_count = 0;
+    sptNnzIndex dim_count = 0;
+    int iores;
+    for(sptIndex mode = 0; mode < tsr->nmodes; ++mode) {
+        dim_count += tsr->ndims[mode];
+        for(sptIndex i = 0; i < tsr->ndims[mode]; ++i) {
+            iores = fscanf(fs, "%u", &(map_inds[mode][i]));
+            if(iores != 1) {
+                return;
+            }
+            -- map_inds[mode][i];
+            ++ line_count;
+        }
+    }
+    sptAssert(dim_count == line_count);    
+    
+    return;
+}

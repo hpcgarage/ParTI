@@ -66,6 +66,6 @@ int sptSparseTensorKhatriRaoMul(sptSparseTensor *Y, const sptSparseTensor *A, co
             }
         }
     }
-    sptSparseTensorSortIndex(Y, 1);
+    sptSparseTensorSortIndex(Y, 1, 1);
     return 0;
 }

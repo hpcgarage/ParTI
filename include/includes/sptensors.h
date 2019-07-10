@@ -43,15 +43,17 @@ void sptGetWorstModeOrder(
 void sptGetRandomShuffleElements(sptSparseTensor *tsr);
 void sptGetRandomShuffledIndices(sptSparseTensor *tsr, sptIndex ** map_inds);
 void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds);
-void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force);
-void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force);
-void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const *  mode_order, int force);
+void sptSparseTensorInvMap(sptSparseTensor *tsr, sptIndex ** map_inds);
+void sptSparseTensorSortIndex(sptSparseTensor *tsr, int force, int tk);
+void sptSparseTensorSortIndexAtMode(sptSparseTensor *tsr, sptIndex const mode, int force, int tk);
+void sptSparseTensorSortIndexCustomOrder(sptSparseTensor *tsr, sptIndex const *  mode_order, int force, int tk);
 void sptSparseTensorSortIndexMorton(
     sptSparseTensor *tsr, 
     int force,
     const sptNnzIndex begin,
     const sptNnzIndex end,
-    const sptElementIndex sb_bits);
+    const sptElementIndex sb_bits,
+    int tk);
 void sptSparseTensorSortIndexRowBlock(
     sptSparseTensor *tsr, 
     int force,
@@ -59,7 +61,6 @@ void sptSparseTensorSortIndexRowBlock(
     const sptNnzIndex end,
     const sptElementIndex sk_bits,
     int const tk);
-void sptSparseTensorSortIndexSingleMode(sptSparseTensor *tsr, int force, sptIndex mode);
 void sptSparseTensorSortIndexExceptSingleMode(sptSparseTensor *tsr, int force, sptIndex * mode_order, int const tk);
 int sptSparseTensorMixedOrder(
     sptSparseTensor *tsr, 
@@ -78,6 +79,9 @@ int spt_ComputeSliceSizes(
     sptIndex const mode);
 void sptSparseTensorStatus(sptSparseTensor *tsr, FILE *fp);
 double sptSparseTensorDensity(sptSparseTensor const * const tsr);
+
+/* Renumbering */
+void sptIndexRenumber(sptSparseTensor * tsr, sptIndex ** newIndices, int renumber, sptIndex iterations, int tk);
 
 /* Sparse tensor HiCOO */
 int sptNewSparseTensorHiCOO(
@@ -104,6 +108,7 @@ int sptSparseTensorToHiCOO(
     const sptElementIndex sk_bits,
     int const tk);
 int sptDumpSparseTensorHiCOO(sptSparseTensorHiCOO * const hitsr, FILE *fp);
+void sptLoadShuffleFile(sptSparseTensor *tsr, FILE *fs, sptIndex ** map_inds);
 void sptSparseTensorStatusHiCOO(sptSparseTensorHiCOO *hitsr, FILE *fp);
 double sptSparseTensorFrobeniusNormSquaredHiCOO(sptSparseTensorHiCOO const * const hitsr);
 int sptSetKernelPointers(
@@ -217,14 +222,16 @@ int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled(
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    const int nt);
+    const int tk,
+    int balanced);
 int sptOmpMTTKRPHiCOO_MatrixTiling_Scheduled_Reduce(
     sptSparseTensorHiCOO const * const hitsr,
     sptRankMatrix * mats[],     // mats[nmodes] as temporary space.
     sptRankMatrix * copy_mats[],    // temporary matrices for reduction
     sptIndex const mats_order[],    // Correspond to the mode order of X.
     sptIndex const mode,
-    const int nt);
+    const int tk,
+    int balanced);
 
 
 #endif

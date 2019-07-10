@@ -31,15 +31,13 @@ int sptOmpSparseTensorMulMatrix(sptSemiSparseTensor *Y, sptSparseTensor *X, cons
     if(X->ndims[mode] != U->nrows) {
         spt_CheckError(SPTERR_SHAPE_MISMATCH, "OMP  SpTns * Mtx", "shape mismatch");
     }
-    sptSparseTensorSortIndexAtMode(X, mode, 0);
-    // jli: try to avoid malloc in all operation functions.
+    sptSparseTensorSortIndexAtMode(X, mode, 0, 1);
     ind_buf = malloc(X->nmodes * sizeof *ind_buf);
     spt_CheckOSError(!ind_buf, "OMP  SpTns * Mtx");
     for(m = 0; m < X->nmodes; ++m) {
         ind_buf[m] = X->ndims[m];
     }
     ind_buf[mode] = U->ncols;
-    // jli: use pre-processing to allocate Y size outside this function.
     result = sptNewSemiSparseTensor(Y, X->nmodes, mode, ind_buf);
     free(ind_buf);
     spt_CheckError(result, "OMP  SpTns * Mtx", NULL);

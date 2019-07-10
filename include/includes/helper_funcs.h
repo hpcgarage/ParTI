@@ -19,6 +19,11 @@
 #ifndef PARTI_HELPER_FUNCS_H
 #define PARTI_HELPER_FUNCS_H
 
+#define max(a,b) \
+ ({ __typeof__ (a) _a = (a); \
+     __typeof__ (b) _b = (b); \
+   _a > _b ? _a : _b; })
+ 
 int sptGetLastError(const char **module, const char **file, unsigned *line, const char **reason);
 void sptClearLastError(void);
 void spt_Panic(const char *file, unsigned line, const char *expr);

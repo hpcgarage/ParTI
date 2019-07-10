@@ -118,7 +118,7 @@ int spt_DistSparseTensor(sptSparseTensor * tsr,
     memset(dist_nnzs, 0, nthreads*sizeof(sptNnzIndex));
     memset(dist_nrows, 0, nthreads*sizeof(sptIndex));
 
-    sptSparseTensorSortIndex(tsr, 0);
+    sptSparseTensorSortIndex(tsr, 0, nthreads);
     sptIndex * ind0 = tsr->inds[0].data;
 
     int ti = 0;
@@ -148,14 +148,13 @@ int spt_DistSparseTensor(sptSparseTensor * tsr,
 
 int spt_DistSparseTensorFixed(sptSparseTensor * tsr,
     int const nthreads,
-    sptNnzIndex * const dist_nnzs,
-    sptNnzIndex * dist_nrows) {
+    sptNnzIndex * const dist_nnzs) {
 
     sptNnzIndex global_nnz = tsr->nnz;
     sptNnzIndex aver_nnz = global_nnz / nthreads;
     memset(dist_nnzs, 0, nthreads*sizeof(sptNnzIndex));
 
-    sptSparseTensorSortIndex(tsr, 0);
+    sptSparseTensorSortIndex(tsr, 0, nthreads);
     sptIndex * ind0 = tsr->inds[0].data;
 
     int ti = 0;
@@ -196,5 +195,44 @@ void sptSparseTensorShuffleIndices(sptSparseTensor *tsr, sptIndex ** map_inds) {
             tsr->inds[m].data[z] = map_inds[m][tmp_ind];
         }
     }
+    
+}
+
+/**
+ * Inverse-Shuffle all indices.
+ *
+ * @param[in] tsr tensor to be shuffled
+ * @param[out] map_inds is the renumbering mapping
+ *
+ */
+void sptSparseTensorInvMap(sptSparseTensor *tsr, sptIndex ** map_inds)
+{
+    sptIndex ** tmp_map_inds = (sptIndex **)malloc(tsr->nmodes * sizeof(sptIndex*));
+    // spt_CheckOSError(!tmp_map_inds, "sptSparseTensorInvMap");
+    for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+        tmp_map_inds[m] = (sptIndex *)malloc(tsr->ndims[m] * sizeof (sptIndex));
+        // spt_CheckError(!tmp_map_inds[m], "sptSparseTensorInvMap", NULL);
+    }
+
+    sptIndex tmp_ind;
+    for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+        sptIndex loc = 0;
+        for(sptNnzIndex i = 0; i < tsr->ndims[m]; ++i) {
+            tmp_ind = map_inds[m][i];
+            tmp_map_inds[m][tmp_ind] = loc;
+            ++ loc;
+        }
+    }
+
+    for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+        for(sptNnzIndex i = 0; i < tsr->ndims[m]; ++i) {
+            map_inds[m][i] = tmp_map_inds[m][i];
+        }
+    }
+
+    for(sptIndex m = 0; m < tsr->nmodes; ++m) {
+        free(tmp_map_inds[m]);
+    }
+    free(tmp_map_inds);
     
 }

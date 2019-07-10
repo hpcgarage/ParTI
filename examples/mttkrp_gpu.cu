@@ -160,7 +160,6 @@ int main(int argc, char ** argv) {
             sptSparseTensorMixedOrder(&X, sb_bits, sk_bits, 1);
             break;
         case 4:
-            // sptGetBestModeOrder(mode_order, 0, X.ndims, X.nmodes);
             sptGetRandomShuffleElements(&X);
             break;
         default:
@@ -180,9 +179,9 @@ int main(int argc, char ** argv) {
     }
     sptIndex max_ndims = 0;
     for(sptIndex m=0; m<nmodes; ++m) {
-      // sptAssert(sptRandomizeMatrix(U[m], X.ndims[m], R) == 0);
       sptAssert(sptNewMatrix(U[m], X.ndims[m], R) == 0);
-      sptAssert(sptConstantMatrix(U[m], 1) == 0);
+      sptAssert(sptRandomizeMatrix(U[m], X.ndims[m], R) == 0);
+      // sptAssert(sptConstantMatrix(U[m], 1) == 0);
       if(X.ndims[m] > max_ndims)
         max_ndims = X.ndims[m];
     }

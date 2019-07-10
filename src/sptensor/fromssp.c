@@ -73,6 +73,6 @@ int sptSemiSparseTensorToSparseTensor(sptSparseTensor *dest, const sptSemiSparse
             }
         }
     }
-    sptSparseTensorSortIndex(dest, 1);
+    sptSparseTensorSortIndex(dest, 1, 1);
     return 0;
 }

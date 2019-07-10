@@ -40,7 +40,7 @@ int sptSemiSparseTensorSetIndices(
     sptIndex m;
     int result;
     assert(dest->nmodes == ref->nmodes);
-    sptSparseTensorSortIndexAtMode(ref, dest->mode, 0);
+    sptSparseTensorSortIndexAtMode(ref, dest->mode, 0, 1);
     result = sptNewNnzIndexVector(fiberidx, 0, 0);
     spt_CheckError(result, "SspTns SetIndices", NULL);
     dest->nnz = 0;

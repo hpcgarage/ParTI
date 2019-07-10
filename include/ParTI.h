@@ -46,7 +46,7 @@ extern "C" {
 #endif
 #ifdef PARTI_VALUE_TYPEWIDTH
     #undef PARTI_VALUE_TYPEWIDTH
-    #define PARTI_VALUE_TYPEWIDTH 64
+    #define PARTI_VALUE_TYPEWIDTH 32
 #endif
 
 #include "includes/types.h"

@@ -38,7 +38,7 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
     sptIndex * dist_nrows_Y = (sptIndex*)malloc(nthreads*sizeof(sptIndex));
 
     spt_DistSparseTensor(Y, nthreads, dist_nnzs_Y, dist_nrows_Y);
-    spt_DistSparseTensorFixed(X, nthreads, dist_nnzs_X, dist_nnzs_Y);
+    spt_DistSparseTensorFixed(X, nthreads, dist_nnzs_X);
     free(dist_nrows_Y);
 
     printf("dist_nnzs_Y:\n");
@@ -148,7 +148,7 @@ int sptSparseTensorAddOMP(sptSparseTensor *Y, sptSparseTensor *X, int const nthr
     */
     spt_SparseTensorCollectZeros(Y);
     /* Sort the indices */
-    sptSparseTensorSortIndex(Y, 1);
+    sptSparseTensorSortIndex(Y, 1, nthreads);
 
     return 0;
 }
