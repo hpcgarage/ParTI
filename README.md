@@ -242,7 +242,7 @@ url="https://github.com/hpcgarage/ParTI"
 }
 ```
 
-## Contributiors
+## Primary Developers
 
 * Jiajia Li (Contact: jiajia.li@pnnl.gov)
 * Yuchen Ma (Contact: m13253@hotmail.com)
@@ -250,3 +250,7 @@ url="https://github.com/hpcgarage/ParTI"
 ## License
 
 ParTI! is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+## Acknowledgements
+
+This material is based upon work supported by the National Science Foundation under [Grant No. 1533768](http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=1533768). Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
