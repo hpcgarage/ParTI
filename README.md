@@ -221,6 +221,8 @@ Please refer to `GettingStarted.md` for more general cases. Only some major func
 <br/>The algorithms and details are described in the following publications.
 
 ## Publications
+* **Efficient and effective sparse tensor reordering**. Jiajia Li, Bora Uçar, Ümit Çatalyürek, Kevin Barker, Richard Vuduc. In _Proceedings of the ACM International Conference on Supercomputing (ICS)_, June 2019. [doi:10.1145/3330345.3330366](https://doi.org/10.1145/3330345.3330366).
+
 * **HiCOO: Hierarchical Storage of Sparse Tensors**. Jiajia Li, Jimeng Sun, Richard Vuduc. ACM/IEEE International Conference for High-Performance Computing, Networking, Storage, and Analysis (SC). 2018. [[pdf]](http://fruitfly1026.github.io/static/files/sc18-li.pdf) [[bib]](http://fruitfly1026.github.io/static/files/sc18-li-bib.txt) **Winner, Best Student Paper**
 
 * **Scalable Tensor Decompositions in High Performance Computing Environments**. Jiajia Li. PhD Dissertation. Georgia Institute of Technology, Atlanta, GA, USA. July 2018. [[pdf]](http://fruitfly1026.github.io/static/files/LI-DISSERTATION-2018.pdf) [[bib]](http://fruitfly1026.github.io/static/files/LI-DISSERTATION-2018-bib.txt) [SMARTech @ GT](https://smartech.gatech.edu/handle/1853/60274)
