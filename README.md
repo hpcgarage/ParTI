@@ -1,11 +1,12 @@
 ParTI!
 ------
+_(A Parallel Tensor Infrastructure!)_
 
-(News: For the reordering code published in [Efficient and Effective Sparse Tensor Reordering](http://fruitfly1026.github.io/static/files/ics19-li.pdf), please check v1.1.0.)
+A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse tensor operations and tensor decompositions on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition). ParTI! is formerly known as SpTOL.
 
-(Notice: For the code used in [Optimizing sparse tensor times matrix on GPUs](https://www.sciencedirect.com/science/article/pii/S0743731518305161), please go to branch [JPDC](https://github.com/hpcgarage/ParTI/tree/jpdc).)
-
-A Parallel Tensor Infrastructure (ParTI!), is to support fast essential sparse tensor operations and tensor decompositions on multicore CPU and GPU architectures. These basic tensor operations are critical to the overall performance of tensor analysis algorithms (such as tensor decomposition). ParTI! is formerly known as SpTOL. 
+> _News (June 2019)_: For the reordering code published in [Efficient and Effective Sparse Tensor Reordering](http://fruitfly1026.github.io/static/files/ics19-li.pdf), please check v1.1.0.)
+>
+> _Notice_: For the code used in [Optimizing sparse tensor times matrix on GPUs](https://www.sciencedirect.com/science/article/pii/S0743731518305161), please go to branch [JPDC](https://github.com/hpcgarage/ParTI/tree/jpdc).
 
 
 ## Supported sparse tensor operations:
