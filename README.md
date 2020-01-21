@@ -241,7 +241,8 @@ author="Jiajia Li and Yuchen Ma and Richard Vuduc",
 title="{ParTI!} : A Parallel Tensor Infrastructure for multicore CPUs and GPUs",
 month="Oct",
 year="2018",
-url="https://github.com/hpcgarage/ParTI"
+url="http://parti-project.org",
+note="Last updated: Jan 2020"
 }
 ```
 
